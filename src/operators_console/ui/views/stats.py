@@ -173,7 +173,7 @@ class StatsView(View):
             self.skills.addLayout(row)
 
     def _rate(self, skill: str, value: int) -> None:
-        self.ctx.store.set_rating(skill, value)
+        self.ctx.set_rating(skill, value)
 
     def on_theme(self) -> None:
         if not self._built:

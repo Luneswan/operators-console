@@ -94,11 +94,13 @@ class MainWindow(QMainWindow):
 
         self._build_menu()
         ctx.navigate.connect(self.go)
+        ctx.history_changed.connect(self._refresh_history_buttons)
         ctx.progress_changed.connect(self._on_progress)
         ctx.theme_changed.connect(self.apply_theme)
         ctx.toast.connect(self.toast)
 
         self.current_key = ""
+        self._refresh_history_buttons()
         self.go("today", "")
         self.apply_theme()
         QTimer.singleShot(2500, self.updates.maybe_check)
@@ -148,6 +150,19 @@ class MainWindow(QMainWindow):
         self.search.textChanged.connect(self._on_search)
         self.search.returnPressed.connect(self._open_first_result)
         row.addWidget(self.search, 1)
+
+        self.undo_button = QPushButton("Undo")
+        self.undo_button.setProperty("kind", "quiet")
+        self.undo_button.setCursor(Qt.CursorShape.PointingHandCursor)
+        self.undo_button.clicked.connect(self.undo)
+        row.addWidget(self.undo_button)
+
+        self.redo_button = QPushButton("Redo")
+        self.redo_button.setProperty("kind", "quiet")
+        self.redo_button.setCursor(Qt.CursorShape.PointingHandCursor)
+        self.redo_button.clicked.connect(self.redo)
+        row.addWidget(self.redo_button)
+
         self.breadcrumb = muted("")
         row.addWidget(self.breadcrumb)
 
@@ -186,6 +201,17 @@ class MainWindow(QMainWindow):
                 action.setShortcut(QKeySequence("Ctrl+%d" % index))
             action.triggered.connect(lambda _=False, k=key: self.go(k, ""))
             go_menu.addAction(action)
+        edit_menu = menu.addMenu("&Edit")
+        self.undo_action = QAction("Undo", self)
+        self.undo_action.setShortcut(QKeySequence.StandardKey.Undo)
+        self.undo_action.triggered.connect(self.undo)
+        edit_menu.addAction(self.undo_action)
+        self.redo_action = QAction("Redo", self)
+        self.redo_action.setShortcuts([QKeySequence.StandardKey.Redo,
+                                       QKeySequence("Ctrl+Y")])
+        self.redo_action.triggered.connect(self.redo)
+        edit_menu.addAction(self.redo_action)
+
         go_menu.addSeparator()
         find = QAction("Find", self)
         find.setShortcut(QKeySequence("Ctrl+K"))
@@ -337,6 +363,42 @@ class MainWindow(QMainWindow):
             self.toast("Snapshot failed: %s" % exc)
             return
         self.toast("Snapshot saved as %s" % target.name)
+
+    # -- undo and redo -----------------------------------------------------
+
+    def undo(self) -> None:
+        label = self.ctx.undo()
+        if label:
+            self._after_history("Undid the %s." % label)
+
+    def redo(self) -> None:
+        label = self.ctx.redo()
+        if label:
+            self._after_history("Redid the %s." % label)
+
+    def _after_history(self, message: str) -> None:
+        """Rebuild the page so reverted state is actually on screen."""
+        view = self.views.get(self.current_key)
+        if view is not None:
+            view.refresh()
+        self._update_status()
+        self.toast(message)
+
+    def _refresh_history_buttons(self) -> None:
+        history = self.ctx.history
+        self.undo_button.setEnabled(history.can_undo)
+        self.redo_button.setEnabled(history.can_redo)
+        undo_label = history.undo_label()
+        redo_label = history.redo_label()
+        self.undo_button.setToolTip(
+            "Undo the %s  (Ctrl+Z)" % undo_label if undo_label
+            else "Nothing to undo")
+        self.redo_button.setToolTip(
+            "Redo the %s  (Ctrl+Shift+Z)" % redo_label if redo_label
+            else "Nothing to redo")
+        if hasattr(self, "undo_action"):
+            self.undo_action.setEnabled(history.can_undo)
+            self.redo_action.setEnabled(history.can_redo)
 
     # -- updates -----------------------------------------------------------
 

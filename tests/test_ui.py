@@ -383,3 +383,114 @@ def _fake_release(tag="v99.1.0", names=_RELEASE_ASSETS):
         notes="What changed", url="https://example.invalid/r",
         assets=tuple(Asset(n, "https://example.invalid/" + n, 1024)
                      for n in names))
+
+
+def test_undo_and_redo_start_disabled(qt_app, window):
+    assert not window.undo_button.isEnabled()
+    assert not window.redo_button.isEnabled()
+
+
+def test_unticking_a_line_can_be_undone(qt_app, window, store):
+    from operators_console.ui.widgets.common import CheckRow
+
+    window.go("phase", "p01")
+    pump(qt_app)
+    rows = [r for r in window.views["phase"].findChildren(CheckRow)
+            if r.item_id.startswith("p01.")]
+    target = rows[0].item_id
+
+    rows[0].box.setChecked(True)
+    pump(qt_app)
+    assert store.is_checked(target)
+    assert window.undo_button.isEnabled()
+
+    window.undo()
+    pump(qt_app)
+    assert not store.is_checked(target), "undo did not revert the tick"
+    assert window.redo_button.isEnabled()
+
+    window.redo()
+    pump(qt_app)
+    assert store.is_checked(target), "redo did not reapply the tick"
+
+
+def test_undo_updates_what_is_on_screen(qt_app, window, store):
+    from operators_console.ui.widgets.common import CheckRow
+
+    window.go("phase", "p01")
+    pump(qt_app)
+    rows = [r for r in window.views["phase"].findChildren(CheckRow)
+            if r.item_id.startswith("p01.")]
+    target = rows[0].item_id
+    rows[0].box.setChecked(True)
+    pump(qt_app)
+
+    window.undo()
+    pump(qt_app)
+    shown = [r for r in window.views["phase"].findChildren(CheckRow)
+             if r.item_id == target]
+    assert shown and not shown[0].box.isChecked(), \
+        "the checkbox still looks ticked after undo"
+
+
+def test_a_project_status_change_can_be_undone(qt_app, window, store):
+    window.go("projects", "pj.p00.1")
+    pump(qt_app)
+    window.views["projects"]._set_status("pj.p00.1", "shipped")
+    pump(qt_app)
+    assert store.project("pj.p00.1")["status"] == "shipped"
+
+    window.undo()
+    pump(qt_app)
+    assert store.project("pj.p00.1")["status"] == "not-started"
+
+
+def test_a_self_assessment_can_be_undone(qt_app, window, store, curriculum):
+    skill = curriculum.matrix[0].skill
+    window.go("stats", "")
+    pump(qt_app)
+    window.views["stats"]._rate(skill, 3)
+    pump(qt_app)
+    assert store.rating(skill) == 3
+
+    window.undo()
+    pump(qt_app)
+    assert store.rating(skill) == 0
+
+
+def test_a_new_change_drops_the_redo_branch(qt_app, window, store):
+    from operators_console.ui.widgets.common import CheckRow
+
+    window.go("phase", "p01")
+    pump(qt_app)
+    rows = [r for r in window.views["phase"].findChildren(CheckRow)
+            if r.item_id.startswith("p01.")]
+    rows[0].box.setChecked(True)
+    pump(qt_app)
+    window.undo()
+    pump(qt_app)
+    assert window.redo_button.isEnabled()
+
+    rows = [r for r in window.views["phase"].findChildren(CheckRow)
+            if r.item_id.startswith("p01.")]
+    rows[1].box.setChecked(True)
+    pump(qt_app)
+    assert not window.redo_button.isEnabled()
+
+
+def test_undo_survives_navigating_away(qt_app, window, store):
+    from operators_console.ui.widgets.common import CheckRow
+
+    window.go("phase", "p01")
+    pump(qt_app)
+    rows = [r for r in window.views["phase"].findChildren(CheckRow)
+            if r.item_id.startswith("p01.")]
+    target = rows[0].item_id
+    rows[0].box.setChecked(True)
+    pump(qt_app)
+
+    window.go("library", "")
+    pump(qt_app)
+    window.undo()
+    pump(qt_app)
+    assert not store.is_checked(target)

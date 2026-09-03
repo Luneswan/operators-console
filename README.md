@@ -41,6 +41,10 @@ from turning into an unopenable backlog.
 
 **Projects** are the proof. A phase is not finished because you read it.
 
+Anything you change by accident can be taken back. Undo and redo sit next to the
+search box and work from any page, across ticked lines, project status,
+certificates and self-assessments, with `Ctrl+Z` and `Ctrl+Shift+Z`.
+
 **Log** and **Progress** are the honest mirror: hours, streaks, review accuracy,
 and the gap between what you rated yourself and what the exercises say.
 
@@ -126,6 +130,7 @@ portable install on a USB stick.
 |---|---|
 | `Ctrl+1` … `Ctrl+9` | Jump to a page |
 | `Ctrl+K` | Search the whole curriculum |
+| `Ctrl+Z` / `Ctrl+Shift+Z` | Undo or redo the last change |
 | `Ctrl+Enter` | Run the current exercise |
 | `Tab` / `Shift+Tab` | Indent or outdent the selection in the editor |
 

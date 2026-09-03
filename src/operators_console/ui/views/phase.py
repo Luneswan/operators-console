@@ -221,8 +221,7 @@ class PhaseView(View):
     # -- actions -----------------------------------------------------------
 
     def _toggle(self, item_id: str, done: bool) -> None:
-        self.ctx.store.set_checked(item_id, done)
-        self.ctx.changed()
+        self.ctx.set_checked(item_id, done)
         phase = self.ctx.curriculum.phase(self.current_id)
         if phase is not None and not phase.no_progress:
             stats = self.ctx.progress.phase(phase)

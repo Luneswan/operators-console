@@ -149,12 +149,10 @@ class ProjectsView(View):
     # -- actions -----------------------------------------------------------
 
     def _toggle(self, item_id: str, done: bool) -> None:
-        self.ctx.store.set_checked(item_id, done)
-        self.ctx.changed()
+        self.ctx.set_checked(item_id, done)
 
     def _set_status(self, project_id: str, status: str) -> None:
-        self.ctx.store.set_project(project_id, status=status)
-        self.ctx.changed()
+        self.ctx.set_project_status(project_id, status)
         if status == "shipped":
             self.ctx.announce("Shipped. Put it on your CV.")
         self._fill()

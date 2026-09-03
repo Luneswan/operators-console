@@ -123,7 +123,7 @@ class LibraryView(View):
         self.certs_tab.add_stretch()
 
     def _cycle(self, cert_id: str, state: int) -> None:
-        self.ctx.store.set_cert_status(cert_id, (state + 1) % 3)
+        self.ctx.set_cert_status(cert_id, (state + 1) % 3)
         self._fill_certs()
 
 
