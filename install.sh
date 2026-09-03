@@ -60,8 +60,16 @@ TMP="$(mktemp -d)"
 trap 'rm -rf "$TMP"' EXIT INT TERM
 
 if [ "$OS" = "Darwin" ]; then
-    URL="$(asset_url '\.dmg')"
-    [ -n "$URL" ] || die "This release has no macOS build. See https://github.com/$REPO/releases"
+    # There is one disk image per architecture. Matching only on ".dmg" would
+    # hand an Apple silicon build to an Intel Mac, where it will not launch.
+    case "$ARCH" in
+        arm64)  DMG_ARCH="arm64" ;;
+        x86_64) DMG_ARCH="x86_64" ;;
+        *)      die "Unsupported macOS architecture: $ARCH" ;;
+    esac
+
+    URL="$(asset_url "${DMG_ARCH}\.dmg")"
+    [ -n "$URL" ] || die "This release has no macOS build for $ARCH. See https://github.com/$REPO/releases"
 
     say "Downloading $(basename "$URL")"
     curl -fL --progress-bar "$URL" -o "$TMP/app.dmg"

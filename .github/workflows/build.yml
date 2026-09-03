@@ -77,13 +77,23 @@ jobs:
       - name: Name the macOS artefacts by architecture
         if: runner.os == 'macOS'
         run: |
+          # Both macOS runners produce identically named files, so the
+          # architecture has to go into the name or one overwrites the other
+          # when the artefacts are merged. Keep the suffix that the upload
+          # globs match on at the end of the name, or the file is silently
+          # dropped from the release.
+          set -eu
           arch="$(uname -m)"
-          for file in dist/*.dmg dist/*portable.zip; do
+          for file in dist/*.dmg; do
             [ -e "$file" ] || continue
-            base="${file%.*}"
-            ext="${file##*.}"
-            mv "$file" "${base}-${arch}.${ext}"
+            mv "$file" "${file%.dmg}-macos-${arch}.dmg"
           done
+          for file in dist/*-macos-portable.zip; do
+            [ -e "$file" ] || continue
+            mv "$file" "${file%-macos-portable.zip}-macos-${arch}-portable.zip"
+          done
+          echo "artefacts to upload:"
+          ls -1 dist
 
       - uses: actions/upload-artifact@v4
         with:
@@ -94,8 +104,8 @@ jobs:
             dist/*.deb
             dist/*.AppImage
             dist/*.tar.gz
-            dist/*portable.zip
-          if-no-files-found: warn
+            dist/*.zip
+          if-no-files-found: error
 
   release:
     name: publish the release

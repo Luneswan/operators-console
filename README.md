@@ -69,12 +69,12 @@ Prefer to click things? Every build is on the
 
 | You are on | Download | Then |
 |---|---|---|
-| Windows | `...windows-setup.exe` | Run it. No admin prompt. |
-| Windows, no install | `...windows-portable.zip` | Unzip, run `operators-console.exe`. |
-| macOS (Apple silicon) | `...macos-arm64.dmg` | Drag to Applications. |
-| macOS (Intel) | `...macos-x86_64.dmg` | Drag to Applications. |
-| Linux | `...x86_64.AppImage` | `chmod +x` it, then run it. |
-| Debian, Ubuntu | `...amd64.deb` | `sudo apt install ./the-file.deb` |
+| Windows | `...-windows-setup.exe` | Run it. No admin prompt. |
+| Windows, no install | `...-windows-portable.zip` | Unzip, run `operators-console.exe`. |
+| macOS (Apple silicon) | `...-macos-arm64.dmg` | Drag to Applications. |
+| macOS (Intel) | `...-macos-x86_64.dmg` | Drag to Applications. |
+| Linux | `...-x86_64.AppImage` | `chmod +x` it, then run it. |
+| Debian, Ubuntu | `..._amd64.deb` | `sudo apt install ./the-file.deb` |
 
 ### The first-launch warning
 

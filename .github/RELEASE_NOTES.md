@@ -16,10 +16,10 @@ Or download a file below and open it.
 
 | You are on | Download |
 |---|---|
-| Windows | `...windows-setup.exe`, or `...windows-portable.zip` to run without installing |
-| macOS, Apple silicon | `...macos-arm64.dmg` |
-| macOS, Intel | `...macos-x86_64.dmg` |
-| Linux | `...x86_64.AppImage`, or the `.deb` |
+| Windows | `...-windows-setup.exe`, or `...-windows-portable.zip` to run without installing |
+| macOS, Apple silicon | `...-macos-arm64.dmg` |
+| macOS, Intel | `...-macos-x86_64.dmg` |
+| Linux | `...-x86_64.AppImage`, or the `.deb` |
 
 Nothing here is code-signed, so the first launch needs one extra step:
 Windows shows a SmartScreen warning — click **More info**, then **Run anyway**.
