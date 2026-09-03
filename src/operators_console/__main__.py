@@ -20,6 +20,10 @@ def main(argv=None) -> int:
     if RUNNER_FLAG in argv:
         return child_main()
 
+    from operators_console.core.updates import APPLY_FLAG, apply_update
+    if APPLY_FLAG in argv:
+        return _run_updater(argv, apply_update)
+
     if "--version" in argv or "-V" in argv:
         from operators_console.version import APP_NAME, __version__
         print("%s %s" % (APP_NAME, __version__))
@@ -31,6 +35,27 @@ def main(argv=None) -> int:
 
     from operators_console.app import run
     return run(argv)
+
+
+def _run_updater(argv, apply_update) -> int:
+    """Parse the helper invocation and swap the build over.
+
+    This process has no window and no console. It exists only to outlive the
+    application it is replacing.
+    """
+    import argparse
+    from pathlib import Path
+
+    from operators_console.core.updates import APPLY_FLAG
+
+    parser = argparse.ArgumentParser(add_help=False)
+    parser.add_argument(APPLY_FLAG, dest="package")
+    parser.add_argument("--pid", type=int, required=True)
+    parser.add_argument("--kind", default="")
+    parser.add_argument("--target", required=True)
+    options, _rest = parser.parse_known_args(argv)
+    return apply_update(Path(options.package), options.pid, options.kind,
+                        Path(options.target))
 
 
 if __name__ == "__main__":

@@ -294,3 +294,92 @@ def test_closing_the_window_commits_a_pending_note(qt_app, window):
         assert reopened.note("phase:p03") == "Packaging notes."
     finally:
         reopened.close()
+
+
+def test_the_update_button_is_hidden_until_there_is_one(qt_app, window):
+    assert not window.update_button.isVisibleTo(window.statusBar())
+
+
+def test_an_available_release_reveals_the_button(qt_app, window):
+    release = _fake_release("v99.1.0")
+    window._on_update_available(release)
+    pump(qt_app)
+    assert window.update_button.isVisibleTo(window.statusBar())
+    assert "99.1.0" in window.update_button.text()
+
+
+def test_the_update_dialog_offers_this_platform_a_download(qt_app, window,
+                                                           monkeypatch):
+    from operators_console.core import updates
+    from operators_console.ui.updater import UpdateDialog
+    monkeypatch.setattr(updates, "install_kind", lambda: updates.INSTALLED)
+    monkeypatch.setattr(updates.sys, "platform", "win32")
+    release = _fake_release("v99.1.0")
+    dialog = UpdateDialog(window.ctx, release, window)
+    pump(qt_app)
+    assert dialog.asset is not None
+    assert dialog.go_button.isEnabled()
+    dialog.reject()
+
+
+def test_a_release_with_nothing_for_this_platform_cannot_be_installed(
+        qt_app, window, monkeypatch):
+    from operators_console.core import updates
+    from operators_console.ui.updater import UpdateDialog
+    monkeypatch.setattr(updates.sys, "platform", "win32")
+    monkeypatch.setattr(updates, "install_kind", lambda: updates.INSTALLED)
+    release = _fake_release("v99.1.0", ("something-else.dmg",))
+    dialog = UpdateDialog(window.ctx, release, window)
+    pump(qt_app)
+    assert dialog.asset is None
+    assert not dialog.go_button.isEnabled()
+    dialog.reject()
+
+
+def test_the_daily_check_does_not_repeat(qt_app, window, store, monkeypatch):
+    from datetime import date
+
+    calls = []
+    monkeypatch.setattr(window.updates.pool, "start",
+                        lambda job: calls.append(job))
+    monkeypatch.setattr("operators_console.core.updates.can_self_update",
+                        lambda: True)
+    store.set_setting("last_update_check", "")
+    window.updates.maybe_check()
+    assert len(calls) == 1
+    assert store.setting("last_update_check") == date.today().isoformat()
+    window.updates.maybe_check()
+    assert len(calls) == 1, "the check ran twice in one day"
+    window.updates.maybe_check(force=True)
+    assert len(calls) == 2, "an explicit check should always run"
+
+
+def test_turning_the_check_off_stops_it(qt_app, window, store, monkeypatch):
+    calls = []
+    monkeypatch.setattr(window.updates.pool, "start",
+                        lambda job: calls.append(job))
+    monkeypatch.setattr("operators_console.core.updates.can_self_update",
+                        lambda: True)
+    store.set_setting("check_for_updates", False)
+    store.set_setting("last_update_check", "")
+    window.updates.maybe_check()
+    assert calls == []
+
+
+_RELEASE_ASSETS = (
+    "operators-console-9.9.9-windows-setup.exe",
+    "operators-console-9.9.9-windows-portable.zip",
+    "operators-console-9.9.9-macos-arm64.dmg",
+    "operators-console-9.9.9-macos-x86_64.dmg",
+    "operators-console-9.9.9-x86_64.AppImage",
+    "operators-console-9.9.9-linux-portable.zip",
+)
+
+
+def _fake_release(tag="v99.1.0", names=_RELEASE_ASSETS):
+    from operators_console.core.updates import Asset, Release, parse_version
+    return Release(
+        version=parse_version(tag), tag=tag, name="Release " + tag,
+        notes="What changed", url="https://example.invalid/r",
+        assets=tuple(Asset(n, "https://example.invalid/" + n, 1024)
+                     for n in names))

@@ -11,6 +11,7 @@ from PySide6.QtWidgets import (
 from ..version import APP_NAME, __version__
 from .context import AppContext
 from .theme import apply_qpalette, base_font, stylesheet
+from .updater import UpdateDialog, UpdateManager
 from .views.dashboard import DashboardView
 from .views.journal import JournalView
 from .views.library import LibraryView
@@ -77,6 +78,16 @@ class MainWindow(QMainWindow):
         self.status_right = QLabel("")
         self.statusBar().addPermanentWidget(self.status_right)
 
+        self.update_button = QPushButton("")
+        self.update_button.setProperty("kind", "primary")
+        self.update_button.setCursor(Qt.CursorShape.PointingHandCursor)
+        self.update_button.setVisible(False)
+        self.update_button.clicked.connect(self.show_update)
+        self.statusBar().addPermanentWidget(self.update_button)
+
+        self.updates = UpdateManager(ctx, self)
+        self.updates.available.connect(self._on_update_available)
+
         self._toast_timer = QTimer(self)
         self._toast_timer.setSingleShot(True)
         self._toast_timer.timeout.connect(self._clear_toast)
@@ -90,6 +101,7 @@ class MainWindow(QMainWindow):
         self.current_key = ""
         self.go("today", "")
         self.apply_theme()
+        QTimer.singleShot(2500, self.updates.maybe_check)
 
     # -- chrome ------------------------------------------------------------
 
@@ -184,6 +196,9 @@ class MainWindow(QMainWindow):
         guide = QAction("How this app works", self)
         guide.triggered.connect(self._show_guide)
         help_menu.addAction(guide)
+        check = QAction("Check for updates", self)
+        check.triggered.connect(self.check_for_updates)
+        help_menu.addAction(check)
         about = QAction("About", self)
         about.triggered.connect(self._show_about)
         help_menu.addAction(about)
@@ -322,6 +337,37 @@ class MainWindow(QMainWindow):
             self.toast("Snapshot failed: %s" % exc)
             return
         self.toast("Snapshot saved as %s" % target.name)
+
+    # -- updates -----------------------------------------------------------
+
+    def _on_update_available(self, release) -> None:
+        self.update_button.setText("Update to %s" % release.label)
+        self.update_button.setToolTip(
+            "A new version is ready. Click to install it and reopen the app.")
+        self.update_button.setVisible(True)
+        self.toast("Version %s is available." % release.label)
+
+    def show_update(self) -> None:
+        release = self.updates.release
+        if release is None:
+            self.toast("Checking for a new version...")
+            self.updates.maybe_check(force=True)
+            return
+        UpdateDialog(self.ctx, release, self).exec()
+
+    def check_for_updates(self) -> None:
+        """The Help menu entry, which always reports back."""
+        from ..core import updates as update_core
+        if not update_core.can_self_update():
+            self.toast("Running from source - update with git pull.")
+            return
+        self.toast("Checking for a new version...")
+        self.updates.maybe_check(force=True)
+        QTimer.singleShot(6000, self._report_check)
+
+    def _report_check(self) -> None:
+        if self.updates.release is None:
+            self.toast("You are on the latest version.")
 
     def _show_guide(self) -> None:
         from PySide6.QtWidgets import QMessageBox

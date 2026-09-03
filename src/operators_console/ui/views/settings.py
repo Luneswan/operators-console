@@ -165,6 +165,22 @@ class SettingsView(View):
         look.box.addLayout(look_grid)
         self.scroller.add(look)
 
+        updates_card = Card()
+        updates_card.add(heading("Updates"))
+        updates_card.add(muted(
+            "The only time this app touches the network. It asks GitHub once a "
+            "day whether a newer version exists, and downloads nothing until "
+            "you press the button."))
+        self.check_updates = QCheckBox("Tell me when a new version is out")
+        self.check_updates.stateChanged.connect(
+            lambda _s: self._set("check_for_updates",
+                                 self.check_updates.isChecked()))
+        updates_card.add(self.check_updates)
+        check_now = button("Check now", "quiet")
+        check_now.clicked.connect(self._check_now)
+        updates_card.add_row(None, check_now)
+        self.scroller.add(updates_card)
+
         data = Card()
         data.add(heading("Your data"))
         data.add(muted(
@@ -223,6 +239,8 @@ class SettingsView(View):
         index = self.theme.findData(store.setting("theme", "system"))
         self.theme.setCurrentIndex(max(0, index))
         self.font_scale.setValue(float(store.setting("font_scale", 1.0)))
+        self.check_updates.setChecked(
+            bool(store.setting("check_for_updates", True)))
         self._loading = False
 
         self._update_track_blurb()
@@ -297,6 +315,11 @@ class SettingsView(View):
         self.ctx.store.set_setting("font_scale", round(float(value), 2))
         self.ctx.settings_changed.emit()
         self.ctx.theme_changed.emit()
+
+    def _check_now(self) -> None:
+        window = self.window()
+        if hasattr(window, "check_for_updates"):
+            window.check_for_updates()
 
     # -- data ---------------------------------------------------------------
 

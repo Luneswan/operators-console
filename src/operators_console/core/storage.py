@@ -155,6 +155,8 @@ DEFAULT_SETTINGS: dict[str, Any] = {
     "started_on": "",
     "font_scale": 1.0,
     "exercise_timeout": 10,
+    "check_for_updates": True,
+    "last_update_check": "",
 }
 
 

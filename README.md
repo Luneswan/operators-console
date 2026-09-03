@@ -45,7 +45,13 @@ from turning into an unopenable backlog.
 and the gap between what you rated yourself and what the exercises say.
 
 Everything saves the moment you change it. There is no save button, no account,
-and no network calls — your progress is a single SQLite file on your machine.
+and your progress is a single SQLite file on your machine.
+
+The app makes one kind of network request and no other: once a day it asks
+GitHub whether a newer version exists, so it can offer a one-click update. It
+downloads nothing until you press the button, and the check can be turned off
+in Settings. Updating never touches your progress — the database lives in a
+separate folder, and the updater refuses to run if it would overwrite it.
 
 ## Install
 
