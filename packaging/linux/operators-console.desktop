@@ -1,0 +1,12 @@
+[Desktop Entry]
+Type=Application
+Name=Operator's Console
+GenericName=Python Curriculum
+Comment=Learn Python step by step, with graded exercises and spaced review
+Exec=operators-console
+Icon=operators-console
+Terminal=false
+Categories=Education;Development;ComputerScience;
+Keywords=python;programming;learning;course;exercises;
+StartupNotify=true
+StartupWMClass=operators-console

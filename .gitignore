@@ -1,0 +1,15 @@
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+build/
+dist/
+*.egg-info/
+.pytest_cache/
+build_tools/shots/
+build_tools/shots_real/
+build_tools/shots_final/
+build_tools/research_roadmap.md
+packaging/build/
+packaging/dist/
+.ruff_cache/

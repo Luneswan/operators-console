@@ -1,0 +1,575 @@
+{
+ "schema": 1,
+ "projects": [
+  {
+   "id": "pj.p00.1",
+   "phase": "p00",
+   "title": "Recover a repository you deliberately broke",
+   "kind": "drill",
+   "brief": "Create a repo, wreck it four different ways, and get it back each time.",
+   "why": "Version control is only useful if you trust it under pressure. The way to trust it is to break things on purpose while nothing is at stake.",
+   "requirements": [
+    "Create a repo with at least eight commits across two branches.",
+    "Cause a merge conflict and resolve it by hand, without a merge tool.",
+    "Hard reset away a commit, then recover it using the reflog.",
+    "Revert a commit that is already pushed, and explain why you did not reset.",
+    "Rewrite the last three commit messages with an interactive rebase.",
+    "Write a README section explaining, in your words, when each command is safe."
+   ],
+   "stretch": [
+    "Add a pre-commit hook that refuses a commit with a syntax error.",
+    "Configure a .gitignore that survives adding a virtualenv by accident."
+   ],
+   "rubric": [
+    "You can perform every recovery from memory, with no cheat sheet open.",
+    "You can say out loud what merge, revert, reset and rebase each do to history.",
+    "Nothing in the repo was lost that you did not intend to lose."
+   ]
+  },
+  {
+   "id": "pj.p01.1",
+   "phase": "p01",
+   "title": "A command-line expense tracker",
+   "kind": "build",
+   "brief": "A single-file CLI that records expenses, stores them, and reports totals.",
+   "why": "It exercises almost everything in the phase - input handling, data structures, files, errors - without needing any library at all.",
+   "requirements": [
+    "Add, list and delete expenses from the command line.",
+    "Persist to a JSON file so data survives restarts.",
+    "Report totals by category and by month.",
+    "Reject bad input with a clear message rather than a traceback.",
+    "Handle a missing or corrupt data file without losing the good data.",
+    "No third-party dependencies. Standard library only."
+   ],
+   "stretch": [
+    "Add a --since and --until date filter.",
+    "Export a month to CSV.",
+    "Add a simple text bar chart of spending per category."
+   ],
+   "rubric": [
+    "It runs from a clean checkout by following the README alone.",
+    "Every behaviour you claim is covered by a test that fails when you break it.",
+    "The commit history shows the work, not one giant commit.",
+    "You can explain every design decision, including the ones you rejected."
+   ]
+  },
+  {
+   "id": "pj.p01.2",
+   "phase": "p01",
+   "title": "A text-adventure engine",
+   "kind": "build",
+   "brief": "A small game engine where rooms, items and exits are data, not code.",
+   "why": "The moment the map moves out of if-statements and into a dictionary, you have understood the difference between data and logic.",
+   "requirements": [
+    "Rooms, exits and items are defined in a data file, not hard-coded.",
+    "The player can move, look, take, drop and check an inventory.",
+    "Unknown commands produce a helpful message, never a crash.",
+    "Game state can be saved and reloaded.",
+    "Adding a new room requires editing data only, not the engine."
+   ],
+   "stretch": [
+    "Add locked doors that need a specific item.",
+    "Add a scripted ending condition."
+   ],
+   "rubric": [
+    "It runs from a clean checkout by following the README alone.",
+    "Every behaviour you claim is covered by a test that fails when you break it.",
+    "The commit history shows the work, not one giant commit.",
+    "You can explain every design decision, including the ones you rejected."
+   ]
+  },
+  {
+   "id": "pj.p02.1",
+   "phase": "p02",
+   "title": "A log-processing pipeline that never loads the file",
+   "kind": "build",
+   "brief": "Process a multi-gigabyte log file with flat memory usage, and prove it.",
+   "why": "This is the exercise that makes generators click. You cannot fake it: either memory stays flat or it does not.",
+   "requirements": [
+    "Generate a test log of at least 2 GB, or stream one you already have.",
+    "Parse, filter, and aggregate it through chained generators.",
+    "Peak memory stays roughly constant regardless of file size.",
+    "Prove it with a memory profile, and put the numbers in the README.",
+    "Provide a second, list-based implementation and compare the two.",
+    "Include a context manager that guarantees the file handle closes."
+   ],
+   "stretch": [
+    "Add a --follow mode that tails a growing file.",
+    "Parallelise the aggregation and measure whether it actually helps."
+   ],
+   "rubric": [
+    "It runs from a clean checkout by following the README alone.",
+    "Every behaviour you claim is covered by a test that fails when you break it.",
+    "The commit history shows the work, not one giant commit.",
+    "You can explain every design decision, including the ones you rejected."
+   ]
+  },
+  {
+   "id": "pj.p02.2",
+   "phase": "p02",
+   "title": "A small library with real protocols",
+   "kind": "build",
+   "brief": "A reusable package that implements the iterator, context manager and descriptor protocols rather than merely using them.",
+   "why": "Implementing a protocol is the fastest way to stop treating Python as magic and start reading the data model as an interface.",
+   "requirements": [
+    "At least one custom iterator implemented without a generator.",
+    "At least one context manager, both as a class and via contextlib.",
+    "A decorator that preserves the wrapped signature and metadata.",
+    "Full type hints that pass a type checker with no ignores.",
+    "Docstrings on every public name, with a doctest that runs in CI."
+   ],
+   "stretch": [
+    "Add a descriptor that validates attribute assignment.",
+    "Publish it to TestPyPI and install it in a fresh environment."
+   ],
+   "rubric": [
+    "It runs from a clean checkout by following the README alone.",
+    "Every behaviour you claim is covered by a test that fails when you break it.",
+    "The commit history shows the work, not one giant commit.",
+    "You can explain every design decision, including the ones you rejected."
+   ]
+  },
+  {
+   "id": "pj.p03.1",
+   "phase": "p03",
+   "title": "Package and publish a tool",
+   "kind": "ship",
+   "brief": "Take one script you have written and turn it into an installable, tested, documented package.",
+   "why": "The gap between a script that works on your machine and software other people can install is where most self-taught programmers stall.",
+   "requirements": [
+    "A src-layout package with a pyproject.toml.",
+    "A console entry point, so the tool runs by name after installation.",
+    "Tests that run against the installed package, not the source folder.",
+    "Linting and formatting enforced, not merely suggested.",
+    "A README with installation, usage and one worked example.",
+    "Published to TestPyPI and installed from there into a clean environment."
+   ],
+   "stretch": [
+    "Add a GitHub Actions workflow that publishes on a tag.",
+    "Support Python 3.11 through the current release and prove it in CI."
+   ],
+   "rubric": [
+    "It runs from a clean checkout by following the README alone.",
+    "Every behaviour you claim is covered by a test that fails when you break it.",
+    "The commit history shows the work, not one giant commit.",
+    "You can explain every design decision, including the ones you rejected."
+   ]
+  },
+  {
+   "id": "pj.p04.1",
+   "phase": "p04",
+   "title": "A data-structures library, from scratch",
+   "kind": "build",
+   "brief": "Implement the core structures yourself, with tests and measured complexity.",
+   "why": "You will never argue confidently about a data structure you have not built at least once.",
+   "requirements": [
+    "Dynamic array, linked list, stack, queue, hash map, binary search tree.",
+    "A test suite that covers empty, single, duplicate and large inputs.",
+    "A benchmark comparing each against the standard library equivalent.",
+    "A README stating the complexity of every operation, with evidence.",
+    "At least one structure where your version loses, and an honest explanation."
+   ],
+   "stretch": [
+    "Add a balanced tree and show the difference on sorted input.",
+    "Add a trie and use it for autocomplete."
+   ],
+   "rubric": [
+    "It runs from a clean checkout by following the README alone.",
+    "Every behaviour you claim is covered by a test that fails when you break it.",
+    "The commit history shows the work, not one giant commit.",
+    "You can explain every design decision, including the ones you rejected."
+   ]
+  },
+  {
+   "id": "pj.p05.1",
+   "phase": "p05",
+   "title": "A solved-problems repository with written reasoning",
+   "kind": "drill",
+   "brief": "Fifty problems solved, each with a note on why the approach works.",
+   "why": "Volume alone does not build problem-solving. The written reasoning is what transfers to a problem you have not seen.",
+   "requirements": [
+    "At least fifty problems, spread across arrays, strings, graphs and DP.",
+    "Every solution has a stated time and space complexity.",
+    "Every solution has a short note on the insight that unlocked it.",
+    "At least ten problems solved a second way, with a comparison.",
+    "A tests file so a refactor cannot silently break an old solution."
+   ],
+   "stretch": [
+    "Solve one full Advent of Code year and write up the hardest day.",
+    "Re-solve ten problems a month later, cold, and record the gap."
+   ],
+   "rubric": [
+    "It runs from a clean checkout by following the README alone.",
+    "Every behaviour you claim is covered by a test that fails when you break it.",
+    "The commit history shows the work, not one giant commit.",
+    "You can explain every design decision, including the ones you rejected."
+   ]
+  },
+  {
+   "id": "pj.p06.1",
+   "phase": "p06",
+   "title": "A system health reporter",
+   "kind": "build",
+   "brief": "A command-line tool that reports disk, memory, process and service state, and exits non-zero when something is wrong.",
+   "why": "Automation that cannot be trusted by a monitoring system is a toy. An exit code is the difference.",
+   "requirements": [
+    "Reports disk usage, load, memory and the top processes.",
+    "Thresholds are configurable, not hard-coded.",
+    "Exits 0 when healthy and non-zero when a threshold is breached.",
+    "Runs unattended from cron or a systemd timer.",
+    "Logs to a file with rotation, and never grows without bound.",
+    "Degrades gracefully when a metric is unavailable on this platform."
+   ],
+   "stretch": [
+    "Add a --json mode for machine consumption.",
+    "Send an alert to a webhook, with retries and a rate limit."
+   ],
+   "rubric": [
+    "It runs from a clean checkout by following the README alone.",
+    "Every behaviour you claim is covered by a test that fails when you break it.",
+    "The commit history shows the work, not one giant commit.",
+    "You can explain every design decision, including the ones you rejected."
+   ]
+  },
+  {
+   "id": "pj.p07.1",
+   "phase": "p07",
+   "title": "An HTTP client and server, from sockets",
+   "kind": "build",
+   "brief": "Speak HTTP/1.1 over a raw TCP socket, both directions.",
+   "why": "Everything above this layer is easier once you have seen the bytes go across the wire yourself.",
+   "requirements": [
+    "A server that parses a request line, headers and body from a socket.",
+    "It serves at least GET and POST, with correct status codes.",
+    "A client that builds a request by hand and parses the response.",
+    "Correct handling of Content-Length and connection close.",
+    "Concurrency for more than one client at a time.",
+    "A packet capture or log showing a full exchange, explained in the README."
+   ],
+   "stretch": [
+    "Add chunked transfer encoding.",
+    "Add TLS with the standard library ssl module."
+   ],
+   "rubric": [
+    "It runs from a clean checkout by following the README alone.",
+    "Every behaviour you claim is covered by a test that fails when you break it.",
+    "The commit history shows the work, not one giant commit.",
+    "You can explain every design decision, including the ones you rejected."
+   ]
+  },
+  {
+   "id": "pj.p08.1",
+   "phase": "p08",
+   "title": "A schema you designed, then optimised",
+   "kind": "build",
+   "brief": "Model a real domain in PostgreSQL, load real volume, then make the slow queries fast.",
+   "why": "Index tuning only teaches you something once there is enough data for the wrong plan to hurt.",
+   "requirements": [
+    "A normalised schema with primary keys, foreign keys and constraints.",
+    "At least 500,000 rows of realistic generated data.",
+    "Five reporting queries, each with its EXPLAIN plan recorded.",
+    "At least two queries made measurably faster by an index you chose.",
+    "Before and after timings in the README, not guesses.",
+    "A migration history, so the schema can be rebuilt from scratch."
+   ],
+   "stretch": [
+    "Add a window-function report and explain what it replaces.",
+    "Demonstrate a deadlock between two transactions, then fix it."
+   ],
+   "rubric": [
+    "It runs from a clean checkout by following the README alone.",
+    "Every behaviour you claim is covered by a test that fails when you break it.",
+    "The commit history shows the work, not one giant commit.",
+    "You can explain every design decision, including the ones you rejected."
+   ]
+  },
+  {
+   "id": "pj.p09.1",
+   "phase": "p09",
+   "title": "A production-shaped API",
+   "kind": "ship",
+   "brief": "A tested, documented, authenticated HTTP service backed by a real database.",
+   "why": "This is the portfolio piece that most closely matches the job. It has to be complete, not impressive.",
+   "requirements": [
+    "CRUD over at least two related resources, with validation at the edge.",
+    "Authentication and authorisation, with a test proving a stranger is refused.",
+    "Database access through migrations, never a hand-created schema.",
+    "Generated OpenAPI documentation that matches the implementation.",
+    "Structured logging with a request id that appears in every log line.",
+    "Unit and integration tests, with the test database created and torn down.",
+    "Pagination, filtering and sensible error responses."
+   ],
+   "stretch": [
+    "Add background jobs for the slow work.",
+    "Add rate limiting and prove it with a load test."
+   ],
+   "rubric": [
+    "It runs from a clean checkout by following the README alone.",
+    "Every behaviour you claim is covered by a test that fails when you break it.",
+    "The commit history shows the work, not one giant commit.",
+    "You can explain every design decision, including the ones you rejected."
+   ]
+  },
+  {
+   "id": "pj.p10.1",
+   "phase": "p10",
+   "title": "An automation engine that survives failure",
+   "kind": "build",
+   "brief": "A task runner that scrapes, transforms and stores data, and can be killed at any moment without losing or duplicating work.",
+   "why": "Anyone can write a script that works. The engineering is in what happens when the network, the site or the machine misbehaves.",
+   "requirements": [
+    "Reads a task list from configuration, not from code.",
+    "Retries with exponential backoff and a cap.",
+    "Handles 429 and 5xx distinctly from 4xx.",
+    "Resumes after being killed mid-run, with no duplicated work.",
+    "Respects robots.txt and a configurable request rate.",
+    "Writes results to a database or structured files, atomically.",
+    "A dry-run mode that shows what it would do."
+   ],
+   "stretch": [
+    "Add browser automation for one JavaScript-rendered source.",
+    "Add a summary report emailed or posted at the end of a run."
+   ],
+   "rubric": [
+    "It runs from a clean checkout by following the README alone.",
+    "Every behaviour you claim is covered by a test that fails when you break it.",
+    "The commit history shows the work, not one giant commit.",
+    "You can explain every design decision, including the ones you rejected."
+   ]
+  },
+  {
+   "id": "pj.p11.1",
+   "phase": "p11",
+   "title": "A concurrency benchmark you can defend",
+   "kind": "build",
+   "brief": "The same workload implemented four ways, measured honestly.",
+   "why": "The point is not to find the fastest model. It is to be able to say which model suits which workload, and prove it.",
+   "requirements": [
+    "One I/O-bound and one CPU-bound workload.",
+    "Implementations with threads, processes, asyncio and plain sequential code.",
+    "A benchmark harness that repeats runs and reports the spread, not one number.",
+    "A results table in the README with the machine specification.",
+    "A written explanation of why each model wins or loses where it does.",
+    "A demonstration of cancellation that proves cleanup ran."
+   ],
+   "stretch": [
+    "Add a deliberate deadlock, show it, then fix it.",
+    "Profile one implementation and make it 2x faster."
+   ],
+   "rubric": [
+    "It runs from a clean checkout by following the README alone.",
+    "Every behaviour you claim is covered by a test that fails when you break it.",
+    "The commit history shows the work, not one giant commit.",
+    "You can explain every design decision, including the ones you rejected."
+   ]
+  },
+  {
+   "id": "pj.p12.1",
+   "phase": "p12",
+   "title": "Reproducible from a bare machine",
+   "kind": "ship",
+   "brief": "Containerise a project you already have, and put a real pipeline in front of it.",
+   "why": "The test is not that it runs. The test is that someone who has never seen it runs it from the README alone.",
+   "requirements": [
+    "A Dockerfile with a multi-stage build and a non-root user.",
+    "A compose file bringing up the app and its database together.",
+    "The image is smaller than the naive first attempt, and you can say why.",
+    "CI runs tests, linting and type checks on every push.",
+    "A deliberately broken test is caught by CI before it can merge.",
+    "Deployed somewhere reachable, with the URL in the README.",
+    "A documented rollback, tested at least once."
+   ],
+   "stretch": [
+    "Add a health check and a readiness probe.",
+    "Add a staging environment promoted from the same image."
+   ],
+   "rubric": [
+    "It runs from a clean checkout by following the README alone.",
+    "Every behaviour you claim is covered by a test that fails when you break it.",
+    "The commit history shows the work, not one giant commit.",
+    "You can explain every design decision, including the ones you rejected."
+   ]
+  },
+  {
+   "id": "pj.p13.1",
+   "phase": "p13",
+   "title": "Break your own application",
+   "kind": "drill",
+   "brief": "Attack the API you built, find something real, fix it, and prove it stays fixed.",
+   "why": "Reading about injection teaches you the word. Finding one in your own code teaches you the habit.",
+   "requirements": [
+    "A written threat model: what an attacker wants and how they might get it.",
+    "At least one genuine vulnerability found in your own code.",
+    "A regression test that fails before the fix and passes after.",
+    "Password storage reviewed and justified at the algorithm level.",
+    "Secrets removed from the repository and rotated.",
+    "Dependency scan run, findings triaged, and the decisions recorded."
+   ],
+   "stretch": [
+    "Add security headers and prove them with a scanner.",
+    "Complete an OWASP Top Ten review with a note per item."
+   ],
+   "rubric": [
+    "It runs from a clean checkout by following the README alone.",
+    "Every behaviour you claim is covered by a test that fails when you break it.",
+    "The commit history shows the work, not one giant commit.",
+    "You can explain every design decision, including the ones you rejected."
+   ]
+  },
+  {
+   "id": "pj.p14.1",
+   "phase": "p14",
+   "title": "A model with an evaluation you trust",
+   "kind": "build",
+   "brief": "Train something small, then spend most of the effort proving whether it actually works.",
+   "why": "The modelling is the easy half. Honest evaluation is what separates an engineer from a notebook.",
+   "requirements": [
+    "A clean train, validation and test split, with no leakage.",
+    "A baseline that is not machine learning at all, for comparison.",
+    "Metrics chosen for the problem, and an explanation of why.",
+    "An error analysis of the cases the model gets wrong.",
+    "Reproducible results from a fixed seed and a recorded environment.",
+    "A written statement of where the model should not be used."
+   ],
+   "stretch": [
+    "Serve it behind an API with input validation.",
+    "Add monitoring for input drift."
+   ],
+   "rubric": [
+    "It runs from a clean checkout by following the README alone.",
+    "Every behaviour you claim is covered by a test that fails when you break it.",
+    "The commit history shows the work, not one giant commit.",
+    "You can explain every design decision, including the ones you rejected."
+   ]
+  },
+  {
+   "id": "pj.p14.2",
+   "phase": "p14",
+   "title": "A neural network from scratch",
+   "kind": "build",
+   "brief": "Implement forward and backward passes with no framework, then check your gradients.",
+   "why": "Autograd stops being magic the moment you have written the chain rule yourself and watched it agree with a numerical estimate.",
+   "requirements": [
+    "A multi-layer network implemented in plain Python or NumPy.",
+    "Backpropagation written by hand, not by a framework.",
+    "Gradient checking against numerical differences, within tolerance.",
+    "It learns a real task well enough to beat the baseline.",
+    "A rewrite in PyTorch, with the two sets of results compared."
+   ],
+   "stretch": [
+    "Add a second optimiser and compare convergence.",
+    "Write up what changed when you added normalisation."
+   ],
+   "rubric": [
+    "It runs from a clean checkout by following the README alone.",
+    "Every behaviour you claim is covered by a test that fails when you break it.",
+    "The commit history shows the work, not one giant commit.",
+    "You can explain every design decision, including the ones you rejected."
+   ]
+  },
+  {
+   "id": "pj.p15.1",
+   "phase": "p15",
+   "title": "A system with moving parts",
+   "kind": "ship",
+   "brief": "An API, a queue, a worker and a cache, wired together so that killing any one of them does not lose work.",
+   "why": "Architecture is only real when something fails. Until then it is a diagram.",
+   "requirements": [
+    "An API that hands slow work to a queue and returns immediately.",
+    "A worker that is safe to kill mid-job, with the job still completing.",
+    "Idempotency, proven by running the same job twice with no double effect.",
+    "Distributed tracing spanning API, queue and worker for one request.",
+    "A cache with a stated invalidation strategy.",
+    "An architecture decision record for every significant choice.",
+    "A load test, and a named bottleneck it revealed."
+   ],
+   "stretch": [
+    "Add a dead-letter queue and a replay tool.",
+    "Add a circuit breaker on an external dependency."
+   ],
+   "rubric": [
+    "It runs from a clean checkout by following the README alone.",
+    "Every behaviour you claim is covered by a test that fails when you break it.",
+    "The commit history shows the work, not one giant commit.",
+    "You can explain every design decision, including the ones you rejected."
+   ]
+  },
+  {
+   "id": "pj.p16.1",
+   "phase": "p16",
+   "title": "Make CPython show its work",
+   "kind": "build",
+   "brief": "Read the bytecode, measure the memory, and write a native extension that actually earns its complexity.",
+   "why": "The internals only matter when you can attach a number to them. This project is about producing those numbers.",
+   "requirements": [
+    "Disassemble several functions and predict the bytecode before you look.",
+    "Measure the memory layout of a list as it grows, and explain the jumps.",
+    "Write one extension in C, Cython or Rust and benchmark it honestly.",
+    "State the speedup and the maintenance cost you accepted for it.",
+    "Profile a real bottleneck before optimising anything."
+   ],
+   "stretch": [
+    "Compare a free-threaded build against the default on your workload.",
+    "Contribute a documentation fix upstream."
+   ],
+   "rubric": [
+    "It runs from a clean checkout by following the README alone.",
+    "Every behaviour you claim is covered by a test that fails when you break it.",
+    "The commit history shows the work, not one giant commit.",
+    "You can explain every design decision, including the ones you rejected."
+   ]
+  },
+  {
+   "id": "pj.p17.1",
+   "phase": "p17",
+   "title": "A pipeline that can be re-run safely",
+   "kind": "build",
+   "brief": "An orchestrated data pipeline with tests on the data itself.",
+   "why": "A pipeline nobody can re-run is a pipeline nobody can fix.",
+   "requirements": [
+    "Extract, transform and load stages, each independently runnable.",
+    "Re-running a stage produces the same result, not duplicates.",
+    "Data quality tests that fail the run when an assumption breaks.",
+    "Orchestration with retries, alerting and a visible run history.",
+    "A backfill for a past date range, executed at least once.",
+    "Schema changes handled by migration, not by hand."
+   ],
+   "stretch": [
+    "Add lineage documentation from source column to report.",
+    "Add partitioning and show the query cost before and after."
+   ],
+   "rubric": [
+    "It runs from a clean checkout by following the README alone.",
+    "Every behaviour you claim is covered by a test that fails when you break it.",
+    "The commit history shows the work, not one giant commit.",
+    "You can explain every design decision, including the ones you rejected."
+   ]
+  },
+  {
+   "id": "pj.p99.1",
+   "phase": "p99",
+   "title": "Ship something a stranger relies on",
+   "kind": "ship",
+   "brief": "Build, release and maintain something other people actually use.",
+   "why": "Every earlier project had you as the only user. This one has a bug report from somebody you have never met.",
+   "requirements": [
+    "Published where users can find and install it.",
+    "A README good enough that nobody has to ask you how to start.",
+    "At least one issue reported by someone else, and resolved.",
+    "A versioned release history with a changelog.",
+    "Tests and CI that let you accept a contribution without fear.",
+    "A stated scope, including what the project deliberately will not do."
+   ],
+   "stretch": [
+    "Accept and review a pull request from a stranger.",
+    "Write the post explaining what you learned building it."
+   ],
+   "rubric": [
+    "It runs from a clean checkout by following the README alone.",
+    "Every behaviour you claim is covered by a test that fails when you break it.",
+    "The commit history shows the work, not one giant commit.",
+    "You can explain every design decision, including the ones you rejected."
+   ]
+  }
+ ]
+}

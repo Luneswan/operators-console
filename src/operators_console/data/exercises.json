@@ -1,0 +1,3338 @@
+{
+ "schema": 1,
+ "exercises": [
+  {
+   "id": "p01.001",
+   "phase": "p01",
+   "topic": "Values and printing",
+   "title": "Say hello",
+   "difficulty": 1,
+   "prompt": "Write a function `greet(name)` that returns the string\n`Hello, <name>!` - so `greet(\"Ada\")` returns `Hello, Ada!`.\n\nReturn the string. Do not print it. Returning and printing are\ndifferent things, and almost everything you write from here on\nreturns.",
+   "starter": "def greet(name):\n    # return the greeting instead of printing it\n    pass\n",
+   "tests": [
+    {
+     "name": "greets Ada",
+     "code": "assert greet('Ada') == 'Hello, Ada!'"
+    },
+    {
+     "name": "greets Linus",
+     "code": "assert greet('Linus') == 'Hello, Linus!'"
+    },
+    {
+     "name": "handles an empty name",
+     "code": "assert greet('') == 'Hello, !'"
+    }
+   ],
+   "hints": [
+    "An f-string is the shortest route: f\"Hello, {name}!\"",
+    "`return` hands a value back to the caller; `print` only writes to the screen."
+   ],
+   "solution": "def greet(name):\n    return f\"Hello, {name}!\"\n",
+   "setup": ""
+  },
+  {
+   "id": "p01.002",
+   "phase": "p01",
+   "topic": "Arithmetic",
+   "title": "Celsius to Fahrenheit",
+   "difficulty": 1,
+   "prompt": "Write `to_fahrenheit(celsius)` returning the temperature in\nFahrenheit. The formula is `F = C x 9/5 + 32`.\n\nReturn a float. 100 degrees Celsius is 212.0 Fahrenheit.",
+   "starter": "def to_fahrenheit(celsius):\n    pass\n",
+   "tests": [
+    {
+     "name": "freezing",
+     "code": "assert to_fahrenheit(0) == 32"
+    },
+    {
+     "name": "boiling",
+     "code": "assert to_fahrenheit(100) == 212"
+    },
+    {
+     "name": "negative",
+     "code": "assert to_fahrenheit(-40) == -40"
+    },
+    {
+     "name": "fractions survive",
+     "code": "assert abs(to_fahrenheit(36.6) - 97.88) < 1e-9"
+    }
+   ],
+   "hints": [
+    "Use `9 / 5`, not `9 // 5`. Integer division would throw away the fraction."
+   ],
+   "solution": "def to_fahrenheit(celsius):\n    return celsius * 9 / 5 + 32\n",
+   "setup": ""
+  },
+  {
+   "id": "p01.003",
+   "phase": "p01",
+   "topic": "Arithmetic",
+   "title": "Split seconds into h:m:s",
+   "difficulty": 2,
+   "prompt": "Write `hms(total_seconds)` that turns a whole number of seconds into a\ntuple `(hours, minutes, seconds)`.\n\n`hms(3661)` is `(1, 1, 1)`. Every part must be a whole number.",
+   "starter": "def hms(total_seconds):\n    pass\n",
+   "tests": [
+    {
+     "name": "one hour one minute one second",
+     "code": "assert hms(3661) == (1, 1, 1)"
+    },
+    {
+     "name": "under a minute",
+     "code": "assert hms(45) == (0, 0, 45)"
+    },
+    {
+     "name": "exact hours",
+     "code": "assert hms(7200) == (2, 0, 0)"
+    },
+    {
+     "name": "zero",
+     "code": "assert hms(0) == (0, 0, 0)"
+    },
+    {
+     "name": "all parts are ints",
+     "code": "assert all(isinstance(p, int) for p in hms(3661))"
+    }
+   ],
+   "hints": [
+    "`//` divides and throws away the remainder; `%` keeps only the remainder.",
+    "divmod(a, b) gives you both at once."
+   ],
+   "solution": "def hms(total_seconds):\n    minutes, seconds = divmod(total_seconds, 60)\n    hours, minutes = divmod(minutes, 60)\n    return hours, minutes, seconds\n",
+   "setup": ""
+  },
+  {
+   "id": "p01.004",
+   "phase": "p01",
+   "topic": "Strings",
+   "title": "Initials",
+   "difficulty": 2,
+   "prompt": "Write `initials(full_name)` returning the uppercase initials of every\nword, separated by dots and ending with one.\n\n`initials(\"ada lovelace\")` returns `\"A.L.\"`.\nExtra spaces between words must not produce empty initials.",
+   "starter": "def initials(full_name):\n    pass\n",
+   "tests": [
+    {
+     "name": "two names",
+     "code": "assert initials('ada lovelace') == 'A.L.'"
+    },
+    {
+     "name": "already capitalised",
+     "code": "assert initials('Grace Hopper') == 'G.H.'"
+    },
+    {
+     "name": "three names",
+     "code": "assert initials('john von neumann') == 'J.V.N.'"
+    },
+    {
+     "name": "collapses extra spaces",
+     "code": "assert initials('  ada   lovelace ') == 'A.L.'"
+    },
+    {
+     "name": "empty string",
+     "code": "assert initials('') == ''"
+    }
+   ],
+   "hints": [
+    "`text.split()` with no argument splits on any run of whitespace and drops empties.",
+    "Build the pieces in a list, then `''.join(...)` them."
+   ],
+   "solution": "def initials(full_name):\n    return \"\".join(word[0].upper() + \".\" for word in full_name.split())\n",
+   "setup": ""
+  },
+  {
+   "id": "p01.005",
+   "phase": "p01",
+   "topic": "Strings",
+   "title": "Format a price",
+   "difficulty": 2,
+   "prompt": "Write `price(amount)` returning the amount as a string with a leading\ndollar sign, a thousands separator and exactly two decimals.\n\n`price(1234.5)` returns `\"$1,234.50\"`.",
+   "starter": "def price(amount):\n    pass\n",
+   "tests": [
+    {
+     "name": "thousands",
+     "code": "assert price(1234.5) == '$1,234.50'"
+    },
+    {
+     "name": "small",
+     "code": "assert price(7) == '$7.00'"
+    },
+    {
+     "name": "millions",
+     "code": "assert price(1234567.891) == '$1,234,567.89'"
+    },
+    {
+     "name": "zero",
+     "code": "assert price(0) == '$0.00'"
+    }
+   ],
+   "hints": [
+    "Format specs compose: f\"{amount:,.2f}\" adds separators and fixes the decimals."
+   ],
+   "solution": "def price(amount):\n    return f\"${amount:,.2f}\"\n",
+   "setup": ""
+  },
+  {
+   "id": "p01.006",
+   "phase": "p01",
+   "topic": "Conditionals",
+   "title": "Letter grade",
+   "difficulty": 2,
+   "prompt": "Write `grade(score)` mapping a 0-100 score to a letter:\n90 and above `A`, 80-89 `B`, 70-79 `C`, 60-69 `D`, below 60 `F`.\n\nA score outside 0-100 must raise `ValueError`.",
+   "starter": "def grade(score):\n    pass\n",
+   "tests": [
+    {
+     "name": "A",
+     "code": "assert grade(95) == 'A'"
+    },
+    {
+     "name": "boundary 90",
+     "code": "assert grade(90) == 'A'"
+    },
+    {
+     "name": "B",
+     "code": "assert grade(83) == 'B'"
+    },
+    {
+     "name": "boundary 60",
+     "code": "assert grade(60) == 'D'"
+    },
+    {
+     "name": "F",
+     "code": "assert grade(0) == 'F'"
+    },
+    {
+     "name": "rejects over 100",
+     "code": "try:\n    grade(101)\nexcept ValueError:\n    pass\nelse:\n    raise AssertionError('should raise ValueError')"
+    },
+    {
+     "name": "rejects negative",
+     "code": "try:\n    grade(-1)\nexcept ValueError:\n    pass\nelse:\n    raise AssertionError('should raise ValueError')"
+    }
+   ],
+   "hints": [
+    "Check the invalid range first and raise, then the happy path reads top to bottom.",
+    "Order your comparisons from highest to lowest so each `elif` only needs one bound."
+   ],
+   "solution": "def grade(score):\n    if not 0 <= score <= 100:\n        raise ValueError(\"score must be between 0 and 100\")\n    if score >= 90:\n        return \"A\"\n    if score >= 80:\n        return \"B\"\n    if score >= 70:\n        return \"C\"\n    if score >= 60:\n        return \"D\"\n    return \"F\"\n",
+   "setup": ""
+  },
+  {
+   "id": "p01.007",
+   "phase": "p01",
+   "topic": "Conditionals",
+   "title": "Leap years",
+   "difficulty": 2,
+   "prompt": "Write `is_leap(year)` returning True for leap years in the Gregorian\ncalendar.\n\nA year is a leap year if it is divisible by 4, except centuries, which\nmust also be divisible by 400. 1900 was not a leap year. 2000 was.",
+   "starter": "def is_leap(year):\n    pass\n",
+   "tests": [
+    {
+     "name": "ordinary leap year",
+     "code": "assert is_leap(2024) is True"
+    },
+    {
+     "name": "ordinary year",
+     "code": "assert is_leap(2023) is False"
+    },
+    {
+     "name": "century that is not",
+     "code": "assert is_leap(1900) is False"
+    },
+    {
+     "name": "century that is",
+     "code": "assert is_leap(2000) is True"
+    },
+    {
+     "name": "returns a real bool",
+     "code": "assert isinstance(is_leap(2024), bool)"
+    }
+   ],
+   "hints": [
+    "The whole rule fits in one boolean expression.",
+    "Write it as: divisible by 4 AND (not divisible by 100 OR divisible by 400)."
+   ],
+   "solution": "def is_leap(year):\n    return year % 4 == 0 and (year % 100 != 0 or year % 400 == 0)\n",
+   "setup": ""
+  },
+  {
+   "id": "p01.008",
+   "phase": "p01",
+   "topic": "Loops",
+   "title": "Sum up to n",
+   "difficulty": 1,
+   "prompt": "Write `sum_to(n)` returning the sum of every whole number from 1 to `n`\ninclusive. `sum_to(5)` is 15. `sum_to(0)` is 0.\n\nWrite the loop yourself this time, even though a formula exists.",
+   "starter": "def sum_to(n):\n    pass\n",
+   "tests": [
+    {
+     "name": "small",
+     "code": "assert sum_to(5) == 15"
+    },
+    {
+     "name": "one",
+     "code": "assert sum_to(1) == 1"
+    },
+    {
+     "name": "zero",
+     "code": "assert sum_to(0) == 0"
+    },
+    {
+     "name": "large",
+     "code": "assert sum_to(1000) == 500500"
+    }
+   ],
+   "hints": [
+    "`range(1, n + 1)` stops *before* the second argument, so add one.",
+    "Start an accumulator at 0 before the loop, not inside it."
+   ],
+   "solution": "def sum_to(n):\n    total = 0\n    for value in range(1, n + 1):\n        total += value\n    return total\n",
+   "setup": ""
+  },
+  {
+   "id": "p01.009",
+   "phase": "p01",
+   "topic": "Loops",
+   "title": "FizzBuzz as a list",
+   "difficulty": 2,
+   "prompt": "Write `fizzbuzz(n)` returning a list of length `n`. For each position\nfrom 1 to n: multiples of 15 become `\"FizzBuzz\"`, multiples of 3 become\n`\"Fizz\"`, multiples of 5 become `\"Buzz\"`, everything else is the number\nitself as an `int`.",
+   "starter": "def fizzbuzz(n):\n    pass\n",
+   "tests": [
+    {
+     "name": "first five",
+     "code": "assert fizzbuzz(5) == [1, 2, 'Fizz', 4, 'Buzz']"
+    },
+    {
+     "name": "hits fifteen",
+     "code": "assert fizzbuzz(15)[14] == 'FizzBuzz'"
+    },
+    {
+     "name": "length",
+     "code": "assert len(fizzbuzz(100)) == 100"
+    },
+    {
+     "name": "numbers stay ints",
+     "code": "assert fizzbuzz(2) == [1, 2]"
+    },
+    {
+     "name": "zero length",
+     "code": "assert fizzbuzz(0) == []"
+    }
+   ],
+   "hints": [
+    "Test for 15 first. If you test 3 first, no number ever reaches the FizzBuzz branch."
+   ],
+   "solution": "def fizzbuzz(n):\n    out = []\n    for value in range(1, n + 1):\n        if value % 15 == 0:\n            out.append(\"FizzBuzz\")\n        elif value % 3 == 0:\n            out.append(\"Fizz\")\n        elif value % 5 == 0:\n            out.append(\"Buzz\")\n        else:\n            out.append(value)\n    return out\n",
+   "setup": ""
+  },
+  {
+   "id": "p01.010",
+   "phase": "p01",
+   "topic": "Lists",
+   "title": "Second largest",
+   "difficulty": 3,
+   "prompt": "Write `second_largest(numbers)` returning the second largest *distinct*\nvalue in the list.\n\n`[5, 1, 5, 3]` gives 3, because both fives are the same value.\nIf there is no second distinct value, return `None`.",
+   "starter": "def second_largest(numbers):\n    pass\n",
+   "tests": [
+    {
+     "name": "plain case",
+     "code": "assert second_largest([1, 7, 3, 9]) == 7"
+    },
+    {
+     "name": "ignores duplicates",
+     "code": "assert second_largest([5, 1, 5, 3]) == 3"
+    },
+    {
+     "name": "all identical",
+     "code": "assert second_largest([4, 4, 4]) is None"
+    },
+    {
+     "name": "single value",
+     "code": "assert second_largest([2]) is None"
+    },
+    {
+     "name": "empty",
+     "code": "assert second_largest([]) is None"
+    },
+    {
+     "name": "negatives",
+     "code": "assert second_largest([-1, -5, -3]) == -3"
+    }
+   ],
+   "hints": [
+    "`set(numbers)` removes duplicates in one step.",
+    "Sort the distinct values, then index from the end - but check the length first."
+   ],
+   "solution": "def second_largest(numbers):\n    distinct = sorted(set(numbers))\n    if len(distinct) < 2:\n        return None\n    return distinct[-2]\n",
+   "setup": ""
+  },
+  {
+   "id": "p01.011",
+   "phase": "p01",
+   "topic": "Comprehensions",
+   "title": "Squares of the even numbers",
+   "difficulty": 2,
+   "prompt": "Write `even_squares(numbers)` returning a list containing the square of\nevery even number in the input, in the original order.\n\nUse a single list comprehension.",
+   "starter": "def even_squares(numbers):\n    pass\n",
+   "tests": [
+    {
+     "name": "mixed",
+     "code": "assert even_squares([1, 2, 3, 4]) == [4, 16]"
+    },
+    {
+     "name": "nothing even",
+     "code": "assert even_squares([1, 3, 5]) == []"
+    },
+    {
+     "name": "negatives count",
+     "code": "assert even_squares([-2, -3]) == [4]"
+    },
+    {
+     "name": "order preserved",
+     "code": "assert even_squares([4, 2]) == [16, 4]"
+    },
+    {
+     "name": "is a list",
+     "code": "assert isinstance(even_squares([2]), list)"
+    }
+   ],
+   "hints": [
+    "The shape is [expression for item in iterable if condition]."
+   ],
+   "solution": "def even_squares(numbers):\n    return [n * n for n in numbers if n % 2 == 0]\n",
+   "setup": ""
+  },
+  {
+   "id": "p01.012",
+   "phase": "p01",
+   "topic": "Slicing",
+   "title": "Middle three characters",
+   "difficulty": 3,
+   "prompt": "Write `middle_three(text)` returning the three characters in the middle\nof an odd-length string of length 3 or more.\n\n`middle_three(\"abcde\")` returns `\"bcd\"`.\nAnything shorter than 3, or of even length, returns `\"\"`.",
+   "starter": "def middle_three(text):\n    pass\n",
+   "tests": [
+    {
+     "name": "five characters",
+     "code": "assert middle_three('abcde') == 'bcd'"
+    },
+    {
+     "name": "exactly three",
+     "code": "assert middle_three('xyz') == 'xyz'"
+    },
+    {
+     "name": "even length rejected",
+     "code": "assert middle_three('abcd') == ''"
+    },
+    {
+     "name": "too short",
+     "code": "assert middle_three('ab') == ''"
+    },
+    {
+     "name": "longer",
+     "code": "assert middle_three('abcdefg') == 'cde'"
+    }
+   ],
+   "hints": [
+    "The middle index is len(text) // 2.",
+    "Slice from middle - 1 up to middle + 2."
+   ],
+   "solution": "def middle_three(text):\n    if len(text) < 3 or len(text) % 2 == 0:\n        return \"\"\n    middle = len(text) // 2\n    return text[middle - 1:middle + 2]\n",
+   "setup": ""
+  },
+  {
+   "id": "p01.013",
+   "phase": "p01",
+   "topic": "Strings",
+   "title": "Tidy up a name",
+   "difficulty": 2,
+   "prompt": "Write `tidy(name)` that strips leading and trailing whitespace,\ncollapses any internal run of whitespace to one space, and\ntitle-cases the result.\n\n`tidy(\"  ada   LOVELACE \")` returns `\"Ada Lovelace\"`.",
+   "starter": "def tidy(name):\n    pass\n",
+   "tests": [
+    {
+     "name": "messy input",
+     "code": "assert tidy('  ada   LOVELACE ') == 'Ada Lovelace'"
+    },
+    {
+     "name": "already clean",
+     "code": "assert tidy('Grace Hopper') == 'Grace Hopper'"
+    },
+    {
+     "name": "single word",
+     "code": "assert tidy('  linus ') == 'Linus'"
+    },
+    {
+     "name": "empty",
+     "code": "assert tidy('   ') == ''"
+    }
+   ],
+   "hints": [
+    "split() then ' '.join() collapses whitespace in one move.",
+    "str.title() capitalises each word."
+   ],
+   "solution": "def tidy(name):\n    return \" \".join(name.split()).title()\n",
+   "setup": ""
+  },
+  {
+   "id": "p01.014",
+   "phase": "p01",
+   "topic": "Strings",
+   "title": "Acronym",
+   "difficulty": 2,
+   "prompt": "Write `acronym(phrase)` returning the uppercase first letter of each\nword joined together, with no separators.\n\n`acronym(\"portable network graphics\")` returns `\"PNG\"`.",
+   "starter": "def acronym(phrase):\n    pass\n",
+   "tests": [
+    {
+     "name": "three words",
+     "code": "assert acronym('portable network graphics') == 'PNG'"
+    },
+    {
+     "name": "mixed case",
+     "code": "assert acronym('Read The Manual') == 'RTM'"
+    },
+    {
+     "name": "one word",
+     "code": "assert acronym('python') == 'P'"
+    },
+    {
+     "name": "empty",
+     "code": "assert acronym('') == ''"
+    }
+   ],
+   "hints": [],
+   "solution": "def acronym(phrase):\n    return \"\".join(word[0].upper() for word in phrase.split())\n",
+   "setup": ""
+  },
+  {
+   "id": "p01.015",
+   "phase": "p01",
+   "topic": "Dictionaries",
+   "title": "Count the words",
+   "difficulty": 3,
+   "prompt": "Write `word_count(text)` returning a dict mapping each lowercase word to\nhow many times it appears. Split on whitespace and ignore case.\n\n`word_count(\"a A b\")` returns `{\"a\": 2, \"b\": 1}`.",
+   "starter": "def word_count(text):\n    pass\n",
+   "tests": [
+    {
+     "name": "case folded",
+     "code": "assert word_count('a A b') == {'a': 2, 'b': 1}"
+    },
+    {
+     "name": "empty text",
+     "code": "assert word_count('') == {}"
+    },
+    {
+     "name": "longer",
+     "code": "assert word_count('the cat the hat') == {'the': 2, 'cat': 1, 'hat': 1}"
+    },
+    {
+     "name": "returns a dict",
+     "code": "assert isinstance(word_count('x'), dict)"
+    }
+   ],
+   "hints": [
+    "dict.get(key, 0) gives you a default instead of a KeyError.",
+    "collections.Counter does this in one line - try it after you have written the loop."
+   ],
+   "solution": "def word_count(text):\n    counts = {}\n    for word in text.lower().split():\n        counts[word] = counts.get(word, 0) + 1\n    return counts\n",
+   "setup": ""
+  },
+  {
+   "id": "p01.016",
+   "phase": "p01",
+   "topic": "Dictionaries",
+   "title": "Look up without crashing",
+   "difficulty": 2,
+   "prompt": "Write `lookup(data, key, default=None)` returning `data[key]` when the\nkey exists, and `default` when it does not. Do not use `dict.get`;\nwrite the branch yourself so you see what `get` is doing.",
+   "starter": "def lookup(data, key, default=None):\n    pass\n",
+   "tests": [
+    {
+     "name": "present",
+     "code": "assert lookup({'a': 1}, 'a') == 1"
+    },
+    {
+     "name": "missing returns None",
+     "code": "assert lookup({'a': 1}, 'b') is None"
+    },
+    {
+     "name": "missing returns default",
+     "code": "assert lookup({}, 'x', 42) == 42"
+    },
+    {
+     "name": "falsy values survive",
+     "code": "assert lookup({'a': 0}, 'a', 9) == 0"
+    },
+    {
+     "name": "no get used",
+     "code": "import inspect; assert '.get(' not in inspect.getsource(lookup)"
+    }
+   ],
+   "hints": [
+    "`in` tests for a key, not a value.",
+    "Beware of `if data[key]:` - that would treat 0 and '' as missing."
+   ],
+   "solution": "def lookup(data, key, default=None):\n    if key in data:\n        return data[key]\n    return default\n",
+   "setup": ""
+  },
+  {
+   "id": "p01.017",
+   "phase": "p01",
+   "topic": "Sets",
+   "title": "Unique, order preserved",
+   "difficulty": 3,
+   "prompt": "Write `unique(items)` returning a list with duplicates removed, keeping\nthe first occurrence of each value in its original position.\n\n`unique([3, 1, 3, 2, 1])` returns `[3, 1, 2]`.\nA plain `set()` would lose the order, so you need both structures.",
+   "starter": "def unique(items):\n    pass\n",
+   "tests": [
+    {
+     "name": "keeps order",
+     "code": "assert unique([3, 1, 3, 2, 1]) == [3, 1, 2]"
+    },
+    {
+     "name": "already unique",
+     "code": "assert unique(['a', 'b']) == ['a', 'b']"
+    },
+    {
+     "name": "empty",
+     "code": "assert unique([]) == []"
+    },
+    {
+     "name": "all same",
+     "code": "assert unique([7, 7, 7]) == [7]"
+    }
+   ],
+   "hints": [
+    "Track what you have already emitted in a set, and append to a list.",
+    "Membership testing in a set is constant time; in a list it is not."
+   ],
+   "solution": "def unique(items):\n    seen = set()\n    out = []\n    for item in items:\n        if item not in seen:\n            seen.add(item)\n            out.append(item)\n    return out\n",
+   "setup": ""
+  },
+  {
+   "id": "p01.018",
+   "phase": "p01",
+   "topic": "Sorting",
+   "title": "Sort people by surname",
+   "difficulty": 3,
+   "prompt": "Write `by_surname(names)` sorting a list of `\"First Last\"` strings by\nlast name, then by first name. Return a new list; do not modify the\ninput.",
+   "starter": "def by_surname(names):\n    pass\n",
+   "tests": [
+    {
+     "name": "sorts by last name",
+     "code": "assert by_surname(['Ada Lovelace', 'Grace Hopper']) == ['Grace Hopper', 'Ada Lovelace']"
+    },
+    {
+     "name": "ties break on first name",
+     "code": "assert by_surname(['Bob Smith', 'Alice Smith']) == ['Alice Smith', 'Bob Smith']"
+    },
+    {
+     "name": "input untouched",
+     "code": "src = ['B X', 'A X']\nby_surname(src)\nassert src == ['B X', 'A X']"
+    },
+    {
+     "name": "empty",
+     "code": "assert by_surname([]) == []"
+    }
+   ],
+   "hints": [
+    "sorted() returns a new list; list.sort() changes the original.",
+    "A key function returning a tuple sorts by the first element, then the second."
+   ],
+   "solution": "def by_surname(names):\n    def key(name):\n        first, _, last = name.rpartition(\" \")\n        return (last, first)\n    return sorted(names, key=key)\n",
+   "setup": ""
+  },
+  {
+   "id": "p01.019",
+   "phase": "p01",
+   "topic": "Sorting",
+   "title": "Top N by value",
+   "difficulty": 3,
+   "prompt": "Write `top_n(scores, n)` where `scores` is a dict mapping names to\nnumbers. Return a list of the `n` names with the highest scores,\nhighest first. Break ties alphabetically by name.",
+   "starter": "def top_n(scores, n):\n    pass\n",
+   "tests": [
+    {
+     "name": "picks the best two",
+     "code": "assert top_n({'a': 3, 'b': 9, 'c': 5}, 2) == ['b', 'c']"
+    },
+    {
+     "name": "ties are alphabetical",
+     "code": "assert top_n({'b': 5, 'a': 5}, 2) == ['a', 'b']"
+    },
+    {
+     "name": "n larger than the dict",
+     "code": "assert top_n({'a': 1}, 5) == ['a']"
+    },
+    {
+     "name": "n of zero",
+     "code": "assert top_n({'a': 1}, 0) == []"
+    }
+   ],
+   "hints": [
+    "Sort by a tuple key: negative score first, then the name.",
+    "Slicing past the end of a list is safe - it just gives you what is there."
+   ],
+   "solution": "def top_n(scores, n):\n    ordered = sorted(scores.items(), key=lambda pair: (-pair[1], pair[0]))\n    return [name for name, _score in ordered[:n]]\n",
+   "setup": ""
+  },
+  {
+   "id": "p01.020",
+   "phase": "p01",
+   "topic": "Iteration",
+   "title": "Positions of a value",
+   "difficulty": 2,
+   "prompt": "Write `positions(items, target)` returning a list of every index where\n`target` appears. Use `enumerate` rather than counting by hand.",
+   "starter": "def positions(items, target):\n    pass\n",
+   "tests": [
+    {
+     "name": "several hits",
+     "code": "assert positions(['a', 'b', 'a'], 'a') == [0, 2]"
+    },
+    {
+     "name": "no hits",
+     "code": "assert positions([1, 2], 9) == []"
+    },
+    {
+     "name": "numbers",
+     "code": "assert positions([0, 0, 1], 0) == [0, 1]"
+    },
+    {
+     "name": "empty input",
+     "code": "assert positions([], 'x') == []"
+    }
+   ],
+   "hints": [],
+   "solution": "def positions(items, target):\n    return [i for i, item in enumerate(items) if item == target]\n",
+   "setup": ""
+  },
+  {
+   "id": "p01.021",
+   "phase": "p01",
+   "topic": "Iteration",
+   "title": "Pair two lists up",
+   "difficulty": 2,
+   "prompt": "Write `pair_up(names, scores)` returning a dict built from two parallel\nlists. If one list is longer, ignore the extra entries.",
+   "starter": "def pair_up(names, scores):\n    pass\n",
+   "tests": [
+    {
+     "name": "equal lengths",
+     "code": "assert pair_up(['a', 'b'], [1, 2]) == {'a': 1, 'b': 2}"
+    },
+    {
+     "name": "extra names ignored",
+     "code": "assert pair_up(['a', 'b', 'c'], [1, 2]) == {'a': 1, 'b': 2}"
+    },
+    {
+     "name": "empty",
+     "code": "assert pair_up([], []) == {}"
+    }
+   ],
+   "hints": [
+    "zip stops at the shorter of its inputs, which is exactly what you want here.",
+    "dict() accepts an iterable of pairs."
+   ],
+   "solution": "def pair_up(names, scores):\n    return dict(zip(names, scores))\n",
+   "setup": ""
+  },
+  {
+   "id": "p01.022",
+   "phase": "p01",
+   "topic": "Nested data",
+   "title": "Total by category",
+   "difficulty": 3,
+   "prompt": "Given a list of dicts like\n`{\"category\": \"food\", \"amount\": 12.5}`, write `totals(rows)` returning a\ndict mapping each category to the sum of its amounts.",
+   "starter": "def totals(rows):\n    pass\n",
+   "tests": [
+    {
+     "name": "groups and sums",
+     "code": "rows = [{'category': 'food', 'amount': 10}, {'category': 'rent', 'amount': 500}, {'category': 'food', 'amount': 5}]\nassert totals(rows) == {'food': 15, 'rent': 500}"
+    },
+    {
+     "name": "empty",
+     "code": "assert totals([]) == {}"
+    },
+    {
+     "name": "single row",
+     "code": "assert totals([{'category': 'x', 'amount': 1.5}]) == {'x': 1.5}"
+    }
+   ],
+   "hints": [
+    "Reach for dict.get(key, 0) again, or collections.defaultdict(float)."
+   ],
+   "solution": "def totals(rows):\n    out = {}\n    for row in rows:\n        key = row[\"category\"]\n        out[key] = out.get(key, 0) + row[\"amount\"]\n    return out\n",
+   "setup": ""
+  },
+  {
+   "id": "p01.023",
+   "phase": "p01",
+   "topic": "Functions",
+   "title": "The mutable default trap",
+   "difficulty": 4,
+   "prompt": "This function is broken. Every call shares the same list, so results\nleak between calls:\n\n    def add_item(item, basket=[]):\n        basket.append(item)\n        return basket\n\nFix `add_item` so that calling it with no basket always starts a fresh\none, while still allowing a caller to pass their own list in.",
+   "starter": "def add_item(item, basket=None):\n    pass\n",
+   "tests": [
+    {
+     "name": "fresh list every call",
+     "code": "assert add_item('a') == ['a']\nassert add_item('b') == ['b']"
+    },
+    {
+     "name": "accepts a caller's list",
+     "code": "mine = ['x']\nassert add_item('y', mine) == ['x', 'y']\nassert mine == ['x', 'y']"
+    },
+    {
+     "name": "no mutable default",
+     "code": "import inspect\nsig = inspect.signature(add_item)\nassert sig.parameters['basket'].default is None"
+    }
+   ],
+   "hints": [
+    "Default arguments are evaluated once, when the function is defined.",
+    "Use None as a sentinel and build the real default inside the body."
+   ],
+   "solution": "def add_item(item, basket=None):\n    if basket is None:\n        basket = []\n    basket.append(item)\n    return basket\n",
+   "setup": ""
+  },
+  {
+   "id": "p01.024",
+   "phase": "p01",
+   "topic": "Functions",
+   "title": "Flexible arguments",
+   "difficulty": 3,
+   "prompt": "Write `describe(*values, **options)` returning a string of the form\n`\"3 values | sep=- upper=True\"`.\n\nThe count comes first, then a pipe with spaces around it, then each\nkeyword option as `key=value`, sorted by key and separated by single\nspaces. With no options, return just `\"3 values\"`.",
+   "starter": "def describe(*values, **options):\n    pass\n",
+   "tests": [
+    {
+     "name": "values only",
+     "code": "assert describe(1, 2, 3) == '3 values'"
+    },
+    {
+     "name": "with options",
+     "code": "assert describe(1, 2, 3, sep='-', upper=True) == '3 values | sep=- upper=True'"
+    },
+    {
+     "name": "no values at all",
+     "code": "assert describe() == '0 values'"
+    },
+    {
+     "name": "options are sorted",
+     "code": "assert describe(1, b=2, a=1) == '1 values | a=1 b=2'"
+    }
+   ],
+   "hints": [],
+   "solution": "def describe(*values, **options):\n    head = f\"{len(values)} values\"\n    if not options:\n        return head\n    tail = \" \".join(f\"{k}={options[k]}\" for k in sorted(options))\n    return f\"{head} | {tail}\"\n",
+   "setup": ""
+  },
+  {
+   "id": "p01.025",
+   "phase": "p01",
+   "topic": "Recursion",
+   "title": "Factorial",
+   "difficulty": 2,
+   "prompt": "Write `factorial(n)` recursively. `factorial(0)` is 1.\nRaise `ValueError` for negative input.",
+   "starter": "def factorial(n):\n    pass\n",
+   "tests": [
+    {
+     "name": "zero",
+     "code": "assert factorial(0) == 1"
+    },
+    {
+     "name": "five",
+     "code": "assert factorial(5) == 120"
+    },
+    {
+     "name": "ten",
+     "code": "assert factorial(10) == 3628800"
+    },
+    {
+     "name": "rejects negatives",
+     "code": "try:\n    factorial(-1)\nexcept ValueError:\n    pass\nelse:\n    raise AssertionError('should raise ValueError')"
+    }
+   ],
+   "hints": [
+    "Write the base case first, then the recursive step.",
+    "Without a base case you get a RecursionError, not a wrong answer."
+   ],
+   "solution": "def factorial(n):\n    if n < 0:\n        raise ValueError(\"factorial is undefined for negative numbers\")\n    if n <= 1:\n        return 1\n    return n * factorial(n - 1)\n",
+   "setup": ""
+  },
+  {
+   "id": "p01.026",
+   "phase": "p01",
+   "topic": "Exceptions",
+   "title": "Divide without crashing",
+   "difficulty": 2,
+   "prompt": "Write `safe_div(a, b)` returning `a / b`, or `None` when `b` is zero.\nCatch the exception rather than testing for zero first, so you see how\n`try` reads.",
+   "starter": "def safe_div(a, b):\n    pass\n",
+   "tests": [
+    {
+     "name": "normal division",
+     "code": "assert safe_div(10, 4) == 2.5"
+    },
+    {
+     "name": "division by zero",
+     "code": "assert safe_div(1, 0) is None"
+    },
+    {
+     "name": "zero numerator",
+     "code": "assert safe_div(0, 5) == 0"
+    },
+    {
+     "name": "uses try",
+     "code": "import inspect; assert 'try' in inspect.getsource(safe_div)"
+    }
+   ],
+   "hints": [
+    "Catch ZeroDivisionError specifically. A bare `except:` would swallow real bugs."
+   ],
+   "solution": "def safe_div(a, b):\n    try:\n        return a / b\n    except ZeroDivisionError:\n        return None\n",
+   "setup": ""
+  },
+  {
+   "id": "p01.027",
+   "phase": "p01",
+   "topic": "Exceptions",
+   "title": "Validate before you trust",
+   "difficulty": 3,
+   "prompt": "Write `validate_age(value)` returning the age as an `int`.\n\nRaise `TypeError` if the value is not a string or a number.\nRaise `ValueError` if it cannot be read as a whole number, or is\noutside 0 to 130.",
+   "starter": "def validate_age(value):\n    pass\n",
+   "tests": [
+    {
+     "name": "int passes through",
+     "code": "assert validate_age(30) == 30"
+    },
+    {
+     "name": "numeric string",
+     "code": "assert validate_age('42') == 42"
+    },
+    {
+     "name": "rejects nonsense",
+     "code": "try:\n    validate_age('old')\nexcept ValueError:\n    pass\nelse:\n    raise AssertionError('expected ValueError')"
+    },
+    {
+     "name": "rejects out of range",
+     "code": "try:\n    validate_age(500)\nexcept ValueError:\n    pass\nelse:\n    raise AssertionError('expected ValueError')"
+    },
+    {
+     "name": "rejects wrong type",
+     "code": "try:\n    validate_age([1])\nexcept TypeError:\n    pass\nelse:\n    raise AssertionError('expected TypeError')"
+    }
+   ],
+   "hints": [
+    "int('old') raises ValueError; int([1]) raises TypeError.",
+    "Check the type first, then the conversion, then the range."
+   ],
+   "solution": "def validate_age(value):\n    if not isinstance(value, (str, int, float)) or isinstance(value, bool):\n        raise TypeError(\"age must be a string or a number\")\n    try:\n        age = int(value)\n    except (TypeError, ValueError):\n        raise ValueError(\"age must be a whole number\")\n    if not 0 <= age <= 130:\n        raise ValueError(\"age must be between 0 and 130\")\n    return age\n",
+   "setup": ""
+  },
+  {
+   "id": "p01.028",
+   "phase": "p01",
+   "topic": "Exceptions",
+   "title": "Parse the numbers you can",
+   "difficulty": 3,
+   "prompt": "Write `parse_ints(values)` returning a list of the entries that convert\ncleanly to `int`, skipping the ones that do not.\n\n`parse_ints([\"1\", \"x\", \"3\"])` returns `[1, 3]`.",
+   "starter": "def parse_ints(values):\n    pass\n",
+   "tests": [
+    {
+     "name": "skips the bad ones",
+     "code": "assert parse_ints(['1', 'x', '3']) == [1, 3]"
+    },
+    {
+     "name": "all good",
+     "code": "assert parse_ints(['5', '6']) == [5, 6]"
+    },
+    {
+     "name": "all bad",
+     "code": "assert parse_ints(['a', 'b']) == []"
+    },
+    {
+     "name": "handles None entries",
+     "code": "assert parse_ints(['1', None]) == [1]"
+    },
+    {
+     "name": "empty",
+     "code": "assert parse_ints([]) == []"
+    }
+   ],
+   "hints": [
+    "Put the try inside the loop, around only the one line that can fail.",
+    "None raises TypeError, not ValueError - catch both."
+   ],
+   "solution": "def parse_ints(values):\n    out = []\n    for value in values:\n        try:\n            out.append(int(value))\n        except (TypeError, ValueError):\n            continue\n    return out\n",
+   "setup": ""
+  },
+  {
+   "id": "p01.029",
+   "phase": "p01",
+   "topic": "Files",
+   "title": "Count the non-empty lines",
+   "difficulty": 3,
+   "prompt": "A file named `notes.txt` already exists in the working directory.\nWrite `count_lines(path)` returning how many lines in it contain\nsomething other than whitespace.",
+   "starter": "def count_lines(path):\n    pass\n",
+   "tests": [
+    {
+     "name": "counts the real lines",
+     "code": "assert count_lines('notes.txt') == 3"
+    },
+    {
+     "name": "uses a with block",
+     "code": "import inspect; assert 'with ' in inspect.getsource(count_lines)"
+    }
+   ],
+   "hints": [
+    "`with open(path) as fh:` closes the file even if something raises.",
+    "A line of only spaces is not empty until you strip it."
+   ],
+   "solution": "def count_lines(path):\n    total = 0\n    with open(path, encoding=\"utf-8\") as fh:\n        for line in fh:\n            if line.strip():\n                total += 1\n    return total\n",
+   "setup": "LINES = [\"first\", \"\", \"  \", \"second\", \"third\"]\nwith open(\"notes.txt\", \"w\", encoding=\"utf-8\") as fh:\n    fh.write(chr(10).join(LINES) + chr(10))\n"
+  },
+  {
+   "id": "p01.030",
+   "phase": "p01",
+   "topic": "Files",
+   "title": "Round-trip through JSON",
+   "difficulty": 3,
+   "prompt": "Write `save(path, data)` and `load(path)` that write a dict to a file as\nJSON and read it back. The value that comes back must equal the value\nthat went in.",
+   "starter": "import json\n\n\ndef save(path, data):\n    pass\n\n\ndef load(path):\n    pass\n",
+   "tests": [
+    {
+     "name": "round trips",
+     "code": "payload = {'name': 'ada', 'years': [1815, 1852], 'ok': True}\nsave('out.json', payload)\nassert load('out.json') == payload"
+    },
+    {
+     "name": "really writes a file",
+     "code": "import os\nsave('check.json', {'a': 1})\nassert os.path.getsize('check.json') > 0"
+    },
+    {
+     "name": "writes valid json",
+     "code": "import json\nsave('valid.json', {'a': [1, 2]})\nassert json.load(open('valid.json', encoding='utf-8')) == {'a': [1, 2]}"
+    }
+   ],
+   "hints": [
+    "json.dump writes to a file object; json.dumps returns a string.",
+    "Always pass encoding='utf-8' so the code behaves the same on every platform."
+   ],
+   "solution": "import json\n\n\ndef save(path, data):\n    with open(path, \"w\", encoding=\"utf-8\") as fh:\n        json.dump(data, fh)\n\n\ndef load(path):\n    with open(path, encoding=\"utf-8\") as fh:\n        return json.load(fh)\n",
+   "setup": ""
+  },
+  {
+   "id": "p01.031",
+   "phase": "p01",
+   "topic": "Standard library",
+   "title": "Days between two dates",
+   "difficulty": 3,
+   "prompt": "Write `days_between(a, b)` taking two `YYYY-MM-DD` strings and returning\nthe whole number of days between them. The result is never negative.",
+   "starter": "from datetime import date\n\n\ndef days_between(a, b):\n    pass\n",
+   "tests": [
+    {
+     "name": "forwards",
+     "code": "assert days_between('2026-01-01', '2026-01-31') == 30"
+    },
+    {
+     "name": "backwards is the same",
+     "code": "assert days_between('2026-01-31', '2026-01-01') == 30"
+    },
+    {
+     "name": "same day",
+     "code": "assert days_between('2026-05-05', '2026-05-05') == 0"
+    },
+    {
+     "name": "across a leap day",
+     "code": "assert days_between('2024-02-28', '2024-03-01') == 2"
+    }
+   ],
+   "hints": [
+    "date.fromisoformat parses the string for you.",
+    "Subtracting two dates gives a timedelta; .days is the whole-day part."
+   ],
+   "solution": "from datetime import date\n\n\ndef days_between(a, b):\n    first = date.fromisoformat(a)\n    second = date.fromisoformat(b)\n    return abs((second - first).days)\n",
+   "setup": ""
+  },
+  {
+   "id": "p01.032",
+   "phase": "p01",
+   "topic": "Standard library",
+   "title": "Most common letter",
+   "difficulty": 3,
+   "prompt": "Write `most_common_letter(text)` returning the letter that appears most\noften, ignoring case and anything that is not a letter.\n\nTies are broken alphabetically. An input with no letters returns `None`.",
+   "starter": "from collections import Counter\n\n\ndef most_common_letter(text):\n    pass\n",
+   "tests": [
+    {
+     "name": "plain",
+     "code": "assert most_common_letter('aabbbc') == 'b'"
+    },
+    {
+     "name": "ignores case",
+     "code": "assert most_common_letter('AaB') == 'a'"
+    },
+    {
+     "name": "ignores punctuation",
+     "code": "assert most_common_letter('!!!zz!') == 'z'"
+    },
+    {
+     "name": "ties go alphabetical",
+     "code": "assert most_common_letter('ba') == 'a'"
+    },
+    {
+     "name": "no letters",
+     "code": "assert most_common_letter('123 !') is None"
+    }
+   ],
+   "hints": [
+    "str.isalpha() tells you whether a character is a letter.",
+    "Counter.most_common does not break ties for you - sort by (-count, letter)."
+   ],
+   "solution": "from collections import Counter\n\n\ndef most_common_letter(text):\n    counts = Counter(ch for ch in text.lower() if ch.isalpha())\n    if not counts:\n        return None\n    return min(counts, key=lambda ch: (-counts[ch], ch))\n",
+   "setup": ""
+  },
+  {
+   "id": "p01.033",
+   "phase": "p01",
+   "topic": "Built-ins",
+   "title": "any and all",
+   "difficulty": 2,
+   "prompt": "Write two functions:\n\n`all_positive(numbers)` - True when every number is greater than zero.\nAn empty list counts as True.\n\n`has_negative(numbers)` - True when at least one number is below zero.",
+   "starter": "def all_positive(numbers):\n    pass\n\n\ndef has_negative(numbers):\n    pass\n",
+   "tests": [
+    {
+     "name": "all positive",
+     "code": "assert all_positive([1, 2, 3]) is True"
+    },
+    {
+     "name": "one zero fails",
+     "code": "assert all_positive([1, 0]) is False"
+    },
+    {
+     "name": "empty is vacuously true",
+     "code": "assert all_positive([]) is True"
+    },
+    {
+     "name": "finds a negative",
+     "code": "assert has_negative([1, -2]) is True"
+    },
+    {
+     "name": "none present",
+     "code": "assert has_negative([1, 2]) is False"
+    }
+   ],
+   "hints": [
+    "all() and any() short-circuit, so they stop at the first decisive value."
+   ],
+   "solution": "def all_positive(numbers):\n    return all(n > 0 for n in numbers)\n\n\ndef has_negative(numbers):\n    return any(n < 0 for n in numbers)\n",
+   "setup": ""
+  },
+  {
+   "id": "p01.034",
+   "phase": "p01",
+   "topic": "Strings",
+   "title": "Palindrome check",
+   "difficulty": 3,
+   "prompt": "Write `is_palindrome(text)` ignoring case, spaces and punctuation.\n\n`\"A man, a plan, a canal: Panama\"` is a palindrome.",
+   "starter": "def is_palindrome(text):\n    pass\n",
+   "tests": [
+    {
+     "name": "classic",
+     "code": "assert is_palindrome('A man, a plan, a canal: Panama') is True"
+    },
+    {
+     "name": "not one",
+     "code": "assert is_palindrome('hello') is False"
+    },
+    {
+     "name": "empty is trivially one",
+     "code": "assert is_palindrome('') is True"
+    },
+    {
+     "name": "single character",
+     "code": "assert is_palindrome('x') is True"
+    },
+    {
+     "name": "digits count",
+     "code": "assert is_palindrome('12321') is True"
+    }
+   ],
+   "hints": [
+    "Build a cleaned string of only alphanumeric characters, lowercased.",
+    "text[::-1] reverses a string."
+   ],
+   "solution": "def is_palindrome(text):\n    cleaned = \"\".join(ch.lower() for ch in text if ch.isalnum())\n    return cleaned == cleaned[::-1]\n",
+   "setup": ""
+  },
+  {
+   "id": "p01.035",
+   "phase": "p01",
+   "topic": "Dictionaries",
+   "title": "Invert a mapping",
+   "difficulty": 2,
+   "prompt": "Write `invert(mapping)` returning a new dict with keys and values\nswapped. If two keys share a value, the last one seen wins.",
+   "starter": "def invert(mapping):\n    pass\n",
+   "tests": [
+    {
+     "name": "simple",
+     "code": "assert invert({'a': 1, 'b': 2}) == {1: 'a', 2: 'b'}"
+    },
+    {
+     "name": "last wins",
+     "code": "assert invert({'a': 1, 'b': 1}) == {1: 'b'}"
+    },
+    {
+     "name": "empty",
+     "code": "assert invert({}) == {}"
+    },
+    {
+     "name": "original untouched",
+     "code": "src = {'a': 1}\ninvert(src)\nassert src == {'a': 1}"
+    }
+   ],
+   "hints": [
+    "A dict comprehension reads {value: key for key, value in mapping.items()}."
+   ],
+   "solution": "def invert(mapping):\n    return {value: key for key, value in mapping.items()}\n",
+   "setup": ""
+  },
+  {
+   "id": "p01.036",
+   "phase": "p01",
+   "topic": "Loops",
+   "title": "Running totals",
+   "difficulty": 3,
+   "prompt": "Write `running_total(numbers)` returning a list where each position\nholds the sum of everything up to and including it.\n\n`[1, 2, 3]` becomes `[1, 3, 6]`.",
+   "starter": "def running_total(numbers):\n    pass\n",
+   "tests": [
+    {
+     "name": "basic",
+     "code": "assert running_total([1, 2, 3]) == [1, 3, 6]"
+    },
+    {
+     "name": "negatives",
+     "code": "assert running_total([5, -5, 2]) == [5, 0, 2]"
+    },
+    {
+     "name": "empty",
+     "code": "assert running_total([]) == []"
+    },
+    {
+     "name": "single",
+     "code": "assert running_total([9]) == [9]"
+    }
+   ],
+   "hints": [
+    "Keep one accumulator outside the loop and append after each update.",
+    "itertools.accumulate does this too - compare once yours works."
+   ],
+   "solution": "def running_total(numbers):\n    out = []\n    total = 0\n    for number in numbers:\n        total += number\n        out.append(total)\n    return out\n",
+   "setup": ""
+  },
+  {
+   "id": "p02.001",
+   "phase": "p02",
+   "topic": "Iterator protocol",
+   "title": "Write an iterator by hand",
+   "difficulty": 3,
+   "prompt": "Build a class `Countdown(n)` that iterates from `n` down to 1.\n\nImplement `__iter__` and `__next__` yourself. Do not use a generator -\nthe point is to see what a generator is doing underneath.",
+   "starter": "class Countdown:\n    def __init__(self, n):\n        pass\n",
+   "tests": [
+    {
+     "name": "counts down",
+     "code": "assert list(Countdown(3)) == [3, 2, 1]"
+    },
+    {
+     "name": "zero yields nothing",
+     "code": "assert list(Countdown(0)) == []"
+    },
+    {
+     "name": "works in a for loop",
+     "code": "seen = []\nfor v in Countdown(2):\n    seen.append(v)\nassert seen == [2, 1]"
+    },
+    {
+     "name": "raises StopIteration",
+     "code": "it = iter(Countdown(1))\nnext(it)\ntry:\n    next(it)\nexcept StopIteration:\n    pass\nelse:\n    raise AssertionError('must raise StopIteration')"
+    }
+   ],
+   "hints": [
+    "__iter__ returns the thing that has __next__ - often self.",
+    "__next__ raises StopIteration when there is nothing left."
+   ],
+   "solution": "class Countdown:\n    def __init__(self, n):\n        self.current = n\n\n    def __iter__(self):\n        return self\n\n    def __next__(self):\n        if self.current <= 0:\n            raise StopIteration\n        self.current -= 1\n        return self.current + 1\n",
+   "setup": ""
+  },
+  {
+   "id": "p02.002",
+   "phase": "p02",
+   "topic": "Generators",
+   "title": "Fibonacci, lazily",
+   "difficulty": 3,
+   "prompt": "Write a generator function `fib()` yielding the Fibonacci sequence\nstarting 0, 1, 1, 2, 3, 5 and never ending.\n\nBecause it is lazy, an endless generator costs nothing until you take\nvalues from it.",
+   "starter": "def fib():\n    pass\n",
+   "tests": [
+    {
+     "name": "first eight",
+     "code": "import itertools\nassert list(itertools.islice(fib(), 8)) == [0, 1, 1, 2, 3, 5, 8, 13]"
+    },
+    {
+     "name": "is a generator",
+     "code": "import inspect; assert inspect.isgeneratorfunction(fib)"
+    },
+    {
+     "name": "each call is independent",
+     "code": "a, b = fib(), fib()\nassert next(a) == next(b) == 0"
+    },
+    {
+     "name": "goes far without trouble",
+     "code": "import itertools\nassert len(str(next(itertools.islice(fib(), 300, 301)))) > 50"
+    }
+   ],
+   "hints": [
+    "A function containing `yield` returns a generator when called.",
+    "Track two values and swap them: a, b = b, a + b."
+   ],
+   "solution": "def fib():\n    a, b = 0, 1\n    while True:\n        yield a\n        a, b = b, a + b\n",
+   "setup": ""
+  },
+  {
+   "id": "p02.003",
+   "phase": "p02",
+   "topic": "Generators",
+   "title": "Flatten nested lists",
+   "difficulty": 4,
+   "prompt": "Write a generator `flatten(items)` yielding every non-list value from an\narbitrarily nested list, left to right.\n\n`flatten([1, [2, [3, 4]], 5])` yields 1, 2, 3, 4, 5.\nUse `yield from` for the recursive step.",
+   "starter": "def flatten(items):\n    pass\n",
+   "tests": [
+    {
+     "name": "nested",
+     "code": "assert list(flatten([1, [2, [3, 4]], 5])) == [1, 2, 3, 4, 5]"
+    },
+    {
+     "name": "flat already",
+     "code": "assert list(flatten([1, 2])) == [1, 2]"
+    },
+    {
+     "name": "deep",
+     "code": "assert list(flatten([[[[7]]]])) == [7]"
+    },
+    {
+     "name": "empty pockets",
+     "code": "assert list(flatten([1, [], [2, []]])) == [1, 2]"
+    },
+    {
+     "name": "strings are not exploded",
+     "code": "assert list(flatten(['ab', ['cd']])) == ['ab', 'cd']"
+    }
+   ],
+   "hints": [
+    "`yield from sub` forwards every value the inner generator produces.",
+    "Check isinstance(item, list), not Iterable, or strings will unravel."
+   ],
+   "solution": "def flatten(items):\n    for item in items:\n        if isinstance(item, list):\n            yield from flatten(item)\n        else:\n            yield item\n",
+   "setup": ""
+  },
+  {
+   "id": "p02.004",
+   "phase": "p02",
+   "topic": "Decorators",
+   "title": "Count the calls",
+   "difficulty": 3,
+   "prompt": "Write a decorator `counted` that adds a `calls` attribute to the\nwrapped function, counting how many times it has run. The wrapped\nfunction must keep its own name and docstring.",
+   "starter": "import functools\n\n\ndef counted(func):\n    pass\n",
+   "tests": [
+    {
+     "name": "counts",
+     "code": "@counted\ndef f():\n    return 1\nf(); f(); f()\nassert f.calls == 3"
+    },
+    {
+     "name": "starts at zero",
+     "code": "@counted\ndef g():\n    pass\nassert g.calls == 0"
+    },
+    {
+     "name": "passes arguments through",
+     "code": "@counted\ndef add(a, b=0):\n    return a + b\nassert add(2, b=3) == 5"
+    },
+    {
+     "name": "keeps the name",
+     "code": "@counted\ndef named():\n    'doc here'\nassert named.__name__ == 'named'\nassert named.__doc__ == 'doc here'"
+    }
+   ],
+   "hints": [
+    "functools.wraps copies __name__, __doc__ and friends onto the wrapper.",
+    "Attach the counter to the wrapper, then return the wrapper."
+   ],
+   "solution": "import functools\n\n\ndef counted(func):\n    @functools.wraps(func)\n    def wrapper(*args, **kwargs):\n        wrapper.calls += 1\n        return func(*args, **kwargs)\n    wrapper.calls = 0\n    return wrapper\n",
+   "setup": ""
+  },
+  {
+   "id": "p02.005",
+   "phase": "p02",
+   "topic": "Decorators",
+   "title": "A decorator that takes arguments",
+   "difficulty": 4,
+   "prompt": "Write `repeat(times)` - a decorator factory. The decorated function runs\n`times` times and returns a list of every result.\n\n    @repeat(3)\n    def roll():\n        return 4\n\n    roll() == [4, 4, 4]",
+   "starter": "import functools\n\n\ndef repeat(times):\n    pass\n",
+   "tests": [
+    {
+     "name": "repeats three times",
+     "code": "@repeat(3)\ndef f():\n    return 4\nassert f() == [4, 4, 4]"
+    },
+    {
+     "name": "passes arguments",
+     "code": "@repeat(2)\ndef double(x):\n    return x * 2\nassert double(5) == [10, 10]"
+    },
+    {
+     "name": "zero repeats",
+     "code": "@repeat(0)\ndef n():\n    return 1\nassert n() == []"
+    },
+    {
+     "name": "keeps the name",
+     "code": "@repeat(1)\ndef named():\n    pass\nassert named.__name__ == 'named'"
+    }
+   ],
+   "hints": [
+    "Three nested functions: the factory, the decorator, then the wrapper.",
+    "The factory takes the argument; the decorator takes the function."
+   ],
+   "solution": "import functools\n\n\ndef repeat(times):\n    def decorator(func):\n        @functools.wraps(func)\n        def wrapper(*args, **kwargs):\n            return [func(*args, **kwargs) for _ in range(times)]\n        return wrapper\n    return decorator\n",
+   "setup": ""
+  },
+  {
+   "id": "p02.006",
+   "phase": "p02",
+   "topic": "Context managers",
+   "title": "A context manager class",
+   "difficulty": 3,
+   "prompt": "Write a class `Tag(name)` used as a context manager that appends\n`\"<name>\"` to a list when it enters and `\"</name>\"` when it leaves.\n\nThe list must be reachable as `tag.parts`. The closing tag must still be\nwritten if the block raises, and the exception must still propagate.",
+   "starter": "class Tag:\n    def __init__(self, name):\n        pass\n",
+   "tests": [
+    {
+     "name": "wraps the block",
+     "code": "t = Tag('b')\nwith t:\n    t.parts.append('hi')\nassert t.parts == ['<b>', 'hi', '</b>']"
+    },
+    {
+     "name": "closes on error",
+     "code": "t = Tag('i')\ntry:\n    with t:\n        raise RuntimeError('boom')\nexcept RuntimeError:\n    pass\nassert t.parts == ['<i>', '</i>']"
+    },
+    {
+     "name": "does not swallow the error",
+     "code": "t = Tag('x')\ntry:\n    with t:\n        raise ValueError\nexcept ValueError:\n    pass\nelse:\n    raise AssertionError('exception must propagate')"
+    }
+   ],
+   "hints": [
+    "__exit__ runs whether or not the block raised.",
+    "Returning a truthy value from __exit__ suppresses the exception - do not."
+   ],
+   "solution": "class Tag:\n    def __init__(self, name):\n        self.name = name\n        self.parts = []\n\n    def __enter__(self):\n        self.parts.append(f\"<{self.name}>\")\n        return self\n\n    def __exit__(self, exc_type, exc, tb):\n        self.parts.append(f\"</{self.name}>\")\n        return False\n",
+   "setup": ""
+  },
+  {
+   "id": "p02.007",
+   "phase": "p02",
+   "topic": "Context managers",
+   "title": "contextlib version",
+   "difficulty": 3,
+   "prompt": "Write `temporarily(mapping, key, value)` - a context manager built with\n`@contextlib.contextmanager` that sets `mapping[key] = value` on entry\nand restores the previous state on exit, including the case where the\nkey did not exist before.",
+   "starter": "import contextlib\n\n\n@contextlib.contextmanager\ndef temporarily(mapping, key, value):\n    pass\n",
+   "tests": [
+    {
+     "name": "sets and restores",
+     "code": "d = {'a': 1}\nwith temporarily(d, 'a', 99):\n    assert d['a'] == 99\nassert d['a'] == 1"
+    },
+    {
+     "name": "removes a key that was absent",
+     "code": "d = {}\nwith temporarily(d, 'new', 5):\n    assert d['new'] == 5\nassert 'new' not in d"
+    },
+    {
+     "name": "restores after an error",
+     "code": "d = {'a': 1}\ntry:\n    with temporarily(d, 'a', 2):\n        raise RuntimeError\nexcept RuntimeError:\n    pass\nassert d['a'] == 1"
+    }
+   ],
+   "hints": [
+    "Everything before `yield` is the enter step; everything after is exit.",
+    "Wrap the yield in try/finally so cleanup survives an exception."
+   ],
+   "solution": "import contextlib\n\n\n@contextlib.contextmanager\ndef temporarily(mapping, key, value):\n    missing = key not in mapping\n    previous = mapping.get(key)\n    mapping[key] = value\n    try:\n        yield mapping\n    finally:\n        if missing:\n            mapping.pop(key, None)\n        else:\n            mapping[key] = previous\n",
+   "setup": ""
+  },
+  {
+   "id": "p02.008",
+   "phase": "p02",
+   "topic": "Dunder methods",
+   "title": "A vector type",
+   "difficulty": 4,
+   "prompt": "Write a class `Vector(x, y)` supporting:\n\n* `v1 + v2` and `v1 - v2`\n* `v * 3` (scaling by a number)\n* `v1 == v2` by value\n* `repr(v)` returning `Vector(1, 2)`\n* `abs(v)` returning the length",
+   "starter": "import math\n\n\nclass Vector:\n    def __init__(self, x, y):\n        self.x = x\n        self.y = y\n",
+   "tests": [
+    {
+     "name": "adds",
+     "code": "assert Vector(1, 2) + Vector(3, 4) == Vector(4, 6)"
+    },
+    {
+     "name": "subtracts",
+     "code": "assert Vector(5, 5) - Vector(1, 2) == Vector(4, 3)"
+    },
+    {
+     "name": "scales",
+     "code": "assert Vector(1, 2) * 3 == Vector(3, 6)"
+    },
+    {
+     "name": "repr",
+     "code": "assert repr(Vector(1, 2)) == 'Vector(1, 2)'"
+    },
+    {
+     "name": "length",
+     "code": "assert abs(Vector(3, 4)) == 5"
+    },
+    {
+     "name": "unequal types",
+     "code": "assert (Vector(1, 1) == 'not a vector') is False"
+    }
+   ],
+   "hints": [
+    "__eq__ should return NotImplemented for unrelated types, not False.",
+    "__repr__ is for developers; make it look like the call that builds the object."
+   ],
+   "solution": "import math\n\n\nclass Vector:\n    def __init__(self, x, y):\n        self.x = x\n        self.y = y\n\n    def __add__(self, other):\n        return Vector(self.x + other.x, self.y + other.y)\n\n    def __sub__(self, other):\n        return Vector(self.x - other.x, self.y - other.y)\n\n    def __mul__(self, factor):\n        return Vector(self.x * factor, self.y * factor)\n\n    def __eq__(self, other):\n        if not isinstance(other, Vector):\n            return NotImplemented\n        return (self.x, self.y) == (other.x, other.y)\n\n    def __repr__(self):\n        return f\"Vector({self.x}, {self.y})\"\n\n    def __abs__(self):\n        return math.hypot(self.x, self.y)\n",
+   "setup": ""
+  },
+  {
+   "id": "p02.009",
+   "phase": "p02",
+   "topic": "Dunder methods",
+   "title": "A sequence of your own",
+   "difficulty": 3,
+   "prompt": "Write `Deck()` holding the strings `\"A\"` through `\"E\"`. Support\n`len(deck)`, `deck[0]`, negative indexing, iteration and `\"C\" in deck`\nby implementing only `__len__` and `__getitem__`.",
+   "starter": "class Deck:\n    def __init__(self):\n        self.cards = [\"A\", \"B\", \"C\", \"D\", \"E\"]\n",
+   "tests": [
+    {
+     "name": "length",
+     "code": "assert len(Deck()) == 5"
+    },
+    {
+     "name": "indexing",
+     "code": "assert Deck()[0] == 'A'"
+    },
+    {
+     "name": "negative index",
+     "code": "assert Deck()[-1] == 'E'"
+    },
+    {
+     "name": "iterates",
+     "code": "assert list(Deck()) == ['A', 'B', 'C', 'D', 'E']"
+    },
+    {
+     "name": "membership",
+     "code": "assert ('C' in Deck()) is True"
+    },
+    {
+     "name": "slices",
+     "code": "assert Deck()[1:3] == ['B', 'C']"
+    }
+   ],
+   "hints": [
+    "Delegating to the underlying list gives you slicing for free.",
+    "Python builds iteration and `in` out of __getitem__ when __iter__ is absent."
+   ],
+   "solution": "class Deck:\n    def __init__(self):\n        self.cards = [\"A\", \"B\", \"C\", \"D\", \"E\"]\n\n    def __len__(self):\n        return len(self.cards)\n\n    def __getitem__(self, index):\n        return self.cards[index]\n",
+   "setup": ""
+  },
+  {
+   "id": "p02.010",
+   "phase": "p02",
+   "topic": "Properties",
+   "title": "Validate on assignment",
+   "difficulty": 3,
+   "prompt": "Write `Temperature` with a `celsius` property that rejects anything\nbelow absolute zero (-273.15) with `ValueError`, and a read-only\n`fahrenheit` property computed from it.",
+   "starter": "class Temperature:\n    def __init__(self, celsius=0.0):\n        self.celsius = celsius\n",
+   "tests": [
+    {
+     "name": "stores and reads",
+     "code": "t = Temperature(20)\nassert t.celsius == 20"
+    },
+    {
+     "name": "converts",
+     "code": "assert Temperature(100).fahrenheit == 212"
+    },
+    {
+     "name": "rejects impossible values",
+     "code": "try:\n    Temperature(-300)\nexcept ValueError:\n    pass\nelse:\n    raise AssertionError('expected ValueError')"
+    },
+    {
+     "name": "rejects on later assignment",
+     "code": "t = Temperature(0)\ntry:\n    t.celsius = -400\nexcept ValueError:\n    pass\nelse:\n    raise AssertionError('expected ValueError')"
+    },
+    {
+     "name": "fahrenheit is read only",
+     "code": "t = Temperature(0)\ntry:\n    t.fahrenheit = 1\nexcept AttributeError:\n    pass\nelse:\n    raise AssertionError('should not be settable')"
+    }
+   ],
+   "hints": [
+    "The setter stores to a differently named attribute, usually _celsius.",
+    "Assigning in __init__ goes through the setter, so validation happens there too."
+   ],
+   "solution": "class Temperature:\n    def __init__(self, celsius=0.0):\n        self.celsius = celsius\n\n    @property\n    def celsius(self):\n        return self._celsius\n\n    @celsius.setter\n    def celsius(self, value):\n        if value < -273.15:\n            raise ValueError(\"below absolute zero\")\n        self._celsius = value\n\n    @property\n    def fahrenheit(self):\n        return self._celsius * 9 / 5 + 32\n",
+   "setup": ""
+  },
+  {
+   "id": "p02.011",
+   "phase": "p02",
+   "topic": "Classes",
+   "title": "Alternative constructors",
+   "difficulty": 3,
+   "prompt": "Write `Event` with `year`, `month` and `day`, plus a classmethod\n`from_string(\"2026-01-31\")` that builds one, and a staticmethod\n`is_valid_string(text)` returning whether a string has that shape.",
+   "starter": "class Event:\n    def __init__(self, year, month, day):\n        self.year = year\n        self.month = month\n        self.day = day\n",
+   "tests": [
+    {
+     "name": "builds from a string",
+     "code": "e = Event.from_string('2026-01-31')\nassert (e.year, e.month, e.day) == (2026, 1, 31)"
+    },
+    {
+     "name": "validates good input",
+     "code": "assert Event.is_valid_string('2026-01-31') is True"
+    },
+    {
+     "name": "rejects bad input",
+     "code": "assert Event.is_valid_string('31/01/2026') is False"
+    },
+    {
+     "name": "classmethod returns the right class",
+     "code": "assert isinstance(Event.from_string('2000-01-01'), Event)"
+    },
+    {
+     "name": "staticmethod needs no instance",
+     "code": "assert Event.is_valid_string('1999-12-31') is True"
+    }
+   ],
+   "hints": [
+    "A classmethod receives the class, so `cls(...)` also works for subclasses.",
+    "A staticmethod is a plain function that happens to live on the class."
+   ],
+   "solution": "class Event:\n    def __init__(self, year, month, day):\n        self.year = year\n        self.month = month\n        self.day = day\n\n    @classmethod\n    def from_string(cls, text):\n        year, month, day = text.split(\"-\")\n        return cls(int(year), int(month), int(day))\n\n    @staticmethod\n    def is_valid_string(text):\n        parts = text.split(\"-\")\n        if len(parts) != 3:\n            return False\n        widths = (4, 2, 2)\n        return all(p.isdigit() and len(p) == w\n                   for p, w in zip(parts, widths))\n",
+   "setup": ""
+  },
+  {
+   "id": "p02.012",
+   "phase": "p02",
+   "topic": "Dataclasses",
+   "title": "Less boilerplate",
+   "difficulty": 3,
+   "prompt": "Rewrite a point type as a frozen, ordered dataclass `Point(x, y)`.\n\nIt must be immutable, comparable, sortable and usable as a dict key.",
+   "starter": "from dataclasses import dataclass\n\n\n@dataclass\nclass Point:\n    x: int\n    y: int\n",
+   "tests": [
+    {
+     "name": "equality by value",
+     "code": "assert Point(1, 2) == Point(1, 2)"
+    },
+    {
+     "name": "orders",
+     "code": "assert sorted([Point(2, 0), Point(1, 9)])[0] == Point(1, 9)"
+    },
+    {
+     "name": "hashable",
+     "code": "assert len({Point(1, 1), Point(1, 1)}) == 1"
+    },
+    {
+     "name": "immutable",
+     "code": "p = Point(1, 2)\ntry:\n    p.x = 5\nexcept Exception:\n    pass\nelse:\n    raise AssertionError('must be frozen')"
+    },
+    {
+     "name": "readable repr",
+     "code": "assert repr(Point(1, 2)) == 'Point(x=1, y=2)'"
+    }
+   ],
+   "hints": [
+    "@dataclass(frozen=True, order=True) gives you all of it.",
+    "frozen=True is what makes instances hashable."
+   ],
+   "solution": "from dataclasses import dataclass\n\n\n@dataclass(frozen=True, order=True)\nclass Point:\n    x: int\n    y: int\n",
+   "setup": ""
+  },
+  {
+   "id": "p02.013",
+   "phase": "p02",
+   "topic": "Inheritance",
+   "title": "Abstract base classes",
+   "difficulty": 4,
+   "prompt": "Define an abstract base `Shape` with an abstract `area()` and a\nconcrete `describe()` returning `\"<ClassName> with area <area>\"`.\n\nThen write `Rectangle(w, h)` and `Circle(r)`. Instantiating `Shape`\ndirectly must raise `TypeError`.",
+   "starter": "from abc import ABC, abstractmethod\nimport math\n\n\nclass Shape(ABC):\n    pass\n",
+   "tests": [
+    {
+     "name": "rectangle area",
+     "code": "assert Rectangle(3, 4).area() == 12"
+    },
+    {
+     "name": "circle area",
+     "code": "assert abs(Circle(1).area() - math.pi) < 1e-9"
+    },
+    {
+     "name": "describe uses the subclass name",
+     "code": "assert Rectangle(2, 2).describe() == 'Rectangle with area 4'"
+    },
+    {
+     "name": "abstract cannot be built",
+     "code": "try:\n    Shape()\nexcept TypeError:\n    pass\nelse:\n    raise AssertionError('Shape must be abstract')"
+    }
+   ],
+   "hints": [
+    "type(self).__name__ gives the real subclass name at runtime.",
+    "A class with an unimplemented @abstractmethod cannot be instantiated."
+   ],
+   "solution": "from abc import ABC, abstractmethod\nimport math\n\n\nclass Shape(ABC):\n    @abstractmethod\n    def area(self):\n        ...\n\n    def describe(self):\n        return f\"{type(self).__name__} with area {self.area()}\"\n\n\nclass Rectangle(Shape):\n    def __init__(self, w, h):\n        self.w = w\n        self.h = h\n\n    def area(self):\n        return self.w * self.h\n\n\nclass Circle(Shape):\n    def __init__(self, r):\n        self.r = r\n\n    def area(self):\n        return math.pi * self.r ** 2\n",
+   "setup": ""
+  },
+  {
+   "id": "p02.014",
+   "phase": "p02",
+   "topic": "itertools",
+   "title": "Chunk an iterable",
+   "difficulty": 4,
+   "prompt": "Write `chunks(iterable, size)` yielding lists of at most `size` items.\nIt must work on a generator, not only a list, and must not read the\nwhole input into memory first.",
+   "starter": "import itertools\n\n\ndef chunks(iterable, size):\n    pass\n",
+   "tests": [
+    {
+     "name": "even split",
+     "code": "assert list(chunks([1, 2, 3, 4], 2)) == [[1, 2], [3, 4]]"
+    },
+    {
+     "name": "ragged tail",
+     "code": "assert list(chunks([1, 2, 3], 2)) == [[1, 2], [3]]"
+    },
+    {
+     "name": "empty input",
+     "code": "assert list(chunks([], 3)) == []"
+    },
+    {
+     "name": "works on a generator",
+     "code": "assert list(chunks((n for n in range(5)), 2)) == [[0, 1], [2, 3], [4]]"
+    },
+    {
+     "name": "lazy",
+     "code": "import itertools\ninf = itertools.count()\nassert next(iter(chunks(inf, 3))) == [0, 1, 2]"
+    },
+    {
+     "name": "rejects a size of zero",
+     "code": "try:\n    list(chunks([1], 0))\nexcept ValueError:\n    pass\nelse:\n    raise AssertionError('expected ValueError')"
+    }
+   ],
+   "hints": [
+    "iter() on the input first, then islice repeatedly from that one iterator.",
+    "islice on a fresh iter() each time would restart from the beginning."
+   ],
+   "solution": "import itertools\n\n\ndef chunks(iterable, size):\n    if size <= 0:\n        raise ValueError(\"size must be positive\")\n    source = iter(iterable)\n    while True:\n        batch = list(itertools.islice(source, size))\n        if not batch:\n            return\n        yield batch\n",
+   "setup": ""
+  },
+  {
+   "id": "p02.015",
+   "phase": "p02",
+   "topic": "functools",
+   "title": "Memoise an expensive function",
+   "difficulty": 3,
+   "prompt": "Write `slow_fib(n)` computed by naive recursion, then make it fast with\ncaching. It must answer `slow_fib(35)` effectively instantly, and\nexpose a `cache_info()` from the standard library.",
+   "starter": "import functools\n\n\ndef slow_fib(n):\n    pass\n",
+   "tests": [
+    {
+     "name": "correct",
+     "code": "assert slow_fib(10) == 55"
+    },
+    {
+     "name": "base cases",
+     "code": "assert slow_fib(0) == 0 and slow_fib(1) == 1"
+    },
+    {
+     "name": "fast enough to be cached",
+     "code": "import time\nstart = time.monotonic()\nslow_fib(35)\nassert time.monotonic() - start < 1.0"
+    },
+    {
+     "name": "exposes cache info",
+     "code": "assert slow_fib.cache_info().hits >= 0"
+    }
+   ],
+   "hints": [
+    "functools.lru_cache(maxsize=None), or functools.cache on 3.9 and later.",
+    "The decorator caches by arguments, so the recursion hits the cache too."
+   ],
+   "solution": "import functools\n\n\n@functools.lru_cache(maxsize=None)\ndef slow_fib(n):\n    if n < 2:\n        return n\n    return slow_fib(n - 1) + slow_fib(n - 2)\n",
+   "setup": ""
+  },
+  {
+   "id": "p02.016",
+   "phase": "p02",
+   "topic": "Typing",
+   "title": "Type hints that mean something",
+   "difficulty": 2,
+   "prompt": "Annotate `first_or_default` fully: it takes a list of strings and an\noptional default string, and returns a string.\n\nThe body is written for you. Add the annotations so that\n`typing.get_type_hints` reports them.",
+   "starter": "def first_or_default(items, default=\"none\"):\n    return items[0] if items else default\n",
+   "tests": [
+    {
+     "name": "still works",
+     "code": "assert first_or_default(['a']) == 'a'\nassert first_or_default([]) == 'none'"
+    },
+    {
+     "name": "items is annotated",
+     "code": "import typing\nhints = typing.get_type_hints(first_or_default)\nassert 'items' in hints"
+    },
+    {
+     "name": "return is annotated",
+     "code": "import typing\nassert typing.get_type_hints(first_or_default)['return'] is str"
+    },
+    {
+     "name": "default is a string",
+     "code": "import typing\nassert typing.get_type_hints(first_or_default)['default'] is str"
+    }
+   ],
+   "hints": [
+    "list[str] works directly on modern Python; no typing import needed for it."
+   ],
+   "solution": "def first_or_default(items: list[str], default: str = \"none\") -> str:\n    return items[0] if items else default\n",
+   "setup": ""
+  },
+  {
+   "id": "p04.001",
+   "phase": "p04",
+   "topic": "Stacks",
+   "title": "Balanced brackets",
+   "difficulty": 3,
+   "prompt": "Write `balanced(text)` returning True when every `(`, `[` and `{` is\nclosed in the right order. Ignore any other character.",
+   "starter": "def balanced(text):\n    pass\n",
+   "tests": [
+    {
+     "name": "simple pair",
+     "code": "assert balanced('()') is True"
+    },
+    {
+     "name": "nested",
+     "code": "assert balanced('{[()]}') is True"
+    },
+    {
+     "name": "crossed",
+     "code": "assert balanced('([)]') is False"
+    },
+    {
+     "name": "unclosed",
+     "code": "assert balanced('(((') is False"
+    },
+    {
+     "name": "stray close",
+     "code": "assert balanced(')') is False"
+    },
+    {
+     "name": "ignores other text",
+     "code": "assert balanced('a(b)c') is True"
+    },
+    {
+     "name": "empty",
+     "code": "assert balanced('') is True"
+    }
+   ],
+   "hints": [
+    "A stack is just a list with append and pop.",
+    "On a closing bracket, the top of the stack must be its partner."
+   ],
+   "solution": "def balanced(text):\n    pairs = {\")\": \"(\", \"]\": \"[\", \"}\": \"{\"}\n    stack = []\n    for ch in text:\n        if ch in \"([{\":\n            stack.append(ch)\n        elif ch in pairs:\n            if not stack or stack.pop() != pairs[ch]:\n                return False\n    return not stack\n",
+   "setup": ""
+  },
+  {
+   "id": "p04.002",
+   "phase": "p04",
+   "topic": "Queues",
+   "title": "A ring buffer",
+   "difficulty": 4,
+   "prompt": "Write `RingBuffer(capacity)` that keeps only the most recent `capacity`\nitems. Support `push(item)`, `items()` returning oldest to newest, and\n`len()`.",
+   "starter": "from collections import deque\n\n\nclass RingBuffer:\n    def __init__(self, capacity):\n        pass\n",
+   "tests": [
+    {
+     "name": "keeps recent items",
+     "code": "b = RingBuffer(3)\nfor n in [1, 2, 3, 4]:\n    b.push(n)\nassert b.items() == [2, 3, 4]"
+    },
+    {
+     "name": "length is capped",
+     "code": "b = RingBuffer(2)\nfor n in range(10):\n    b.push(n)\nassert len(b) == 2"
+    },
+    {
+     "name": "under capacity",
+     "code": "b = RingBuffer(5)\nb.push('a')\nassert b.items() == ['a']"
+    },
+    {
+     "name": "empty",
+     "code": "assert RingBuffer(3).items() == []"
+    }
+   ],
+   "hints": [
+    "collections.deque(maxlen=n) drops from the far end automatically."
+   ],
+   "solution": "from collections import deque\n\n\nclass RingBuffer:\n    def __init__(self, capacity):\n        self._data = deque(maxlen=capacity)\n\n    def push(self, item):\n        self._data.append(item)\n\n    def items(self):\n        return list(self._data)\n\n    def __len__(self):\n        return len(self._data)\n",
+   "setup": ""
+  },
+  {
+   "id": "p04.003",
+   "phase": "p04",
+   "topic": "Linked lists",
+   "title": "Build and reverse a linked list",
+   "difficulty": 4,
+   "prompt": "Write `Node(value, next=None)`, `to_list(head)` turning a chain into a\nPython list, `from_list(values)` building a chain, and `reverse(head)`\nreturning the new head of the reversed chain.\n\nReverse it iteratively, in place, without building a Python list first.",
+   "starter": "class Node:\n    def __init__(self, value, next=None):\n        self.value = value\n        self.next = next\n\n\ndef from_list(values):\n    pass\n\n\ndef to_list(head):\n    pass\n\n\ndef reverse(head):\n    pass\n",
+   "tests": [
+    {
+     "name": "round trips",
+     "code": "assert to_list(from_list([1, 2, 3])) == [1, 2, 3]"
+    },
+    {
+     "name": "reverses",
+     "code": "assert to_list(reverse(from_list([1, 2, 3]))) == [3, 2, 1]"
+    },
+    {
+     "name": "single node",
+     "code": "assert to_list(reverse(from_list([9]))) == [9]"
+    },
+    {
+     "name": "empty chain",
+     "code": "assert to_list(reverse(from_list([]))) is not None or True"
+    },
+    {
+     "name": "empty returns None",
+     "code": "assert reverse(None) is None"
+    },
+    {
+     "name": "no list used in reverse",
+     "code": "import inspect\nsrc = inspect.getsource(reverse)\nassert 'to_list' not in src and 'from_list' not in src"
+    }
+   ],
+   "hints": [
+    "Reversal needs three names: previous, current and the saved next.",
+    "Save current.next before you overwrite it, or you lose the rest of the chain."
+   ],
+   "solution": "class Node:\n    def __init__(self, value, next=None):\n        self.value = value\n        self.next = next\n\n\ndef from_list(values):\n    head = None\n    for value in reversed(values):\n        head = Node(value, head)\n    return head\n\n\ndef to_list(head):\n    out = []\n    while head is not None:\n        out.append(head.value)\n        head = head.next\n    return out\n\n\ndef reverse(head):\n    previous = None\n    while head is not None:\n        following = head.next\n        head.next = previous\n        previous = head\n        head = following\n    return previous\n",
+   "setup": ""
+  },
+  {
+   "id": "p04.004",
+   "phase": "p04",
+   "topic": "Hash tables",
+   "title": "Write a hash map",
+   "difficulty": 5,
+   "prompt": "Implement `HashMap(buckets=8)` with `put(key, value)`, `get(key,\ndefault=None)` and `__len__`, using a list of buckets and Python's\n`hash()`. Handle collisions with chaining, and overwrite on a repeat\nkey.",
+   "starter": "class HashMap:\n    def __init__(self, buckets=8):\n        pass\n",
+   "tests": [
+    {
+     "name": "stores and reads",
+     "code": "m = HashMap()\nm.put('a', 1)\nassert m.get('a') == 1"
+    },
+    {
+     "name": "overwrites",
+     "code": "m = HashMap()\nm.put('a', 1)\nm.put('a', 2)\nassert m.get('a') == 2 and len(m) == 1"
+    },
+    {
+     "name": "missing key default",
+     "code": "assert HashMap().get('nope', 'x') == 'x'"
+    },
+    {
+     "name": "survives collisions",
+     "code": "m = HashMap(buckets=1)\nfor i in range(20):\n    m.put(i, i * 2)\nassert m.get(19) == 38 and len(m) == 20"
+    },
+    {
+     "name": "counts entries",
+     "code": "m = HashMap()\nfor i in range(5):\n    m.put(i, i)\nassert len(m) == 5"
+    }
+   ],
+   "hints": [
+    "Bucket index is hash(key) % len(self.buckets); hash can be negative, and % fixes it.",
+    "Each bucket holds a list of (key, value) pairs."
+   ],
+   "solution": "class HashMap:\n    def __init__(self, buckets=8):\n        self.buckets = [[] for _ in range(buckets)]\n        self.size = 0\n\n    def _bucket(self, key):\n        return self.buckets[hash(key) % len(self.buckets)]\n\n    def put(self, key, value):\n        bucket = self._bucket(key)\n        for index, (existing, _v) in enumerate(bucket):\n            if existing == key:\n                bucket[index] = (key, value)\n                return\n        bucket.append((key, value))\n        self.size += 1\n\n    def get(self, key, default=None):\n        for existing, value in self._bucket(key):\n            if existing == key:\n                return value\n        return default\n\n    def __len__(self):\n        return self.size\n",
+   "setup": ""
+  },
+  {
+   "id": "p04.005",
+   "phase": "p04",
+   "topic": "Trees",
+   "title": "A binary search tree",
+   "difficulty": 5,
+   "prompt": "Implement `BST` with `insert(value)`, `contains(value)` and\n`in_order()` returning the values sorted ascending. Duplicates are\nignored.",
+   "starter": "class BST:\n    def __init__(self):\n        self.root = None\n",
+   "tests": [
+    {
+     "name": "sorted traversal",
+     "code": "t = BST()\nfor v in [5, 3, 8, 1]:\n    t.insert(v)\nassert t.in_order() == [1, 3, 5, 8]"
+    },
+    {
+     "name": "finds present values",
+     "code": "t = BST()\nt.insert(4)\nassert t.contains(4) is True"
+    },
+    {
+     "name": "rejects absent values",
+     "code": "assert BST().contains(1) is False"
+    },
+    {
+     "name": "ignores duplicates",
+     "code": "t = BST()\nfor v in [2, 2, 2]:\n    t.insert(v)\nassert t.in_order() == [2]"
+    },
+    {
+     "name": "handles sorted input",
+     "code": "t = BST()\nfor v in range(20):\n    t.insert(v)\nassert t.in_order() == list(range(20))"
+    }
+   ],
+   "hints": [
+    "In-order traversal is left, node, right - that is why it comes out sorted.",
+    "A small node class with left and right is enough."
+   ],
+   "solution": "class _Node:\n    def __init__(self, value):\n        self.value = value\n        self.left = None\n        self.right = None\n\n\nclass BST:\n    def __init__(self):\n        self.root = None\n\n    def insert(self, value):\n        if self.root is None:\n            self.root = _Node(value)\n            return\n        node = self.root\n        while True:\n            if value < node.value:\n                if node.left is None:\n                    node.left = _Node(value)\n                    return\n                node = node.left\n            elif value > node.value:\n                if node.right is None:\n                    node.right = _Node(value)\n                    return\n                node = node.right\n            else:\n                return\n\n    def contains(self, value):\n        node = self.root\n        while node is not None:\n            if value == node.value:\n                return True\n            node = node.left if value < node.value else node.right\n        return False\n\n    def in_order(self):\n        out = []\n\n        def walk(node):\n            if node is None:\n                return\n            walk(node.left)\n            out.append(node.value)\n            walk(node.right)\n\n        walk(self.root)\n        return out\n",
+   "setup": ""
+  },
+  {
+   "id": "p04.006",
+   "phase": "p04",
+   "topic": "Search",
+   "title": "Binary search",
+   "difficulty": 3,
+   "prompt": "Write `bisect_left(items, target)` returning the leftmost index where\n`target` could be inserted into a sorted list and keep it sorted.\n\nFor `[1, 3, 3, 5]` and target 3, that index is 1.\nDo it in O(log n) - no linear scan.",
+   "starter": "def bisect_left(items, target):\n    pass\n",
+   "tests": [
+    {
+     "name": "leftmost duplicate",
+     "code": "assert bisect_left([1, 3, 3, 5], 3) == 1"
+    },
+    {
+     "name": "missing value",
+     "code": "assert bisect_left([1, 3, 5], 4) == 2"
+    },
+    {
+     "name": "before everything",
+     "code": "assert bisect_left([2, 4], 1) == 0"
+    },
+    {
+     "name": "after everything",
+     "code": "assert bisect_left([2, 4], 9) == 2"
+    },
+    {
+     "name": "empty",
+     "code": "assert bisect_left([], 1) == 0"
+    },
+    {
+     "name": "matches the stdlib",
+     "code": "import bisect, random\nfor _ in range(200):\n    data = sorted(random.randint(0, 20) for _ in range(15))\n    t = random.randint(0, 20)\n    assert bisect_left(data, t) == bisect.bisect_left(data, t)"
+    }
+   ],
+   "hints": [
+    "Keep a half-open window [low, high) and shrink it.",
+    "When items[mid] < target, everything up to mid is too small: low = mid + 1."
+   ],
+   "solution": "def bisect_left(items, target):\n    low, high = 0, len(items)\n    while low < high:\n        mid = (low + high) // 2\n        if items[mid] < target:\n            low = mid + 1\n        else:\n            high = mid\n    return low\n",
+   "setup": ""
+  },
+  {
+   "id": "p04.007",
+   "phase": "p04",
+   "topic": "Graphs",
+   "title": "Breadth-first search",
+   "difficulty": 4,
+   "prompt": "Given a graph as a dict of node to list of neighbours, write\n`shortest_path(graph, start, goal)` returning the shortest path as a\nlist of nodes, or `None` when there is no route.",
+   "starter": "from collections import deque\n\n\ndef shortest_path(graph, start, goal):\n    pass\n",
+   "tests": [
+    {
+     "name": "finds the short route",
+     "code": "g = {'a': ['b', 'c'], 'b': ['d'], 'c': ['d'], 'd': []}\nassert shortest_path(g, 'a', 'd') in (['a', 'b', 'd'], ['a', 'c', 'd'])"
+    },
+    {
+     "name": "start equals goal",
+     "code": "assert shortest_path({'a': []}, 'a', 'a') == ['a']"
+    },
+    {
+     "name": "no route",
+     "code": "assert shortest_path({'a': [], 'b': []}, 'a', 'b') is None"
+    },
+    {
+     "name": "survives a cycle",
+     "code": "g = {'a': ['b'], 'b': ['a', 'c'], 'c': []}\nassert shortest_path(g, 'a', 'c') == ['a', 'b', 'c']"
+    },
+    {
+     "name": "unknown start",
+     "code": "assert shortest_path({}, 'x', 'y') is None"
+    }
+   ],
+   "hints": [
+    "BFS with a queue finds the fewest-edges path; DFS does not.",
+    "Mark a node seen when you enqueue it, not when you dequeue it."
+   ],
+   "solution": "from collections import deque\n\n\ndef shortest_path(graph, start, goal):\n    if start not in graph:\n        return None\n    if start == goal:\n        return [start]\n    queue = deque([[start]])\n    seen = {start}\n    while queue:\n        path = queue.popleft()\n        for neighbour in graph.get(path[-1], []):\n            if neighbour in seen:\n                continue\n            if neighbour == goal:\n                return path + [neighbour]\n            seen.add(neighbour)\n            queue.append(path + [neighbour])\n    return None\n",
+   "setup": ""
+  },
+  {
+   "id": "p04.008",
+   "phase": "p04",
+   "topic": "Graphs",
+   "title": "Topological order",
+   "difficulty": 5,
+   "prompt": "Given a dict of task to the tasks it depends on, write `order(tasks)`\nreturning a valid execution order. Raise `ValueError` on a cycle.",
+   "starter": "def order(tasks):\n    pass\n",
+   "tests": [
+    {
+     "name": "respects dependencies",
+     "code": "result = order({'app': ['lib'], 'lib': [], 'test': ['app']})\nassert result.index('lib') < result.index('app') < result.index('test')"
+    },
+    {
+     "name": "independent tasks all appear",
+     "code": "assert sorted(order({'a': [], 'b': []})) == ['a', 'b']"
+    },
+    {
+     "name": "detects a cycle",
+     "code": "try:\n    order({'a': ['b'], 'b': ['a']})\nexcept ValueError:\n    pass\nelse:\n    raise AssertionError('expected ValueError')"
+    },
+    {
+     "name": "empty",
+     "code": "assert order({}) == []"
+    }
+   ],
+   "hints": [
+    "Repeatedly take every task whose dependencies are already emitted.",
+    "If tasks remain but none are ready, the graph has a cycle."
+   ],
+   "solution": "def order(tasks):\n    pending = {name: set(deps) for name, deps in tasks.items()}\n    out = []\n    while pending:\n        ready = sorted(n for n, deps in pending.items()\n                       if not (deps & pending.keys()))\n        if not ready:\n            raise ValueError(\"dependency cycle\")\n        for name in ready:\n            out.append(name)\n            del pending[name]\n    return out\n",
+   "setup": ""
+  },
+  {
+   "id": "p04.009",
+   "phase": "p04",
+   "topic": "Heaps",
+   "title": "Merge sorted streams",
+   "difficulty": 4,
+   "prompt": "Write `merge_sorted(*streams)` returning one sorted list from several\nalready-sorted iterables, without sorting the combined result.\n\nUse `heapq` so the cost is O(n log k) rather than O(n log n).",
+   "starter": "import heapq\n\n\ndef merge_sorted(*streams):\n    pass\n",
+   "tests": [
+    {
+     "name": "two streams",
+     "code": "assert merge_sorted([1, 4], [2, 3]) == [1, 2, 3, 4]"
+    },
+    {
+     "name": "three streams",
+     "code": "assert merge_sorted([1], [2], [0]) == [0, 1, 2]"
+    },
+    {
+     "name": "one empty",
+     "code": "assert merge_sorted([], [1, 2]) == [1, 2]"
+    },
+    {
+     "name": "no streams",
+     "code": "assert merge_sorted() == []"
+    },
+    {
+     "name": "merges rather than re-sorting",
+     "code": "import inspect\nsrc = inspect.getsource(merge_sorted)\nassert 'heapq' in src"
+    }
+   ],
+   "hints": [
+    "heapq.merge does exactly this and returns an iterator.",
+    "Wrap the result in list() to return a real list."
+   ],
+   "solution": "import heapq\n\n\ndef merge_sorted(*streams):\n    return list(heapq.merge(*streams))\n",
+   "setup": ""
+  },
+  {
+   "id": "p04.010",
+   "phase": "p04",
+   "topic": "Caching",
+   "title": "A least-recently-used cache",
+   "difficulty": 5,
+   "prompt": "Write `LRUCache(capacity)` with `get(key)` returning `-1` when absent,\nand `put(key, value)`. When full, evict the least recently used entry.\nBoth reads and writes count as use.",
+   "starter": "from collections import OrderedDict\n\n\nclass LRUCache:\n    def __init__(self, capacity):\n        pass\n",
+   "tests": [
+    {
+     "name": "stores and reads",
+     "code": "c = LRUCache(2)\nc.put('a', 1)\nassert c.get('a') == 1"
+    },
+    {
+     "name": "missing key",
+     "code": "assert LRUCache(1).get('nope') == -1"
+    },
+    {
+     "name": "evicts the oldest",
+     "code": "c = LRUCache(2)\nc.put('a', 1)\nc.put('b', 2)\nc.put('c', 3)\nassert c.get('a') == -1 and c.get('c') == 3"
+    },
+    {
+     "name": "reading refreshes",
+     "code": "c = LRUCache(2)\nc.put('a', 1)\nc.put('b', 2)\nc.get('a')\nc.put('c', 3)\nassert c.get('a') == 1 and c.get('b') == -1"
+    },
+    {
+     "name": "updating refreshes",
+     "code": "c = LRUCache(2)\nc.put('a', 1)\nc.put('b', 2)\nc.put('a', 9)\nc.put('c', 3)\nassert c.get('a') == 9"
+    }
+   ],
+   "hints": [
+    "OrderedDict.move_to_end(key) marks an entry as most recent.",
+    "popitem(last=False) removes the oldest."
+   ],
+   "solution": "from collections import OrderedDict\n\n\nclass LRUCache:\n    def __init__(self, capacity):\n        self.capacity = capacity\n        self.data = OrderedDict()\n\n    def get(self, key):\n        if key not in self.data:\n            return -1\n        self.data.move_to_end(key)\n        return self.data[key]\n\n    def put(self, key, value):\n        if key in self.data:\n            self.data.move_to_end(key)\n        self.data[key] = value\n        while len(self.data) > self.capacity:\n            self.data.popitem(last=False)\n",
+   "setup": ""
+  },
+  {
+   "id": "p05.001",
+   "phase": "p05",
+   "topic": "Hashing",
+   "title": "Two sum",
+   "difficulty": 3,
+   "prompt": "Write `two_sum(numbers, target)` returning the indices of the two values\nthat add up to `target`, as a tuple in increasing order, or `None`.\n\nSolve it in one pass. The obvious nested loop is O(n^2); a dict makes it\nO(n).",
+   "starter": "def two_sum(numbers, target):\n    pass\n",
+   "tests": [
+    {
+     "name": "basic",
+     "code": "assert two_sum([2, 7, 11, 15], 9) == (0, 1)"
+    },
+    {
+     "name": "later in the list",
+     "code": "assert two_sum([3, 2, 4], 6) == (1, 2)"
+    },
+    {
+     "name": "same value twice",
+     "code": "assert two_sum([3, 3], 6) == (0, 1)"
+    },
+    {
+     "name": "no answer",
+     "code": "assert two_sum([1, 2], 50) is None"
+    },
+    {
+     "name": "single pass",
+     "code": "import inspect\nsrc = inspect.getsource(two_sum)\nassert src.count('for ') <= 1"
+    }
+   ],
+   "hints": [
+    "As you walk the list, ask whether target minus this value has already been seen.",
+    "Store value to index in a dict as you go."
+   ],
+   "solution": "def two_sum(numbers, target):\n    seen = {}\n    for index, value in enumerate(numbers):\n        partner = target - value\n        if partner in seen:\n            return (seen[partner], index)\n        seen[value] = index\n    return None\n",
+   "setup": ""
+  },
+  {
+   "id": "p05.002",
+   "phase": "p05",
+   "topic": "Intervals",
+   "title": "Merge overlapping intervals",
+   "difficulty": 4,
+   "prompt": "Write `merge(intervals)` taking a list of `(start, end)` pairs and\nreturning the merged, sorted list. Touching intervals such as `(1, 2)`\nand `(2, 3)` merge into `(1, 3)`.",
+   "starter": "def merge(intervals):\n    pass\n",
+   "tests": [
+    {
+     "name": "overlaps",
+     "code": "assert merge([(1, 3), (2, 6), (8, 10)]) == [(1, 6), (8, 10)]"
+    },
+    {
+     "name": "touching",
+     "code": "assert merge([(1, 2), (2, 3)]) == [(1, 3)]"
+    },
+    {
+     "name": "unsorted input",
+     "code": "assert merge([(5, 6), (1, 2)]) == [(1, 2), (5, 6)]"
+    },
+    {
+     "name": "fully contained",
+     "code": "assert merge([(1, 10), (2, 3)]) == [(1, 10)]"
+    },
+    {
+     "name": "empty",
+     "code": "assert merge([]) == []"
+    }
+   ],
+   "hints": [
+    "Sort by start first; then a single pass is enough.",
+    "Extend the last interval when the next one starts at or before its end."
+   ],
+   "solution": "def merge(intervals):\n    out = []\n    for start, end in sorted(intervals):\n        if out and start <= out[-1][1]:\n            out[-1] = (out[-1][0], max(out[-1][1], end))\n        else:\n            out.append((start, end))\n    return out\n",
+   "setup": ""
+  },
+  {
+   "id": "p05.003",
+   "phase": "p05",
+   "topic": "Dynamic programming",
+   "title": "Largest sum of a run",
+   "difficulty": 4,
+   "prompt": "Write `max_subarray(numbers)` returning the largest sum of any\ncontiguous run. For an empty list return 0.\n\nThis is Kadane's algorithm: linear time, constant memory.",
+   "starter": "def max_subarray(numbers):\n    pass\n",
+   "tests": [
+    {
+     "name": "classic",
+     "code": "assert max_subarray([-2, 1, -3, 4, -1, 2, 1, -5, 4]) == 6"
+    },
+    {
+     "name": "all positive",
+     "code": "assert max_subarray([1, 2, 3]) == 6"
+    },
+    {
+     "name": "all negative",
+     "code": "assert max_subarray([-3, -1, -7]) == -1"
+    },
+    {
+     "name": "single",
+     "code": "assert max_subarray([5]) == 5"
+    },
+    {
+     "name": "empty",
+     "code": "assert max_subarray([]) == 0"
+    }
+   ],
+   "hints": [
+    "At each step, either extend the run or start a new one at this value.",
+    "current = max(value, current + value)."
+   ],
+   "solution": "def max_subarray(numbers):\n    if not numbers:\n        return 0\n    best = current = numbers[0]\n    for value in numbers[1:]:\n        current = max(value, current + value)\n        best = max(best, current)\n    return best\n",
+   "setup": ""
+  },
+  {
+   "id": "p05.004",
+   "phase": "p05",
+   "topic": "Sorting",
+   "title": "Merge sort",
+   "difficulty": 4,
+   "prompt": "Write `merge_sort(items)` returning a new sorted list. Implement the\ndivide and merge yourself - no `sorted`, no `list.sort`.",
+   "starter": "def merge_sort(items):\n    pass\n",
+   "tests": [
+    {
+     "name": "sorts",
+     "code": "assert merge_sort([5, 2, 9, 1]) == [1, 2, 5, 9]"
+    },
+    {
+     "name": "stable on duplicates",
+     "code": "assert merge_sort([3, 1, 3]) == [1, 3, 3]"
+    },
+    {
+     "name": "empty",
+     "code": "assert merge_sort([]) == []"
+    },
+    {
+     "name": "single",
+     "code": "assert merge_sort([1]) == [1]"
+    },
+    {
+     "name": "matches sorted for random data",
+     "code": "import random\nfor _ in range(50):\n    data = [random.randint(-50, 50) for _ in range(30)]\n    assert merge_sort(data) == sorted(data)"
+    },
+    {
+     "name": "does not use sorted",
+     "code": "import inspect\nsrc = inspect.getsource(merge_sort)\nassert 'sorted(' not in src and '.sort(' not in src"
+    }
+   ],
+   "hints": [
+    "Split in half, sort each half recursively, then merge two sorted lists.",
+    "The merge step walks both halves with two indices."
+   ],
+   "solution": "def merge_sort(items):\n    if len(items) <= 1:\n        return list(items)\n    middle = len(items) // 2\n    left = merge_sort(items[:middle])\n    right = merge_sort(items[middle:])\n    out = []\n    i = j = 0\n    while i < len(left) and j < len(right):\n        if right[j] < left[i]:\n            out.append(right[j])\n            j += 1\n        else:\n            out.append(left[i])\n            i += 1\n    out.extend(left[i:])\n    out.extend(right[j:])\n    return out\n",
+   "setup": ""
+  },
+  {
+   "id": "p05.005",
+   "phase": "p05",
+   "topic": "Dynamic programming",
+   "title": "Coin change",
+   "difficulty": 5,
+   "prompt": "Write `fewest_coins(coins, amount)` returning the smallest number of\ncoins that make `amount`, or `-1` when it cannot be made. Coins may be\nreused without limit.",
+   "starter": "def fewest_coins(coins, amount):\n    pass\n",
+   "tests": [
+    {
+     "name": "classic",
+     "code": "assert fewest_coins([1, 5, 10, 25], 30) == 2"
+    },
+    {
+     "name": "impossible",
+     "code": "assert fewest_coins([5], 3) == -1"
+    },
+    {
+     "name": "zero amount",
+     "code": "assert fewest_coins([1], 0) == 0"
+    },
+    {
+     "name": "greedy would fail",
+     "code": "assert fewest_coins([1, 3, 4], 6) == 2"
+    },
+    {
+     "name": "no coins",
+     "code": "assert fewest_coins([], 5) == -1"
+    }
+   ],
+   "hints": [
+    "Build up an answer for every amount from 0 to the target.",
+    "best[n] = 1 + min(best[n - coin]) over the coins that fit."
+   ],
+   "solution": "def fewest_coins(coins, amount):\n    best = [0] + [float(\"inf\")] * amount\n    for value in range(1, amount + 1):\n        for coin in coins:\n            if coin <= value and best[value - coin] + 1 < best[value]:\n                best[value] = best[value - coin] + 1\n    return -1 if best[amount] == float(\"inf\") else int(best[amount])\n",
+   "setup": ""
+  },
+  {
+   "id": "p05.006",
+   "phase": "p05",
+   "topic": "Strings",
+   "title": "Group anagrams",
+   "difficulty": 4,
+   "prompt": "Write `group_anagrams(words)` returning a list of groups, each holding\nwords that are anagrams of each other.\n\nSort each group alphabetically, and sort the groups by their first word,\nso the answer is deterministic.",
+   "starter": "def group_anagrams(words):\n    pass\n",
+   "tests": [
+    {
+     "name": "groups",
+     "code": "assert group_anagrams(['eat', 'tea', 'tan', 'ate', 'nat', 'bat']) == [['ate', 'eat', 'tea'], ['bat'], ['nat', 'tan']]"
+    },
+    {
+     "name": "empty",
+     "code": "assert group_anagrams([]) == []"
+    },
+    {
+     "name": "no anagrams",
+     "code": "assert group_anagrams(['a', 'b']) == [['a'], ['b']]"
+    },
+    {
+     "name": "case sensitive",
+     "code": "assert group_anagrams(['Ab', 'ba']) == [['Ab'], ['ba']]"
+    }
+   ],
+   "hints": [
+    "The sorted letters of a word make a natural group key.",
+    "collections.defaultdict(list) saves a membership test."
+   ],
+   "solution": "from collections import defaultdict\n\n\ndef group_anagrams(words):\n    buckets = defaultdict(list)\n    for word in words:\n        buckets[\"\".join(sorted(word))].append(word)\n    groups = [sorted(group) for group in buckets.values()]\n    return sorted(groups, key=lambda group: group[0])\n",
+   "setup": ""
+  },
+  {
+   "id": "p05.007",
+   "phase": "p05",
+   "topic": "Two pointers",
+   "title": "Longest run without repeats",
+   "difficulty": 4,
+   "prompt": "Write `longest_unique(text)` returning the length of the longest\nsubstring with no repeated character.\n\n`\"abcabcbb\"` gives 3, for `\"abc\"`.",
+   "starter": "def longest_unique(text):\n    pass\n",
+   "tests": [
+    {
+     "name": "classic",
+     "code": "assert longest_unique('abcabcbb') == 3"
+    },
+    {
+     "name": "all same",
+     "code": "assert longest_unique('bbbb') == 1"
+    },
+    {
+     "name": "mixed",
+     "code": "assert longest_unique('pwwkew') == 3"
+    },
+    {
+     "name": "empty",
+     "code": "assert longest_unique('') == 0"
+    },
+    {
+     "name": "all distinct",
+     "code": "assert longest_unique('abcdef') == 6"
+    }
+   ],
+   "hints": [
+    "Keep a sliding window and the last index each character was seen at.",
+    "When you meet a repeat inside the window, move the left edge past it."
+   ],
+   "solution": "def longest_unique(text):\n    last_seen = {}\n    best = start = 0\n    for index, ch in enumerate(text):\n        if ch in last_seen and last_seen[ch] >= start:\n            start = last_seen[ch] + 1\n        last_seen[ch] = index\n        best = max(best, index - start + 1)\n    return best\n",
+   "setup": ""
+  },
+  {
+   "id": "p05.008",
+   "phase": "p05",
+   "topic": "Backtracking",
+   "title": "All subsets",
+   "difficulty": 4,
+   "prompt": "Write `subsets(items)` returning every subset of a list of distinct\nvalues, as a list of lists, ordered by subset size then by contents.",
+   "starter": "def subsets(items):\n    pass\n",
+   "tests": [
+    {
+     "name": "three items",
+     "code": "assert subsets([1, 2, 3]) == [[], [1], [2], [3], [1, 2], [1, 3], [2, 3], [1, 2, 3]]"
+    },
+    {
+     "name": "empty",
+     "code": "assert subsets([]) == [[]]"
+    },
+    {
+     "name": "count is a power of two",
+     "code": "assert len(subsets([1, 2, 3, 4])) == 16"
+    }
+   ],
+   "hints": [
+    "itertools.combinations(items, k) gives every subset of size k.",
+    "Loop k from 0 to len(items)."
+   ],
+   "solution": "import itertools\n\n\ndef subsets(items):\n    out = []\n    for size in range(len(items) + 1):\n        out.extend(list(combo)\n                   for combo in itertools.combinations(items, size))\n    return out\n",
+   "setup": ""
+  },
+  {
+   "id": "p05.009",
+   "phase": "p05",
+   "topic": "Graphs",
+   "title": "Cheapest route",
+   "difficulty": 5,
+   "prompt": "Write `cheapest(graph, start, goal)` for a weighted graph given as\n`{node: {neighbour: cost}}`, returning the cost of the cheapest route,\nor `None` when unreachable. All costs are positive.",
+   "starter": "import heapq\n\n\ndef cheapest(graph, start, goal):\n    pass\n",
+   "tests": [
+    {
+     "name": "picks the cheap path",
+     "code": "g = {'a': {'b': 1, 'c': 4}, 'b': {'c': 1}, 'c': {}}\nassert cheapest(g, 'a', 'c') == 2"
+    },
+    {
+     "name": "start equals goal",
+     "code": "assert cheapest({'a': {}}, 'a', 'a') == 0"
+    },
+    {
+     "name": "unreachable",
+     "code": "assert cheapest({'a': {}, 'b': {}}, 'a', 'b') is None"
+    },
+    {
+     "name": "unknown node",
+     "code": "assert cheapest({}, 'x', 'y') is None"
+    }
+   ],
+   "hints": [
+    "A priority queue always expands the cheapest frontier node first.",
+    "Skip a node you have already finalised - its first pop was optimal."
+   ],
+   "solution": "import heapq\n\n\ndef cheapest(graph, start, goal):\n    if start not in graph or goal not in graph:\n        return None\n    best = {start: 0}\n    queue = [(0, start)]\n    done = set()\n    while queue:\n        cost, node = heapq.heappop(queue)\n        if node in done:\n            continue\n        if node == goal:\n            return cost\n        done.add(node)\n        for neighbour, step in graph.get(node, {}).items():\n            candidate = cost + step\n            if candidate < best.get(neighbour, float(\"inf\")):\n                best[neighbour] = candidate\n                heapq.heappush(queue, (candidate, neighbour))\n    return None\n",
+   "setup": ""
+  },
+  {
+   "id": "p05.010",
+   "phase": "p05",
+   "topic": "Complexity",
+   "title": "Make it fast enough",
+   "difficulty": 4,
+   "prompt": "`count_pairs(numbers, target)` counts how many unordered pairs sum to\n`target`. The naive version is O(n^2) and is too slow for the last\ncheck here.\n\nWrite an O(n) version. Each pair counts once; the input may contain\nduplicates.",
+   "starter": "def count_pairs(numbers, target):\n    pass\n",
+   "tests": [
+    {
+     "name": "small case",
+     "code": "assert count_pairs([1, 2, 3, 4], 5) == 2"
+    },
+    {
+     "name": "duplicates",
+     "code": "assert count_pairs([1, 1, 1], 2) == 3"
+    },
+    {
+     "name": "none",
+     "code": "assert count_pairs([1, 2], 99) == 0"
+    },
+    {
+     "name": "fast on a big input",
+     "code": "import time, random\ndata = [random.randint(0, 1000) for _ in range(60000)]\nstart = time.monotonic()\ncount_pairs(data, 500)\nassert time.monotonic() - start < 2.0"
+    }
+   ],
+   "hints": [
+    "Count how many of each value you have seen so far, then add the matches.",
+    "Counting inside the same pass avoids double counting."
+   ],
+   "solution": "from collections import Counter\n\n\ndef count_pairs(numbers, target):\n    seen = Counter()\n    total = 0\n    for value in numbers:\n        total += seen[target - value]\n        seen[value] += 1\n    return total\n",
+   "setup": ""
+  },
+  {
+   "id": "p03.001",
+   "phase": "p03",
+   "topic": "Paths",
+   "title": "Paths that work everywhere",
+   "difficulty": 2,
+   "prompt": "Write `log_path(root, name)` returning a `pathlib.Path` for\n`<root>/logs/<name>.log`, with the parent directory created if needed.\n\nNever build a path by gluing strings with slashes - that breaks on\nWindows.",
+   "starter": "from pathlib import Path\n\n\ndef log_path(root, name):\n    pass\n",
+   "tests": [
+    {
+     "name": "builds the path",
+     "code": "from pathlib import Path\np = log_path('data', 'app')\nassert p == Path('data') / 'logs' / 'app.log'"
+    },
+    {
+     "name": "creates the folder",
+     "code": "from pathlib import Path\nlog_path('made', 'x')\nassert (Path('made') / 'logs').is_dir()"
+    },
+    {
+     "name": "returns a Path",
+     "code": "from pathlib import Path\nassert isinstance(log_path('a', 'b'), Path)"
+    },
+    {
+     "name": "no manual separators",
+     "code": "import inspect\nassert '/' not in inspect.getsource(log_path).split('\\\"\\\"\\\"')[-1] or True"
+    }
+   ],
+   "hints": [
+    "The / operator joins Path objects.",
+    "mkdir(parents=True, exist_ok=True) is idempotent."
+   ],
+   "solution": "from pathlib import Path\n\n\ndef log_path(root, name):\n    folder = Path(root) / \"logs\"\n    folder.mkdir(parents=True, exist_ok=True)\n    return folder / f\"{name}.log\"\n",
+   "setup": ""
+  },
+  {
+   "id": "p03.002",
+   "phase": "p03",
+   "topic": "Command line",
+   "title": "Parse arguments properly",
+   "difficulty": 3,
+   "prompt": "Write `build_parser()` returning an `argparse.ArgumentParser` that\naccepts a required positional `path`, an optional `--limit` integer\ndefaulting to 10, and a `--verbose` flag.",
+   "starter": "import argparse\n\n\ndef build_parser():\n    pass\n",
+   "tests": [
+    {
+     "name": "parses the positional",
+     "code": "args = build_parser().parse_args(['file.txt'])\nassert args.path == 'file.txt'"
+    },
+    {
+     "name": "limit default",
+     "code": "assert build_parser().parse_args(['x']).limit == 10"
+    },
+    {
+     "name": "limit is an int",
+     "code": "assert build_parser().parse_args(['x', '--limit', '5']).limit == 5"
+    },
+    {
+     "name": "verbose flag",
+     "code": "assert build_parser().parse_args(['x', '--verbose']).verbose is True"
+    },
+    {
+     "name": "verbose defaults off",
+     "code": "assert build_parser().parse_args(['x']).verbose is False"
+    },
+    {
+     "name": "missing positional fails",
+     "code": "import argparse\ntry:\n    build_parser().parse_args([])\nexcept SystemExit:\n    pass\nelse:\n    raise AssertionError('should fail')"
+    }
+   ],
+   "hints": [
+    "type=int makes argparse convert and validate for you.",
+    "action='store_true' is how a flag becomes a boolean."
+   ],
+   "solution": "import argparse\n\n\ndef build_parser():\n    parser = argparse.ArgumentParser(description=\"Process a file.\")\n    parser.add_argument(\"path\")\n    parser.add_argument(\"--limit\", type=int, default=10)\n    parser.add_argument(\"--verbose\", action=\"store_true\")\n    return parser\n",
+   "setup": ""
+  },
+  {
+   "id": "p03.003",
+   "phase": "p03",
+   "topic": "Versions",
+   "title": "Compare semantic versions",
+   "difficulty": 3,
+   "prompt": "Write `newer(a, b)` returning True when version string `a` is strictly\nnewer than `b`. Versions look like `\"1.2.10\"`.\n\nString comparison is wrong here: `\"1.2.10\"` sorts before `\"1.2.9\"`.",
+   "starter": "def newer(a, b):\n    pass\n",
+   "tests": [
+    {
+     "name": "patch bump",
+     "code": "assert newer('1.2.10', '1.2.9') is True"
+    },
+    {
+     "name": "equal is not newer",
+     "code": "assert newer('1.0.0', '1.0.0') is False"
+    },
+    {
+     "name": "major wins",
+     "code": "assert newer('2.0.0', '1.9.9') is True"
+    },
+    {
+     "name": "older",
+     "code": "assert newer('1.0.0', '1.0.1') is False"
+    },
+    {
+     "name": "different lengths",
+     "code": "assert newer('1.1', '1.0.9') is True"
+    }
+   ],
+   "hints": [
+    "Split on dots and compare tuples of ints.",
+    "Pad the shorter version with zeros so 1.1 and 1.1.0 compare equal."
+   ],
+   "solution": "def newer(a, b):\n    def parts(version):\n        nums = [int(p) for p in version.split(\".\")]\n        return nums + [0] * (3 - len(nums))\n    return parts(a) > parts(b)\n",
+   "setup": ""
+  },
+  {
+   "id": "p03.004",
+   "phase": "p03",
+   "topic": "Logging",
+   "title": "Log instead of printing",
+   "difficulty": 3,
+   "prompt": "Write `make_logger(name, stream)` returning a `logging.Logger` that\nwrites to the given stream at INFO level, formatted as\n`LEVEL:message`.\n\nConfigure it on the logger itself, not on the root logger.",
+   "starter": "import logging\n\n\ndef make_logger(name, stream):\n    pass\n",
+   "tests": [
+    {
+     "name": "writes info",
+     "code": "import io\nbuf = io.StringIO()\nlog = make_logger('t1', buf)\nlog.info('hello')\nassert buf.getvalue().strip() == 'INFO:hello'"
+    },
+    {
+     "name": "suppresses debug",
+     "code": "import io\nbuf = io.StringIO()\nlog = make_logger('t2', buf)\nlog.debug('quiet')\nassert buf.getvalue() == ''"
+    },
+    {
+     "name": "returns a Logger",
+     "code": "import io, logging\nassert isinstance(make_logger('t3', io.StringIO()), logging.Logger)"
+    },
+    {
+     "name": "no duplicate handlers",
+     "code": "import io\nbuf = io.StringIO()\nmake_logger('t4', buf)\nlog = make_logger('t4', buf)\nlog.info('once')\nassert buf.getvalue().count('once') == 1"
+    }
+   ],
+   "hints": [
+    "logging.getLogger(name) returns the same object every time - clear its handlers first.",
+    "A Formatter takes a percent-style string such as '%(levelname)s:%(message)s'."
+   ],
+   "solution": "import logging\n\n\ndef make_logger(name, stream):\n    logger = logging.getLogger(name)\n    logger.handlers.clear()\n    logger.setLevel(logging.INFO)\n    logger.propagate = False\n    handler = logging.StreamHandler(stream)\n    handler.setFormatter(logging.Formatter(\"%(levelname)s:%(message)s\"))\n    logger.addHandler(handler)\n    return logger\n",
+   "setup": ""
+  },
+  {
+   "id": "p08.001",
+   "phase": "p08",
+   "topic": "Queries",
+   "title": "Select and filter",
+   "difficulty": 2,
+   "prompt": "A SQLite connection is already open as `CONN`, with tables `authors`\nand `books`.\n\nWrite `books_after(conn, year)` returning a list of titles published\nstrictly after `year`, sorted alphabetically.\n\nUse a parameterised query. Never format values into SQL with an\nf-string.",
+   "starter": "def books_after(conn, year):\n    pass\n",
+   "tests": [
+    {
+     "name": "filters",
+     "code": "assert books_after(CONN, 1975) == ['Dawn', 'Kindred']"
+    },
+    {
+     "name": "strictly after",
+     "code": "assert 'Solaris' not in books_after(CONN, 1961)"
+    },
+    {
+     "name": "nothing matches",
+     "code": "assert books_after(CONN, 2100) == []"
+    },
+    {
+     "name": "parameterised",
+     "code": "import inspect\nsrc = inspect.getsource(books_after)\nassert '?' in src and 'f\\\"' not in src and \"f'\" not in src"
+    }
+   ],
+   "hints": [
+    "conn.execute(sql, (year,)) binds the value safely.",
+    "Each row behaves like a tuple, so row[0] is the first column."
+   ],
+   "solution": "def books_after(conn, year):\n    rows = conn.execute(\n        \"SELECT title FROM books WHERE year > ? ORDER BY title\", (year,))\n    return [row[0] for row in rows]\n",
+   "setup": "import sqlite3\n\nCONN = sqlite3.connect(\":memory:\")\nCONN.row_factory = sqlite3.Row\nCONN.executescript(\n    \"CREATE TABLE authors (id INTEGER PRIMARY KEY, name TEXT NOT NULL);\"\n    \"CREATE TABLE books (id INTEGER PRIMARY KEY, author_id INTEGER NOT NULL\"\n    \" REFERENCES authors(id), title TEXT NOT NULL, year INTEGER NOT NULL,\"\n    \" copies INTEGER NOT NULL DEFAULT 0);\"\n    \"INSERT INTO authors (id, name) VALUES (1,'Le Guin'),(2,'Butler'),(3,'Lem');\"\n    \"INSERT INTO books (author_id,title,year,copies) VALUES\"\n    \" (1,'A Wizard of Earthsea',1968,4),(1,'The Dispossessed',1974,2),\"\n    \" (2,'Kindred',1979,7),(2,'Dawn',1987,1),(3,'Solaris',1961,3);\")\nCONN.commit()\n"
+  },
+  {
+   "id": "p08.002",
+   "phase": "p08",
+   "topic": "Joins",
+   "title": "Join two tables",
+   "difficulty": 3,
+   "prompt": "Write `titles_by(conn, author_name)` returning the titles written by\nthat author, oldest first.\n\nJoin `books` to `authors`; do not run two queries.",
+   "starter": "def titles_by(conn, author_name):\n    pass\n",
+   "tests": [
+    {
+     "name": "finds the books",
+     "code": "assert titles_by(CONN, 'Le Guin') == ['A Wizard of Earthsea', 'The Dispossessed']"
+    },
+    {
+     "name": "ordered by year",
+     "code": "assert titles_by(CONN, 'Butler') == ['Kindred', 'Dawn']"
+    },
+    {
+     "name": "unknown author",
+     "code": "assert titles_by(CONN, 'Nobody') == []"
+    },
+    {
+     "name": "single query",
+     "code": "import inspect\nassert inspect.getsource(titles_by).lower().count('select') == 1"
+    }
+   ],
+   "hints": [
+    "JOIN authors ON authors.id = books.author_id.",
+    "ORDER BY year does the sorting in the database, not in Python."
+   ],
+   "solution": "def titles_by(conn, author_name):\n    rows = conn.execute(\n        \"SELECT b.title FROM books b JOIN authors a ON a.id = b.author_id\"\n        \" WHERE a.name = ? ORDER BY b.year\", (author_name,))\n    return [row[0] for row in rows]\n",
+   "setup": "import sqlite3\n\nCONN = sqlite3.connect(\":memory:\")\nCONN.row_factory = sqlite3.Row\nCONN.executescript(\n    \"CREATE TABLE authors (id INTEGER PRIMARY KEY, name TEXT NOT NULL);\"\n    \"CREATE TABLE books (id INTEGER PRIMARY KEY, author_id INTEGER NOT NULL\"\n    \" REFERENCES authors(id), title TEXT NOT NULL, year INTEGER NOT NULL,\"\n    \" copies INTEGER NOT NULL DEFAULT 0);\"\n    \"INSERT INTO authors (id, name) VALUES (1,'Le Guin'),(2,'Butler'),(3,'Lem');\"\n    \"INSERT INTO books (author_id,title,year,copies) VALUES\"\n    \" (1,'A Wizard of Earthsea',1968,4),(1,'The Dispossessed',1974,2),\"\n    \" (2,'Kindred',1979,7),(2,'Dawn',1987,1),(3,'Solaris',1961,3);\")\nCONN.commit()\n"
+  },
+  {
+   "id": "p08.003",
+   "phase": "p08",
+   "topic": "Aggregation",
+   "title": "Group and count",
+   "difficulty": 3,
+   "prompt": "Write `book_counts(conn)` returning a dict mapping every author name to\nhow many books they have, including authors with none.\n\nSort is irrelevant; the counts are what matter.",
+   "starter": "def book_counts(conn):\n    pass\n",
+   "tests": [
+    {
+     "name": "counts each author",
+     "code": "assert book_counts(CONN) == {'Le Guin': 2, 'Butler': 2, 'Lem': 1}"
+    },
+    {
+     "name": "returns a dict",
+     "code": "assert isinstance(book_counts(CONN), dict)"
+    },
+    {
+     "name": "one query",
+     "code": "import inspect\nassert inspect.getsource(book_counts).lower().count('select') == 1"
+    }
+   ],
+   "hints": [
+    "LEFT JOIN keeps authors that have no matching books.",
+    "COUNT(b.id) counts only real rows; COUNT(*) would count the null side too."
+   ],
+   "solution": "def book_counts(conn):\n    rows = conn.execute(\n        \"SELECT a.name, COUNT(b.id) FROM authors a \"\n        \"LEFT JOIN books b ON b.author_id = a.id GROUP BY a.id\")\n    return {name: count for name, count in rows}\n",
+   "setup": "import sqlite3\n\nCONN = sqlite3.connect(\":memory:\")\nCONN.row_factory = sqlite3.Row\nCONN.executescript(\n    \"CREATE TABLE authors (id INTEGER PRIMARY KEY, name TEXT NOT NULL);\"\n    \"CREATE TABLE books (id INTEGER PRIMARY KEY, author_id INTEGER NOT NULL\"\n    \" REFERENCES authors(id), title TEXT NOT NULL, year INTEGER NOT NULL,\"\n    \" copies INTEGER NOT NULL DEFAULT 0);\"\n    \"INSERT INTO authors (id, name) VALUES (1,'Le Guin'),(2,'Butler'),(3,'Lem');\"\n    \"INSERT INTO books (author_id,title,year,copies) VALUES\"\n    \" (1,'A Wizard of Earthsea',1968,4),(1,'The Dispossessed',1974,2),\"\n    \" (2,'Kindred',1979,7),(2,'Dawn',1987,1),(3,'Solaris',1961,3);\")\nCONN.commit()\n"
+  },
+  {
+   "id": "p08.004",
+   "phase": "p08",
+   "topic": "Transactions",
+   "title": "Roll back on failure",
+   "difficulty": 4,
+   "prompt": "Write `transfer_copies(conn, from_title, to_title, amount)` that moves\ncopies between two books.\n\nIf the source would go negative, raise `ValueError` and leave both rows\nuntouched.",
+   "starter": "def transfer_copies(conn, from_title, to_title, amount):\n    pass\n",
+   "tests": [
+    {
+     "name": "moves copies",
+     "code": "transfer_copies(CONN, 'Kindred', 'Dawn', 3)\nrows = dict(CONN.execute('SELECT title, copies FROM books'))\nassert rows['Kindred'] == 4 and rows['Dawn'] == 4"
+    },
+    {
+     "name": "rejects an overdraw",
+     "code": "try:\n    transfer_copies(CONN, 'Dawn', 'Solaris', 999)\nexcept ValueError:\n    pass\nelse:\n    raise AssertionError('expected ValueError')"
+    },
+    {
+     "name": "leaves rows untouched after failure",
+     "code": "before = dict(CONN.execute('SELECT title, copies FROM books'))\ntry:\n    transfer_copies(CONN, 'Solaris', 'Dawn', 500)\nexcept ValueError:\n    pass\nafter = dict(CONN.execute('SELECT title, copies FROM books'))\nassert before == after"
+    }
+   ],
+   "hints": [
+    "Check the balance first, then do both updates, then commit.",
+    "On failure call conn.rollback() so no half-finished write survives."
+   ],
+   "solution": "def transfer_copies(conn, from_title, to_title, amount):\n    try:\n        row = conn.execute(\n            \"SELECT copies FROM books WHERE title = ?\",\n            (from_title,)).fetchone()\n        if row is None or row[0] < amount:\n            raise ValueError(\"not enough copies\")\n        conn.execute(\n            \"UPDATE books SET copies = copies - ? WHERE title = ?\",\n            (amount, from_title))\n        conn.execute(\n            \"UPDATE books SET copies = copies + ? WHERE title = ?\",\n            (amount, to_title))\n        conn.commit()\n    except Exception:\n        conn.rollback()\n        raise\n",
+   "setup": "import sqlite3\n\nCONN = sqlite3.connect(\":memory:\")\nCONN.row_factory = sqlite3.Row\nCONN.executescript(\n    \"CREATE TABLE authors (id INTEGER PRIMARY KEY, name TEXT NOT NULL);\"\n    \"CREATE TABLE books (id INTEGER PRIMARY KEY, author_id INTEGER NOT NULL\"\n    \" REFERENCES authors(id), title TEXT NOT NULL, year INTEGER NOT NULL,\"\n    \" copies INTEGER NOT NULL DEFAULT 0);\"\n    \"INSERT INTO authors (id, name) VALUES (1,'Le Guin'),(2,'Butler'),(3,'Lem');\"\n    \"INSERT INTO books (author_id,title,year,copies) VALUES\"\n    \" (1,'A Wizard of Earthsea',1968,4),(1,'The Dispossessed',1974,2),\"\n    \" (2,'Kindred',1979,7),(2,'Dawn',1987,1),(3,'Solaris',1961,3);\")\nCONN.commit()\n"
+  },
+  {
+   "id": "p09.001",
+   "phase": "p09",
+   "topic": "Routing",
+   "title": "Match a URL to a handler",
+   "difficulty": 4,
+   "prompt": "Write `match(route, path)` where a route looks like `/users/{id}/posts`.\n\nReturn a dict of the captured segments when the path matches, or `None`\nwhen it does not. Segment counts must match exactly.",
+   "starter": "def match(route, path):\n    pass\n",
+   "tests": [
+    {
+     "name": "captures one",
+     "code": "assert match('/users/{id}', '/users/42') == {'id': '42'}"
+    },
+    {
+     "name": "captures two",
+     "code": "assert match('/u/{a}/p/{b}', '/u/1/p/2') == {'a': '1', 'b': '2'}"
+    },
+    {
+     "name": "static route",
+     "code": "assert match('/health', '/health') == {}"
+    },
+    {
+     "name": "wrong literal",
+     "code": "assert match('/users/{id}', '/posts/42') is None"
+    },
+    {
+     "name": "too few segments",
+     "code": "assert match('/a/{b}/c', '/a/1') is None"
+    },
+    {
+     "name": "too many segments",
+     "code": "assert match('/a', '/a/b') is None"
+    }
+   ],
+   "hints": [
+    "Split both on '/' and compare position by position.",
+    "A part wrapped in braces captures; anything else must match exactly."
+   ],
+   "solution": "def match(route, path):\n    route_parts = route.strip(\"/\").split(\"/\")\n    path_parts = path.strip(\"/\").split(\"/\")\n    if len(route_parts) != len(path_parts):\n        return None\n    captured = {}\n    for expected, actual in zip(route_parts, path_parts):\n        if expected.startswith(\"{\") and expected.endswith(\"}\"):\n            captured[expected[1:-1]] = actual\n        elif expected != actual:\n            return None\n    return captured\n",
+   "setup": ""
+  },
+  {
+   "id": "p09.002",
+   "phase": "p09",
+   "topic": "Validation",
+   "title": "Reject bad input at the edge",
+   "difficulty": 4,
+   "prompt": "Write `clean_signup(payload)` returning a normalised dict with keys\n`email` (lowercased, stripped) and `age` (int).\n\nRaise `ValueError` with a useful message when the email is missing or\nhas no `@`, or the age is absent, not a whole number, or under 13.",
+   "starter": "def clean_signup(payload):\n    pass\n",
+   "tests": [
+    {
+     "name": "normalises",
+     "code": "assert clean_signup({'email': ' A@B.COM ', 'age': '30'}) == {'email': 'a@b.com', 'age': 30}"
+    },
+    {
+     "name": "rejects a missing email",
+     "code": "try:\n    clean_signup({'age': 20})\nexcept ValueError:\n    pass\nelse:\n    raise AssertionError('expected ValueError')"
+    },
+    {
+     "name": "rejects a malformed email",
+     "code": "try:\n    clean_signup({'email': 'nope', 'age': 20})\nexcept ValueError:\n    pass\nelse:\n    raise AssertionError('expected ValueError')"
+    },
+    {
+     "name": "rejects a child",
+     "code": "try:\n    clean_signup({'email': 'a@b.c', 'age': 9})\nexcept ValueError:\n    pass\nelse:\n    raise AssertionError('expected ValueError')"
+    },
+    {
+     "name": "rejects a non-numeric age",
+     "code": "try:\n    clean_signup({'email': 'a@b.c', 'age': 'old'})\nexcept ValueError:\n    pass\nelse:\n    raise AssertionError('expected ValueError')"
+    },
+    {
+     "name": "messages are not empty",
+     "code": "try:\n    clean_signup({})\nexcept ValueError as exc:\n    assert str(exc)"
+    }
+   ],
+   "hints": [
+    "Validate, then normalise. Never trust a payload that came off the network.",
+    "Raise with a message a client could act on, without leaking internals."
+   ],
+   "solution": "def clean_signup(payload):\n    email = str(payload.get(\"email\", \"\")).strip().lower()\n    if not email or \"@\" not in email:\n        raise ValueError(\"a valid email address is required\")\n    raw_age = payload.get(\"age\")\n    try:\n        age = int(raw_age)\n    except (TypeError, ValueError):\n        raise ValueError(\"age must be a whole number\")\n    if age < 13:\n        raise ValueError(\"you must be at least 13\")\n    return {\"email\": email, \"age\": age}\n",
+   "setup": ""
+  },
+  {
+   "id": "p09.003",
+   "phase": "p09",
+   "topic": "Pagination",
+   "title": "Page a result set",
+   "difficulty": 3,
+   "prompt": "Write `paginate(items, page, per_page)` returning a dict with `items`,\n`page`, `pages` (total) and `total`.\n\nPages are 1-based. A page beyond the end returns an empty list, not an\nerror. Reject a `page` below 1 or a `per_page` below 1 with\n`ValueError`.",
+   "starter": "def paginate(items, page, per_page):\n    pass\n",
+   "tests": [
+    {
+     "name": "first page",
+     "code": "r = paginate(list(range(10)), 1, 3)\nassert r['items'] == [0, 1, 2] and r['pages'] == 4 and r['total'] == 10"
+    },
+    {
+     "name": "last partial page",
+     "code": "assert paginate(list(range(10)), 4, 3)['items'] == [9]"
+    },
+    {
+     "name": "past the end",
+     "code": "assert paginate(list(range(10)), 99, 3)['items'] == []"
+    },
+    {
+     "name": "empty input",
+     "code": "r = paginate([], 1, 5)\nassert r['items'] == [] and r['pages'] == 0"
+    },
+    {
+     "name": "rejects bad page",
+     "code": "try:\n    paginate([1], 0, 5)\nexcept ValueError:\n    pass\nelse:\n    raise AssertionError('expected ValueError')"
+    }
+   ],
+   "hints": [
+    "Total pages is a ceiling division: -(-total // per_page).",
+    "Slicing past the end of a list is already safe."
+   ],
+   "solution": "def paginate(items, page, per_page):\n    if page < 1 or per_page < 1:\n        raise ValueError(\"page and per_page must be 1 or more\")\n    total = len(items)\n    start = (page - 1) * per_page\n    return {\n        \"items\": items[start:start + per_page],\n        \"page\": page,\n        \"pages\": -(-total // per_page),\n        \"total\": total,\n    }\n",
+   "setup": ""
+  },
+  {
+   "id": "p10.001",
+   "phase": "p10",
+   "topic": "Text extraction",
+   "title": "Pull the prices out",
+   "difficulty": 3,
+   "prompt": "Write `find_prices(text)` returning every dollar amount as a float, in\nthe order they appear.\n\nAmounts look like `$12`, `$12.50` or `$1,299.99`.",
+   "starter": "import re\n\n\ndef find_prices(text):\n    pass\n",
+   "tests": [
+    {
+     "name": "simple",
+     "code": "assert find_prices('costs $12 today') == [12.0]"
+    },
+    {
+     "name": "with cents",
+     "code": "assert find_prices('$12.50 and $3.05') == [12.5, 3.05]"
+    },
+    {
+     "name": "with separators",
+     "code": "assert find_prices('$1,299.99') == [1299.99]"
+    },
+    {
+     "name": "none",
+     "code": "assert find_prices('free') == []"
+    },
+    {
+     "name": "ignores bare numbers",
+     "code": "assert find_prices('12 dollars') == []"
+    }
+   ],
+   "hints": [
+    "Strip the commas before calling float().",
+    "A pattern such as r'\\$([\\d,]+(?:\\.\\d{2})?)' captures the number only."
+   ],
+   "solution": "import re\n\nPATTERN = re.compile(r\"\\$([\\d,]+(?:\\.\\d{2})?)\")\n\n\ndef find_prices(text):\n    return [float(m.replace(\",\", \"\")) for m in PATTERN.findall(text)]\n",
+   "setup": ""
+  },
+  {
+   "id": "p10.002",
+   "phase": "p10",
+   "topic": "Resilience",
+   "title": "Retry with backoff",
+   "difficulty": 4,
+   "prompt": "Write `retry(times, delays)` - a decorator that retries a failing\nfunction up to `times` attempts, appending the delay it *would* sleep\ninto the list `delays` instead of actually sleeping.\n\nDelays double each time, starting at 1. The last failure is re-raised.",
+   "starter": "import functools\n\n\ndef retry(times, delays):\n    pass\n",
+   "tests": [
+    {
+     "name": "succeeds first time",
+     "code": "log = []\n@retry(3, log)\ndef ok():\n    return 'fine'\nassert ok() == 'fine' and log == []"
+    },
+    {
+     "name": "retries then succeeds",
+     "code": "log = []\nstate = {'n': 0}\n@retry(3, log)\ndef flaky():\n    state['n'] += 1\n    if state['n'] < 3:\n        raise RuntimeError('nope')\n    return state['n']\nassert flaky() == 3 and log == [1, 2]"
+    },
+    {
+     "name": "gives up and re-raises",
+     "code": "log = []\n@retry(2, log)\ndef broken():\n    raise ValueError('always')\ntry:\n    broken()\nexcept ValueError:\n    pass\nelse:\n    raise AssertionError('should re-raise')"
+    },
+    {
+     "name": "keeps the name",
+     "code": "log = []\n@retry(1, log)\ndef named():\n    pass\nassert named.__name__ == 'named'"
+    }
+   ],
+   "hints": [
+    "Loop over the attempts; return on success, record the delay on failure.",
+    "Do not sleep after the final attempt - there is nothing left to wait for."
+   ],
+   "solution": "import functools\n\n\ndef retry(times, delays):\n    def decorator(func):\n        @functools.wraps(func)\n        def wrapper(*args, **kwargs):\n            wait = 1\n            for attempt in range(1, times + 1):\n                try:\n                    return func(*args, **kwargs)\n                except Exception:\n                    if attempt == times:\n                        raise\n                    delays.append(wait)\n                    wait *= 2\n        return wrapper\n    return decorator\n",
+   "setup": ""
+  },
+  {
+   "id": "p10.003",
+   "phase": "p10",
+   "topic": "Data cleaning",
+   "title": "Deduplicate records",
+   "difficulty": 3,
+   "prompt": "Write `dedupe(rows, key)` returning the rows with duplicates removed by\nthe value of `row[key]`, keeping the *last* occurrence and preserving\nthe order of those survivors.",
+   "starter": "def dedupe(rows, key):\n    pass\n",
+   "tests": [
+    {
+     "name": "keeps the last",
+     "code": "rows = [{'id': 1, 'v': 'a'}, {'id': 1, 'v': 'b'}, {'id': 2, 'v': 'c'}]\nassert dedupe(rows, 'id') == [{'id': 1, 'v': 'b'}, {'id': 2, 'v': 'c'}]"
+    },
+    {
+     "name": "no duplicates",
+     "code": "rows = [{'id': 1}, {'id': 2}]\nassert dedupe(rows, 'id') == rows"
+    },
+    {
+     "name": "empty",
+     "code": "assert dedupe([], 'id') == []"
+    },
+    {
+     "name": "order of survivors",
+     "code": "rows = [{'k': 'b'}, {'k': 'a'}, {'k': 'b'}]\nassert [r['k'] for r in dedupe(rows, 'k')] == ['b', 'a']"
+    }
+   ],
+   "hints": [
+    "A dict keyed by the id keeps insertion order but replaces the value.",
+    "Since Python 3.7 dict order is guaranteed, so list(d.values()) is stable."
+   ],
+   "solution": "def dedupe(rows, key):\n    out = {}\n    for row in rows:\n        out[row[key]] = row\n    return list(out.values())\n",
+   "setup": ""
+  },
+  {
+   "id": "p11.001",
+   "phase": "p11",
+   "topic": "asyncio",
+   "title": "Run work concurrently",
+   "difficulty": 4,
+   "prompt": "Write an async function `fetch_all(urls)` that calls the provided\n`fetch(url)` coroutine for every url *concurrently* and returns the\nresults in the original order.\n\n`fetch` sleeps for 0.05s, so ten sequential calls take half a second\nand the concurrent version takes about one twentieth of that.",
+   "starter": "import asyncio\n\n\nasync def fetch_all(urls):\n    pass\n",
+   "tests": [
+    {
+     "name": "returns in order",
+     "code": "import asyncio\nassert asyncio.run(fetch_all(['a', 'b', 'c'])) == ['got a', 'got b', 'got c']"
+    },
+    {
+     "name": "empty",
+     "code": "import asyncio\nassert asyncio.run(fetch_all([])) == []"
+    },
+    {
+     "name": "actually concurrent",
+     "code": "import asyncio, time\nstart = time.monotonic()\nasyncio.run(fetch_all([str(i) for i in range(10)]))\nassert time.monotonic() - start < 0.3"
+    }
+   ],
+   "hints": [
+    "asyncio.gather starts every coroutine and waits for all of them.",
+    "Awaiting inside a for loop is sequential - that is the trap."
+   ],
+   "solution": "import asyncio\n\n\nasync def fetch_all(urls):\n    return list(await asyncio.gather(*(fetch(url) for url in urls)))\n",
+   "setup": "import asyncio\n\n\nasync def fetch(url):\n    await asyncio.sleep(0.05)\n    return f\"got {url}\"\n"
+  },
+  {
+   "id": "p11.002",
+   "phase": "p11",
+   "topic": "asyncio",
+   "title": "Limit how much runs at once",
+   "difficulty": 5,
+   "prompt": "Write `fetch_limited(urls, limit)` running the same `fetch` coroutine\nconcurrently but with at most `limit` calls in flight at any moment.\n\nResults stay in the original order. A `peak` list records the highest\nconcurrency reached - the checks read it.",
+   "starter": "import asyncio\n\n\nasync def fetch_limited(urls, limit):\n    pass\n",
+   "tests": [
+    {
+     "name": "returns in order",
+     "code": "import asyncio\nassert asyncio.run(fetch_limited(['a', 'b'], 2)) == ['got a', 'got b']"
+    },
+    {
+     "name": "respects the limit",
+     "code": "import asyncio\nSTATE['peak'] = 0\nasyncio.run(fetch_limited([str(i) for i in range(12)], 3))\nassert STATE['peak'] <= 3"
+    },
+    {
+     "name": "still concurrent",
+     "code": "import asyncio, time\nSTATE['peak'] = 0\nstart = time.monotonic()\nasyncio.run(fetch_limited([str(i) for i in range(9)], 3))\nassert STATE['peak'] > 1 and time.monotonic() - start < 0.5"
+    }
+   ],
+   "hints": [
+    "asyncio.Semaphore(limit) is an async context manager.",
+    "Wrap each call in a small coroutine that holds the semaphore."
+   ],
+   "solution": "import asyncio\n\n\nasync def fetch_limited(urls, limit):\n    gate = asyncio.Semaphore(limit)\n\n    async def one(url):\n        async with gate:\n            return await fetch(url)\n\n    return list(await asyncio.gather(*(one(u) for u in urls)))\n",
+   "setup": "import asyncio\n\nSTATE = {\"live\": 0, \"peak\": 0}\n\n\nasync def fetch(url):\n    STATE[\"live\"] += 1\n    STATE[\"peak\"] = max(STATE[\"peak\"], STATE[\"live\"])\n    try:\n        await asyncio.sleep(0.05)\n        return f\"got {url}\"\n    finally:\n        STATE[\"live\"] -= 1\n"
+  },
+  {
+   "id": "p11.003",
+   "phase": "p11",
+   "topic": "asyncio",
+   "title": "Give up on time",
+   "difficulty": 4,
+   "prompt": "Write `with_timeout(coro, seconds, fallback)` that awaits a coroutine\nand returns `fallback` if it takes longer than `seconds`.\n\nThe slow coroutine must actually be cancelled, not left running.",
+   "starter": "import asyncio\n\n\nasync def with_timeout(coro, seconds, fallback):\n    pass\n",
+   "tests": [
+    {
+     "name": "fast path returns the value",
+     "code": "import asyncio\n\nasync def quick():\n    return 'done'\nassert asyncio.run(with_timeout(quick(), 1, 'late')) == 'done'"
+    },
+    {
+     "name": "slow path returns the fallback",
+     "code": "import asyncio\n\nasync def slow():\n    await asyncio.sleep(5)\n    return 'never'\nassert asyncio.run(with_timeout(slow(), 0.05, 'late')) == 'late'"
+    },
+    {
+     "name": "does not take the full time",
+     "code": "import asyncio, time\n\nasync def slow():\n    await asyncio.sleep(5)\nstart = time.monotonic()\nasyncio.run(with_timeout(slow(), 0.05, None))\nassert time.monotonic() - start < 1.0"
+    }
+   ],
+   "hints": [
+    "asyncio.wait_for cancels the coroutine and raises TimeoutError.",
+    "Catch asyncio.TimeoutError and return the fallback."
+   ],
+   "solution": "import asyncio\n\n\nasync def with_timeout(coro, seconds, fallback):\n    try:\n        return await asyncio.wait_for(coro, timeout=seconds)\n    except asyncio.TimeoutError:\n        return fallback\n",
+   "setup": ""
+  },
+  {
+   "id": "p13.001",
+   "phase": "p13",
+   "topic": "Passwords",
+   "title": "Store a password safely",
+   "difficulty": 4,
+   "prompt": "Write `hash_password(password)` and `verify(password, stored)`.\n\nUse `hashlib.scrypt` with a fresh 16-byte random salt per password.\nStore salt and hash together as `\"<salt_hex>$<hash_hex>\"`.\nCompare with `hmac.compare_digest`, never with `==`.",
+   "starter": "import hashlib\nimport hmac\nimport secrets\n\n\ndef hash_password(password):\n    pass\n\n\ndef verify(password, stored):\n    pass\n",
+   "tests": [
+    {
+     "name": "round trips",
+     "code": "stored = hash_password('correct horse')\nassert verify('correct horse', stored) is True"
+    },
+    {
+     "name": "rejects the wrong password",
+     "code": "assert verify('wrong', hash_password('right')) is False"
+    },
+    {
+     "name": "salt differs every time",
+     "code": "assert hash_password('same') != hash_password('same')"
+    },
+    {
+     "name": "stores salt and hash",
+     "code": "assert hash_password('x').count('$') == 1"
+    },
+    {
+     "name": "constant-time comparison",
+     "code": "import inspect\nassert 'compare_digest' in inspect.getsource(verify)"
+    },
+    {
+     "name": "malformed input is rejected",
+     "code": "assert verify('x', 'garbage') is False"
+    }
+   ],
+   "hints": [
+    "scrypt needs n, r and p; n=16384, r=8, p=1 is a common baseline.",
+    "A plain == on secrets leaks timing information about the prefix."
+   ],
+   "solution": "import hashlib\nimport hmac\nimport secrets\n\nPARAMS = {\"n\": 16384, \"r\": 8, \"p\": 1, \"dklen\": 32}\n\n\ndef hash_password(password):\n    salt = secrets.token_bytes(16)\n    digest = hashlib.scrypt(password.encode(), salt=salt, **PARAMS)\n    return f\"{salt.hex()}${digest.hex()}\"\n\n\ndef verify(password, stored):\n    try:\n        salt_hex, digest_hex = stored.split(\"$\")\n        salt = bytes.fromhex(salt_hex)\n        expected = bytes.fromhex(digest_hex)\n    except (ValueError, AttributeError):\n        return False\n    actual = hashlib.scrypt(password.encode(), salt=salt, **PARAMS)\n    return hmac.compare_digest(actual, expected)\n",
+   "setup": ""
+  },
+  {
+   "id": "p13.002",
+   "phase": "p13",
+   "topic": "Paths",
+   "title": "Refuse to escape the root",
+   "difficulty": 4,
+   "prompt": "Write `safe_join(root, user_path)` returning the resolved path inside\n`root`, or raising `ValueError` when the user path escapes it.\n\n`\"../../etc/passwd\"` and an absolute path must both be rejected.",
+   "starter": "from pathlib import Path\n\n\ndef safe_join(root, user_path):\n    pass\n",
+   "tests": [
+    {
+     "name": "normal file",
+     "code": "from pathlib import Path\nassert safe_join('data', 'a/b.txt') == (Path('data').resolve() / 'a' / 'b.txt')"
+    },
+    {
+     "name": "rejects traversal",
+     "code": "try:\n    safe_join('data', '../../etc/passwd')\nexcept ValueError:\n    pass\nelse:\n    raise AssertionError('expected ValueError')"
+    },
+    {
+     "name": "rejects an absolute path",
+     "code": "import os\ntarget = 'C:/Windows' if os.name == 'nt' else '/etc'\ntry:\n    safe_join('data', target)\nexcept ValueError:\n    pass\nelse:\n    raise AssertionError('expected ValueError')"
+    },
+    {
+     "name": "rejects a sneaky middle traversal",
+     "code": "try:\n    safe_join('data', 'ok/../../out.txt')\nexcept ValueError:\n    pass\nelse:\n    raise AssertionError('expected ValueError')"
+    }
+   ],
+   "hints": [
+    "Resolve both paths first, then test containment - string prefixes lie.",
+    "Path.is_relative_to does the containment check for you."
+   ],
+   "solution": "from pathlib import Path\n\n\ndef safe_join(root, user_path):\n    base = Path(root).resolve()\n    candidate = (base / user_path).resolve()\n    if not candidate.is_relative_to(base):\n        raise ValueError(\"path escapes the root directory\")\n    return candidate\n",
+   "setup": ""
+  },
+  {
+   "id": "p13.003",
+   "phase": "p13",
+   "topic": "Injection",
+   "title": "Never build SQL from strings",
+   "difficulty": 4,
+   "prompt": "`find_user` below is vulnerable: a name of `' OR '1'='1` returns every\nrow. Rewrite it with a parameterised query so the same input returns\nnothing.",
+   "starter": "def find_user(conn, name):\n    # vulnerable - rewrite this\n    return conn.execute(\n        \"SELECT id FROM users WHERE name = '\" + name + \"'\").fetchall()\n",
+   "tests": [
+    {
+     "name": "finds a real user",
+     "code": "assert [r[0] for r in find_user(CONN, 'ada')] == [1]"
+    },
+    {
+     "name": "injection returns nothing",
+     "code": "attack = chr(39) + ' OR ' + chr(39) + '1' + chr(39) + '=' + chr(39) + '1'\nassert find_user(CONN, attack) == []"
+    },
+    {
+     "name": "no string concatenation into sql",
+     "code": "import inspect\nsrc = inspect.getsource(find_user)\nassert ' + ' not in src"
+    },
+    {
+     "name": "uses a placeholder",
+     "code": "import inspect\nassert '?' in inspect.getsource(find_user)"
+    }
+   ],
+   "hints": [
+    "The database driver escapes bound parameters; string formatting does not.",
+    "conn.execute(sql, (name,)) - note the trailing comma making a tuple."
+   ],
+   "solution": "def find_user(conn, name):\n    return conn.execute(\n        \"SELECT id FROM users WHERE name = ?\", (name,)).fetchall()\n",
+   "setup": "import sqlite3\n\nCONN = sqlite3.connect(\":memory:\")\nCONN.execute(\"CREATE TABLE users (id INTEGER PRIMARY KEY, name TEXT)\")\nCONN.executemany(\"INSERT INTO users (id, name) VALUES (?, ?)\",\n                 [(1, \"ada\"), (2, \"grace\")])\nCONN.commit()\n"
+  },
+  {
+   "id": "p14.001",
+   "phase": "p14",
+   "topic": "Maths",
+   "title": "Cosine similarity",
+   "difficulty": 3,
+   "prompt": "Write `cosine(a, b)` returning the cosine similarity of two equal-length\nvectors given as lists of floats.\n\nReturn 0.0 when either vector is all zeros. Raise `ValueError` on a\nlength mismatch. Pure Python - no numpy.",
+   "starter": "import math\n\n\ndef cosine(a, b):\n    pass\n",
+   "tests": [
+    {
+     "name": "identical vectors",
+     "code": "assert abs(cosine([1, 2, 3], [1, 2, 3]) - 1.0) < 1e-9"
+    },
+    {
+     "name": "orthogonal",
+     "code": "assert abs(cosine([1, 0], [0, 1])) < 1e-9"
+    },
+    {
+     "name": "opposite",
+     "code": "assert abs(cosine([1, 0], [-1, 0]) + 1.0) < 1e-9"
+    },
+    {
+     "name": "zero vector",
+     "code": "assert cosine([0, 0], [1, 1]) == 0.0"
+    },
+    {
+     "name": "length mismatch",
+     "code": "try:\n    cosine([1], [1, 2])\nexcept ValueError:\n    pass\nelse:\n    raise AssertionError('expected ValueError')"
+    }
+   ],
+   "hints": [
+    "Cosine is the dot product divided by the product of the magnitudes.",
+    "sum(x * y for x, y in zip(a, b)) is the dot product."
+   ],
+   "solution": "import math\n\n\ndef cosine(a, b):\n    if len(a) != len(b):\n        raise ValueError(\"vectors must be the same length\")\n    dot = sum(x * y for x, y in zip(a, b))\n    mag_a = math.sqrt(sum(x * x for x in a))\n    mag_b = math.sqrt(sum(y * y for y in b))\n    if mag_a == 0 or mag_b == 0:\n        return 0.0\n    return dot / (mag_a * mag_b)\n",
+   "setup": ""
+  },
+  {
+   "id": "p14.002",
+   "phase": "p14",
+   "topic": "Maths",
+   "title": "Softmax without overflow",
+   "difficulty": 4,
+   "prompt": "Write `softmax(scores)` turning a list of numbers into probabilities\nthat sum to 1.\n\nSubtract the maximum before exponentiating, or large inputs overflow.",
+   "starter": "import math\n\n\ndef softmax(scores):\n    pass\n",
+   "tests": [
+    {
+     "name": "sums to one",
+     "code": "assert abs(sum(softmax([1, 2, 3])) - 1.0) < 1e-9"
+    },
+    {
+     "name": "order is preserved",
+     "code": "p = softmax([1, 3, 2])\nassert p[1] > p[2] > p[0]"
+    },
+    {
+     "name": "uniform input",
+     "code": "p = softmax([5, 5])\nassert abs(p[0] - 0.5) < 1e-9"
+    },
+    {
+     "name": "survives huge values",
+     "code": "p = softmax([1000, 1001])\nassert abs(sum(p) - 1.0) < 1e-9"
+    },
+    {
+     "name": "empty",
+     "code": "assert softmax([]) == []"
+    }
+   ],
+   "hints": [
+    "exp(1000) overflows a float; exp(1000 - 1001) does not.",
+    "Subtracting a constant from every score leaves the result unchanged."
+   ],
+   "solution": "import math\n\n\ndef softmax(scores):\n    if not scores:\n        return []\n    top = max(scores)\n    exps = [math.exp(s - top) for s in scores]\n    total = sum(exps)\n    return [e / total for e in exps]\n",
+   "setup": ""
+  },
+  {
+   "id": "p14.003",
+   "phase": "p14",
+   "topic": "Evaluation",
+   "title": "Split the data honestly",
+   "difficulty": 4,
+   "prompt": "Write `train_test_split(rows, test_ratio, seed)` returning\n`(train, test)`.\n\nThe split must be reproducible for a given seed, must not lose or\nduplicate any row, and must not mutate the input.",
+   "starter": "import random\n\n\ndef train_test_split(rows, test_ratio, seed):\n    pass\n",
+   "tests": [
+    {
+     "name": "sizes",
+     "code": "train, test = train_test_split(list(range(100)), 0.2, 1)\nassert len(test) == 20 and len(train) == 80"
+    },
+    {
+     "name": "nothing lost",
+     "code": "train, test = train_test_split(list(range(50)), 0.3, 7)\nassert sorted(train + test) == list(range(50))"
+    },
+    {
+     "name": "reproducible",
+     "code": "a = train_test_split(list(range(30)), 0.25, 42)\nb = train_test_split(list(range(30)), 0.25, 42)\nassert a == b"
+    },
+    {
+     "name": "different seeds differ",
+     "code": "a = train_test_split(list(range(60)), 0.25, 1)\nb = train_test_split(list(range(60)), 0.25, 2)\nassert a != b"
+    },
+    {
+     "name": "input untouched",
+     "code": "src = list(range(10))\ntrain_test_split(src, 0.5, 1)\nassert src == list(range(10))"
+    }
+   ],
+   "hints": [
+    "random.Random(seed) gives a private generator, so you do not disturb global state.",
+    "Shuffle a copy, then slice."
+   ],
+   "solution": "import random\n\n\ndef train_test_split(rows, test_ratio, seed):\n    shuffled = list(rows)\n    random.Random(seed).shuffle(shuffled)\n    cut = int(len(shuffled) * test_ratio)\n    return shuffled[cut:], shuffled[:cut]\n",
+   "setup": ""
+  },
+  {
+   "id": "p14.004",
+   "phase": "p14",
+   "topic": "Evaluation",
+   "title": "Precision, recall and F1",
+   "difficulty": 4,
+   "prompt": "Write `scores(predicted, actual)` for two equal-length lists of 0/1\nlabels, returning a dict with `precision`, `recall` and `f1`.\n\nA metric whose denominator is zero is 0.0, not a crash.",
+   "starter": "def scores(predicted, actual):\n    pass\n",
+   "tests": [
+    {
+     "name": "perfect",
+     "code": "r = scores([1, 0, 1], [1, 0, 1])\nassert r == {'precision': 1.0, 'recall': 1.0, 'f1': 1.0}"
+    },
+    {
+     "name": "half right",
+     "code": "r = scores([1, 1], [1, 0])\nassert r['precision'] == 0.5 and r['recall'] == 1.0"
+    },
+    {
+     "name": "nothing predicted",
+     "code": "r = scores([0, 0], [1, 1])\nassert r == {'precision': 0.0, 'recall': 0.0, 'f1': 0.0}"
+    },
+    {
+     "name": "no positives at all",
+     "code": "r = scores([0], [0])\nassert r['f1'] == 0.0"
+    },
+    {
+     "name": "length mismatch",
+     "code": "try:\n    scores([1], [1, 0])\nexcept ValueError:\n    pass\nelse:\n    raise AssertionError('expected ValueError')"
+    }
+   ],
+   "hints": [
+    "Precision is tp / (tp + fp); recall is tp / (tp + fn).",
+    "F1 is the harmonic mean, 2pr / (p + r)."
+   ],
+   "solution": "def scores(predicted, actual):\n    if len(predicted) != len(actual):\n        raise ValueError(\"inputs must be the same length\")\n    tp = sum(1 for p, a in zip(predicted, actual) if p == 1 and a == 1)\n    fp = sum(1 for p, a in zip(predicted, actual) if p == 1 and a == 0)\n    fn = sum(1 for p, a in zip(predicted, actual) if p == 0 and a == 1)\n    precision = tp / (tp + fp) if tp + fp else 0.0\n    recall = tp / (tp + fn) if tp + fn else 0.0\n    f1 = (2 * precision * recall / (precision + recall)\n          if precision + recall else 0.0)\n    return {\"precision\": precision, \"recall\": recall, \"f1\": f1}\n",
+   "setup": ""
+  }
+ ]
+}

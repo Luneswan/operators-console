@@ -1,0 +1,22 @@
+# Normalise to LF in the repository. Without this, a checkout made on Windows
+# commits CRLF into install.sh, and every Linux and macOS user then gets
+# "bad interpreter: no such file or directory".
+* text=auto eol=lf
+
+*.sh        text eol=lf
+*.py        text eol=lf
+*.yml       text eol=lf
+*.json      text eol=lf
+*.md        text eol=lf
+*.toml      text eol=lf
+*.desktop   text eol=lf
+
+# These are read by Windows tools and want CRLF.
+*.ps1       text eol=crlf
+*.iss       text eol=crlf
+
+*.png       binary
+*.ico       binary
+*.icns      binary
+*.zip       binary
+*.exe       binary

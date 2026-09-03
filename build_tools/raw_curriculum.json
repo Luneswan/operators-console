@@ -1,0 +1,5203 @@
+{
+ "PHASES": [
+  {
+   "id": "ops",
+   "num": "OS",
+   "name": "Operating rules",
+   "when": "Read once. Re-read weekly.",
+   "aim": "The curriculum only works if the process is boring and repeatable. These are habits, not progress — they don't count toward the meter.",
+   "noProgress": true,
+   "sections": [
+    {
+     "h": "The weekly shape",
+     "items": [
+      "Mon–Thu: learn and build.",
+      "Fri: build, debug, write tests.",
+      "Sat: independent challenge — no tutorial open.",
+      "Sun: rest, or light review only.",
+      "Target 4–6 focused hours a day, six days a week."
+     ]
+    },
+    {
+     "h": "The daily protocol",
+     "items": [
+      "10 min — write down the outcome for today in one sentence.",
+      "45–75 min — study the course, video, or docs.",
+      "90–150 min — implement it without copy-pasting.",
+      "30–60 min — deliberate problem solving.",
+      "30–60 min — push the current project forward.",
+      "15–30 min — tests, cleanup, commit, log entry."
+     ]
+    },
+    {
+     "h": "The 20-minute debugging rule",
+     "items": [
+      "Reproduce the failure on demand before touching anything.",
+      "Read the whole traceback, bottom line first.",
+      "Inspect actual state — print, breakpoint, or <em>pdb</em>.",
+      "Form one hypothesis and write it down.",
+      "Test the hypothesis. Only then search for help."
+     ]
+    },
+    {
+     "h": "The AI ladder — climb in order",
+     "items": [
+      "1. Explain the concept to me.",
+      "2. Give me a hint, not the answer.",
+      "3. Diagnose my reasoning, not my code.",
+      "4. Review my implementation after it works.",
+      "5. Generate adversarial test cases against it.",
+      "6. Show an implementation — only after I've attempted it."
+     ]
+    },
+    {
+     "h": "Non-negotiables",
+     "items": [
+      "Never copy a whole tutorial project and call it finished.",
+      "When a concept lands, modify it immediately into something else.",
+      "Break your own code on purpose so you learn what failure looks like.",
+      "Every serious project gets Git, tests, a README, and a real commit history.",
+      "Measure performance. Never guess at it.",
+      "80% doing, 20% studying. Early phases 60/40, later phases 90/10."
+     ]
+    }
+   ],
+   "gate": null
+  },
+  {
+   "id": "p00",
+   "num": "00",
+   "name": "Environment & Git",
+   "when": "Day 0 · 1–2 days",
+   "aim": "Build the workshop before the workshop builds you. Every project from here on is version-controlled from its first commit.",
+   "res": [
+    {
+     "n": "Git & GitHub Crash Course — freeCodeCamp",
+     "k": "video",
+     "w": "Beginner to working workflow in one sitting",
+     "u": "https://www.youtube.com/watch?v=mAFoROnOfHs"
+    },
+    {
+     "n": "GitHub Skills — Introduction to Git",
+     "k": "interactive",
+     "w": "Repos, commits, history, branches — hands on",
+     "u": "https://github.com/skills/introduction-to-git"
+    },
+    {
+     "n": "GitHub Skills — Introduction to GitHub",
+     "k": "interactive",
+     "w": "Branch → commit → PR → merge",
+     "u": "https://github.com/skills/introduction-to-github"
+    },
+    {
+     "n": "Git documentation",
+     "k": "docs",
+     "w": "The command reference you'll live in",
+     "u": "https://git-scm.com/doc"
+    },
+    {
+     "n": "uv — Python & project manager",
+     "k": "docs",
+     "w": "Installs Python, makes envs, manages deps. Use it instead of pip+venv+pyenv.",
+     "u": "https://docs.astral.sh/uv/"
+    }
+   ],
+   "sections": [
+    {
+     "h": "Set up",
+     "items": [
+      "Install Python 3.13+ and confirm <em>python --version</em> in a fresh terminal.",
+      "Install uv, then run <em>uv init scratch && cd scratch && uv run python -c \"print(1)\"</em>.",
+      "Install VS Code with the Python and Pylance extensions.",
+      "Create a GitHub account and add an SSH key.",
+      "Set <em>git config --global user.name</em> and <em>user.email</em>.",
+      "Set <em>git config --global init.defaultBranch main</em>."
+     ]
+    },
+    {
+     "h": "Learn",
+     "items": [
+      "What a commit actually is — a snapshot, not a diff.",
+      "Local vs remote: working tree, index, HEAD, origin.",
+      "<em>init · status · add · commit · log · diff</em>",
+      "Branching, switching, merging, resolving a conflict by hand.",
+      "<em>push · fetch · pull · restore · stash</em>",
+      "<em>revert</em> vs <em>reset</em> vs <em>rebase</em> — and when each is safe.",
+      "Pull requests and reviewing someone else's diff."
+     ]
+    },
+    {
+     "h": "Drill",
+     "items": [
+      "Create <em>git-training</em>, commit a README and an app.py.",
+      "Branch to <em>feature/calculator</em>, change app.py, commit.",
+      "Make a conflicting change on main, then merge and resolve it.",
+      "Stash uncommitted work, switch branch, pop it back.",
+      "Break the branch on purpose, then recover it with reflog."
+     ]
+    }
+   ],
+   "snippet": "mkdir git-training && cd git-training\ngit init\n# create README.md and app.py\ngit add . && git commit -m \"Initial project\"\ngit switch -c feature/calculator\n# edit app.py, commit\ngit switch main\n# make a conflicting change, then:\ngit merge feature/calculator",
+   "gate": {
+    "note": "Do all seven from memory, in one sitting, without a cheat sheet open.",
+    "items": [
+     "Create a repo, clone it, make and inspect three commits.",
+     "Create two branches and merge them.",
+     "Cause a merge conflict and resolve it correctly.",
+     "Push and pull against GitHub.",
+     "Use stash, restore, and revert without losing work.",
+     "Recover a commit you 'lost' using <em>git reflog</em>.",
+     "Explain merge vs revert vs reset vs rebase in plain English to someone else."
+    ]
+   }
+  },
+  {
+   "id": "p01",
+   "num": "01",
+   "name": "Python foundations",
+   "when": "Weeks 1–4",
+   "aim": "Learn the language by shipping a working program every single day. Syntax is learned as a side effect of building, never as the goal.",
+   "res": [
+    {
+     "n": "CS50P — Intro to Programming with Python",
+     "k": "course",
+     "w": "Your primary curriculum for weeks 1–4",
+     "u": "https://cs50.harvard.edu/python/"
+    },
+    {
+     "n": "Python Tutorial (official)",
+     "k": "docs",
+     "w": "The language, explained by the people who built it",
+     "u": "https://docs.python.org/3/tutorial/"
+    },
+    {
+     "n": "Python Standard Library",
+     "k": "docs",
+     "w": "Look up modules while you build, not before",
+     "u": "https://docs.python.org/3/library/"
+    },
+    {
+     "n": "Corey Schafer — Python tutorials",
+     "k": "video",
+     "w": "When a specific CS50P topic doesn't click",
+     "u": "https://www.youtube.com/playlist?list=PL-osiE80TeTt2d9bfVyTiXJA-UTHn6WwU"
+    },
+    {
+     "n": "Real Python",
+     "k": "reference",
+     "w": "Deep single-topic articles when you need one",
+     "u": "https://realpython.com/"
+    }
+   ],
+   "sections": [
+    {
+     "h": "Week 1 — one program a day, no exceptions",
+     "items": [
+      "Day 1 · variables + functions → calculator with history and error handling.",
+      "Day 2 · conditionals → guessing game with difficulty, scoring, replay.",
+      "Day 3 · loops → password generator with charsets and strength scoring.",
+      "Day 4 · strings → text analyzer: words, sentences, frequency, averages.",
+      "Day 5 · lists and tuples → CLI todo manager (add, remove, complete, list).",
+      "Day 6 · dicts and sets → contact manager with search and tags.",
+      "Day 7 · independent → one small app with no project-specific tutorial open."
+     ]
+    },
+    {
+     "h": "Week 2 — the standard library",
+     "items": [
+      "Modules, imports, <em>__name__</em>, and how Python finds things.",
+      "Exceptions: raising, catching narrowly, custom exception classes.",
+      "Files with <em>pathlib</em> — never string-concatenate a path again.",
+      "JSON and CSV round-trips.",
+      "<em>argparse</em> for a real CLI interface.",
+      "<em>logging</em> instead of print for anything that runs unattended.",
+      "Build: File Organizer with dry-run, undo, duplicate detection, logs."
+     ]
+    },
+    {
+     "h": "Week 3 — testing",
+     "items": [
+      "pytest basics: test discovery, assertions, running a suite.",
+      "Arrange–act–assert, and one behaviour per test.",
+      "Edge cases: empty, huge, malformed, unicode, permission denied.",
+      "Fixtures and <em>tmp_path</em> for filesystem tests.",
+      "Retrofit tests onto the calculator and File Organizer.",
+      "Introduce three bugs deliberately and confirm the suite catches all three."
+     ]
+    },
+    {
+     "h": "Week 4 — objects",
+     "items": [
+      "Classes, instances, <em>__init__</em>, and attribute lookup.",
+      "Composition first; inheritance only when it genuinely is-a.",
+      "Properties, class methods, static methods.",
+      "<em>dataclasses</em> for data-shaped objects.",
+      "Dunder methods: <em>__repr__ __eq__ __len__ __iter__</em>.",
+      "Build: Inventory Engine — Product, Category, Warehouse, Order, Customer.",
+      "Refactor it once, after the first version works."
+     ]
+    },
+    {
+     "h": "Standing requirements for every project",
+     "items": [
+      "No blanket <em>except: pass</em> anywhere.",
+      "Config lives outside business logic.",
+      "Logs are detailed enough to diagnose a failure you didn't witness.",
+      "README covers install, usage, design decisions, limitations.",
+      "Meaningful commit messages, committed as you go."
+     ]
+    }
+   ],
+   "gate": {
+    "note": "Open an empty file. No tutorial, no template, no AI writing code for you.",
+    "items": [
+     "Build a working CLI program from a blank file in under two hours.",
+     "It uses functions, a collection type, file I/O, and exception handling.",
+     "It has a pytest suite covering normal and edge cases.",
+     "Explain the difference between a list, tuple, set, and dict — and when you'd pick each.",
+     "Explain what happens when you mutate a default argument."
+    ]
+   }
+  },
+  {
+   "id": "p02",
+   "num": "02",
+   "name": "Python engineering",
+   "when": "Weeks 5–6",
+   "aim": "Stop thinking in syntax. Start understanding Python as a language with a runtime, an object model, and a set of protocols you can implement yourself.",
+   "res": [
+    {
+     "n": "Python HOWTOs",
+     "k": "docs",
+     "w": "Generators, descriptors, logging, sockets, profiling",
+     "u": "https://docs.python.org/3/howto/"
+    },
+    {
+     "n": "Python Language Reference",
+     "k": "docs",
+     "w": "When you need to know exactly what happens",
+     "u": "https://docs.python.org/3/reference/"
+    },
+    {
+     "n": "Corey Schafer — OOP series",
+     "k": "video",
+     "w": "Classes, inheritance, properties, dunders",
+     "u": "https://www.youtube.com/watch?v=ZDa-Z5JzLYM"
+    },
+    {
+     "n": "Fluent Python",
+     "k": "book",
+     "w": "The one book that turns a Python user into a Python engineer",
+     "u": "https://www.fluentpython.com/"
+    }
+   ],
+   "sections": [
+    {
+     "h": "Week 5 — iteration and the object model",
+     "items": [
+      "The iterator protocol: <em>__iter__</em> and <em>__next__</em>, by hand.",
+      "Generators, <em>yield</em>, generator expressions, <em>yield from</em>.",
+      "Lazy pipelines: chain generators instead of building lists.",
+      "<em>itertools</em> — at minimum islice, chain, groupby, tee.",
+      "Identity vs equality; hashability; why dict keys must be immutable.",
+      "Mutable default arguments and other shared-state traps.",
+      "Build: process a multi-GB file with flat memory usage. Prove it with a memory profile."
+     ]
+    },
+    {
+     "h": "Week 6 — protocols, decorators, typing",
+     "items": [
+      "Write decorators from scratch: timer, retry with backoff, logger, cache.",
+      "<em>functools.wraps</em>, and decorators that take arguments.",
+      "Write a context manager as a class, then again with <em>@contextmanager</em>.",
+      "Type hints: generics, <em>Optional</em>, unions, <em>Protocol</em>.",
+      "Run a type checker over an old project and fix what it finds.",
+      "Refactor one earlier project into clean module boundaries."
+     ]
+    },
+    {
+     "h": "Engineering challenge",
+     "items": [
+      "Redesign File Organizer so classification logic is testable without touching a disk.",
+      "Separate: pure decision logic / filesystem effects / configuration / logging.",
+      "Add dry-run and execute modes sharing one code path.",
+      "Test the decision logic with zero filesystem access."
+     ]
+    }
+   ],
+   "snippet": "@timer\n@retry(times=3, backoff=2.0)\ndef fetch(url: str) -> bytes:\n    ...\n\nwith managed_resource() as r:\n    ...",
+   "gate": {
+    "note": "Explanation is the test. Reproducing syntax is not.",
+    "items": [
+     "Implement an iterator class and an equivalent generator, and say why you'd choose each.",
+     "Write a caching decorator from a blank file, with <em>functools.wraps</em> applied correctly.",
+     "Write a context manager both ways and explain what <em>__exit__</em> returning True does.",
+     "Explain when a generator saves memory and when it saves nothing.",
+     "Type-check a project cleanly and explain one error the checker caught."
+    ]
+   }
+  },
+  {
+   "id": "p03",
+   "num": "03",
+   "name": "Packaging & tooling",
+   "when": "Week 7",
+   "aim": "Make your work installable, reproducible, typed, and maintainable by someone who isn't you.",
+   "res": [
+    {
+     "n": "Python Packaging User Guide",
+     "k": "docs",
+     "w": "pyproject.toml, dependencies, distribution",
+     "u": "https://packaging.python.org/en/latest/"
+    },
+    {
+     "n": "pytest documentation",
+     "k": "docs",
+     "w": "Fixtures, parametrize, plugins, conftest",
+     "u": "https://docs.pytest.org/en/stable/"
+    },
+    {
+     "n": "Ruff",
+     "k": "docs",
+     "w": "Lint and format, fast enough to run on save",
+     "u": "https://docs.astral.sh/ruff/"
+    },
+    {
+     "n": "Astral docs — uv, Ruff, ty",
+     "k": "docs",
+     "w": "The modern toolchain, one vendor",
+     "u": "https://docs.astral.sh/"
+    },
+    {
+     "n": "mypy",
+     "k": "docs",
+     "w": "The mature static type checker",
+     "u": "https://mypy.readthedocs.io/en/stable/"
+    },
+    {
+     "n": "Hypothesis",
+     "k": "docs",
+     "w": "Property-based testing — finds bugs you'd never write a case for",
+     "u": "https://hypothesis.readthedocs.io/en/latest/"
+    }
+   ],
+   "sections": [
+    {
+     "h": "Learn",
+     "items": [
+      "Virtual environments and why global installs eventually break you.",
+      "Dependency resolution, lockfiles, and reproducible installs.",
+      "<em>pyproject.toml</em>: metadata, dependencies, optional groups, tool config.",
+      "src-layout vs flat layout — and why src-layout catches import bugs.",
+      "Console-script entry points so <em>your-tool</em> works from any directory.",
+      "Linting and formatting as a pre-commit hook, not a manual chore.",
+      "Static type checking in CI.",
+      "Semantic versioning and writing a changelog."
+     ]
+    },
+    {
+     "h": "Build — promote one tool to a real package",
+     "items": [
+      "Restructure into <em>src/your_package/</em> with a <em>tests/</em> sibling.",
+      "Write a complete pyproject.toml including the CLI entry point.",
+      "Configure Ruff and a type checker in that same file.",
+      "Add a conftest.py with shared fixtures.",
+      "Add at least one Hypothesis property test.",
+      "Write a README with install, usage, configuration, limitations."
+     ]
+    }
+   ],
+   "snippet": "uv venv && source .venv/bin/activate\nuv pip install -e \".[dev]\"\nruff check . && ruff format --check .\nmypy src/\npytest -q\nyour-tool --help",
+   "gate": {
+    "note": "Do this on a machine — or in a container — that has never seen the project.",
+    "items": [
+     "Clone into a clean environment and install with one command.",
+     "The full test suite passes.",
+     "The lint and type checks pass with zero suppressions you can't justify.",
+     "The installed CLI command runs from any directory.",
+     "Explain what belongs in pyproject.toml versus what belongs in code."
+    ]
+   }
+  },
+  {
+   "id": "p04",
+   "num": "04",
+   "name": "Computer science core",
+   "when": "Weeks 8–11",
+   "aim": "Learn the layer beneath the language, so frameworks become interchangeable tools rather than things you memorize.",
+   "res": [
+    {
+     "n": "CS50x",
+     "k": "course",
+     "w": "Algorithms, memory, data structures, from C upward",
+     "u": "https://cs50.harvard.edu/x/"
+    },
+    {
+     "n": "CS50 — Algorithms (week 3)",
+     "k": "video",
+     "w": "Search, sort, Big O, recursion",
+     "u": "https://cs50.harvard.edu/x/weeks/3/"
+    },
+    {
+     "n": "CS50 — Data Structures (week 5)",
+     "k": "video",
+     "w": "Linked lists, trees, hash tables, tries",
+     "u": "https://cs50.harvard.edu/x/weeks/5/"
+    },
+    {
+     "n": "VisuAlgo",
+     "k": "interactive",
+     "w": "Watch the structure move before you implement it",
+     "u": "https://visualgo.net/en"
+    }
+   ],
+   "sections": [
+    {
+     "h": "Learn",
+     "items": [
+      "Enough C to understand pointers, memory, and why Python costs what it costs.",
+      "Arrays vs linked lists — cache behaviour, not just Big O.",
+      "Stacks and queues, and where each shows up in real systems.",
+      "Hash tables: hashing, collisions, load factor, resizing.",
+      "Trees, binary search trees, balancing, traversals.",
+      "Heaps and priority queues.",
+      "Tries and prefix problems.",
+      "Graphs: adjacency list vs matrix, directed vs weighted.",
+      "Big O, Θ, Ω — and the difference between them.",
+      "Stack vs heap, allocation, and what garbage collection buys you."
+     ]
+    },
+    {
+     "h": "Build — pystructures",
+     "items": [
+      "Implement dynamic array with amortized growth.",
+      "Implement singly and doubly linked list.",
+      "Implement stack and queue on top of your own primitives.",
+      "Implement hash table with collision handling and resizing.",
+      "Implement binary search tree with insert, search, delete, traversals.",
+      "Implement min-heap with sift-up and sift-down.",
+      "Implement graph with BFS and DFS.",
+      "Implement trie with insert, search, prefix search.",
+      "Every structure gets tests and a benchmark against the stdlib equivalent."
+     ]
+    }
+   ],
+   "snippet": "pystructures/\n  arrays.py     linked_list.py\n  stack.py      queue.py\n  hash_table.py bst.py\n  heap.py       graph.py       trie.py\n  benchmarks/   tests/",
+   "gate": {
+    "note": "For each structure you implemented, without looking at your own code:",
+    "items": [
+     "State its invariants.",
+     "State the complexity of every operation, and the amortized case where it differs.",
+     "Describe its memory behaviour and when it thrashes cache.",
+     "Name a real problem where it's the right choice — and one where it's the wrong one.",
+     "Solve a small novel problem using it."
+    ]
+   }
+  },
+  {
+   "id": "p05",
+   "num": "05",
+   "name": "Algorithms & problem solving",
+   "when": "Weeks 12–13",
+   "aim": "Train the transferable skill: turn a vague problem into a precise, efficient, defensible solution.",
+   "res": [
+    {
+     "n": "Data Structures & Algorithms — freeCodeCamp",
+     "k": "video",
+     "w": "Full sweep: search, sort, recursion, DP, graphs",
+     "u": "https://www.youtube.com/watch?v=pkYVOmU3MgA"
+    },
+    {
+     "n": "CP-Algorithms",
+     "k": "reference",
+     "w": "Deep reference for when the standard toolkit runs out",
+     "u": "https://cp-algorithms.com/"
+    },
+    {
+     "n": "Exercism — Python track",
+     "k": "practice",
+     "w": "Exercises with human mentorship on your solutions",
+     "u": "https://exercism.org/tracks/python"
+    },
+    {
+     "n": "NeetCode",
+     "k": "practice",
+     "w": "Patterned interview problems, grouped by technique",
+     "u": "https://neetcode.io/"
+    },
+    {
+     "n": "Advent of Code",
+     "k": "practice",
+     "w": "Messy inputs, real constraints, escalating difficulty",
+     "u": "https://adventofcode.com/"
+    },
+    {
+     "n": "Codewars",
+     "k": "practice",
+     "w": "Short daily reps",
+     "u": "https://www.codewars.com/"
+    }
+   ],
+   "sections": [
+    {
+     "h": "Study in this order",
+     "items": [
+      "Complexity analysis — estimate before you code.",
+      "Binary search, including on answers rather than arrays.",
+      "Sorting: what the stdlib does and when you'd ever write your own.",
+      "Recursion, and converting recursion to iteration.",
+      "Divide and conquer.",
+      "Greedy — and how to prove a greedy choice is safe.",
+      "BFS and DFS on grids and graphs.",
+      "Heaps and priority queues in anger.",
+      "Dynamic programming: memoize first, tabulate second.",
+      "Shortest paths: Dijkstra, and when BFS is enough.",
+      "Backtracking and pruning."
+     ]
+    },
+    {
+     "h": "Daily problem routine",
+     "items": [
+      "Attempt for 20–30 minutes before reading anything.",
+      "Write the brute force first, even if it's obviously too slow.",
+      "State its complexity, then state your target complexity.",
+      "Look for a data structure or invariant that closes the gap.",
+      "Implement, then write edge-case tests.",
+      "Explain the solution out loud or in your notes.",
+      "Re-solve any problem you needed help on, 48 hours later, from scratch."
+     ]
+    },
+    {
+     "h": "Challenge ladder",
+     "items": [
+      "Level 1 — direct implementation of a known technique.",
+      "Level 2 — same problem, optimize the complexity.",
+      "Level 3 — solve without being told the category.",
+      "Level 4 — real-world problem with messy input and hard constraints."
+     ]
+    }
+   ],
+   "gate": {
+    "note": "On a problem you've never seen, in one sitting:",
+    "items": [
+     "Identify the likely data structure before writing code.",
+     "State a target complexity and justify it.",
+     "Implement a correct solution.",
+     "Write tests that cover the edge cases you predicted.",
+     "Explain why it's correct, not just that it passes."
+    ]
+   }
+  },
+  {
+   "id": "p06",
+   "num": "06",
+   "name": "Linux & systems",
+   "when": "Week 14",
+   "aim": "Understand the environment your Python actually runs inside. Most production bugs are environment bugs.",
+   "res": [
+    {
+     "n": "MIT — The Missing Semester",
+     "k": "course",
+     "w": "Shell, tooling, scripting: the class no one teaches",
+     "u": "https://missing.csail.mit.edu/"
+    },
+    {
+     "n": "Linux Journey",
+     "k": "interactive",
+     "w": "Command line, permissions, processes, filesystem",
+     "u": "https://linuxjourney.com/"
+    },
+    {
+     "n": "OverTheWire — Bandit",
+     "k": "practice",
+     "w": "Terminal fluency through puzzles",
+     "u": "https://overthewire.org/wargames/bandit/"
+    },
+    {
+     "n": "subprocess",
+     "k": "docs",
+     "w": "Launching and controlling processes from Python",
+     "u": "https://docs.python.org/3/library/subprocess.html"
+    }
+   ],
+   "sections": [
+    {
+     "h": "Learn",
+     "items": [
+      "Filesystem layout, paths, permissions, ownership.",
+      "Environment variables, PATH, and shell startup files.",
+      "Processes, PIDs, signals, exit codes.",
+      "stdin, stdout, stderr — and redirecting each independently.",
+      "Pipes, and composing small tools into a pipeline.",
+      "<em>grep · find · sed · awk · xargs</em> at working level.",
+      "SSH, key auth, and port forwarding.",
+      "Services, journald/syslog, and reading logs under pressure.",
+      "cron and scheduled work.",
+      "Shell scripting: variables, conditionals, loops, <em>set -euo pipefail</em>."
+     ]
+    },
+    {
+     "h": "Build — process manager CLI",
+     "items": [
+      "List processes with CPU and memory usage.",
+      "Start a command and capture its output correctly.",
+      "Stop a process cleanly, then forcibly, and handle both.",
+      "Record activity to a rotating log.",
+      "Export a report as JSON and as a formatted table.",
+      "Handle a process that writes gigabytes to stdout without exploding."
+     ]
+    }
+   ],
+   "gate": {
+    "note": "Keep it local and defensive. The goal is systems understanding, not persistence or evasion.",
+    "items": [
+     "Diagnose why a script works in your shell but fails under cron.",
+     "Find which process is holding a port, and explain how you found it.",
+     "Write a shell script that's safe under spaces-in-filenames and failure.",
+     "Explain what a zombie process is and how one is created.",
+     "Clear at least level 15 of OverTheWire Bandit."
+    ]
+   }
+  },
+  {
+   "id": "p07",
+   "num": "07",
+   "name": "Networking",
+   "when": "Weeks 15–16",
+   "aim": "Understand every step between a client and a server, so 'the API call failed' becomes a specific question instead of a shrug.",
+   "res": [
+    {
+     "n": "MDN — HTTP",
+     "k": "reference",
+     "w": "Methods, headers, status codes, caching, CORS",
+     "u": "https://developer.mozilla.org/en-US/docs/Web/HTTP"
+    },
+    {
+     "n": "Python socket",
+     "k": "docs",
+     "w": "TCP and UDP at the level below the framework",
+     "u": "https://docs.python.org/3/library/socket.html"
+    },
+    {
+     "n": "HTTPX",
+     "k": "docs",
+     "w": "Modern HTTP client, sync and async",
+     "u": "https://www.python-httpx.org/"
+    }
+   ],
+   "sections": [
+    {
+     "h": "Learn in this order",
+     "items": [
+      "IP addresses, ports, and what 'listening' means.",
+      "TCP vs UDP: ordering, delivery, handshake, cost.",
+      "DNS resolution and where it's cached.",
+      "The HTTP request/response cycle, byte by byte.",
+      "Headers, cookies, sessions, and where auth state actually lives.",
+      "TLS conceptually: certificates, chains, and what verification proves.",
+      "REST semantics, idempotency, and correct status codes.",
+      "WebSockets and when to use them over polling.",
+      "Timeouts, retries with jitter, and rate limiting — where each belongs."
+     ]
+    },
+    {
+     "h": "Build, in this order",
+     "items": [
+      "TCP chat: server accepts multiple clients, broadcasts messages.",
+      "HTTP client using raw sockets — parse the response yourself.",
+      "Minimal HTTP server: routing, headers, status codes, static files.",
+      "WebSocket chat with reconnection handling.",
+      "Concurrent downloader with a timeout budget and retry policy."
+     ]
+    }
+   ],
+   "gate": {
+    "note": "Take one real API call you make and narrate the whole journey.",
+    "items": [
+     "Name resolution → connection → TLS → request → response → parse → error handling.",
+     "Say where a timeout belongs at each layer, and what happens if it's missing.",
+     "Explain why retrying a POST can be dangerous and how idempotency keys fix it.",
+     "Debug a failing request using only headers and status codes.",
+     "Explain what your minimal HTTP server does wrong that a real one handles."
+    ]
+   }
+  },
+  {
+   "id": "p08",
+   "num": "08",
+   "name": "SQL & PostgreSQL",
+   "when": "Weeks 17–18",
+   "aim": "Treat the database as a system with its own behaviour — not a black box behind an ORM.",
+   "res": [
+    {
+     "n": "PostgreSQL Tutorial",
+     "k": "docs",
+     "w": "Tables, queries, joins, constraints, transactions",
+     "u": "https://www.postgresql.org/docs/current/tutorial.html"
+    },
+    {
+     "n": "PostgreSQL Documentation",
+     "k": "reference",
+     "w": "Indexes, locking, planning, internals",
+     "u": "https://www.postgresql.org/docs/current/"
+    },
+    {
+     "n": "SQLAlchemy",
+     "k": "docs",
+     "w": "Only after you can write the SQL yourself",
+     "u": "https://docs.sqlalchemy.org/en/20/"
+    }
+   ],
+   "sections": [
+    {
+     "h": "Learn",
+     "items": [
+      "SELECT, INSERT, UPDATE, DELETE — and the WHERE clause that saves you.",
+      "Joins: inner, left, and thinking relationally rather than procedurally.",
+      "GROUP BY, HAVING, and aggregate functions.",
+      "Subqueries and CTEs; when a CTE hurts performance.",
+      "Constraints: primary keys, foreign keys, unique, check, not null.",
+      "Transactions, ACID, and explicit rollback.",
+      "Indexes: B-tree, composite ordering, and why an index can be ignored.",
+      "Normalization to 3NF, and when you'd deliberately denormalize.",
+      "Isolation levels, locking, and deadlocks.",
+      "<em>EXPLAIN ANALYZE</em> — read a query plan and act on it.",
+      "Connection pooling and why it matters under load."
+     ]
+    },
+    {
+     "h": "Build — LibraryOS",
+     "items": [
+      "Design the schema on paper first: users, authors, books, loans, returns.",
+      "Write the DDL by hand with every constraint you can justify.",
+      "Seed realistic data — tens of thousands of rows, not five.",
+      "Write the reporting queries: overdue loans, top borrowers, stats by month.",
+      "Find one slow query, run EXPLAIN ANALYZE, add an index, measure the gain.",
+      "Only now, wrap it in SQLAlchemy and confirm the generated SQL matches your intent."
+     ]
+    }
+   ],
+   "gate": {
+    "items": [
+     "Design a normalized schema for a new domain from a plain-English description.",
+     "Write a five-table join with aggregation, from memory.",
+     "Show a query that got measurably faster because of an index you chose.",
+     "Explain what happens when two transactions update the same row.",
+     "Explain one thing your ORM does that you'd never have written by hand."
+    ]
+   }
+  },
+  {
+   "id": "p09",
+   "num": "09",
+   "name": "Backend engineering",
+   "when": "Weeks 19–20",
+   "aim": "Turn Python into a service that other software depends on.",
+   "res": [
+    {
+     "n": "FastAPI Tutorial",
+     "k": "course",
+     "w": "Progressive, thorough, and the docs are the course",
+     "u": "https://fastapi.tiangolo.com/tutorial/"
+    },
+    {
+     "n": "Pydantic",
+     "k": "docs",
+     "w": "Validation, serialization, settings",
+     "u": "https://docs.pydantic.dev/latest/"
+    },
+    {
+     "n": "SQLAlchemy",
+     "k": "docs",
+     "w": "Sessions, relationships, migrations",
+     "u": "https://docs.sqlalchemy.org/en/20/"
+    },
+    {
+     "n": "OWASP Top 10",
+     "k": "reference",
+     "w": "Read it now, not in phase 13",
+     "u": "https://owasp.org/www-project-top-ten/"
+    }
+   ],
+   "sections": [
+    {
+     "h": "Learn",
+     "items": [
+      "Routing, path and query params, and correct HTTP semantics.",
+      "Pydantic models for request validation and response shaping.",
+      "Dependency injection and why it makes testing trivial.",
+      "Authentication vs authorization — they are different problems.",
+      "Sessions vs JWT: tradeoffs, revocation, refresh.",
+      "Role and permission checks at the boundary, not scattered in handlers.",
+      "Middleware: logging, request IDs, error handling.",
+      "Background tasks, and when you need a real queue instead.",
+      "Pagination, filtering, and sorting that survives a million rows.",
+      "Migrations with Alembic.",
+      "Configuration and secrets from the environment, never in Git.",
+      "Testing an API: client fixtures, a test database, isolation between tests."
+     ]
+    },
+    {
+     "h": "Build — Nexus API",
+     "items": [
+      "Registration, login, password hashing done correctly.",
+      "Roles and permissions enforced by a dependency.",
+      "PostgreSQL persistence with migrations.",
+      "File uploads with size and type validation.",
+      "Search, filtering, and cursor pagination.",
+      "Background work for anything slow.",
+      "Structured JSON logging with a request ID on every line.",
+      "Test suite covering auth, permissions, and validation failures.",
+      "OpenAPI docs that a stranger could build a client from."
+     ]
+    }
+   ],
+   "gate": {
+    "items": [
+     "Ship the API with tests passing and docs generated.",
+     "Show that an unauthorized user cannot reach a protected route — by test, not by clicking.",
+     "Show a request ID flowing from request to log line to error response.",
+     "Explain your auth choice and what an attacker would have to do to break it.",
+     "Add a new endpoint end-to-end — model, route, tests, docs — in under an hour."
+    ]
+   }
+  },
+  {
+   "id": "p10",
+   "num": "10",
+   "name": "Automation & web",
+   "when": "Week 21",
+   "aim": "Use Python as the integration layer between files, APIs, browsers, and services. This is where the leverage lives.",
+   "res": [
+    {
+     "n": "Automate the Boring Stuff",
+     "k": "book",
+     "w": "Free online; the canonical automation starting point",
+     "u": "https://automatetheboringstuff.com/"
+    },
+    {
+     "n": "HTTPX",
+     "k": "docs",
+     "w": "Async-capable HTTP client",
+     "u": "https://www.python-httpx.org/"
+    },
+    {
+     "n": "Beautiful Soup",
+     "k": "docs",
+     "w": "HTML parsing that tolerates bad HTML",
+     "u": "https://www.crummy.com/software/BeautifulSoup/bs4/doc/"
+    },
+    {
+     "n": "Playwright for Python",
+     "k": "docs",
+     "w": "Browser automation that actually works",
+     "u": "https://playwright.dev/python/"
+    },
+    {
+     "n": "Scrapy",
+     "k": "docs",
+     "w": "When one script becomes a crawling system",
+     "u": "https://docs.scrapy.org/en/latest/"
+    },
+    {
+     "n": "Textual",
+     "k": "docs",
+     "w": "Build a real terminal UI for your tools",
+     "u": "https://textual.textualize.io/"
+    }
+   ],
+   "sections": [
+    {
+     "h": "Learn",
+     "items": [
+      "API authentication patterns: keys, OAuth, token refresh.",
+      "Pagination: cursor, offset, and link headers.",
+      "HTML parsing and writing selectors that don't break weekly.",
+      "Browser automation: waits, selectors, and headless quirks.",
+      "Filesystem and process automation.",
+      "Webhooks: receiving, verifying signatures, responding fast.",
+      "Retries with exponential backoff and jitter.",
+      "Idempotency so a rerun doesn't duplicate work.",
+      "Scheduling, and making a job safe to run twice.",
+      "Rate limits and crawling respectfully."
+     ]
+    },
+    {
+     "h": "Build — automation engine",
+     "items": [
+      "Task definition format — declarative, not hardcoded.",
+      "Dispatcher that routes a task to the right action type.",
+      "Action adapters: HTTP, browser, filesystem, subprocess.",
+      "Normalize every result into one shape.",
+      "Persist results and logs so failures are reconstructable.",
+      "Notification on completion and on failure.",
+      "Make the whole thing resumable after a crash mid-run."
+     ]
+    }
+   ],
+   "note": "Respect terms of service, robots directives, rate limits, authentication boundaries, and copyright. Build the engineering skill without abusing anyone's systems.",
+   "gate": {
+    "items": [
+     "Run the engine against a real workflow you actually needed done.",
+     "Kill it mid-run and restart — it resumes without duplicating work.",
+     "Show it surviving a 429 and a 500 without losing tasks.",
+     "Explain where each retry and timeout lives and why.",
+     "Hand the config to someone else and have them add a task without touching your code."
+    ]
+   }
+  },
+  {
+   "id": "p11",
+   "num": "11",
+   "name": "Async, concurrency & performance",
+   "when": "Week 22",
+   "aim": "Know when to reach for async, threads, or processes — and be able to prove the choice with numbers.",
+   "res": [
+    {
+     "n": "asyncio",
+     "k": "docs",
+     "w": "Coroutines, tasks, synchronization, networking",
+     "u": "https://docs.python.org/3/library/asyncio.html"
+    },
+    {
+     "n": "concurrent.futures",
+     "k": "docs",
+     "w": "Thread and process pools",
+     "u": "https://docs.python.org/3/library/concurrent.futures.html"
+    },
+    {
+     "n": "Python HOWTOs — profiling",
+     "k": "docs",
+     "w": "Find the bottleneck before optimizing it",
+     "u": "https://docs.python.org/3/howto/"
+    },
+    {
+     "n": "Locust",
+     "k": "docs",
+     "w": "Load-test your own service",
+     "u": "https://locust.io/"
+    }
+   ],
+   "sections": [
+    {
+     "h": "Learn",
+     "items": [
+      "Concurrency vs parallelism — say the difference out loud.",
+      "The event loop, coroutines, and what <em>await</em> actually yields.",
+      "Tasks, gather, <em>TaskGroup</em>, and structured concurrency.",
+      "Cancellation and cleanup that doesn't leak.",
+      "Semaphores and queues for bounded concurrency.",
+      "Threads for I/O-bound work; the GIL and what it does and doesn't block.",
+      "Processes for CPU-bound work, and the cost of pickling across them.",
+      "Race conditions, locks, deadlocks — reproduce each one deliberately.",
+      "Timeouts at every layer.",
+      "Profiling with cProfile and a memory profiler; benchmarking honestly."
+     ]
+    },
+    {
+     "h": "Build — Crawler-X",
+     "items": [
+      "Bounded concurrent URL queue with a worker pool.",
+      "Per-host rate limiting.",
+      "Timeouts, retries, and a dead-letter path for permanent failures.",
+      "URL normalization and deduplication.",
+      "Response caching.",
+      "Database persistence with batched writes.",
+      "Structured logs and live metrics.",
+      "Graceful shutdown on SIGINT that finishes in-flight work."
+     ]
+    },
+    {
+     "h": "Benchmark exercise — the real deliverable",
+     "items": [
+      "Run the same workload sequentially, with threads, and with asyncio.",
+      "Record throughput, p50/p95 latency, CPU, memory, and failure behaviour.",
+      "Repeat with a CPU-bound workload and multiprocessing.",
+      "Write a one-page conclusion with a table and a recommendation."
+     ]
+    }
+   ],
+   "gate": {
+    "items": [
+     "Show the benchmark table and defend which model wins for which workload.",
+     "Explain the GIL accurately, including what it does not prevent.",
+     "Demonstrate a deadlock you created, then fix it.",
+     "Cancel a running task and prove the cleanup ran.",
+     "Profile a slow function and show the before/after numbers."
+    ]
+   }
+  },
+  {
+   "id": "p12",
+   "num": "12",
+   "name": "Docker, CI/CD & deployment",
+   "when": "Week 23",
+   "aim": "Make your software run identically somewhere that isn't your laptop.",
+   "res": [
+    {
+     "n": "Docker — Python guide",
+     "k": "docs",
+     "w": "Containerize, compose, develop",
+     "u": "https://docs.docker.com/guides/python/"
+    },
+    {
+     "n": "GitHub Actions",
+     "k": "docs",
+     "w": "Automated tests, checks, and releases",
+     "u": "https://docs.github.com/en/actions"
+    },
+    {
+     "n": "Packaging guides",
+     "k": "docs",
+     "w": "Building and publishing distributions",
+     "u": "https://packaging.python.org/en/latest/guides/"
+    }
+   ],
+   "sections": [
+    {
+     "h": "Learn",
+     "items": [
+      "Images vs containers vs volumes.",
+      "Writing a Dockerfile: layer order, caching, and why order matters.",
+      "Multi-stage builds and small final images.",
+      "Non-root users in containers.",
+      "Volumes for data, bind mounts for development.",
+      "Networks and service discovery between containers.",
+      "Docker Compose for a multi-service stack.",
+      "Environment variables and secret handling — what never goes in an image.",
+      "Health checks and restart policies.",
+      "CI: run tests, lint, and type checks on every push.",
+      "Tagged releases and a repeatable deploy step."
+     ]
+    },
+    {
+     "h": "Build — deploy the stack",
+     "items": [
+      "Compose file: FastAPI service, PostgreSQL, Redis, a worker.",
+      "Dockerfile under 200MB final image, running as non-root.",
+      "Health checks on every service.",
+      "Migrations that run safely on startup.",
+      "CI pipeline: tests, lint, types, and a build of the image.",
+      "One documented command that brings the whole stack up from clean.",
+      "Deploy it somewhere real and hit it from the internet."
+     ]
+    }
+   ],
+   "gate": {
+    "items": [
+     "A machine that has never seen the project runs it from your README alone.",
+     "CI catches a deliberately broken test before it can merge.",
+     "Explain what would happen if the database container restarted mid-request.",
+     "Show your image size and explain what you did to reduce it.",
+     "Roll back to the previous release and show it working."
+    ]
+   }
+  },
+  {
+   "id": "p13",
+   "num": "13",
+   "name": "Application security",
+   "when": "Week 24",
+   "aim": "Think like a defender and a reviewer. Every feature you've built so far is now something to attack.",
+   "res": [
+    {
+     "n": "OWASP Top 10",
+     "k": "reference",
+     "w": "The major web application risks",
+     "u": "https://owasp.org/www-project-top-ten/"
+    },
+    {
+     "n": "OWASP Web Security Testing Guide",
+     "k": "reference",
+     "w": "A real testing methodology",
+     "u": "https://owasp.org/www-project-web-security-testing-guide/"
+    },
+    {
+     "n": "OWASP Cheat Sheet Series",
+     "k": "reference",
+     "w": "Concrete guidance per topic",
+     "u": "https://cheatsheetseries.owasp.org/"
+    },
+    {
+     "n": "Python secrets",
+     "k": "docs",
+     "w": "Cryptographically strong tokens",
+     "u": "https://docs.python.org/3/library/secrets.html"
+    }
+   ],
+   "sections": [
+    {
+     "h": "Study",
+     "items": [
+      "Broken access control — the most common real-world failure.",
+      "Cryptographic failures: at rest, in transit, and in your password hashing.",
+      "Injection: SQL, command, and template.",
+      "Insecure design — the flaws no library fixes for you.",
+      "Security misconfiguration and default credentials.",
+      "Vulnerable and outdated components; dependency scanning.",
+      "Authentication failures: session fixation, credential stuffing, weak resets.",
+      "Software and data integrity failures; supply chain risk.",
+      "Logging and alerting failures — what you'd need to detect a breach.",
+      "SSRF and why your server fetching a user-supplied URL is dangerous."
+     ]
+    },
+    {
+     "h": "Local lab — your machine only",
+     "items": [
+      "Build a deliberately vulnerable toy app with one flaw at a time.",
+      "Exploit it yourself and record exactly what you did.",
+      "Patch it properly, not with input filtering alone.",
+      "Add a regression test that fails against the vulnerable version.",
+      "Repeat for injection, broken access control, and an auth flaw.",
+      "Run a dependency audit against your own real projects and fix what it finds."
+     ]
+    },
+    {
+     "h": "Review pass on Nexus API",
+     "items": [
+      "For every endpoint: who can call it, and is that enforced server-side?",
+      "For every input: what happens on malformed, oversized, or hostile input?",
+      "For every secret: where does it come from, and is it in Git history?",
+      "For every error: does it leak stack traces or internal details?",
+      "For every action: is there a log line you could investigate later?"
+     ]
+    }
+   ],
+   "note": "Stay inside systems you own or have written permission to test. The skill being built here is defensive review, not intrusion.",
+   "gate": {
+    "items": [
+     "Find and fix a real vulnerability in your own code.",
+     "Show the regression test that would catch it coming back.",
+     "Explain why input validation alone is not a fix for injection.",
+     "Explain your password storage choice at the level of the algorithm and its parameters.",
+     "Produce a short threat model for one of your services."
+    ]
+   }
+  },
+  {
+   "id": "p14",
+   "num": "14",
+   "name": "AI engineering",
+   "when": "Weeks 25–26",
+   "aim": "Build models from scratch to understand them, then build reliable systems around models you didn't train. Both halves matter.",
+   "res": [
+    {
+     "n": "Neural Networks: Zero to Hero — Karpathy",
+     "k": "video",
+     "w": "Backprop, then a GPT, built from nothing. The from-scratch path.",
+     "u": "https://www.youtube.com/playlist?list=PLAqhIrjkxbuWI23v9cThsA9GvCAUhRvKZ"
+    },
+    {
+     "n": "karpathy.ai/zero-to-hero",
+     "k": "course",
+     "w": "Course page with notebooks and repos",
+     "u": "https://karpathy.ai/zero-to-hero.html"
+    },
+    {
+     "n": "PyTorch — Learn the Basics",
+     "k": "docs",
+     "w": "Tensors, autograd, datasets, training loops",
+     "u": "https://docs.pytorch.org/tutorials/beginner/basics/"
+    },
+    {
+     "n": "scikit-learn",
+     "k": "docs",
+     "w": "Classical ML, and the evaluation discipline",
+     "u": "https://scikit-learn.org/stable/"
+    },
+    {
+     "n": "NumPy",
+     "k": "docs",
+     "w": "Vectorized thinking underneath everything",
+     "u": "https://numpy.org/doc/stable/"
+    },
+    {
+     "n": "pandas",
+     "k": "docs",
+     "w": "Tabular data manipulation",
+     "u": "https://pandas.pydata.org/docs/"
+    },
+    {
+     "n": "Practical Deep Learning — fast.ai",
+     "k": "course",
+     "w": "Top-down counterpart to Karpathy's bottom-up",
+     "u": "https://course.fast.ai/"
+    }
+   ],
+   "sections": [
+    {
+     "h": "Layer 1 — numerical foundations",
+     "items": [
+      "NumPy arrays, broadcasting, and vectorizing a loop you wrote.",
+      "pandas: load, clean, join, group, reshape.",
+      "Train/validation/test splits, and every way leakage sneaks in.",
+      "Metrics: accuracy is usually the wrong one — know when.",
+      "Classical ML with scikit-learn: a full pipeline, cross-validated."
+     ]
+    },
+    {
+     "h": "Layer 2 — build the model from scratch",
+     "items": [
+      "Implement a scalar autograd engine (micrograd) from a blank file.",
+      "Implement a neuron, layer, and MLP on top of it, and train it.",
+      "Derive and hand-implement backprop for one layer; verify against autograd.",
+      "Rebuild the same thing in PyTorch and compare.",
+      "Build a character-level language model and train it.",
+      "Implement self-attention from scratch.",
+      "Build a small transformer end to end and generate text with it.",
+      "Explain, in your own words, what the gradients are doing at each step."
+     ]
+    },
+    {
+     "h": "Layer 3 — AI systems engineering",
+     "items": [
+      "Embeddings and vector similarity — what the numbers mean.",
+      "Chunking strategies and why they dominate retrieval quality.",
+      "Vector stores, hybrid search, and reranking.",
+      "RAG architecture end to end.",
+      "Structured outputs and schema-constrained generation.",
+      "Tool calling and agent loops with real failure handling.",
+      "Prompt injection and untrusted content boundaries.",
+      "Evaluation sets, offline evals, and regression tracking.",
+      "Cost, latency, and caching in production."
+     ]
+    },
+    {
+     "h": "Build — AI engine",
+     "items": [
+      "Document ingestion: parse, chunk, embed, store.",
+      "Retrieval with reranking and a relevance threshold.",
+      "Generation with a strict output schema.",
+      "Tools the model can call, with permission boundaries.",
+      "An evaluation set of at least 50 labelled cases.",
+      "A failure inspector: every bad answer traceable to its retrieved context.",
+      "API + minimal UI, with logging on every request."
+     ]
+    }
+   ],
+   "gate": {
+    "note": "'It answered something plausible' is not a quality metric.",
+    "items": [
+     "Train a working neural net you wrote yourself, with no framework.",
+     "Explain backpropagation without hand-waving.",
+     "Show your evaluation set and a score that moved because of a change you made.",
+     "Show a failure case, trace it to its cause, and describe the fix.",
+     "Explain where prompt injection could enter your system and what stops it."
+    ]
+   }
+  },
+  {
+   "id": "p15",
+   "num": "15",
+   "name": "Architecture & orchestration",
+   "when": "Months 7+",
+   "aim": "Design systems that survive growth, failure, and multiple workers running at once.",
+   "res": [
+    {
+     "n": "Designing Data-Intensive Applications",
+     "k": "book",
+     "w": "The distributed systems book. Read it slowly.",
+     "u": "https://dataintensive.net/"
+    },
+    {
+     "n": "Redis",
+     "k": "docs",
+     "w": "Caching, queues, streams, coordination",
+     "u": "https://redis.io/docs/latest/"
+    },
+    {
+     "n": "Celery",
+     "k": "docs",
+     "w": "Distributed task processing in Python",
+     "u": "https://docs.celeryq.dev/en/stable/"
+    },
+    {
+     "n": "Temporal",
+     "k": "docs",
+     "w": "Durable execution for workflows that must not lose state",
+     "u": "https://docs.temporal.io/"
+    },
+    {
+     "n": "LangGraph",
+     "k": "docs",
+     "w": "Stateful graphs for agent and LLM orchestration",
+     "u": "https://docs.langchain.com/oss/python/langgraph/"
+    },
+    {
+     "n": "OpenTelemetry",
+     "k": "docs",
+     "w": "Traces, metrics, and logs that correlate",
+     "u": "https://opentelemetry.io/docs/"
+    }
+   ],
+   "sections": [
+    {
+     "h": "Learn",
+     "items": [
+      "Layered vs modular architecture, and dependency inversion at the boundary.",
+      "Caching strategies: cache-aside, write-through, and invalidation.",
+      "Queues and workers: at-least-once delivery and its consequences.",
+      "Retries, exponential backoff, jitter, and retry storms.",
+      "Idempotency keys and exactly-once as an illusion.",
+      "Dead-letter queues and what you do with them.",
+      "Distributed locks and why they're harder than they look.",
+      "Horizontal scaling and statelessness.",
+      "Consistency models and partial failure.",
+      "Observability: structured logs, metrics, traces, and correlation IDs.",
+      "Capacity reasoning: find the bottleneck before adding machines.",
+      "Workflow orchestration: durable state, checkpoints, and resuming mid-flight."
+     ]
+    },
+    {
+     "h": "Build — orchestrated system",
+     "items": [
+      "API → queue → worker pool → database → cache, all containerized.",
+      "Workers that are safe to run in triplicate on the same queue.",
+      "A workflow with checkpoints that survives a worker crash.",
+      "Dead-letter handling with a replay path.",
+      "Distributed tracing across API, queue, and worker.",
+      "A dashboard or metrics endpoint showing queue depth and worker health.",
+      "Load-test it and find the actual bottleneck."
+     ]
+    },
+    {
+     "h": "Architecture decision record",
+     "items": [
+      "State the expected load and the bottleneck you predict.",
+      "List the failure modes and what happens in each.",
+      "Justify the storage, queue, and cache choices.",
+      "Describe the retry and idempotency strategy.",
+      "Say what you did NOT choose, and why."
+     ]
+    }
+   ],
+   "snippet": "            API\n             |\n          [ QUEUE ] --> dead letter --> replay\n       /     |      \\\n   WORKER  WORKER  WORKER\n       \\     |      /\n          DATABASE\n             |\n           CACHE\n             |\n      TRACES · METRICS · LOGS",
+   "gate": {
+    "items": [
+     "Kill a worker mid-job and show the job completes anyway.",
+     "Show a trace spanning API, queue, and worker for one request.",
+     "Prove a job running twice causes no duplicate side effects.",
+     "Show the load test and name the bottleneck it revealed.",
+     "Defend your ADR against a changed requirement someone else invents."
+    ]
+   }
+  },
+  {
+   "id": "p16",
+   "num": "16",
+   "name": "Systems programming & internals",
+   "when": "Months 8+",
+   "aim": "Go beneath the abstraction — after the core path is solid, not before.",
+   "res": [
+    {
+     "n": "Extending and Embedding Python",
+     "k": "docs",
+     "w": "The CPython boundary",
+     "u": "https://docs.python.org/3/extending/index.html"
+    },
+    {
+     "n": "CS50 — C and memory (week 4)",
+     "k": "video",
+     "w": "Pointers, allocation, and what leaks",
+     "u": "https://cs50.harvard.edu/x/weeks/4/"
+    },
+    {
+     "n": "CPython source",
+     "k": "source",
+     "w": "Read the real interpreter when you're ready",
+     "u": "https://github.com/python/cpython"
+    },
+    {
+     "n": "dis — bytecode disassembler",
+     "k": "docs",
+     "w": "See what your Python actually compiles to",
+     "u": "https://docs.python.org/3/library/dis.html"
+    }
+   ],
+   "sections": [
+    {
+     "h": "Learn",
+     "items": [
+      "C syntax at reading level.",
+      "Pointers, arrays, and pointer arithmetic.",
+      "Stack vs heap; manual allocation and freeing.",
+      "System calls and what the kernel does for you.",
+      "Compilation, linking, and what a binary contains.",
+      "Python bytecode — disassemble your own functions.",
+      "The CPython object model: everything is a PyObject.",
+      "Reference counting, cycles, and the generational GC.",
+      "The C extension boundary and why libraries like NumPy are fast.",
+      "Where the free-threaded build changes the picture."
+     ]
+    },
+    {
+     "h": "Build",
+     "items": [
+      "Disassemble three functions and predict the bytecode before you look.",
+      "Write a C extension or a Cython module for one hot function.",
+      "Benchmark it honestly against the pure-Python version.",
+      "Trace an object's refcount through creation, aliasing, and deletion.",
+      "Find and fix a reference cycle keeping memory alive."
+     ]
+    }
+   ],
+   "note": "This phase is deliberately late. You do not need CPython internals to be an excellent application engineer. It deepens the mental model once the core is solid.",
+   "gate": {
+    "items": [
+     "Explain what happens in memory when you append to a list until it resizes.",
+     "Predict the bytecode of a small function and be right.",
+     "Show a measured speedup from a native extension, with the benchmark.",
+     "Explain why the GIL exists and what removing it costs."
+    ]
+   }
+  },
+  {
+   "id": "p17",
+   "num": "17",
+   "name": "Data engineering",
+   "when": "Months 7+ · parallel track",
+   "aim": "Move data reliably at volume. This is where most well-paid Python work actually lives, and it's the half your roadmap was missing.",
+   "res": [
+    {
+     "n": "Data Engineering Zoomcamp",
+     "k": "course",
+     "w": "Free cohort-based course: pipelines, warehouse, dbt, Spark, Kafka",
+     "u": "https://github.com/DataTalksClub/data-engineering-zoomcamp"
+    },
+    {
+     "n": "Apache Airflow",
+     "k": "docs",
+     "w": "Scheduled DAG orchestration, the industry default",
+     "u": "https://airflow.apache.org/docs/"
+    },
+    {
+     "n": "Prefect",
+     "k": "docs",
+     "w": "Lighter-weight Python-native orchestration",
+     "u": "https://docs.prefect.io/"
+    },
+    {
+     "n": "dbt",
+     "k": "docs",
+     "w": "Transformations as version-controlled, tested SQL",
+     "u": "https://docs.getdbt.com/"
+    },
+    {
+     "n": "Polars",
+     "k": "docs",
+     "w": "DataFrames that don't fall over at scale",
+     "u": "https://docs.pola.rs/"
+    },
+    {
+     "n": "DuckDB",
+     "k": "docs",
+     "w": "Analytical SQL on local files — absurdly useful",
+     "u": "https://duckdb.org/docs/"
+    },
+    {
+     "n": "PySpark",
+     "k": "docs",
+     "w": "Distributed processing when one machine isn't enough",
+     "u": "https://spark.apache.org/docs/latest/api/python/"
+    }
+   ],
+   "sections": [
+    {
+     "h": "Learn",
+     "items": [
+      "Batch vs streaming, and how to tell which one a problem actually needs.",
+      "ETL vs ELT and why the industry moved to ELT.",
+      "Idempotent pipelines: rerunning yesterday must not double-count.",
+      "Backfills and late-arriving data.",
+      "Partitioning strategies and file formats — Parquet over CSV, always.",
+      "Data warehouse vs lake vs lakehouse, in plain terms.",
+      "Schema evolution and contracts between producers and consumers.",
+      "Data quality tests: nulls, ranges, uniqueness, referential integrity.",
+      "Incremental models and change data capture.",
+      "Orchestration: DAGs, dependencies, retries, SLAs, alerting.",
+      "Streaming basics: topics, partitions, consumer groups, offsets.",
+      "Cost awareness — scanning terabytes is a bill, not just a wait."
+     ]
+    },
+    {
+     "h": "Build — a pipeline that runs unattended",
+     "items": [
+      "Ingest from an API on a schedule, landing raw data untouched.",
+      "Transform into a clean, tested model layer.",
+      "Load into a warehouse or DuckDB file with partitioning.",
+      "Add data quality tests that fail the run, not just warn.",
+      "Orchestrate it with Airflow or Prefect, with retries and alerting.",
+      "Write a backfill command and run it for a past month.",
+      "Add lineage docs so someone else knows what feeds what.",
+      "Replace pandas with Polars somewhere and measure the difference."
+     ]
+    }
+   ],
+   "gate": {
+    "note": "A pipeline nobody has to babysit is the deliverable.",
+    "items": [
+     "Run the pipeline twice on the same window and prove the output is identical.",
+     "Backfill a past period and show correct results.",
+     "Break an upstream schema and show the pipeline fails loudly, not silently.",
+     "Explain your partitioning choice and what query it optimizes.",
+     "Show a data quality test catching a real defect."
+    ]
+   }
+  },
+  {
+   "id": "p18",
+   "num": "18",
+   "name": "Beyond senior",
+   "when": "Ongoing · the real ceiling",
+   "aim": "Senior is 'builds the thing well'. Past senior is judgment, leverage, and being the person others' work depends on. None of this is a library.",
+   "res": [
+    {
+     "n": "Python Enhancement Proposals",
+     "k": "reference",
+     "w": "Read the PEPs behind features you use daily",
+     "u": "https://peps.python.org/"
+    },
+    {
+     "n": "Python Developer's Guide",
+     "k": "docs",
+     "w": "How CPython itself is built and contributed to",
+     "u": "https://devguide.python.org/"
+    },
+    {
+     "n": "PEP 8 — style guide",
+     "k": "reference",
+     "w": "The document everyone cites and few have read",
+     "u": "https://www.python.org/dev/peps/pep-0008/"
+    },
+    {
+     "n": "Designing Data-Intensive Applications",
+     "k": "book",
+     "w": "Still the best single source on system tradeoffs",
+     "u": "https://dataintensive.net/"
+    }
+   ],
+   "sections": [
+    {
+     "h": "Technical judgment",
+     "items": [
+      "Choose boring technology deliberately, and be able to defend it.",
+      "Estimate before building: load, storage, cost, and latency budgets.",
+      "Write a design doc that a skeptical reader can attack.",
+      "Identify the one-way doors in a design and slow down at those.",
+      "Kill your own project when the evidence says it isn't working.",
+      "Read a large unfamiliar codebase and orient inside a day.",
+      "Migrate a live system without downtime — expand, migrate, contract.",
+      "Reduce scope as a first-class engineering skill."
+     ]
+    },
+    {
+     "h": "Operating in production",
+     "items": [
+      "On-call: triage, mitigate first, root-cause after.",
+      "Write a blameless postmortem with real action items.",
+      "Define SLOs and error budgets for something you own.",
+      "Instrument before you need it — you can't debug what you didn't measure.",
+      "Feature flags, canaries, and progressive rollout.",
+      "Practice a restore from backup. A backup you've never restored isn't one."
+     ]
+    },
+    {
+     "h": "Leverage",
+     "items": [
+      "Contribute to an open source project you actually use.",
+      "Get one non-trivial PR reviewed and merged by strangers.",
+      "Publish a package to PyPI with docs, tests, and CI.",
+      "Write technical posts explaining something you struggled with.",
+      "Review someone else's code and leave comments that teach.",
+      "Mentor one person through a problem without writing their code.",
+      "Give a talk or a lightning talk at a meetup or online.",
+      "Maintain something long enough to feel the cost of your own decisions."
+     ]
+    },
+    {
+     "h": "Staying current after 2027",
+     "items": [
+      "Follow the CPython release notes each version and try the new features.",
+      "Track the free-threaded build and JIT work as they mature.",
+      "Re-benchmark your assumptions yearly — the fast library changes.",
+      "Read one significant codebase a quarter.",
+      "Rebuild an old project of yours from scratch and compare."
+     ]
+    }
+   ],
+   "gate": {
+    "note": "These are the ones nobody can fake.",
+    "items": [
+     "Ship a design doc that changed a decision.",
+     "Have code you wrote merged into a project you don't own.",
+     "Run a migration on a live system with zero data loss.",
+     "Debug a production incident you did not cause, using telemetry alone.",
+     "Teach a topic well enough that someone else ships with it.",
+     "Say no to a technically interesting idea for a correct reason."
+    ]
+   }
+  },
+  {
+   "id": "p99",
+   "num": "99",
+   "name": "Final-boss ladder",
+   "when": "Indefinite",
+   "aim": "Stop learning from predefined projects. Build the things that other software is built on top of.",
+   "res": [
+    {
+     "n": "Build your own X",
+     "k": "reference",
+     "w": "From-scratch guides for every kind of system",
+     "u": "https://github.com/codecrafters-io/build-your-own-x"
+    },
+    {
+     "n": "CodeCrafters",
+     "k": "practice",
+     "w": "Test-driven from-scratch challenges: Redis, Git, shells",
+     "u": "https://codecrafters.io/"
+    },
+    {
+     "n": "Advent of Code",
+     "k": "practice",
+     "w": "Annual proving ground for messy problems",
+     "u": "https://adventofcode.com/"
+    }
+   ],
+   "sections": [
+    {
+     "h": "The ladder — in order",
+     "items": [
+      "Boss 1 · HTTP server: routing, methods, headers, JSON, static files, middleware, concurrency.",
+      "Boss 2 · Mini database: tables, persistence, CRUD, an index, basic query planning.",
+      "Boss 3 · Programming language: lexer, parser, AST, interpreter, functions, loops, errors.",
+      "Boss 4 · Distributed task platform: API, queue, workers, retries, idempotency, observability.",
+      "Boss 5 · AI orchestration platform: agents, tools, retrieval, memory, permissions, evals.",
+      "Boss 6 · Flagship product: a real problem, shipped, monitored, secured, benchmarked, iterated."
+     ]
+    },
+    {
+     "h": "The unknown-problem protocol",
+     "items": [
+      "Define the problem and its hard constraints in writing.",
+      "List the unknowns and rank them by risk.",
+      "Research only the unknowns that block progress right now.",
+      "Prototype the riskiest assumption first.",
+      "Choose the architecture after evidence, not before.",
+      "Build one thin vertical slice that works end to end.",
+      "Add tests, logs, and metrics before adding features.",
+      "Measure to find the bottleneck; never guess.",
+      "Refactor when the evidence justifies it.",
+      "Write down what you learned before moving on."
+     ]
+    },
+    {
+     "h": "Portfolio target — twelve months out",
+     "items": [
+      "10–20 small exercises and tools.",
+      "5+ serious portfolio projects with real READMEs.",
+      "2–3 production-style systems.",
+      "1 flagship project you'd put your name on publicly.",
+      "At least one reusable package published.",
+      "At least one deployment serving real traffic.",
+      "At least one documented performance optimization with numbers.",
+      "A written record of your architecture decisions."
+     ]
+    }
+   ],
+   "gate": {
+    "note": "God-tier is not knowing every library. It is having enough fundamentals and judgment that unfamiliar technology becomes a learnable tool rather than a wall.",
+    "items": [
+     "Enter an empty folder with an unfamiliar problem and produce a working thin slice within a day.",
+     "Ship something strangers use.",
+     "Diagnose a production failure from logs and metrics alone.",
+     "Teach one of these phases to someone else and have them succeed."
+    ]
+   }
+  }
+ ],
+ "MATRIX": [
+  [
+   "Python core",
+   "Functions, collections, files, exceptions, modules",
+   "Build a CLI app from a blank file"
+  ],
+  [
+   "Python advanced",
+   "Iterators, generators, decorators, context managers, typing",
+   "Implement each with no reference open"
+  ],
+  [
+   "Testing",
+   "Unit and integration tests, fixtures, regression",
+   "Break your code and have the suite catch it"
+  ],
+  [
+   "Git",
+   "Branching, merging, conflicts, revert, rebase, PRs",
+   "Recover a broken branch safely"
+  ],
+  [
+   "Algorithms",
+   "Complexity, search, sort, recursion, graphs, DP",
+   "Solve novel problems and justify complexity"
+  ],
+  [
+   "Linux",
+   "Processes, filesystem, permissions, shell, SSH",
+   "Diagnose a real environment issue"
+  ],
+  [
+   "Networking",
+   "TCP/IP, DNS, HTTP, TLS, WebSockets",
+   "Debug a client/server request end to end"
+  ],
+  [
+   "SQL",
+   "Joins, indexes, transactions, constraints",
+   "Design and then optimize a schema"
+  ],
+  [
+   "Backend",
+   "APIs, auth, validation, background work",
+   "Ship a tested, documented API"
+  ],
+  [
+   "Automation",
+   "HTTP, parsing, browser and system automation",
+   "Build automation that survives failure"
+  ],
+  [
+   "Concurrency",
+   "asyncio, threads, processes, synchronization",
+   "Benchmark and defend the model you chose"
+  ],
+  [
+   "Docker & CI",
+   "Containers, Compose, automated checks",
+   "Run it reproducibly on a fresh machine"
+  ],
+  [
+   "Security",
+   "Auth, access control, injection, secrets",
+   "Find and fix a real vulnerability"
+  ],
+  [
+   "AI",
+   "ML basics, PyTorch, from-scratch nets, retrieval, evals",
+   "Build a system with measurable evaluation"
+  ],
+  [
+   "Architecture",
+   "Boundaries, queues, caching, retries, observability",
+   "Defend decisions under changed requirements"
+  ],
+  [
+   "Independence",
+   "Research → prototype → ship",
+   "Build an unfamiliar system with no tutorial"
+  ]
+ ],
+ "SHELF": [
+  [
+   "Language & stdlib",
+   [
+    [
+     "Python docs",
+     "https://docs.python.org/3/"
+    ],
+    [
+     "Tutorial",
+     "https://docs.python.org/3/tutorial/"
+    ],
+    [
+     "Standard library",
+     "https://docs.python.org/3/library/"
+    ],
+    [
+     "HOWTOs",
+     "https://docs.python.org/3/howto/"
+    ],
+    [
+     "Language reference",
+     "https://docs.python.org/3/reference/"
+    ]
+   ]
+  ],
+  [
+   "Courses",
+   [
+    [
+     "CS50P",
+     "https://cs50.harvard.edu/python/"
+    ],
+    [
+     "CS50x",
+     "https://cs50.harvard.edu/x/"
+    ],
+    [
+     "The Missing Semester",
+     "https://missing.csail.mit.edu/"
+    ],
+    [
+     "Neural Networks: Zero to Hero",
+     "https://karpathy.ai/zero-to-hero.html"
+    ],
+    [
+     "Practical Deep Learning",
+     "https://course.fast.ai/"
+    ],
+    [
+     "Automate the Boring Stuff",
+     "https://automatetheboringstuff.com/"
+    ]
+   ]
+  ],
+  [
+   "Tooling",
+   [
+    [
+     "uv",
+     "https://docs.astral.sh/uv/"
+    ],
+    [
+     "Ruff",
+     "https://docs.astral.sh/ruff/"
+    ],
+    [
+     "mypy",
+     "https://mypy.readthedocs.io/en/stable/"
+    ],
+    [
+     "pytest",
+     "https://docs.pytest.org/en/stable/"
+    ],
+    [
+     "Hypothesis",
+     "https://hypothesis.readthedocs.io/en/latest/"
+    ],
+    [
+     "Packaging guide",
+     "https://packaging.python.org/en/latest/"
+    ],
+    [
+     "Git docs",
+     "https://git-scm.com/doc"
+    ]
+   ]
+  ],
+  [
+   "Web & data",
+   [
+    [
+     "FastAPI",
+     "https://fastapi.tiangolo.com/"
+    ],
+    [
+     "Pydantic",
+     "https://docs.pydantic.dev/latest/"
+    ],
+    [
+     "SQLAlchemy",
+     "https://docs.sqlalchemy.org/en/20/"
+    ],
+    [
+     "PostgreSQL",
+     "https://www.postgresql.org/docs/current/"
+    ],
+    [
+     "Redis",
+     "https://redis.io/docs/latest/"
+    ],
+    [
+     "HTTPX",
+     "https://www.python-httpx.org/"
+    ],
+    [
+     "Beautiful Soup",
+     "https://www.crummy.com/software/BeautifulSoup/bs4/doc/"
+    ],
+    [
+     "Playwright",
+     "https://playwright.dev/python/"
+    ],
+    [
+     "Scrapy",
+     "https://docs.scrapy.org/en/latest/"
+    ]
+   ]
+  ],
+  [
+   "AI & numerics",
+   [
+    [
+     "PyTorch",
+     "https://docs.pytorch.org/tutorials/beginner/basics/"
+    ],
+    [
+     "scikit-learn",
+     "https://scikit-learn.org/stable/"
+    ],
+    [
+     "NumPy",
+     "https://numpy.org/doc/stable/"
+    ],
+    [
+     "pandas",
+     "https://pandas.pydata.org/docs/"
+    ],
+    [
+     "LangGraph",
+     "https://docs.langchain.com/oss/python/langgraph/"
+    ]
+   ]
+  ],
+  [
+   "Infrastructure & security",
+   [
+    [
+     "Docker Python guide",
+     "https://docs.docker.com/guides/python/"
+    ],
+    [
+     "GitHub Actions",
+     "https://docs.github.com/en/actions"
+    ],
+    [
+     "Celery",
+     "https://docs.celeryq.dev/en/stable/"
+    ],
+    [
+     "Temporal",
+     "https://docs.temporal.io/"
+    ],
+    [
+     "OpenTelemetry",
+     "https://opentelemetry.io/docs/"
+    ],
+    [
+     "OWASP Top 10",
+     "https://owasp.org/www-project-top-ten/"
+    ],
+    [
+     "OWASP Cheat Sheets",
+     "https://cheatsheetseries.owasp.org/"
+    ]
+   ]
+  ],
+  [
+   "Practice",
+   [
+    [
+     "Exercism",
+     "https://exercism.org/tracks/python"
+    ],
+    [
+     "NeetCode",
+     "https://neetcode.io/"
+    ],
+    [
+     "Advent of Code",
+     "https://adventofcode.com/"
+    ],
+    [
+     "Codewars",
+     "https://www.codewars.com/"
+    ],
+    [
+     "OverTheWire Bandit",
+     "https://overthewire.org/wargames/bandit/"
+    ],
+    [
+     "Build your own X",
+     "https://github.com/codecrafters-io/build-your-own-x"
+    ],
+    [
+     "CodeCrafters",
+     "https://codecrafters.io/"
+    ],
+    [
+     "VisuAlgo",
+     "https://visualgo.net/en"
+    ],
+    [
+     "CP-Algorithms",
+     "https://cp-algorithms.com/"
+    ]
+   ]
+  ]
+ ],
+ "FIELDS": [
+  {
+   "id": "f-web",
+   "g": "Build software",
+   "n": "Web backends & APIs",
+   "blurb": "Services that other software and browsers talk to. The most common professional Python job.",
+   "build": "An API with auth, a database, tests, and OpenAPI docs — then deploy it.",
+   "libs": [
+    [
+     "FastAPI",
+     "https://fastapi.tiangolo.com/"
+    ],
+    [
+     "Django",
+     "https://docs.djangoproject.com/en/stable/"
+    ],
+    [
+     "Flask",
+     "https://flask.palletsprojects.com/"
+    ],
+    [
+     "Litestar",
+     "https://docs.litestar.dev/"
+    ],
+    [
+     "Pydantic",
+     "https://docs.pydantic.dev/latest/"
+    ],
+    [
+     "SQLAlchemy",
+     "https://docs.sqlalchemy.org/en/20/"
+    ],
+    [
+     "Alembic",
+     "https://alembic.sqlalchemy.org/en/latest/"
+    ]
+   ],
+   "phase": "p09"
+  },
+  {
+   "id": "f-auto",
+   "g": "Build software",
+   "n": "Automation & scripting",
+   "blurb": "Making the computer do the boring thing forever. The fastest payback in this whole list.",
+   "build": "A scheduled job that watches something, decides something, and reports to you.",
+   "libs": [
+    [
+     "Automate the Boring Stuff",
+     "https://automatetheboringstuff.com/"
+    ],
+    [
+     "Playwright",
+     "https://playwright.dev/python/"
+    ],
+    [
+     "Selenium",
+     "https://www.selenium.dev/documentation/"
+    ],
+    [
+     "HTTPX",
+     "https://www.python-httpx.org/"
+    ],
+    [
+     "Beautiful Soup",
+     "https://www.crummy.com/software/BeautifulSoup/bs4/doc/"
+    ],
+    [
+     "Scrapy",
+     "https://docs.scrapy.org/en/latest/"
+    ]
+   ],
+   "phase": "p10"
+  },
+  {
+   "id": "f-cli",
+   "g": "Build software",
+   "n": "CLI tools & developer tooling",
+   "blurb": "Small sharp programs other engineers install. High leverage, low ceremony.",
+   "build": "A CLI you install with one command and use weekly.",
+   "libs": [
+    [
+     "Typer",
+     "https://typer.tiangolo.com/"
+    ],
+    [
+     "Click",
+     "https://click.palletsprojects.com/"
+    ],
+    [
+     "Rich",
+     "https://rich.readthedocs.io/en/stable/"
+    ],
+    [
+     "Textual",
+     "https://textual.textualize.io/"
+    ],
+    [
+     "PyInstaller",
+     "https://pyinstaller.org/en/stable/"
+    ]
+   ],
+   "phase": "p03"
+  },
+  {
+   "id": "f-gui",
+   "g": "Build software",
+   "n": "Desktop & mobile apps",
+   "blurb": "Native windows and phone apps in Python. Niche, but real.",
+   "build": "A desktop tool with a real window that does one job well.",
+   "libs": [
+    [
+     "Qt for Python",
+     "https://doc.qt.io/qtforpython/"
+    ],
+    [
+     "tkinter",
+     "https://docs.python.org/3/library/tkinter.html"
+    ],
+    [
+     "Kivy",
+     "https://kivy.org/doc/stable/"
+    ],
+    [
+     "BeeWare",
+     "https://beeware.org/"
+    ]
+   ],
+   "phase": "p03"
+  },
+  {
+   "id": "f-front",
+   "g": "Build software",
+   "n": "Web UIs without JavaScript",
+   "blurb": "Ship an interface from Python alone. Perfect for internal tools and demos.",
+   "build": "A dashboard over your own data that someone else can actually use.",
+   "libs": [
+    [
+     "Streamlit",
+     "https://docs.streamlit.io/"
+    ],
+    [
+     "Gradio",
+     "https://www.gradio.app/docs"
+    ],
+    [
+     "Reflex",
+     "https://reflex.dev/"
+    ],
+    [
+     "NiceGUI",
+     "https://nicegui.io/"
+    ],
+    [
+     "Pyodide",
+     "https://pyodide.org/en/stable/"
+    ]
+   ],
+   "phase": "p10"
+  },
+  {
+   "id": "f-game",
+   "g": "Build software",
+   "n": "Game development",
+   "blurb": "2D games and simulations. An excellent way to internalize state, loops, and timing.",
+   "build": "A complete small game with menus, scoring, and a save file.",
+   "libs": [
+    [
+     "pygame",
+     "https://www.pygame.org/docs/"
+    ],
+    [
+     "Blender Python API",
+     "https://docs.blender.org/api/current/"
+    ]
+   ],
+   "phase": "p01"
+  },
+  {
+   "id": "f-ds",
+   "g": "Data & AI",
+   "n": "Data analysis",
+   "blurb": "Turning messy tables into answers. The most transferable non-engineering Python skill.",
+   "build": "Take a real public dataset and answer a question nobody handed you.",
+   "libs": [
+    [
+     "pandas",
+     "https://pandas.pydata.org/docs/"
+    ],
+    [
+     "Polars",
+     "https://docs.pola.rs/"
+    ],
+    [
+     "DuckDB",
+     "https://duckdb.org/docs/"
+    ],
+    [
+     "Matplotlib",
+     "https://matplotlib.org/stable/"
+    ],
+    [
+     "Plotly",
+     "https://plotly.com/python/"
+    ],
+    [
+     "Kaggle Learn",
+     "https://www.kaggle.com/learn"
+    ]
+   ],
+   "phase": "p14"
+  },
+  {
+   "id": "f-ml",
+   "g": "Data & AI",
+   "n": "Machine learning",
+   "blurb": "Models that learn patterns from data. Classical ML solves more real problems than deep learning does.",
+   "build": "An end-to-end model with a proper validation split and a deployed prediction endpoint.",
+   "libs": [
+    [
+     "scikit-learn",
+     "https://scikit-learn.org/stable/"
+    ],
+    [
+     "Google ML Crash Course",
+     "https://developers.google.com/machine-learning/crash-course"
+    ],
+    [
+     "ML Zoomcamp",
+     "https://github.com/DataTalksClub/machine-learning-zoomcamp"
+    ],
+    [
+     "MLflow",
+     "https://mlflow.org/docs/latest/"
+    ]
+   ],
+   "phase": "p14"
+  },
+  {
+   "id": "f-dl",
+   "g": "Data & AI",
+   "n": "Deep learning from scratch",
+   "blurb": "Building the network yourself — autograd, backprop, attention. This is the part that makes you dangerous.",
+   "build": "micrograd, then a character language model, then a small transformer.",
+   "libs": [
+    [
+     "Zero to Hero",
+     "https://karpathy.ai/zero-to-hero.html"
+    ],
+    [
+     "PyTorch",
+     "https://docs.pytorch.org/tutorials/beginner/basics/"
+    ],
+    [
+     "MIT 6.S191",
+     "https://introtodeeplearning.com/"
+    ],
+    [
+     "fast.ai",
+     "https://course.fast.ai/"
+    ],
+    [
+     "3Blue1Brown",
+     "https://www.youtube.com/@3blue1brown"
+    ]
+   ],
+   "phase": "p14"
+  },
+  {
+   "id": "f-llm",
+   "g": "Data & AI",
+   "n": "LLM & agent engineering",
+   "blurb": "Systems built around models you didn't train: retrieval, tools, memory, evaluation.",
+   "build": "A RAG system with an evaluation set and a failure inspector.",
+   "libs": [
+    [
+     "HF LLM Course",
+     "https://huggingface.co/learn/llm-course/"
+    ],
+    [
+     "HF Agents Course",
+     "https://huggingface.co/learn/agents-course/"
+    ],
+    [
+     "Transformers",
+     "https://huggingface.co/docs/transformers/index"
+    ],
+    [
+     "LangGraph",
+     "https://docs.langchain.com/oss/python/langgraph/"
+    ],
+    [
+     "Pydantic AI",
+     "https://ai.pydantic.dev/"
+    ],
+    [
+     "Anthropic Academy",
+     "https://anthropic.skilljar.com/"
+    ]
+   ],
+   "phase": "p14"
+  },
+  {
+   "id": "f-cv",
+   "g": "Data & AI",
+   "n": "Computer vision",
+   "blurb": "Getting information out of images and video.",
+   "build": "A pipeline that detects something you care about in a live camera feed.",
+   "libs": [
+    [
+     "OpenCV",
+     "https://docs.opencv.org/4.x/"
+    ],
+    [
+     "Pillow",
+     "https://pillow.readthedocs.io/en/stable/"
+    ],
+    [
+     "PyTorch vision",
+     "https://docs.pytorch.org/tutorials/beginner/basics/"
+    ]
+   ],
+   "phase": "p14"
+  },
+  {
+   "id": "f-nlp",
+   "g": "Data & AI",
+   "n": "Natural language processing",
+   "blurb": "Text at scale: classification, extraction, search, summarization.",
+   "build": "An extractor that pulls structured records out of unstructured documents.",
+   "libs": [
+    [
+     "spaCy",
+     "https://spacy.io/usage"
+    ],
+    [
+     "NLTK",
+     "https://www.nltk.org/"
+    ],
+    [
+     "Transformers",
+     "https://huggingface.co/docs/transformers/index"
+    ]
+   ],
+   "phase": "p14"
+  },
+  {
+   "id": "f-de",
+   "g": "Data & AI",
+   "n": "Data engineering",
+   "blurb": "Moving data reliably, on a schedule, at volume. Quietly one of the best-paid corners of Python.",
+   "build": "An orchestrated pipeline with tests, retries, and a working backfill.",
+   "libs": [
+    [
+     "DE Zoomcamp",
+     "https://github.com/DataTalksClub/data-engineering-zoomcamp"
+    ],
+    [
+     "Airflow",
+     "https://airflow.apache.org/docs/"
+    ],
+    [
+     "Prefect",
+     "https://docs.prefect.io/"
+    ],
+    [
+     "dbt",
+     "https://docs.getdbt.com/"
+    ],
+    [
+     "PySpark",
+     "https://spark.apache.org/docs/latest/api/python/"
+    ],
+    [
+     "Dask",
+     "https://docs.dask.org/en/stable/"
+    ]
+   ],
+   "phase": "p17"
+  },
+  {
+   "id": "f-sci",
+   "g": "Science & numbers",
+   "n": "Scientific computing",
+   "blurb": "The reason Python won academia. Simulation, optimization, symbolic math.",
+   "build": "Model a physical or statistical system and validate against known results.",
+   "libs": [
+    [
+     "NumPy",
+     "https://numpy.org/doc/stable/"
+    ],
+    [
+     "SciPy",
+     "https://docs.scipy.org/doc/scipy/"
+    ],
+    [
+     "SymPy",
+     "https://docs.sympy.org/latest/"
+    ],
+    [
+     "statsmodels",
+     "https://www.statsmodels.org/stable/"
+    ],
+    [
+     "SimPy",
+     "https://simpy.readthedocs.io/en/latest/"
+    ],
+    [
+     "NetworkX",
+     "https://networkx.org/documentation/stable/"
+    ]
+   ],
+   "phase": "p14"
+  },
+  {
+   "id": "f-fin",
+   "g": "Science & numbers",
+   "n": "Quantitative finance",
+   "blurb": "Market data, backtesting, risk, and execution. Ruthless about correctness.",
+   "build": "A backtester that is honest about fees, slippage, and lookahead bias.",
+   "libs": [
+    [
+     "ccxt",
+     "https://docs.ccxt.com/"
+    ],
+    [
+     "yfinance",
+     "https://github.com/ranaroussi/yfinance"
+    ],
+    [
+     "QuantLib",
+     "https://www.quantlib.org/"
+    ],
+    [
+     "pandas",
+     "https://pandas.pydata.org/docs/"
+    ]
+   ],
+   "phase": "p14"
+  },
+  {
+   "id": "f-opt",
+   "g": "Science & numbers",
+   "n": "Optimization & operations research",
+   "blurb": "Scheduling, routing, allocation — problems where the answer is provably best.",
+   "build": "Solve a real scheduling or routing problem for someone you know.",
+   "libs": [
+    [
+     "OR-Tools",
+     "https://developers.google.com/optimization"
+    ],
+    [
+     "SciPy optimize",
+     "https://docs.scipy.org/doc/scipy/"
+    ]
+   ],
+   "phase": "p05"
+  },
+  {
+   "id": "f-geo",
+   "g": "Science & numbers",
+   "n": "Geospatial & mapping",
+   "blurb": "Anything with coordinates: logistics, planning, environment, property.",
+   "build": "Map a real dataset and answer a spatial question with it.",
+   "libs": [
+    [
+     "GeoPandas",
+     "https://geopandas.org/en/stable/"
+    ],
+    [
+     "Matplotlib",
+     "https://matplotlib.org/stable/"
+    ]
+   ],
+   "phase": "p14"
+  },
+  {
+   "id": "f-bio",
+   "g": "Science & numbers",
+   "n": "Bioinformatics & astronomy",
+   "blurb": "Domain science where Python is the default working language.",
+   "build": "Reproduce a published analysis from public data.",
+   "libs": [
+    [
+     "Biopython",
+     "https://biopython.org/"
+    ],
+    [
+     "Astropy",
+     "https://www.astropy.org/"
+    ]
+   ],
+   "phase": "p14"
+  },
+  {
+   "id": "f-quantum",
+   "g": "Science & numbers",
+   "n": "Quantum computing",
+   "blurb": "Early, weird, and genuinely interesting. Low practical payoff today.",
+   "build": "Implement and run a basic quantum algorithm on a simulator.",
+   "libs": [
+    [
+     "Qiskit",
+     "https://docs.quantum.ibm.com/"
+    ]
+   ],
+   "phase": "p16"
+  },
+  {
+   "id": "f-devops",
+   "g": "Systems & infrastructure",
+   "n": "DevOps & infrastructure",
+   "blurb": "Python is the glue language of infrastructure work.",
+   "build": "Automate your own deployment end to end, with rollback.",
+   "libs": [
+    [
+     "Ansible",
+     "https://docs.ansible.com/"
+    ],
+    [
+     "Pulumi",
+     "https://www.pulumi.com/docs/"
+    ],
+    [
+     "boto3",
+     "https://boto3.amazonaws.com/v1/documentation/api/latest/index.html"
+    ],
+    [
+     "Docker",
+     "https://docs.docker.com/guides/python/"
+    ],
+    [
+     "GitHub Actions",
+     "https://docs.github.com/en/actions"
+    ]
+   ],
+   "phase": "p12"
+  },
+  {
+   "id": "f-netauto",
+   "g": "Systems & infrastructure",
+   "n": "Network automation",
+   "blurb": "Configuring and auditing network devices programmatically.",
+   "build": "Audit a network's config against a policy and report drift.",
+   "libs": [
+    [
+     "Netmiko",
+     "https://github.com/ktbyers/netmiko"
+    ],
+    [
+     "Scapy",
+     "https://scapy.readthedocs.io/en/latest/"
+    ],
+    [
+     "Cisco Python Essentials",
+     "https://www.netacad.com/courses/python-essentials-1"
+    ]
+   ],
+   "phase": "p07"
+  },
+  {
+   "id": "f-sec",
+   "g": "Systems & infrastructure",
+   "n": "Security engineering",
+   "blurb": "Defensive review, secure design, and tooling. Always on systems you own or are authorized to test.",
+   "build": "A vulnerable lab app, exploited by you, then patched with a regression test.",
+   "libs": [
+    [
+     "OWASP Top 10",
+     "https://owasp.org/www-project-top-ten/"
+    ],
+    [
+     "OWASP Cheat Sheets",
+     "https://cheatsheetseries.owasp.org/"
+    ],
+    [
+     "OverTheWire",
+     "https://overthewire.org/wargames/bandit/"
+    ],
+    [
+     "Scapy",
+     "https://scapy.readthedocs.io/en/latest/"
+    ]
+   ],
+   "phase": "p13"
+  },
+  {
+   "id": "f-embed",
+   "g": "Systems & infrastructure",
+   "n": "Embedded, IoT & robotics",
+   "blurb": "Python on microcontrollers and robots. Physical output is a different kind of satisfying.",
+   "build": "A sensor that reads the world and publishes to something you built.",
+   "libs": [
+    [
+     "MicroPython",
+     "https://docs.micropython.org/en/latest/"
+    ],
+    [
+     "CircuitPython",
+     "https://docs.circuitpython.org/en/latest/"
+    ],
+    [
+     "Raspberry Pi",
+     "https://www.raspberrypi.com/documentation/"
+    ],
+    [
+     "ROS 2",
+     "https://docs.ros.org/en/rolling/index.html"
+    ]
+   ],
+   "phase": "p06"
+  },
+  {
+   "id": "f-perf",
+   "g": "Systems & infrastructure",
+   "n": "Performance & native extensions",
+   "blurb": "When Python is too slow, you drop a level instead of switching languages.",
+   "build": "Find your slowest function, rewrite it natively, and prove the speedup.",
+   "libs": [
+    [
+     "Cython",
+     "https://cython.readthedocs.io/en/latest/"
+    ],
+    [
+     "Numba",
+     "https://numba.readthedocs.io/en/stable/"
+    ],
+    [
+     "PyO3 (Rust)",
+     "https://pyo3.rs/"
+    ],
+    [
+     "CPython devguide",
+     "https://devguide.python.org/"
+    ]
+   ],
+   "phase": "p16"
+  },
+  {
+   "id": "f-qa",
+   "g": "Systems & infrastructure",
+   "n": "Testing & QA engineering",
+   "blurb": "Building the systems that prove other systems work.",
+   "build": "A test suite that catches a regression before a human notices it.",
+   "libs": [
+    [
+     "pytest",
+     "https://docs.pytest.org/en/stable/"
+    ],
+    [
+     "Hypothesis",
+     "https://hypothesis.readthedocs.io/en/latest/"
+    ],
+    [
+     "Playwright",
+     "https://playwright.dev/python/"
+    ],
+    [
+     "Locust",
+     "https://locust.io/"
+    ],
+    [
+     "Robot Framework",
+     "https://robotframework.org/"
+    ]
+   ],
+   "phase": "p03"
+  },
+  {
+   "id": "f-bots",
+   "g": "Odds & ends worth knowing",
+   "n": "Bots & integrations",
+   "blurb": "Where automation meets other people. Small projects, immediate users.",
+   "build": "A bot that does something genuinely useful for a group you're in.",
+   "libs": [
+    [
+     "discord.py",
+     "https://discordpy.readthedocs.io/en/stable/"
+    ],
+    [
+     "python-telegram-bot",
+     "https://docs.python-telegram-bot.org/"
+    ],
+    [
+     "HTTPX",
+     "https://www.python-httpx.org/"
+    ]
+   ],
+   "phase": "p10"
+  },
+  {
+   "id": "f-docs",
+   "g": "Odds & ends worth knowing",
+   "n": "Documents & spreadsheets",
+   "blurb": "Unglamorous, constantly needed, easy to charge for.",
+   "build": "Turn a folder of messy documents into one clean structured dataset.",
+   "libs": [
+    [
+     "openpyxl",
+     "https://openpyxl.readthedocs.io/en/stable/"
+    ],
+    [
+     "pypdf",
+     "https://pypdf.readthedocs.io/en/stable/"
+    ],
+    [
+     "pandas",
+     "https://pandas.pydata.org/docs/"
+    ]
+   ],
+   "phase": "p10"
+  },
+  {
+   "id": "f-media",
+   "g": "Odds & ends worth knowing",
+   "n": "Audio, video & generative visuals",
+   "blurb": "Programmatic media: analysis, editing, and animation.",
+   "build": "Automate an edit you'd otherwise do by hand a hundred times.",
+   "libs": [
+    [
+     "librosa",
+     "https://librosa.org/doc/latest/"
+    ],
+    [
+     "Manim",
+     "https://docs.manim.community/"
+    ],
+    [
+     "Pillow",
+     "https://pillow.readthedocs.io/en/stable/"
+    ]
+   ],
+   "phase": "p10"
+  },
+  {
+   "id": "f-chain",
+   "g": "Odds & ends worth knowing",
+   "n": "Blockchain & web3",
+   "blurb": "Reading chains, writing contracts' clients, and automating on-chain data.",
+   "build": "Index on-chain events into a queryable local database.",
+   "libs": [
+    [
+     "web3.py",
+     "https://web3py.readthedocs.io/en/stable/"
+    ]
+   ],
+   "phase": "p07"
+  },
+  {
+   "id": "f-lang",
+   "g": "Odds & ends worth knowing",
+   "n": "Languages, compilers & interpreters",
+   "blurb": "Writing the tools other programs are written in. The deepest kind of fun.",
+   "build": "A small interpreted language: lexer, parser, AST, evaluator.",
+   "libs": [
+    [
+     "Build your own X",
+     "https://github.com/codecrafters-io/build-your-own-x"
+    ],
+    [
+     "CodeCrafters",
+     "https://codecrafters.io/"
+    ],
+    [
+     "dis module",
+     "https://docs.python.org/3/library/dis.html"
+    ],
+    [
+     "CPython source",
+     "https://github.com/python/cpython"
+    ]
+   ],
+   "phase": "p99"
+  }
+ ],
+ "CERTS": [
+  {
+   "id": "c-cs50p",
+   "n": "CS50P — Introduction to Programming with Python",
+   "by": "Harvard",
+   "cost": "Free (free certificate from cs50.harvard.edu)",
+   "time": "~100–150 h",
+   "what": "The best-taught beginner Python course that exists. Nine problem sets and a final project.",
+   "worth": "High. Real teaching, real problem sets, and the free certificate is genuinely from Harvard.",
+   "u": "https://cs50.harvard.edu/python/",
+   "phase": "p01"
+  },
+  {
+   "id": "c-helsinki",
+   "n": "Python Programming MOOC",
+   "by": "University of Helsinki",
+   "cost": "Free, free certificate",
+   "time": "200+ h · 14 parts",
+   "what": "Text-based, brutally exercise-heavy, 5+5 ECTS. Covers OOP, testing, and databases.",
+   "worth": "High if you learn by doing. The exercise volume is what forces fluency.",
+   "u": "https://programming-26.mooc.fi/",
+   "phase": "p01"
+  },
+  {
+   "id": "c-fcc-sci",
+   "n": "Scientific Computing with Python",
+   "by": "freeCodeCamp",
+   "cost": "Free, free verifiable certificate",
+   "time": "~300 h",
+   "what": "Five graded projects: arithmetic formatter, time calculator, budget app, polygon area, probability calculator.",
+   "worth": "High. The projects are public and verifiable, which is why employers weigh it above badge-farms.",
+   "u": "https://www.freecodecamp.org/learn/scientific-computing-with-python/",
+   "phase": "p01"
+  },
+  {
+   "id": "c-netacad1",
+   "n": "Python Essentials 1",
+   "by": "Cisco Networking Academy",
+   "cost": "Free course + free digital badge",
+   "time": "~30 h",
+   "what": "Syntax through functions, collections, and exceptions. Prepares for the PCEP exam.",
+   "worth": "Medium. Fast, structured, and the badge is free — good for a résumé line early on.",
+   "u": "https://www.netacad.com/courses/python-essentials-1",
+   "phase": "p01"
+  },
+  {
+   "id": "c-netacad2",
+   "n": "Python Essentials 2",
+   "by": "Cisco Networking Academy",
+   "cost": "Free course + free digital badge",
+   "time": "~40 h",
+   "what": "Modules, packages, OOP, exceptions, files, and the standard library. Prepares for PCAP.",
+   "worth": "Medium. Solid intermediate coverage at zero cost.",
+   "u": "https://www.netacad.com/courses/python-essentials-2",
+   "phase": "p02"
+  },
+  {
+   "id": "c-pcep",
+   "n": "PCEP — Certified Entry-Level Python Programmer",
+   "by": "OpenEDG Python Institute",
+   "cost": "Paid exam (~$69)",
+   "time": "Exam only",
+   "what": "Vendor-neutral entry certification. Take it after Python Essentials 1 if you want the credential.",
+   "worth": "Low-medium. Recognized, but a portfolio beats it. Skip unless an employer names it.",
+   "u": "https://pythoninstitute.org/pcep",
+   "phase": "p01"
+  },
+  {
+   "id": "c-pcap",
+   "n": "PCAP — Certified Associate in Python Programming",
+   "by": "OpenEDG Python Institute",
+   "cost": "Paid exam (~$259)",
+   "time": "Exam only",
+   "what": "Modules, OOP, exceptions, file handling, and standard library depth.",
+   "worth": "Low-medium. Same caveat, higher price. Only worth it if it's a hiring requirement.",
+   "u": "https://pythoninstitute.org/pcap",
+   "phase": "p03"
+  },
+  {
+   "id": "c-hackerrank",
+   "n": "HackerRank Skills Certification — Python",
+   "by": "HackerRank",
+   "cost": "Free",
+   "time": "~1–2 h",
+   "what": "A timed coding assessment. Pass and you get a shareable certificate.",
+   "worth": "Medium. Cheap signal, and useful as a self-check under time pressure.",
+   "u": "https://www.hackerrank.com/skills-directory/python_basic",
+   "phase": "p02"
+  },
+  {
+   "id": "c-kaggle",
+   "n": "Kaggle Learn micro-courses",
+   "by": "Kaggle (Google)",
+   "cost": "Free, free certificates",
+   "time": "3–7 h each",
+   "what": "Python, pandas, intro ML, intermediate ML, feature engineering, deep learning.",
+   "worth": "Medium-high for data work. Short, practical, and they stack quickly.",
+   "u": "https://www.kaggle.com/learn",
+   "phase": "p14"
+  },
+  {
+   "id": "c-fcc-data",
+   "n": "Data Analysis with Python",
+   "by": "freeCodeCamp",
+   "cost": "Free, free certificate",
+   "time": "~300 h",
+   "what": "NumPy, pandas, and five analysis projects.",
+   "worth": "Medium-high. Good structure for the data half of the roadmap.",
+   "u": "https://www.freecodecamp.org/learn/data-analysis-with-python/",
+   "phase": "p14"
+  },
+  {
+   "id": "c-fcc-ml",
+   "n": "Machine Learning with Python",
+   "by": "freeCodeCamp",
+   "cost": "Free, free certificate",
+   "time": "~300 h",
+   "what": "TensorFlow-based ML with five graded projects.",
+   "worth": "Medium. Take Karpathy and fast.ai for depth; take this for the credential.",
+   "u": "https://www.freecodecamp.org/learn/machine-learning-with-python/",
+   "phase": "p14"
+  },
+  {
+   "id": "c-hf-agents",
+   "n": "AI Agents Course",
+   "by": "Hugging Face",
+   "cost": "Free, free certificate",
+   "time": "~15–20 h",
+   "what": "smolagents, LlamaIndex, and LangGraph side by side, ending in a benchmarked capstone.",
+   "worth": "High for agent work. The certificate requires shipping running code, not passing a quiz.",
+   "u": "https://huggingface.co/learn/agents-course/",
+   "phase": "p14"
+  },
+  {
+   "id": "c-hf-llm",
+   "n": "LLM Course",
+   "by": "Hugging Face",
+   "cost": "Free, chapter certificates",
+   "time": "~15–20 h",
+   "what": "Transformers, fine-tuning, and the Hugging Face stack across 12 chapters.",
+   "worth": "High if you'll ever touch a model beyond an API call.",
+   "u": "https://huggingface.co/learn/llm-course/",
+   "phase": "p14"
+  },
+  {
+   "id": "c-hf-mcp",
+   "n": "MCP Course",
+   "by": "Hugging Face",
+   "cost": "Free, certificate path",
+   "time": "~8 h",
+   "what": "Model Context Protocol — how tools and context get wired into models.",
+   "worth": "Medium-high and rising. This is where agent tooling is standardizing.",
+   "u": "https://huggingface.co/learn/mcp-course/",
+   "phase": "p14"
+  },
+  {
+   "id": "c-anthropic",
+   "n": "Anthropic Academy",
+   "by": "Anthropic",
+   "cost": "Free, certificates included",
+   "time": "Self-paced",
+   "what": "Building with the Claude API, Claude Code, MCP, and prompt engineering.",
+   "worth": "High if you're building on Claude specifically.",
+   "u": "https://anthropic.skilljar.com/",
+   "phase": "p14"
+  },
+  {
+   "id": "c-google-ml",
+   "n": "Machine Learning Crash Course",
+   "by": "Google",
+   "cost": "Free",
+   "time": "~15 h",
+   "what": "Regression, classification, data handling, and productionizing models.",
+   "worth": "High as a foundation. Concise and unusually well-written.",
+   "u": "https://developers.google.com/machine-learning/crash-course",
+   "phase": "p14"
+  },
+  {
+   "id": "c-mit191",
+   "n": "6.S191 — Introduction to Deep Learning",
+   "by": "MIT",
+   "cost": "Free",
+   "time": "9 lectures + labs",
+   "what": "University-grade deep learning, refreshed every year, with Colab labs.",
+   "worth": "High. The current-year edition keeps pace with the field.",
+   "u": "https://introtodeeplearning.com/",
+   "phase": "p14"
+  },
+  {
+   "id": "c-cs50ai",
+   "n": "CS50 AI with Python",
+   "by": "Harvard",
+   "cost": "Free (paid verified cert)",
+   "time": "7 weeks",
+   "what": "Search, knowledge, uncertainty, optimization, learning, neural nets, language.",
+   "worth": "High. The classical-AI foundation most LLM-era courses skip.",
+   "u": "https://cs50.harvard.edu/ai/",
+   "phase": "p14"
+  },
+  {
+   "id": "c-cs50w",
+   "n": "CS50 Web Programming with Python and JavaScript",
+   "by": "Harvard",
+   "cost": "Free (paid verified cert)",
+   "time": "~12 weeks",
+   "what": "Django, SQL, JavaScript, front ends, testing, and deployment.",
+   "worth": "Medium-high if you want the full-stack half.",
+   "u": "https://cs50.harvard.edu/web/",
+   "phase": "p09"
+  },
+  {
+   "id": "c-google-auto",
+   "n": "Google IT Automation with Python",
+   "by": "Google via Coursera",
+   "cost": "Paid; free via financial aid",
+   "time": "~6 months",
+   "build": "",
+   "what": "Six courses: Python, Git, Linux, troubleshooting, configuration management.",
+   "worth": "Medium-high. Strong brand recognition; apply for financial aid rather than paying.",
+   "u": "https://www.coursera.org/professional-certificates/google-it-automation",
+   "phase": "p06"
+  },
+  {
+   "id": "c-py4e",
+   "n": "Python for Everybody",
+   "by": "Dr. Chuck / U. Michigan",
+   "cost": "Free on py4e.com",
+   "time": "~60 h",
+   "what": "The gentlest credible on-ramp, with free materials and autograders.",
+   "worth": "Medium. Use it only if CS50P moves too fast for you.",
+   "u": "https://www.py4e.com/",
+   "phase": "p01"
+  },
+  {
+   "id": "c-mlzoom",
+   "n": "ML Zoomcamp",
+   "by": "DataTalks.Club",
+   "cost": "Free (cohort certificate)",
+   "time": "~4 months",
+   "what": "Regression through deployment, with peer-reviewed projects.",
+   "worth": "High. Cohort deadlines are the accountability most self-study lacks.",
+   "u": "https://github.com/DataTalksClub/machine-learning-zoomcamp",
+   "phase": "p14"
+  },
+  {
+   "id": "c-dezoom",
+   "n": "Data Engineering Zoomcamp",
+   "by": "DataTalks.Club",
+   "cost": "Free (cohort certificate)",
+   "time": "~4 months",
+   "what": "Docker, Terraform, workflow orchestration, warehouse, dbt, Spark, Kafka.",
+   "worth": "High. The most complete free data engineering curriculum available.",
+   "u": "https://github.com/DataTalksClub/data-engineering-zoomcamp",
+   "phase": "p17"
+  },
+  {
+   "id": "c-mit6001",
+   "n": "6.0001 — Intro to CS and Programming in Python",
+   "by": "MIT OpenCourseWare",
+   "cost": "Free",
+   "time": "~9 weeks",
+   "what": "Computational thinking, algorithms, and complexity, taught as computer science.",
+   "worth": "Medium-high. Pairs well with CS50x for the CS phase.",
+   "u": "https://ocw.mit.edu/courses/6-0001-introduction-to-computer-science-and-programming-in-python-fall-2016/",
+   "phase": "p04"
+  }
+ ],
+ "CHANNELS": [
+  {
+   "g": "Learn the language",
+   "items": [
+    {
+     "n": "Corey Schafer",
+     "u": "https://www.youtube.com/@coreyms",
+     "w": "The clearest topic-by-topic Python explanations on YouTube. OOP, decorators, generators, Flask, Django, Git."
+    },
+    {
+     "n": "freeCodeCamp",
+     "u": "https://www.youtube.com/@freecodecamp",
+     "w": "Full multi-hour courses on nearly every topic in this roadmap."
+    },
+    {
+     "n": "Programming with Mosh",
+     "u": "https://www.youtube.com/@programmingwithmosh",
+     "w": "Polished, concise, well-sequenced beginner material."
+    },
+    {
+     "n": "Bro Code",
+     "u": "https://www.youtube.com/@BroCodez",
+     "w": "Short lessons with heavy repetition. Good when a concept won't stick."
+    },
+    {
+     "n": "Indently",
+     "u": "https://www.youtube.com/@Indently",
+     "w": "Short videos on idiomatic Python and modern features."
+    }
+   ]
+  },
+  {
+   "g": "Write better Python",
+   "items": [
+    {
+     "n": "ArjanCodes",
+     "u": "https://www.youtube.com/@ArjanCodes",
+     "w": "Design, refactoring, and production-quality structure. Watch after Phase 2."
+    },
+    {
+     "n": "mCoding",
+     "u": "https://www.youtube.com/@mCoding",
+     "w": "Deep, precise, occasionally brutal explanations of how Python really behaves."
+    },
+    {
+     "n": "anthonywritescode",
+     "u": "https://www.youtube.com/@anthonywritescode",
+     "w": "Live problem solving and tooling from a core-adjacent maintainer."
+    },
+    {
+     "n": "Real Python",
+     "u": "https://www.youtube.com/@realpython",
+     "w": "Careful, well-edited walkthroughs tied to their written tutorials."
+    },
+    {
+     "n": "PyCon US",
+     "u": "https://www.youtube.com/@PyConUS",
+     "w": "Conference talks. Search it for any topic — the best 30-minute explanations live here."
+    },
+    {
+     "n": "EuroPython",
+     "u": "https://www.youtube.com/@EuroPythonConference",
+     "w": "The same, from the European conference."
+    }
+   ]
+  },
+  {
+   "g": "Build projects",
+   "items": [
+    {
+     "n": "Tech With Tim",
+     "u": "https://www.youtube.com/@TechWithTim",
+     "w": "Bots, games, APIs, and AI projects built end to end."
+    },
+    {
+     "n": "NeuralNine",
+     "u": "https://www.youtube.com/@NeuralNine",
+     "w": "Automation, scripting, and practical real-world builds."
+    },
+    {
+     "n": "Python Engineer",
+     "u": "https://www.youtube.com/@patloeber",
+     "w": "ML pipelines and from-scratch implementations."
+    }
+   ]
+  },
+  {
+   "g": "AI and machine learning",
+   "items": [
+    {
+     "n": "Andrej Karpathy",
+     "u": "https://www.youtube.com/@AndrejKarpathy",
+     "w": "The single most valuable channel here. Build neural nets and a GPT from nothing."
+    },
+    {
+     "n": "3Blue1Brown",
+     "u": "https://www.youtube.com/@3blue1brown",
+     "w": "The mathematical intuition behind neural networks, linear algebra, and calculus."
+    },
+    {
+     "n": "sentdex",
+     "u": "https://www.youtube.com/@sentdex",
+     "w": "Long-running practical ML, data, and robotics series."
+    },
+    {
+     "n": "codebasics",
+     "u": "https://www.youtube.com/@codebasics",
+     "w": "Data science and analytics with an industry-project focus."
+    }
+   ]
+  },
+  {
+   "g": "Systems, infra, and context",
+   "items": [
+    {
+     "n": "TechWorld with Nana",
+     "u": "https://www.youtube.com/@TechWorldwithNana",
+     "w": "Docker, Kubernetes, CI/CD, and DevOps explained cleanly."
+    },
+    {
+     "n": "NetworkChuck",
+     "u": "https://www.youtube.com/@NetworkChuck",
+     "w": "Networking, Linux, and security with real energy."
+    },
+    {
+     "n": "Computerphile",
+     "u": "https://www.youtube.com/@Computerphile",
+     "w": "Short computer science explainers from actual researchers."
+    },
+    {
+     "n": "Fireship",
+     "u": "https://www.youtube.com/@Fireship",
+     "w": "Fast orientation on any new technology before you commit to it."
+    },
+    {
+     "n": "ThePrimeagen",
+     "u": "https://www.youtube.com/@ThePrimeagen",
+     "w": "Opinionated backend and tooling takes. Useful for hearing arguments, not instructions."
+    }
+   ]
+  }
+ ],
+ "QUIZZES": [
+  {
+   "id": "q00",
+   "phase": "p00",
+   "n": "Git & environment",
+   "d": "Version control you can recover from.",
+   "qs": [
+    {
+     "q": "You committed a secret key, then made three more commits. What is the correct first move?",
+     "a": [
+      "git revert the bad commit",
+      "Rotate the key immediately, then rewrite history",
+      "git reset --hard to before it",
+      "Delete the file and commit"
+     ],
+     "c": 1,
+     "e": "Once a secret is pushed, assume it's compromised. Rotation comes first; history rewriting is cleanup, not remediation."
+    },
+    {
+     "q": "What does `git revert <sha>` do?",
+     "a": [
+      "Deletes that commit from history",
+      "Creates a new commit that undoes those changes",
+      "Moves HEAD back to that commit",
+      "Discards all uncommitted work"
+     ],
+     "c": 1,
+     "e": "revert is additive and safe on shared branches. reset rewrites history and is not."
+    },
+    {
+     "q": "You're on a feature branch and need to switch tasks with dirty working tree. Safest option?",
+     "a": [
+      "git stash",
+      "git reset --hard",
+      "git checkout -f main",
+      "Commit everything as 'wip' and force push"
+     ],
+     "c": 0,
+     "e": "stash parks the changes retrievably without a commit or destroying anything."
+    },
+    {
+     "q": "What is the practical difference between `git fetch` and `git pull`?",
+     "a": [
+      "No difference",
+      "fetch downloads only; pull downloads and merges",
+      "pull is read-only",
+      "fetch works offline"
+     ],
+     "c": 1,
+     "e": "pull is fetch plus an integration step, which is why it can produce conflicts and fetch cannot."
+    },
+    {
+     "q": "Your branch is 'lost' after a bad reset. What recovers it?",
+     "a": [
+      "git fsck --repair",
+      "git reflog, then reset to the old SHA",
+      "Nothing — it's gone",
+      "git pull --force"
+     ],
+     "c": 1,
+     "e": "reflog records where HEAD has been, so almost anything committed is recoverable for weeks."
+    },
+    {
+     "q": "Why is a src-layout package preferred over a flat layout?",
+     "a": [
+      "It's shorter",
+      "It forces you to test the installed package, not the source directory",
+      "pip requires it",
+      "It compiles faster"
+     ],
+     "c": 1,
+     "e": "With src-layout, an accidental import of the local directory fails, so you catch packaging bugs before your users do."
+    },
+    {
+     "q": "What does `uv run script.py` do that `python script.py` doesn't?",
+     "a": [
+      "Runs it faster",
+      "Resolves and activates the project's environment first",
+      "Type-checks it",
+      "Compiles to bytecode"
+     ],
+     "c": 1,
+     "e": "uv manages the environment as part of running, which removes an entire class of 'works on my machine' bugs."
+    },
+    {
+     "q": "A merge conflict shows `<<<<<<< HEAD` markers. What do they mean?",
+     "a": [
+      "The file is corrupted",
+      "Git couldn't decide between two versions of those lines",
+      "You must re-clone",
+      "The branch is behind"
+     ],
+     "c": 1,
+     "e": "Git marks the regions it can't auto-merge and hands the decision to you — the markers must be removed before committing."
+    }
+   ]
+  },
+  {
+   "id": "q01",
+   "phase": "p01",
+   "n": "Python foundations",
+   "d": "The behaviours that trip everyone up early.",
+   "qs": [
+    {
+     "q": "What does `def f(x, items=[])` do wrong?",
+     "a": [
+      "Nothing",
+      "The default list is created once and shared across all calls",
+      "It's a syntax error",
+      "It copies the list each call"
+     ],
+     "c": 1,
+     "e": "Default arguments are evaluated once at definition time, so mutations persist between calls. Use None as the sentinel."
+    },
+    {
+     "q": "`a = [1,2,3]; b = a; b.append(4)`. What is `a`?",
+     "a": [
+      "[1,2,3]",
+      "[1,2,3,4]",
+      "[4]",
+      "Error"
+     ],
+     "c": 1,
+     "e": "b is another name for the same list object, not a copy. Use a.copy() or list(a) for a shallow copy."
+    },
+    {
+     "q": "Which is true of tuples?",
+     "a": [
+      "They can never contain mutable objects",
+      "They're immutable, but can contain mutable objects",
+      "They're faster for lookup than sets",
+      "They can't be dict keys"
+     ],
+     "c": 1,
+     "e": "A tuple's contents are fixed, but a list inside one can still be mutated — which also makes that tuple unhashable."
+    },
+    {
+     "q": "When should you use a set over a list?",
+     "a": [
+      "Always, it's faster",
+      "When you need membership checks or uniqueness and don't care about order",
+      "When you need indexing",
+      "When storing key-value pairs"
+     ],
+     "c": 1,
+     "e": "Membership testing is O(1) average in a set versus O(n) in a list, but sets are unordered and require hashable items."
+    },
+    {
+     "q": "What does `except Exception: pass` cost you?",
+     "a": [
+      "Nothing, it's defensive",
+      "It swallows real bugs silently, including ones you'd want to crash on",
+      "It's slower",
+      "It only catches syntax errors"
+     ],
+     "c": 1,
+     "e": "Broad silent excepts hide the failures you most need to see. Catch narrowly, and log or re-raise what you don't handle."
+    },
+    {
+     "q": "Why prefer `pathlib.Path` over string paths?",
+     "a": [
+      "It's newer",
+      "It handles separators, joining, and platform differences correctly",
+      "It's faster",
+      "It's required in Python 3.13"
+     ],
+     "c": 1,
+     "e": "Path operations are explicit and platform-correct, which kills a whole family of Windows/Unix bugs."
+    },
+    {
+     "q": "What's the difference between `is` and `==`?",
+     "a": [
+      "None",
+      "`is` compares identity (same object), `==` compares value",
+      "`is` is for numbers only",
+      "`==` is faster"
+     ],
+     "c": 1,
+     "e": "Two equal objects may be distinct objects. Use `is` only for None, True, False, and sentinel comparisons."
+    },
+    {
+     "q": "A dict key must be:",
+     "a": [
+      "A string",
+      "Hashable",
+      "Immutable and a string",
+      "Under 256 characters"
+     ],
+     "c": 1,
+     "e": "Hashability is the requirement. Most immutable built-ins are hashable; lists and dicts are not."
+    },
+    {
+     "q": "What does a good unit test assert?",
+     "a": [
+      "That the function runs without error",
+      "One specific behaviour, including its edge cases",
+      "That the whole program works",
+      "Code coverage percentage"
+     ],
+     "c": 1,
+     "e": "One behaviour per test means a failure tells you exactly what broke — that's the entire value of the suite."
+    },
+    {
+     "q": "You wrote a function that reads a file, parses it, and emails a report. What's the main design problem?",
+     "a": [
+      "It's too short",
+      "It does three things, so none of them can be tested independently",
+      "It needs type hints",
+      "It should be a class"
+     ],
+     "c": 1,
+     "e": "Separating I/O from decision logic is what makes code testable — the recurring lesson of the whole roadmap."
+    }
+   ]
+  },
+  {
+   "id": "q02",
+   "phase": "p02",
+   "n": "Python engineering",
+   "d": "Protocols, the object model, and laziness.",
+   "qs": [
+    {
+     "q": "What does a generator give you that a list doesn't?",
+     "a": [
+      "Faster iteration always",
+      "Lazy evaluation — items produced on demand, constant memory",
+      "Random access",
+      "Sorting"
+     ],
+     "c": 1,
+     "e": "Generators hold one item at a time, which is why they handle streams larger than RAM. They can't be indexed or reused."
+    },
+    {
+     "q": "After you fully consume a generator, iterating it again yields:",
+     "a": [
+      "The same items",
+      "Nothing — it's exhausted",
+      "An error",
+      "The items reversed"
+     ],
+     "c": 1,
+     "e": "Generators are one-shot iterators. If you need it twice, either rebuild it or materialize the results."
+    },
+    {
+     "q": "Why use `functools.wraps` in a decorator?",
+     "a": [
+      "It makes it faster",
+      "It preserves the wrapped function's name, docstring, and metadata",
+      "It's required syntax",
+      "It handles arguments"
+     ],
+     "c": 1,
+     "e": "Without it, introspection, help(), and debugging all point at your wrapper instead of the real function."
+    },
+    {
+     "q": "What does returning True from `__exit__` do?",
+     "a": [
+      "Nothing",
+      "Suppresses the exception that was raised inside the with block",
+      "Re-raises the exception",
+      "Closes the resource"
+     ],
+     "c": 1,
+     "e": "A truthy return swallows the exception — powerful and dangerous, so it should be deliberate and rare."
+    },
+    {
+     "q": "`typing.Protocol` lets you:",
+     "a": [
+      "Define network protocols",
+      "Type-check by structure rather than by inheritance",
+      "Serialize objects",
+      "Enforce runtime types"
+     ],
+     "c": 1,
+     "e": "Structural typing means anything with the right methods satisfies it — duck typing that a checker can verify."
+    },
+    {
+     "q": "Which is genuinely lazy?",
+     "a": [
+      "`[x*2 for x in data]`",
+      "`(x*2 for x in data)`",
+      "`list(map(...))`",
+      "`sorted(data)`"
+     ],
+     "c": 1,
+     "e": "Parentheses make a generator expression; brackets build the whole list in memory immediately."
+    },
+    {
+     "q": "Two objects compare equal but have different hashes. What breaks?",
+     "a": [
+      "Nothing",
+      "Dict and set behaviour — equal objects must hash equal",
+      "Printing",
+      "Sorting"
+     ],
+     "c": 1,
+     "e": "If you override __eq__ you must override __hash__ consistently, or your objects behave erratically in sets and dicts."
+    },
+    {
+     "q": "`itertools.islice` is preferable to slicing when:",
+     "a": [
+      "The sequence is short",
+      "The source is a generator or infinite stream",
+      "You need a copy",
+      "You need reversal"
+     ],
+     "c": 1,
+     "e": "Normal slicing requires a sequence in memory; islice works on any iterator without materializing it."
+    },
+    {
+     "q": "What does `yield from another_gen()` do?",
+     "a": [
+      "Returns the generator object",
+      "Delegates iteration, forwarding values and exceptions",
+      "Calls it once",
+      "Converts it to a list"
+     ],
+     "c": 1,
+     "e": "It flattens nested generators and correctly forwards send/throw, which manual loops usually get wrong."
+    },
+    {
+     "q": "You want retry-with-backoff on twenty functions. Best tool?",
+     "a": [
+      "Copy the loop into each",
+      "A decorator",
+      "A base class",
+      "A global try/except"
+     ],
+     "c": 1,
+     "e": "Decorators are the right shape for cross-cutting behaviour that wraps a call without changing its body."
+    }
+   ]
+  },
+  {
+   "id": "q03",
+   "phase": "p03",
+   "n": "Packaging, tooling & testing",
+   "d": "Making it installable and provable.",
+   "qs": [
+    {
+     "q": "What belongs in pyproject.toml?",
+     "a": [
+      "Business logic",
+      "Project metadata, dependencies, and tool configuration",
+      "Secrets",
+      "Test data"
+     ],
+     "c": 1,
+     "e": "It's the single declarative home for how the project is built, installed, linted, and typed."
+    },
+    {
+     "q": "`pip install -e .` does what?",
+     "a": [
+      "Installs a frozen copy",
+      "Installs in editable mode so source edits take effect immediately",
+      "Installs only dependencies",
+      "Encrypts the package"
+     ],
+     "c": 1,
+     "e": "Editable installs are how you develop a package while importing it exactly as a user would."
+    },
+    {
+     "q": "A pytest fixture is for:",
+     "a": [
+      "Asserting results",
+      "Providing reusable setup and teardown for tests",
+      "Mocking the internet",
+      "Measuring coverage"
+     ],
+     "c": 1,
+     "e": "Fixtures give each test a clean, declared dependency instead of hidden global setup."
+    },
+    {
+     "q": "What does property-based testing (Hypothesis) add over example tests?",
+     "a": [
+      "Speed",
+      "It generates many inputs and shrinks failures to a minimal case",
+      "Type checking",
+      "Coverage reports"
+     ],
+     "c": 1,
+     "e": "It finds the inputs you'd never have thought to write, then hands you the smallest one that breaks."
+    },
+    {
+     "q": "100% test coverage means:",
+     "a": [
+      "The code is correct",
+      "Every line ran during tests — not that behaviour is right",
+      "There are no bugs",
+      "Tests are well-designed"
+     ],
+     "c": 1,
+     "e": "Coverage measures execution, not assertion quality. It's a floor indicator, never a proof."
+    },
+    {
+     "q": "Why pin dependencies with a lockfile?",
+     "a": [
+      "Smaller installs",
+      "Reproducible builds — the same versions everywhere, every time",
+      "Faster imports",
+      "Security scanning"
+     ],
+     "c": 1,
+     "e": "Without a lock, an upstream release can break your build on a machine you never touched."
+    },
+    {
+     "q": "A console-script entry point gives you:",
+     "a": [
+      "A GUI",
+      "A command available on PATH after install",
+      "Faster startup",
+      "A Docker image"
+     ],
+     "c": 1,
+     "e": "It's the difference between `python -m mypkg.cli` and simply typing your tool's name anywhere."
+    },
+    {
+     "q": "Semantic versioning: you removed a public function. The next version is:",
+     "a": [
+      "A patch bump",
+      "A minor bump",
+      "A major bump",
+      "Unchanged"
+     ],
+     "c": 2,
+     "e": "Breaking the public API requires a major bump — that's the contract semver exists to communicate."
+    }
+   ]
+  },
+  {
+   "id": "q04",
+   "phase": "p04",
+   "n": "Data structures",
+   "d": "Invariants, complexity, and memory.",
+   "qs": [
+    {
+     "q": "Average lookup complexity of a hash table:",
+     "a": [
+      "O(1)",
+      "O(log n)",
+      "O(n)",
+      "O(n log n)"
+     ],
+     "c": 0,
+     "e": "O(1) average, but O(n) worst case when collisions degenerate — which is why hash quality matters."
+    },
+    {
+     "q": "Why is appending to a Python list amortized O(1)?",
+     "a": [
+      "Lists are linked",
+      "It over-allocates capacity, so most appends don't reallocate",
+      "It's actually O(n)",
+      "Python caches lists"
+     ],
+     "c": 1,
+     "e": "Growth by a multiplicative factor spreads the occasional expensive copy across many cheap appends."
+    },
+    {
+     "q": "You need the smallest item repeatedly while inserting. Use:",
+     "a": [
+      "A sorted list",
+      "A heap",
+      "A hash table",
+      "A stack"
+     ],
+     "c": 1,
+     "e": "A heap gives O(log n) insert and O(log n) extract-min without maintaining full order."
+    },
+    {
+     "q": "A linked list beats an array when:",
+     "a": [
+      "You iterate a lot",
+      "You insert or delete in the middle frequently with a known position",
+      "You need random access",
+      "You need cache locality"
+     ],
+     "c": 1,
+     "e": "Arrays win on iteration and cache behaviour; linked lists win on structural edits without shifting."
+    },
+    {
+     "q": "A binary search tree degenerates to O(n) when:",
+     "a": [
+      "It's too large",
+      "Inserts arrive in sorted order without balancing",
+      "Keys are strings",
+      "It's stored on disk"
+     ],
+     "c": 1,
+     "e": "Sorted inserts turn an unbalanced BST into a linked list — the reason self-balancing trees exist."
+    },
+    {
+     "q": "A trie is the right choice for:",
+     "a": [
+      "Sorting numbers",
+      "Prefix search and autocomplete over strings",
+      "Graph traversal",
+      "Caching"
+     ],
+     "c": 1,
+     "e": "Tries share prefixes so lookup cost depends on key length, not on how many keys are stored."
+    },
+    {
+     "q": "Adjacency list vs adjacency matrix — pick a list when:",
+     "a": [
+      "The graph is dense",
+      "The graph is sparse",
+      "You need O(1) edge checks",
+      "Nodes are numbered"
+     ],
+     "c": 1,
+     "e": "A matrix costs O(V²) memory regardless of edges; lists cost O(V+E), which wins badly on sparse graphs."
+    },
+    {
+     "q": "Stack vs heap memory: local variables in a function live where?",
+     "a": [
+      "The heap",
+      "The stack",
+      "Both",
+      "Neither"
+     ],
+     "c": 1,
+     "e": "Stack frames are pushed and popped automatically; heap allocation persists until freed or collected."
+    },
+    {
+     "q": "Why does a deque beat a list for a queue in Python?",
+     "a": [
+      "It's typed",
+      "list.pop(0) is O(n) while deque.popleft() is O(1)",
+      "It's thread-safe",
+      "It sorts automatically"
+     ],
+     "c": 1,
+     "e": "Removing from the front of a list shifts every remaining element; a deque is designed for both ends."
+    }
+   ]
+  },
+  {
+   "id": "q05",
+   "phase": "p05",
+   "n": "Algorithms",
+   "d": "Choosing the approach before writing code.",
+   "qs": [
+    {
+     "q": "Binary search requires:",
+     "a": [
+      "A hash table",
+      "A sorted sequence with random access",
+      "A linked list",
+      "Unique values"
+     ],
+     "c": 1,
+     "e": "Without ordering there's nothing to halve, and without random access halving costs as much as scanning."
+    },
+    {
+     "q": "Nested loops over the same n-element list are:",
+     "a": [
+      "O(n)",
+      "O(n²)",
+      "O(log n)",
+      "O(2ⁿ)"
+     ],
+     "c": 1,
+     "e": "Each outer iteration runs the full inner loop, so the work multiplies."
+    },
+    {
+     "q": "Memoization helps when a recursive problem has:",
+     "a": [
+      "Deep recursion",
+      "Overlapping subproblems",
+      "Many base cases",
+      "Large inputs"
+     ],
+     "c": 1,
+     "e": "If the same subproblem is solved repeatedly, caching turns exponential work into polynomial."
+    },
+    {
+     "q": "BFS rather than DFS when you need:",
+     "a": [
+      "Less memory",
+      "The shortest path in an unweighted graph",
+      "Topological order",
+      "Cycle detection"
+     ],
+     "c": 1,
+     "e": "BFS explores by distance, so the first time it reaches a node is via a shortest path."
+    },
+    {
+     "q": "Dijkstra's algorithm fails with:",
+     "a": [
+      "Large graphs",
+      "Negative edge weights",
+      "Directed graphs",
+      "Disconnected graphs"
+     ],
+     "c": 1,
+     "e": "Its greedy 'finalize the nearest node' step is unsound when a later negative edge could improve a settled distance."
+    },
+    {
+     "q": "A greedy algorithm is safe only when:",
+     "a": [
+      "The input is sorted",
+      "The problem has an exchange argument or matroid structure proving local choices are optimal",
+      "It's fast enough",
+      "There's no DP solution"
+     ],
+     "c": 1,
+     "e": "Greedy needs a proof. Without one it's a heuristic that happens to pass your test cases."
+    },
+    {
+     "q": "Python's sort is:",
+     "a": [
+      "Quicksort, unstable",
+      "Timsort, stable, O(n log n)",
+      "Bubble sort",
+      "Heapsort"
+     ],
+     "c": 1,
+     "e": "Stability lets you sort by one key then another and keep the first ordering within ties."
+    },
+    {
+     "q": "Best first step on an unfamiliar problem?",
+     "a": [
+      "Search for the optimal algorithm",
+      "Write the brute force and state its complexity",
+      "Pick a data structure",
+      "Write tests"
+     ],
+     "c": 1,
+     "e": "A correct slow solution gives you a baseline, a test oracle, and a complexity target to beat."
+    },
+    {
+     "q": "Backtracking is distinguished from brute force by:",
+     "a": [
+      "Recursion",
+      "Pruning branches that can't lead to a solution",
+      "Using a stack",
+      "Being faster always"
+     ],
+     "c": 1,
+     "e": "The pruning is the algorithm. Without it you're enumerating everything with extra steps."
+    }
+   ]
+  },
+  {
+   "id": "q06",
+   "phase": "p06",
+   "n": "Linux & systems",
+   "d": "The environment your code actually runs in.",
+   "qs": [
+    {
+     "q": "A script works in your shell but fails under cron. Most likely cause?",
+     "a": [
+      "cron is broken",
+      "cron runs with a minimal environment — different PATH and no shell profile",
+      "File permissions",
+      "Python version"
+     ],
+     "c": 1,
+     "e": "Cron doesn't source your profile, so absolute paths and explicit environment setup are required."
+    },
+    {
+     "q": "What does exit code 0 mean?",
+     "a": [
+      "Failure",
+      "Success",
+      "Killed by a signal",
+      "Nothing ran"
+     ],
+     "c": 1,
+     "e": "Zero is success; anything nonzero signals a failure, which is what `set -e` and CI both check."
+    },
+    {
+     "q": "`2>&1` redirects:",
+     "a": [
+      "stdout to stderr",
+      "stderr to wherever stdout currently points",
+      "Both to a file",
+      "Input to output"
+     ],
+     "c": 1,
+     "e": "Order matters: `> file 2>&1` sends both to the file, while `2>&1 > file` does not."
+    },
+    {
+     "q": "A process shows as a zombie. That means:",
+     "a": [
+      "It's using all the CPU",
+      "It finished but its parent hasn't read its exit status",
+      "It's frozen",
+      "It's malware"
+     ],
+     "c": 1,
+     "e": "Zombies hold only a process table entry; the fix is the parent reaping it, or the parent dying so init does."
+    },
+    {
+     "q": "A file is deleted but disk space isn't freed. Why?",
+     "a": [
+      "The disk is failing",
+      "A process still holds the file open",
+      "It's in a trash folder",
+      "Filesystem corruption"
+     ],
+     "c": 1,
+     "e": "Space is reclaimed when the last file descriptor closes, which is why restarting the holder frees it."
+    },
+    {
+     "q": "SIGTERM vs SIGKILL:",
+     "a": [
+      "Identical",
+      "TERM can be caught for cleanup; KILL cannot be caught or ignored",
+      "KILL is gentler",
+      "TERM only works on daemons"
+     ],
+     "c": 1,
+     "e": "Graceful shutdown means handling SIGTERM. Reaching for KILL first means losing in-flight work."
+    },
+    {
+     "q": "Why use `set -euo pipefail` in a bash script?",
+     "a": [
+      "Speed",
+      "Fail fast on errors, undefined variables, and failed pipeline stages",
+      "Better output",
+      "Compatibility"
+     ],
+     "c": 1,
+     "e": "Bash's defaults silently continue after failures, which turns a small error into a corrupted run."
+    },
+    {
+     "q": "chmod 644 on a file means:",
+     "a": [
+      "Owner read/write, group and others read",
+      "Everyone can write",
+      "Executable by all",
+      "Owner only"
+     ],
+     "c": 0,
+     "e": "6=rw for owner, 4=r for group and others. Executables need the execute bit, typically 755."
+    }
+   ]
+  },
+  {
+   "id": "q07",
+   "phase": "p07",
+   "n": "Networking",
+   "d": "From DNS to timeout budgets.",
+   "qs": [
+    {
+     "q": "Your API call hangs forever. The most common root cause is:",
+     "a": [
+      "The server is down",
+      "No timeout configured on the client",
+      "DNS failure",
+      "TLS mismatch"
+     ],
+     "c": 1,
+     "e": "Without an explicit timeout many clients wait indefinitely; every network call needs a bound."
+    },
+    {
+     "q": "Which HTTP method is expected to be idempotent?",
+     "a": [
+      "POST",
+      "PUT",
+      "PATCH",
+      "CONNECT"
+     ],
+     "c": 1,
+     "e": "PUT applied twice should leave the same state; POST generally creates something new each time."
+    },
+    {
+     "q": "A 502 means:",
+     "a": [
+      "You sent a bad request",
+      "An upstream server gave an invalid response to a gateway",
+      "Not authenticated",
+      "Rate limited"
+     ],
+     "c": 1,
+     "e": "5xx means the failure is on the server side; 502 specifically points at something behind a proxy."
+    },
+    {
+     "q": "Blindly retrying a failed POST is dangerous because:",
+     "a": [
+      "It's slow",
+      "The first request may have succeeded, causing duplicate side effects",
+      "POST can't be retried",
+      "It breaks TLS"
+     ],
+     "c": 1,
+     "e": "A response can be lost after the work was done. Idempotency keys make retries safe."
+    },
+    {
+     "q": "TCP guarantees:",
+     "a": [
+      "Speed",
+      "Ordered, reliable delivery of a byte stream",
+      "Encryption",
+      "Low latency"
+     ],
+     "c": 1,
+     "e": "Ordering and retransmission are TCP's job; encryption is TLS layered on top."
+    },
+    {
+     "q": "What does TLS certificate verification actually prove?",
+     "a": [
+      "The site is safe",
+      "That you're talking to the host named in a certificate signed by a trusted CA",
+      "The data is private forever",
+      "The server has no vulnerabilities"
+     ],
+     "c": 1,
+     "e": "It's an identity and integrity check, not a safety rating — which is why disabling verification is so damaging."
+    },
+    {
+     "q": "Exponential backoff with jitter exists to:",
+     "a": [
+      "Speed up retries",
+      "Prevent synchronized retry storms from clients hammering a recovering service",
+      "Reduce code",
+      "Improve DNS"
+     ],
+     "c": 1,
+     "e": "Without jitter, every client retries at the same moment and knocks the service back down."
+    },
+    {
+     "q": "WebSockets are preferable to polling when:",
+     "a": [
+      "Traffic is low",
+      "The server must push frequent updates with low latency",
+      "You need caching",
+      "You use REST"
+     ],
+     "c": 1,
+     "e": "Polling wastes requests waiting for change; a persistent connection pushes only when something happens."
+    },
+    {
+     "q": "A CORS error appears in the browser. Where is it enforced?",
+     "a": [
+      "On the server",
+      "In the browser, based on server response headers",
+      "In DNS",
+      "In the proxy"
+     ],
+     "c": 1,
+     "e": "CORS is a browser policy — the request may well reach the server, but the browser blocks the response from the page."
+    }
+   ]
+  },
+  {
+   "id": "q08",
+   "phase": "p08",
+   "n": "SQL & databases",
+   "d": "Schema, indexes, and transactions.",
+   "qs": [
+    {
+     "q": "A LEFT JOIN returns:",
+     "a": [
+      "Only matching rows",
+      "All rows from the left table, with NULLs where the right has no match",
+      "All rows from both",
+      "The intersection"
+     ],
+     "c": 1,
+     "e": "It preserves the left side, which is why unexpected NULLs downstream usually trace back to one."
+    },
+    {
+     "q": "An index speeds reads but costs:",
+     "a": [
+      "Nothing",
+      "Write performance and storage",
+      "Only storage",
+      "Only memory"
+     ],
+     "c": 1,
+     "e": "Every insert, update, and delete must maintain each index — over-indexing is a real and common problem."
+    },
+    {
+     "q": "A composite index on (a, b) helps a query filtering only on b?",
+     "a": [
+      "Yes, fully",
+      "Generally no — leading-column order matters",
+      "Only with a hint",
+      "Always"
+     ],
+     "c": 1,
+     "e": "B-tree indexes are usable left-to-right, so filtering on the second column alone usually can't use it."
+    },
+    {
+     "q": "What does a transaction's atomicity guarantee?",
+     "a": [
+      "Speed",
+      "All statements commit together or none do",
+      "Isolation from readers",
+      "Durability on disk"
+     ],
+     "c": 1,
+     "e": "Atomicity is all-or-nothing; isolation and durability are separate guarantees in ACID."
+    },
+    {
+     "q": "Two transactions each hold a lock the other needs. This is:",
+     "a": [
+      "A race condition",
+      "A deadlock",
+      "A dirty read",
+      "Lock escalation"
+     ],
+     "c": 1,
+     "e": "The database detects it and kills one transaction — your code must be prepared to retry."
+    },
+    {
+     "q": "The N+1 query problem is:",
+     "a": [
+      "Too many indexes",
+      "Fetching a list, then issuing one query per item in a loop",
+      "Missing a WHERE clause",
+      "A join error"
+     ],
+     "c": 1,
+     "e": "It's the most common ORM performance bug; the fix is eager loading or a single join."
+    },
+    {
+     "q": "EXPLAIN ANALYZE tells you:",
+     "a": [
+      "The query's syntax",
+      "The actual execution plan and timings",
+      "Index recommendations",
+      "Table sizes"
+     ],
+     "c": 1,
+     "e": "It runs the query and reports what really happened, which is how you stop guessing about performance."
+    },
+    {
+     "q": "A foreign key constraint primarily provides:",
+     "a": [
+      "Speed",
+      "Referential integrity enforced by the database",
+      "Automatic indexing everywhere",
+      "Encryption"
+     ],
+     "c": 1,
+     "e": "It makes orphaned rows impossible at the storage layer, rather than hoping every code path behaves."
+    },
+    {
+     "q": "Connection pooling matters because:",
+     "a": [
+      "Connections are free",
+      "Opening a database connection is expensive and databases cap concurrent connections",
+      "It encrypts traffic",
+      "It caches queries"
+     ],
+     "c": 1,
+     "e": "Under load, unpooled connections exhaust the server's limit long before the CPU is busy."
+    }
+   ]
+  },
+  {
+   "id": "q09",
+   "phase": "p09",
+   "n": "Backend engineering",
+   "d": "Services other software depends on.",
+   "qs": [
+    {
+     "q": "Authentication vs authorization:",
+     "a": [
+      "The same thing",
+      "Authentication is who you are; authorization is what you may do",
+      "Authorization comes first",
+      "Authentication is only for admins"
+     ],
+     "c": 1,
+     "e": "Most real breaches are broken authorization — a logged-in user reaching data that isn't theirs."
+    },
+    {
+     "q": "Where must access control be enforced?",
+     "a": [
+      "In the frontend",
+      "On the server, on every request",
+      "In the database only",
+      "In the API docs"
+     ],
+     "c": 1,
+     "e": "Anything enforced client-side is a suggestion; the request can always be replayed directly."
+    },
+    {
+     "q": "A JWT's main tradeoff versus a server session is:",
+     "a": [
+      "Size",
+      "It's hard to revoke before expiry because the server holds no state",
+      "Encryption",
+      "Speed"
+     ],
+     "c": 1,
+     "e": "Statelessness buys scale and costs revocation, which is why short expiry plus refresh tokens is the usual compromise."
+    },
+    {
+     "q": "Passwords should be stored using:",
+     "a": [
+      "SHA-256",
+      "A slow password hash like argon2 or bcrypt, with a per-user salt",
+      "AES encryption",
+      "Base64"
+     ],
+     "c": 1,
+     "e": "Fast hashes are the problem — password hashing must be deliberately expensive to brute force."
+    },
+    {
+     "q": "Offset pagination breaks down because:",
+     "a": [
+      "It's not standard",
+      "Deep offsets get slow and rows shift between pages as data changes",
+      "It needs an index",
+      "It can't sort"
+     ],
+     "c": 1,
+     "e": "Cursor pagination anchors on a stable key, so results stay consistent while data moves underneath."
+    },
+    {
+     "q": "Pydantic in a FastAPI route primarily gives you:",
+     "a": [
+      "Faster routing",
+      "Validated, typed input and output with generated schema documentation",
+      "Database access",
+      "Authentication"
+     ],
+     "c": 1,
+     "e": "Validation at the boundary means the rest of your code can trust the shape of its data."
+    },
+    {
+     "q": "A request ID on every log line lets you:",
+     "a": [
+      "Reduce log size",
+      "Reconstruct one request's full path through the system",
+      "Encrypt logs",
+      "Sort chronologically"
+     ],
+     "c": 1,
+     "e": "Without correlation, concurrent requests interleave into noise and debugging becomes guesswork."
+    },
+    {
+     "q": "Returning a stack trace in an error response is:",
+     "a": [
+      "Helpful for users",
+      "An information leak that helps an attacker map your system",
+      "Required by REST",
+      "Fine in production"
+     ],
+     "c": 1,
+     "e": "Log the detail server-side; return a generic message and an error ID the user can quote."
+    },
+    {
+     "q": "Background tasks in the web process are risky because:",
+     "a": [
+      "They're slow",
+      "They die with the process and don't survive restarts or crashes",
+      "They need threads",
+      "They can't log"
+     ],
+     "c": 1,
+     "e": "Anything that must not be lost belongs in a real queue with durable state and retries."
+    }
+   ]
+  },
+  {
+   "id": "q10",
+   "phase": "p10",
+   "n": "Automation & web",
+   "d": "Work that runs while you sleep.",
+   "qs": [
+    {
+     "q": "Idempotency in an automation job means:",
+     "a": [
+      "It runs once",
+      "Running it twice produces the same result as running it once",
+      "It's fast",
+      "It never fails"
+     ],
+     "c": 1,
+     "e": "Retries, crashes, and overlapping schedules all happen — idempotency is what makes them harmless."
+    },
+    {
+     "q": "A scraper breaks weekly. The most likely cause:",
+     "a": [
+      "Rate limits",
+      "Selectors tied to fragile markup or generated class names",
+      "Slow network",
+      "Python version"
+     ],
+     "c": 1,
+     "e": "Anchor on stable attributes, text, or data-* hooks, and fail loudly when the shape changes."
+    },
+    {
+     "q": "You receive HTTP 429. The correct response is:",
+     "a": [
+      "Retry immediately",
+      "Back off, respecting Retry-After if present",
+      "Switch IP addresses",
+      "Ignore it"
+     ],
+     "c": 1,
+     "e": "429 is the service asking you to slow down; hammering it is how you get blocked entirely."
+    },
+    {
+     "q": "Playwright rather than requests when:",
+     "a": [
+      "The site is slow",
+      "The content is rendered by JavaScript after load",
+      "You need JSON",
+      "The site is large"
+     ],
+     "c": 1,
+     "e": "An HTTP client sees the initial HTML only; a browser executes the scripts that build the page."
+    },
+    {
+     "q": "A webhook receiver should:",
+     "a": [
+      "Do all the work inline",
+      "Verify the signature, enqueue the work, and respond quickly",
+      "Ignore signatures",
+      "Poll for confirmation"
+     ],
+     "c": 1,
+     "e": "Slow handlers cause sender timeouts and duplicate deliveries — acknowledge fast, process asynchronously."
+    },
+    {
+     "q": "Before scraping a site you should check:",
+     "a": [
+      "Nothing",
+      "Its terms of service, robots directives, and whether an API exists",
+      "Only robots.txt",
+      "Its uptime"
+     ],
+     "c": 1,
+     "e": "An official API is usually faster and more stable anyway, and staying within the rules keeps access."
+    },
+    {
+     "q": "Your job crashed halfway through 10,000 items. Good design means:",
+     "a": [
+      "Starting over",
+      "Resuming from persisted progress without redoing completed work",
+      "Reducing the batch",
+      "Manual cleanup"
+     ],
+     "c": 1,
+     "e": "Checkpointing progress is what separates an automation you trust from one you have to supervise."
+    },
+    {
+     "q": "Secrets in an automation script belong:",
+     "a": [
+      "In the source file",
+      "In environment variables or a secret manager, never in Git",
+      "In a comment",
+      "In the README"
+     ],
+     "c": 1,
+     "e": "Once a credential is committed it lives in history forever, even if you delete the line later."
+    }
+   ]
+  },
+  {
+   "id": "q11",
+   "phase": "p11",
+   "n": "Async & performance",
+   "d": "Choosing a concurrency model and proving it.",
+   "qs": [
+    {
+     "q": "The GIL prevents:",
+     "a": [
+      "All concurrency",
+      "Multiple threads executing Python bytecode simultaneously",
+      "I/O concurrency",
+      "Multiprocessing"
+     ],
+     "c": 1,
+     "e": "Threads still help for I/O-bound work because the GIL is released while waiting on I/O."
+    },
+    {
+     "q": "CPU-bound work in Python scales with:",
+     "a": [
+      "Threads",
+      "Processes (or native code releasing the GIL)",
+      "asyncio",
+      "More memory"
+     ],
+     "c": 1,
+     "e": "Separate processes have separate interpreters, at the cost of pickling data between them."
+    },
+    {
+     "q": "`await` in a coroutine means:",
+     "a": [
+      "Block the thread",
+      "Yield control to the event loop until the awaited thing is ready",
+      "Start a thread",
+      "Sleep"
+     ],
+     "c": 1,
+     "e": "That yielding is why one thread can juggle thousands of connections — but blocking calls stall everything."
+    },
+    {
+     "q": "Calling `time.sleep(5)` inside an async function:",
+     "a": [
+      "Is fine",
+      "Blocks the whole event loop for five seconds",
+      "Yields control",
+      "Raises an error"
+     ],
+     "c": 1,
+     "e": "Use asyncio.sleep. One blocking call in an async codebase freezes every other task."
+    },
+    {
+     "q": "Unbounded concurrency against an external API causes:",
+     "a": [
+      "Faster results",
+      "Rate limiting, connection exhaustion, and possibly a ban",
+      "Lower memory",
+      "Nothing"
+     ],
+     "c": 1,
+     "e": "A semaphore bounding in-flight requests is what makes concurrent clients well-behaved."
+    },
+    {
+     "q": "asyncio.TaskGroup improves on bare gather by:",
+     "a": [
+      "Being faster",
+      "Structured concurrency — child tasks are cancelled and errors propagated together",
+      "Using threads",
+      "Avoiding awaits"
+     ],
+     "c": 1,
+     "e": "It prevents orphaned tasks quietly running after a sibling failed."
+    },
+    {
+     "q": "Before optimizing, you should:",
+     "a": [
+      "Rewrite in C",
+      "Profile to find the actual bottleneck",
+      "Add caching",
+      "Add threads"
+     ],
+     "c": 1,
+     "e": "Intuition about performance is almost always wrong; measurement is the entire discipline."
+    },
+    {
+     "q": "p95 latency matters more than the mean because:",
+     "a": [
+      "It's larger",
+      "It reflects the experience of the worst-served real requests",
+      "Means are hard to compute",
+      "It's standard"
+     ],
+     "c": 1,
+     "e": "Averages hide tail latency, and tail latency is what users and dependent systems actually feel."
+    },
+    {
+     "q": "A race condition is:",
+     "a": [
+      "Slow code",
+      "Correctness depending on unpredictable timing between concurrent operations",
+      "A deadlock",
+      "A timeout"
+     ],
+     "c": 1,
+     "e": "They pass tests and fail in production, which is why shared mutable state needs explicit protection."
+    },
+    {
+     "q": "Cancelling an asyncio task means you must:",
+     "a": [
+      "Nothing extra",
+      "Handle CancelledError so cleanup runs and resources are released",
+      "Restart the loop",
+      "Use threads"
+     ],
+     "c": 1,
+     "e": "Cancellation raises inside the coroutine; unhandled, it leaks connections, files, and locks."
+    }
+   ]
+  },
+  {
+   "id": "q12",
+   "phase": "p12",
+   "n": "Docker & deployment",
+   "d": "Running identically somewhere else.",
+   "qs": [
+    {
+     "q": "Dockerfile layer order matters because:",
+     "a": [
+      "It's stylistic",
+      "Cached layers are invalidated from the first change downward",
+      "Smaller files first",
+      "Order is random"
+     ],
+     "c": 1,
+     "e": "Copy dependency manifests and install before copying source, or every code edit reinstalls everything."
+    },
+    {
+     "q": "Containers should run as root because:",
+     "a": [
+      "It's required",
+      "They shouldn't — a non-root user limits the blast radius of a compromise",
+      "It's faster",
+      "Volumes need it"
+     ],
+     "c": 1,
+     "e": "Container isolation is not a security boundary you should lean on; reduce privileges inside it too."
+    },
+    {
+     "q": "A multi-stage build lets you:",
+     "a": [
+      "Build faster only",
+      "Compile in a heavy image and ship only the artifacts in a small one",
+      "Skip dependencies",
+      "Avoid Dockerfiles"
+     ],
+     "c": 1,
+     "e": "Build toolchains don't belong in the runtime image — they're weight and attack surface."
+    },
+    {
+     "q": "Container data disappears on restart unless:",
+     "a": [
+      "You commit the container",
+      "It's written to a volume or external store",
+      "You use root",
+      "You disable the cache"
+     ],
+     "c": 1,
+     "e": "The writable layer is ephemeral by design; persistent state must live outside the container."
+    },
+    {
+     "q": "A health check exists so that:",
+     "a": [
+      "Logs are cleaner",
+      "The orchestrator knows whether the container is actually serving, not merely running",
+      "Builds are faster",
+      "Ports open"
+     ],
+     "c": 1,
+     "e": "A process can be alive and useless; readiness and liveness are what routing decisions depend on."
+    },
+    {
+     "q": "Secrets should reach a container via:",
+     "a": [
+      "Baked into the image",
+      "Environment variables or mounted secrets at runtime",
+      "A committed .env file",
+      "Hardcoding"
+     ],
+     "c": 1,
+     "e": "Anything in the image is extractable by anyone who can pull it."
+    },
+    {
+     "q": "CI should run on every push in order to:",
+     "a": [
+      "Use build minutes",
+      "Catch failures before they reach main, not after",
+      "Deploy automatically",
+      "Generate docs"
+     ],
+     "c": 1,
+     "e": "The value is the tight feedback loop — a check that runs after merge has already lost the argument."
+    },
+    {
+     "q": "A rollback plan requires:",
+     "a": [
+      "Good luck",
+      "A previous immutable artifact you can redeploy, plus reversible migrations",
+      "A database backup only",
+      "Nothing"
+     ],
+     "c": 1,
+     "e": "Forward-only migrations are the usual reason a rollback becomes impossible under pressure."
+    }
+   ]
+  },
+  {
+   "id": "q13",
+   "phase": "p13",
+   "n": "Security",
+   "d": "Thinking like a reviewer.",
+   "qs": [
+    {
+     "q": "The most common serious web vulnerability class is:",
+     "a": [
+      "XSS",
+      "Broken access control",
+      "Buffer overflow",
+      "Weak passwords"
+     ],
+     "c": 1,
+     "e": "It tops the OWASP list because it's easy to get wrong in one endpoint out of a hundred."
+    },
+    {
+     "q": "The correct defence against SQL injection is:",
+     "a": [
+      "Escaping quotes",
+      "Parameterized queries",
+      "Blocking keywords",
+      "Input length limits"
+     ],
+     "c": 1,
+     "e": "Parameterization separates code from data structurally; filtering is a guess that attackers get to test."
+    },
+    {
+     "q": "Your server fetches a URL a user supplies. The risk is:",
+     "a": [
+      "Slow responses",
+      "SSRF — reaching internal services from a trusted network position",
+      "XSS",
+      "CSRF"
+     ],
+     "c": 1,
+     "e": "Cloud metadata endpoints and internal admin panels are the classic targets; allowlist destinations."
+    },
+    {
+     "q": "Rate limiting on login exists mainly to:",
+     "a": [
+      "Save CPU",
+      "Slow credential stuffing and brute force",
+      "Improve UX",
+      "Meet SLAs"
+     ],
+     "c": 1,
+     "e": "Combine it with lockout signals and monitoring — throttling alone doesn't detect a distributed attempt."
+    },
+    {
+     "q": "You found a dependency with a known CVE. First step:",
+     "a": [
+      "Ignore if unused",
+      "Check whether your code reaches the vulnerable path, then upgrade",
+      "Rewrite the library",
+      "Remove all dependencies"
+     ],
+     "c": 1,
+     "e": "Upgrade promptly regardless, but reachability tells you how urgently and whether to mitigate first."
+    },
+    {
+     "q": "Security logging should capture:",
+     "a": [
+      "Everything including passwords",
+      "Auth events, access-control denials, and admin actions — never secrets",
+      "Only errors",
+      "Nothing"
+     ],
+     "c": 1,
+     "e": "You cannot investigate what you never recorded, but logged credentials become the breach themselves."
+    },
+    {
+     "q": "A prompt injection in an LLM system is:",
+     "a": [
+      "A prompt typo",
+      "Untrusted content instructing the model to take unintended actions",
+      "A rate limit",
+      "A jailbreak of the model weights"
+     ],
+     "c": 1,
+     "e": "Treat retrieved documents and tool output as data, and gate side-effectful tools behind real permission checks."
+    },
+    {
+     "q": "Defence in depth means:",
+     "a": [
+      "One strong control",
+      "Multiple independent controls so a single failure isn't fatal",
+      "Encrypting everything",
+      "Hiding the architecture"
+     ],
+     "c": 1,
+     "e": "Every control eventually fails; the design question is what still holds when it does."
+    },
+    {
+     "q": "Testing security should be done:",
+     "a": [
+      "On any interesting site",
+      "Only on systems you own or have explicit written authorization to test",
+      "After deployment",
+      "By anyone"
+     ],
+     "c": 1,
+     "e": "Authorization is what separates security engineering from a criminal offence."
+    }
+   ]
+  },
+  {
+   "id": "q14",
+   "phase": "p14",
+   "n": "AI engineering",
+   "d": "Models from scratch, and systems around them.",
+   "qs": [
+    {
+     "q": "Backpropagation computes:",
+     "a": [
+      "The model's output",
+      "Gradients of the loss with respect to every parameter, by the chain rule",
+      "The learning rate",
+      "The loss value"
+     ],
+     "c": 1,
+     "e": "It's mechanical calculus applied backwards through the computation graph — nothing more mysterious than that."
+    },
+    {
+     "q": "A gradient of zero everywhere in a layer usually means:",
+     "a": [
+      "Training finished",
+      "Saturated activations or a dead unit — the layer stopped learning",
+      "Perfect accuracy",
+      "Wrong loss"
+     ],
+     "c": 1,
+     "e": "It's the classic symptom Karpathy's activations lecture teaches you to diagnose by inspecting distributions."
+    },
+    {
+     "q": "Data leakage is:",
+     "a": [
+      "Losing files",
+      "Information from validation or test data influencing training",
+      "A memory bug",
+      "Overfitting"
+     ],
+     "c": 1,
+     "e": "It produces excellent offline scores and a model that fails in production — the most common ML self-deception."
+    },
+    {
+     "q": "Accuracy is a poor metric when:",
+     "a": [
+      "The dataset is large",
+      "Classes are heavily imbalanced",
+      "Using neural nets",
+      "Data is text"
+     ],
+     "c": 1,
+     "e": "Predicting the majority class on 99/1 data scores 99% and detects nothing. Use precision, recall, or AUC."
+    },
+    {
+     "q": "Self-attention lets a token:",
+     "a": [
+      "Ignore context",
+      "Weight and aggregate information from other tokens in the sequence",
+      "Be embedded",
+      "Be tokenized"
+     ],
+     "c": 1,
+     "e": "Learned query/key/value projections decide what each position looks at — the core idea of the transformer."
+    },
+    {
+     "q": "In a RAG system, poor answers most often come from:",
+     "a": [
+      "The model",
+      "Retrieval — bad chunking, embeddings, or ranking surfacing the wrong context",
+      "Temperature",
+      "The prompt length"
+     ],
+     "c": 1,
+     "e": "If the right passage never reaches the model, no amount of prompt tuning fixes it. Inspect retrieval first."
+    },
+    {
+     "q": "An evaluation set exists to:",
+     "a": [
+      "Impress stakeholders",
+      "Detect regressions and measure whether a change actually helped",
+      "Train the model",
+      "Reduce cost"
+     ],
+     "c": 1,
+     "e": "Without it, every change is a vibe check and quality drifts invisibly."
+    },
+    {
+     "q": "Temperature 0 gives you:",
+     "a": [
+      "Perfect answers",
+      "More deterministic, lowest-entropy outputs — not more correct ones",
+      "Faster inference",
+      "Shorter outputs"
+     ],
+     "c": 1,
+     "e": "Determinism aids debugging and evaluation; it does nothing for factual accuracy."
+    },
+    {
+     "q": "Embeddings encode:",
+     "a": [
+      "Exact text",
+      "Semantic position in a vector space, so similar meanings sit close together",
+      "Compression",
+      "Token counts"
+     ],
+     "c": 1,
+     "e": "That's why vector search finds paraphrases that keyword search misses — and why hybrid search beats either alone."
+    },
+    {
+     "q": "Giving an agent tools requires:",
+     "a": [
+      "Nothing special",
+      "Permission boundaries, validation, and treating tool output as untrusted input",
+      "More parameters",
+      "Higher temperature"
+     ],
+     "c": 1,
+     "e": "An agent that can act is a system with side effects; it needs the same guardrails as any other API caller."
+    }
+   ]
+  },
+  {
+   "id": "q15",
+   "phase": "p15",
+   "n": "Architecture & orchestration",
+   "d": "Systems that survive failure.",
+   "qs": [
+    {
+     "q": "At-least-once delivery means consumers must be:",
+     "a": [
+      "Fast",
+      "Idempotent, because duplicates will happen",
+      "Single-threaded",
+      "Stateless"
+     ],
+     "c": 1,
+     "e": "Exactly-once is mostly a marketing phrase; idempotent handling is how real systems get the same outcome."
+    },
+    {
+     "q": "A dead-letter queue holds:",
+     "a": [
+      "Old messages",
+      "Messages that repeatedly failed processing, for inspection and replay",
+      "Duplicates",
+      "Logs"
+     ],
+     "c": 1,
+     "e": "Without one, poison messages either block the queue or vanish silently."
+    },
+    {
+     "q": "Cache invalidation is hard because:",
+     "a": [
+      "Caches are slow",
+      "Knowing when data became stale requires knowledge the cache doesn't have",
+      "Memory limits",
+      "Serialization"
+     ],
+     "c": 1,
+     "e": "TTLs trade freshness for simplicity; event-based invalidation trades simplicity for coupling."
+    },
+    {
+     "q": "Horizontal scaling requires services to be:",
+     "a": [
+      "Larger",
+      "Stateless, or with state externalized to a shared store",
+      "Written in Python",
+      "Containerized"
+     ],
+     "c": 1,
+     "e": "Local in-process state means requests must return to the same box, which defeats the point."
+    },
+    {
+     "q": "A distributed lock is risky because:",
+     "a": [
+      "It's slow",
+      "A holder can pause or die, so leases, fencing tokens, and expiry are required",
+      "Locks don't work",
+      "It needs Redis"
+     ],
+     "c": 1,
+     "e": "A lock that can't expire deadlocks the system; one that expires can be held by two workers at once."
+    },
+    {
+     "q": "Tracing differs from logging in that it:",
+     "a": [
+      "Is cheaper",
+      "Connects a single operation's spans across service boundaries",
+      "Stores more data",
+      "Replaces metrics"
+     ],
+     "c": 1,
+     "e": "Logs tell you what happened somewhere; traces tell you where the time went across the whole path."
+    },
+    {
+     "q": "Durable execution (Temporal-style) primarily gives you:",
+     "a": [
+      "Speed",
+      "Workflow state that survives worker crashes and resumes mid-flight",
+      "Cheaper hosting",
+      "Simpler code always"
+     ],
+     "c": 1,
+     "e": "It moves crash recovery out of your business logic, which is where it's usually done badly."
+    },
+    {
+     "q": "Before adding machines you should:",
+     "a": [
+      "Estimate cost",
+      "Find the actual bottleneck by measuring",
+      "Add caching",
+      "Rewrite in Go"
+     ],
+     "c": 1,
+     "e": "Scaling the wrong tier is expensive and changes nothing; a load test tells you which tier saturates first."
+    },
+    {
+     "q": "An architecture decision record should include:",
+     "a": [
+      "Only the choice",
+      "The context, the alternatives rejected, and why",
+      "Code samples",
+      "A diagram only"
+     ],
+     "c": 1,
+     "e": "The rejected options are the valuable part — they stop the same debate restarting in six months."
+    }
+   ]
+  },
+  {
+   "id": "q16",
+   "phase": "p16",
+   "n": "Internals",
+   "d": "Beneath the abstraction.",
+   "qs": [
+    {
+     "q": "CPython frees most objects via:",
+     "a": [
+      "A tracing GC only",
+      "Reference counting, with a cycle collector as backup",
+      "Manual free()",
+      "Arena compaction"
+     ],
+     "c": 1,
+     "e": "Refcounting reclaims immediately; the generational collector exists specifically for reference cycles."
+    },
+    {
+     "q": "`a = [1,2,3]; b = a` changes the list's refcount to:",
+     "a": [
+      "1",
+      "2 (plus temporaries)",
+      "0",
+      "Unchanged"
+     ],
+     "c": 1,
+     "e": "Each new name binding increments the count; the object dies when it reaches zero."
+    },
+    {
+     "q": "Python source is executed as:",
+     "a": [
+      "Machine code directly",
+      "Bytecode run by the CPython virtual machine",
+      "Interpreted line by line from text",
+      "C after transpiling"
+     ],
+     "c": 1,
+     "e": "The `dis` module shows you exactly which bytecode your function compiled to."
+    },
+    {
+     "q": "NumPy is fast mainly because:",
+     "a": [
+      "It's written in Python",
+      "Operations run in compiled C over contiguous typed arrays, avoiding per-element Python overhead",
+      "It uses threads",
+      "It caches results"
+     ],
+     "c": 1,
+     "e": "That's also why a Python loop over a NumPy array throws away the entire advantage."
+    },
+    {
+     "q": "A reference cycle keeps memory alive because:",
+     "a": [
+      "Python leaks",
+      "Each object's refcount never reaches zero without cycle detection",
+      "The GC is disabled",
+      "It's on the stack"
+     ],
+     "c": 1,
+     "e": "weakref and breaking parent/child links explicitly are the usual fixes when the collector is a problem."
+    },
+    {
+     "q": "The free-threaded CPython build aims to:",
+     "a": [
+      "Remove the interpreter",
+      "Allow true parallel execution of Python bytecode across threads",
+      "Speed up imports",
+      "Replace asyncio"
+     ],
+     "c": 1,
+     "e": "It changes the multiprocessing calculus for CPU-bound work — worth tracking as it matures."
+    },
+    {
+     "q": "A C extension or PyO3 module is worth writing when:",
+     "a": [
+      "Always",
+      "A profiled hot path dominates runtime and can't be vectorized away",
+      "The code is long",
+      "You dislike Python"
+     ],
+     "c": 1,
+     "e": "The complexity cost is real; you should be able to show the benchmark that justified it."
+    },
+    {
+     "q": "Appending to a list that hits capacity causes:",
+     "a": [
+      "An error",
+      "Allocation of a larger buffer and copying the existing elements",
+      "In-place growth always",
+      "A linked node"
+     ],
+     "c": 1,
+     "e": "That occasional O(n) copy is exactly what the amortized analysis accounts for."
+    }
+   ]
+  },
+  {
+   "id": "q17",
+   "phase": "p17",
+   "n": "Data engineering",
+   "d": "Pipelines that don't need babysitting.",
+   "qs": [
+    {
+     "q": "ELT differs from ETL by:",
+     "a": [
+      "Being faster",
+      "Loading raw data first and transforming inside the warehouse",
+      "Skipping transformation",
+      "Using Python"
+     ],
+     "c": 1,
+     "e": "Cheap storage and powerful warehouses made 'keep the raw, transform later' the better default."
+    },
+    {
+     "q": "Parquet beats CSV mainly because it is:",
+     "a": [
+      "Human readable",
+      "Columnar, typed, and compressed — so scans read only needed columns",
+      "Older",
+      "Simpler"
+     ],
+     "c": 1,
+     "e": "On analytical queries the difference is often an order of magnitude in both time and cost."
+    },
+    {
+     "q": "A pipeline must be idempotent so that:",
+     "a": [
+      "It runs faster",
+      "Reruns and backfills don't duplicate or corrupt data",
+      "It uses less memory",
+      "Tests pass"
+     ],
+     "c": 1,
+     "e": "Reruns are guaranteed — from retries, from backfills, from someone clicking twice."
+    },
+    {
+     "q": "Partitioning a table by date helps because:",
+     "a": [
+      "It sorts data",
+      "Queries can prune irrelevant partitions instead of scanning everything",
+      "It compresses better",
+      "It's required"
+     ],
+     "c": 1,
+     "e": "Partition pruning is usually the single biggest lever on both query time and warehouse cost."
+    },
+    {
+     "q": "Late-arriving data means you should:",
+     "a": [
+      "Ignore it",
+      "Design windows and reprocessing so past periods can be corrected",
+      "Reject it",
+      "Alert only"
+     ],
+     "c": 1,
+     "e": "Assuming yesterday is final is how dashboards quietly go wrong."
+    },
+    {
+     "q": "A data quality test should:",
+     "a": [
+      "Warn quietly",
+      "Fail the run when an invariant breaks, before bad data spreads downstream",
+      "Run monthly",
+      "Only check row counts"
+     ],
+     "c": 1,
+     "e": "A warning nobody reads is not a control; failing loudly is the point."
+    },
+    {
+     "q": "Polars or DuckDB over pandas when:",
+     "a": [
+      "Always",
+      "Data exceeds comfortable memory or you want faster, lazier, multi-core execution",
+      "Never",
+      "For plotting"
+     ],
+     "c": 1,
+     "e": "They also push you toward query-shaped thinking, which transfers directly to the warehouse."
+    },
+    {
+     "q": "Orchestration (Airflow/Prefect) gives you:",
+     "a": [
+      "Faster code",
+      "Dependencies, scheduling, retries, alerting, and run history",
+      "Better SQL",
+      "Storage"
+     ],
+     "c": 1,
+     "e": "Cron gives you timing and nothing else — no lineage, no retries, no visibility when it silently stops."
+    }
+   ]
+  },
+  {
+   "id": "q18",
+   "phase": "p18",
+   "n": "Beyond senior",
+   "d": "Judgment, not syntax.",
+   "qs": [
+    {
+     "q": "A one-way door decision is one that:",
+     "a": [
+      "Is urgent",
+      "Is expensive or impossible to reverse, so it deserves more deliberation",
+      "Involves security",
+      "Requires approval"
+     ],
+     "c": 1,
+     "e": "Move fast on reversible decisions; slow down on data models, public APIs, and vendor lock-in."
+    },
+    {
+     "q": "'Choose boring technology' means:",
+     "a": [
+      "Never learn new things",
+      "Spend your limited novelty budget where it creates real advantage",
+      "Avoid Python",
+      "Use only stdlib"
+     ],
+     "c": 1,
+     "e": "Every unfamiliar component costs operational understanding you'll pay for at 3am."
+    },
+    {
+     "q": "A blameless postmortem focuses on:",
+     "a": [
+      "Who caused it",
+      "The systemic conditions that allowed the failure and what changes prevent recurrence",
+      "Punishment",
+      "Marketing"
+     ],
+     "c": 1,
+     "e": "Blame produces hiding; hiding produces repeat incidents. The goal is information, not accountability theatre."
+    },
+    {
+     "q": "The expand–migrate–contract pattern exists to:",
+     "a": [
+      "Speed up queries",
+      "Change a schema without downtime by supporting old and new simultaneously",
+      "Reduce storage",
+      "Simplify code"
+     ],
+     "c": 1,
+     "e": "Write both, backfill, switch reads, then remove the old — each step independently reversible."
+    },
+    {
+     "q": "An SLO is useful because:",
+     "a": [
+      "It's a marketing number",
+      "It defines how much unreliability is acceptable, which makes tradeoffs explicit",
+      "It guarantees uptime",
+      "It replaces monitoring"
+     ],
+     "c": 1,
+     "e": "An error budget converts 'should we ship or stabilize?' from an argument into arithmetic."
+    },
+    {
+     "q": "The best evidence of senior-plus ability is:",
+     "a": [
+      "Years of experience",
+      "Consistently good judgment on ambiguous problems, and work others depend on",
+      "Knowing many frameworks",
+      "Certifications"
+     ],
+     "c": 1,
+     "e": "Everything in this app builds toward that. The tools are interchangeable; the judgment isn't."
+    },
+    {
+     "q": "When mentoring, the most useful thing you can do is:",
+     "a": [
+      "Write the fix for them",
+      "Ask the question that leads them to find it",
+      "Point at documentation",
+      "Review after the fact"
+     ],
+     "c": 1,
+     "e": "Handing over the answer teaches the answer; handing over the method teaches every future answer."
+    },
+    {
+     "q": "You've built something and nobody uses it. The correct response is:",
+     "a": [
+      "Add features",
+      "Find out why, and be willing to kill it",
+      "Market it harder",
+      "Rewrite it"
+     ],
+     "c": 1,
+     "e": "Killing your own project on evidence is one of the hardest and most valuable engineering skills."
+    }
+   ]
+  }
+ ]
+}

@@ -1,0 +1,77 @@
+{
+ "schema": 1,
+ "tracks": [
+  {
+   "id": "generalist",
+   "name": "Well-rounded software engineer",
+   "blurb": "The full spine, in order. Slowest route, widest ceiling. Pick this if you don't yet know what you want to build.",
+   "tags": ["language", "cs", "backend", "systems", "devops"],
+   "core": ["p00","p01","p02","p03","p04","p05","p06","p07","p08","p09","p10","p11","p12","p13"],
+   "optional": ["p14","p15","p16","p17"]
+  },
+  {
+   "id": "beginner",
+   "name": "Learn Python properly (no career pressure)",
+   "blurb": "Language, engineering habits and problem solving, with automation as the payoff. Stops before the infrastructure-heavy phases.",
+   "tags": ["language", "fundamentals", "automation"],
+   "core": ["p00","p01","p02","p03","p04","p10"],
+   "optional": ["p05","p08","p09"]
+  },
+  {
+   "id": "backend",
+   "name": "Backend & API engineer",
+   "blurb": "Databases, HTTP services, auth, containers and deployment. The most common professional Python job.",
+   "tags": ["backend", "web", "sql", "devops", "security"],
+   "core": ["p00","p01","p02","p03","p04","p08","p09","p11","p12","p13","p15"],
+   "optional": ["p05","p06","p07","p10","p17"]
+  },
+  {
+   "id": "data",
+   "name": "Data analysis & data engineering",
+   "blurb": "SQL first, then pipelines, warehouses and orchestration. Heavy on correctness and schema design.",
+   "tags": ["data", "sql", "engineering"],
+   "core": ["p00","p01","p02","p03","p08","p10","p17"],
+   "optional": ["p04","p09","p11","p12","p14"]
+  },
+  {
+   "id": "ai",
+   "name": "AI & machine learning engineer",
+   "blurb": "The maths and the plumbing. You still need the engineering phases — an unshippable model is a hobby.",
+   "tags": ["ai", "ml", "data", "backend"],
+   "core": ["p00","p01","p02","p03","p04","p08","p09","p14","p12"],
+   "optional": ["p05","p11","p15","p17"]
+  },
+  {
+   "id": "automation",
+   "name": "Automation, scripting & scraping",
+   "blurb": "Make the computer do the boring parts. Short path to something useful, then hardening so it survives real failure.",
+   "tags": ["automation", "scraping", "web", "linux"],
+   "core": ["p00","p01","p02","p03","p06","p10"],
+   "optional": ["p07","p08","p11","p12"]
+  },
+  {
+   "id": "devops",
+   "name": "DevOps & platform engineering",
+   "blurb": "Linux, networking, containers, pipelines and the operational surface underneath everything else.",
+   "tags": ["devops", "linux", "networking", "deployment"],
+   "core": ["p00","p01","p02","p03","p06","p07","p12","p15"],
+   "optional": ["p08","p09","p11","p13","p16"]
+  },
+  {
+   "id": "security",
+   "name": "Application security",
+   "blurb": "You cannot secure what you cannot build. Build the app, then learn to break it.",
+   "tags": ["security", "backend", "networking"],
+   "core": ["p00","p01","p02","p03","p06","p07","p08","p09","p13"],
+   "optional": ["p04","p11","p12","p16"]
+  },
+  {
+   "id": "interview",
+   "name": "Job-ready in the shortest honest time",
+   "blurb": "Language, data structures, algorithms, SQL and one shipped, tested, deployed service. Optimised for passing a real hiring loop.",
+   "tags": ["interview", "algorithms", "backend", "sql"],
+   "core": ["p00","p01","p02","p03","p04","p05","p08","p09","p12"],
+   "optional": ["p11","p13","p10"]
+  }
+ ]
+}

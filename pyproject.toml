@@ -1,0 +1,53 @@
+[build-system]
+requires = ["hatchling>=1.21"]
+build-backend = "hatchling.build"
+
+[project]
+name = "operators-console"
+dynamic = ["version"]
+description = "A guided, self-paced Python curriculum with graded exercises, projects and spaced review."
+readme = "README.md"
+license = { file = "LICENSE" }
+requires-python = ">=3.11"
+authors = [{ name = "Operator's Console" }]
+keywords = ["python", "learning", "curriculum", "spaced-repetition", "education"]
+classifiers = [
+    "Development Status :: 5 - Production/Stable",
+    "Environment :: X11 Applications :: Qt",
+    "Environment :: Win32 (MS Windows)",
+    "Environment :: MacOS X",
+    "Intended Audience :: Education",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
+    "Topic :: Education",
+]
+dependencies = ["PySide6-Essentials>=6.6"]
+
+[project.optional-dependencies]
+dev = ["pytest>=8.0"]
+build = ["pyinstaller>=6.6"]
+
+[project.gui-scripts]
+operators-console = "operators_console.__main__:main"
+
+[project.scripts]
+operators-console-cli = "operators_console.__main__:main"
+
+[project.urls]
+Homepage = "https://github.com/operators-console/operators-console"
+
+[tool.hatch.version]
+path = "src/operators_console/version.py"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/operators_console"]
+
+[tool.hatch.build.targets.wheel.force-include]
+"src/operators_console/data" = "operators_console/data"
+
+[tool.hatch.build.targets.sdist]
+include = ["src", "tests", "packaging", "README.md", "LICENSE", "pytest.ini"]
