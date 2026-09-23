@@ -6,7 +6,6 @@ dependency list short enough to package without surprises.
 from __future__ import annotations
 
 import os
-import time
 
 import pytest
 
@@ -14,42 +13,7 @@ os.environ.setdefault("QT_QPA_PLATFORM", "offscreen")
 
 pytest.importorskip("PySide6")
 
-from PySide6.QtWidgets import QApplication  # noqa: E402
-
-
-@pytest.fixture(scope="session")
-def qt_app():
-    app = QApplication.instance() or QApplication([])
-    app.setStyle("Fusion")
-    yield app
-
-
-@pytest.fixture
-def window(qt_app, store, curriculum):
-    from operators_console.ui.context import AppContext
-    from operators_console.ui.main_window import MainWindow
-    store.set_setting("onboarded", True)
-    ctx = AppContext(store=store, curriculum=curriculum)
-    main = MainWindow(ctx)
-    main.show()
-    qt_app.processEvents()
-    yield main
-    main.close()
-
-
-def pump(app, rounds=3):
-    for _ in range(rounds):
-        app.processEvents()
-
-
-def wait_for(app, predicate, seconds=30):
-    deadline = time.monotonic() + seconds
-    while time.monotonic() < deadline:
-        app.processEvents()
-        if predicate():
-            return True
-        time.sleep(0.02)
-    return False
+from conftest import pump, wait_for
 
 
 def test_every_page_opens(qt_app, window):
@@ -368,7 +332,7 @@ def test_turning_the_check_off_stops_it(qt_app, window, store, monkeypatch):
 
 _RELEASE_ASSETS = (
     "operators-console-9.9.9-windows-setup.exe",
-    "operators-console-9.9.9-windows-portable.zip",
+    "operators-console-9.9.9-windows-x64-portable.zip",
     "operators-console-9.9.9-macos-arm64.dmg",
     "operators-console-9.9.9-macos-x86_64.dmg",
     "operators-console-9.9.9-x86_64.AppImage",

@@ -13,3 +13,15 @@ build_tools/research_roadmap.md
 packaging/build/
 packaging/dist/
 .ruff_cache/
+# Output an exercise writes when it is graded with the repository as the
+# working directory (the runner's real scratch is the data folder's
+# workspace/). Nothing legitimate lives at the root under these names.
+/*.json
+/*.txt
+/*.csv
+/a/
+/data/
+/made/
+
+# Local code-graph cache (graphify); rebuilt on demand, never shipped.
+graphify-out/

@@ -2,8 +2,11 @@
 
     python packaging/build.py            freeze the app for this platform
     python packaging/build.py --installer  also produce the installer
+    python packaging/build.py --check-release DIR --tag vX.Y.Z
+                                           check a release before publishing
 
-Windows  -> dist/operators-console/ and an Inno Setup .exe if iscc is present
+Windows  -> dist/operators-console/, a portable zip and an Inno Setup .exe
+            (--installer fails if Inno Setup's iscc cannot be found)
 macOS    -> dist/Operator's Console.app and a .dmg via hdiutil
 Linux    -> dist/operators-console/, a .tar.gz, and a .deb if dpkg-deb is there
 """
@@ -114,12 +117,25 @@ def find_iscc() -> str | None:
     return None
 
 
+def portable_zip_name(platform: str = sys.platform,
+                      version: str = __version__) -> str:
+    """The portable zip's file name on *platform*.
+
+    Windows is "windows-x64-portable.zip", never "windows-portable.zip":
+    builds before 1.1.0 look for that literal text, and their portable swap
+    damages the folder it runs from. Not finding it, they say there is no
+    download for their platform instead. The release workflow renames the
+    macOS zip to carry the architecture.
+    """
+    system = {"win32": "windows-x64", "darwin": "macos"}.get(platform, "linux")
+    return "%s-%s-%s-portable.zip" % (APP_ID, version, system)
+
+
 def portable_zip(folder: Path) -> Path:
     """A zip of the frozen folder: unzip anywhere, double-click, no install."""
     import zipfile
 
-    system = {"win32": "windows", "darwin": "macos"}.get(sys.platform, "linux")
-    archive = DIST / ("%s-%s-%s-portable.zip" % (APP_ID, __version__, system))
+    archive = DIST / portable_zip_name()
     if archive.exists():
         archive.unlink()
     root = folder.parent
@@ -131,14 +147,37 @@ def portable_zip(folder: Path) -> Path:
     return archive
 
 
-def windows_installer() -> None:
+def windows_installer_name(version: str = __version__) -> str:
+    """What installer.iss's OutputBaseFilename produces.
+
+    Builds from 1.0.0 find the installer by "windows" and "setup.exe" in the
+    name, so this must not change.
+    """
+    return "%s-%s-windows-setup.exe" % (APP_ID, version)
+
+
+def windows_installer() -> Path:
+    """Build the Inno Setup installer, or stop the build.
+
+    Asked for with --installer, a missing installer is a failure, not a
+    skip: a release without it moves every installed Windows copy onto the
+    portable download, which is the wrong shape for them.
+    """
     iscc = find_iscc()
     script = HERE / "windows" / "installer.iss"
     if not iscc:
-        print("Inno Setup (iscc) not found - skipping the .exe installer.")
+        print("Inno Setup (iscc) was not found, so the installer cannot be "
+              "built.")
         print("Install it from https://jrsoftware.org/isdl.php, then re-run.")
-        return
-    run([iscc, "/DAppVersion=" + __version__, str(script)])
+        raise SystemExit(3)
+    code = run([iscc, "/DAppVersion=" + __version__, str(script)])
+    output = DIST / windows_installer_name()
+    if code != 0 or not output.exists():
+        print("Inno Setup did not produce %s (exit code %s)."
+              % (output.name, code))
+        raise SystemExit(code or 3)
+    print("built", output)
+    return output
 
 
 def macos_installer(app: Path) -> None:
@@ -214,12 +253,77 @@ def linux_deb(folder: Path) -> None:
     print("built", deb)
 
 
+# ---------------------------------------------------------------------------
+# the shape of a release
+# ---------------------------------------------------------------------------
+
+def release_assets(version: str = __version__) -> list[str]:
+    """Every file a release must carry, by exact name.
+
+    The in-app updater of every build, old and new, finds its download by
+    name, so a missing file is not a smaller release: it is a set of
+    learners who cannot update. SHA256SUMS is written beside these by the
+    release job and covers each of them.
+    """
+    return [
+        windows_installer_name(version),
+        portable_zip_name("win32", version),
+        "%s-%s-macos-arm64.dmg" % (APP_ID, version),
+        "%s-%s-macos-x86_64.dmg" % (APP_ID, version),
+        "%s-%s-macos-arm64-portable.zip" % (APP_ID, version),
+        "%s-%s-macos-x86_64-portable.zip" % (APP_ID, version),
+        "%s-%s-x86_64.AppImage" % (APP_ID, version),
+        "%s_%s_amd64.deb" % (APP_ID, version),
+        "%s-%s-linux-x86_64.tar.gz" % (APP_ID, version),
+        portable_zip_name("linux", version),
+    ]
+
+
+#: Names a release must never carry. Builds before 1.1.0 would pick the
+#: first as their portable download and damage their own folder with it.
+FORBIDDEN_NAMES = ("windows-portable.zip",)
+
+
+def check_release(folder: Path, tag: str, version: str = __version__) -> list:
+    """What is wrong with a release folder, as sentences. Empty when it is fit.
+
+    Run by the release job before anything is published.
+    """
+    problems = []
+    if tag != "v" + version:
+        problems.append(
+            "The tag %s does not match version.py (%s). Tag the commit whose "
+            "version.py says %s as v%s." % (tag, version, version, version))
+    present = {p.name for p in Path(folder).iterdir() if p.is_file()}
+    for name in release_assets(version):
+        if name not in present:
+            problems.append("Missing: %s" % name)
+    for name in sorted(present):
+        if any(bad in name.lower() for bad in FORBIDDEN_NAMES):
+            problems.append("Must not be published under this name, because "
+                            "builds before 1.1.0 would install it: %s" % name)
+    return problems
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--installer", action="store_true",
                         help="also build the platform installer")
     parser.add_argument("--skip-icons", action="store_true")
+    parser.add_argument("--check-release", metavar="DIR",
+                        help="check a folder of release files and stop")
+    parser.add_argument("--tag", default="",
+                        help="the git tag being released, for --check-release")
     args = parser.parse_args()
+
+    if args.check_release:
+        problems = check_release(Path(args.check_release), args.tag)
+        for problem in problems:
+            print("error:", problem)
+        if problems:
+            return 1
+        print("The release has every expected file and matches its tag.")
+        return 0
 
     if not args.skip_icons:
         make_icons()

@@ -14,6 +14,7 @@ from __future__ import annotations
 
 import json
 import sqlite3
+import time
 from contextlib import contextmanager
 from datetime import date, datetime, timedelta, timezone
 from pathlib import Path
@@ -23,6 +24,13 @@ from . import paths
 from .srs import Memory, State
 
 SCHEMA_VERSION = 1
+
+# A second copy of the app holds the write lock only for as long as one small
+# statement takes, so waiting is almost always the right answer. Thirty
+# seconds is far longer than any write here and still short enough that a
+# genuinely wedged lock surfaces rather than hanging the interface forever.
+BUSY_TIMEOUT_MS = 30_000
+WRITE_ATTEMPTS = 4
 
 SCHEMA = """
 CREATE TABLE IF NOT EXISTS meta (
@@ -60,7 +68,7 @@ CREATE TABLE IF NOT EXISTS logs (
 );
 CREATE INDEX IF NOT EXISTS logs_day ON logs(day);
 
--- One row per reviewable card. kind is 'quiz' or 'concept'.
+-- One row per reviewable card. kind is 'quiz', 'concept' or 'gate'.
 CREATE TABLE IF NOT EXISTS srs (
     card_id     TEXT PRIMARY KEY,
     kind        TEXT NOT NULL,
@@ -181,23 +189,58 @@ class Store:
     def __init__(self, db_file: Path | None = None) -> None:
         self.path = Path(db_file) if db_file else paths.db_path()
         self.path.parent.mkdir(parents=True, exist_ok=True)
-        fresh = not self.path.exists()
+        self._fresh = not self.path.exists()
         self.db = sqlite3.connect(self.path, check_same_thread=False)
+        try:
+            self._open()
+        except BaseException:
+            # A damaged file fails here. Left open, the connection keeps the
+            # file locked on Windows - while the error dialog is telling the
+            # learner to move that very file aside.
+            self.db.close()
+            raise
+
+    def _open(self) -> None:
+        fresh = self._fresh
         self.db.row_factory = sqlite3.Row
         self.db.execute("PRAGMA journal_mode=WAL")
         self.db.execute("PRAGMA foreign_keys=ON")
-        self.db.execute("PRAGMA synchronous=NORMAL")
+        # FULL rather than NORMAL: in WAL mode NORMAL does not fsync on
+        # commit, so a power cut can lose the last few minutes of work even
+        # though the file stays intact. The writes here are small and rare -
+        # one per tick, rating or run - so the cost is invisible and the
+        # promise the module makes ("nothing to lose on a crash") holds.
+        self.db.execute("PRAGMA synchronous=FULL")
+        self.db.execute("PRAGMA busy_timeout=%d" % BUSY_TIMEOUT_MS)
+        # Bumped whenever the whole store is replaced underneath the app, so
+        # an undo stack recorded against the old contents can tell.
+        self.generation = 0
+        # Work scheduled on a timer can outlive the window that scheduled it.
+        # Anything that might run late asks this before touching the file.
+        self.is_open = True
         self._migrate(fresh)
 
     # -- lifecycle -------------------------------------------------------
 
     def _migrate(self, fresh: bool) -> None:
+        # Read the stamp before CREATE TABLE IF NOT EXISTS invents a meta
+        # table, so a store written before the stamp existed is still
+        # recognisable as an existing store rather than a new one.
+        had_meta = not fresh and self._table_exists("meta")
+        previous = int(self.get_meta("schema_version", "0") or 0) if had_meta else 0
         with self.tx():
             self.db.executescript(SCHEMA)
-        current = int(self.get_meta("schema_version", "0") or 0)
-        if fresh or current == 0:
+        current = previous
+        if fresh:
             self.set_meta("schema_version", str(SCHEMA_VERSION))
             self.set_meta("created_at", _now())
+        elif current == 0:
+            # An existing store with no stamp predates versioning. It is
+            # exactly the case a migration is most likely to get wrong, so it
+            # gets the same backup a numbered migration would.
+            self.backup(tag="pre-migration-unversioned")
+            self.set_meta("schema_version", str(SCHEMA_VERSION))
+            self.set_meta("created_at", self.get_meta("created_at", _now()))
         elif current < SCHEMA_VERSION:
             self.backup(tag="pre-migration-v%d" % current)
             # Future migrations are appended here, each guarded by version.
@@ -207,6 +250,40 @@ class Store:
                 "This database was written by a newer version of the app "
                 "(schema %d, this build understands %d). Update the "
                 "application to open it." % (current, SCHEMA_VERSION))
+        self._ensure_columns()
+
+    #: Columns added to an existing table after the first release, as
+    #: (table, column, declaration). Every entry must have a default: the
+    #: rows already in the file get it.
+    ADDED_COLUMNS = (
+        ("exercise_state", "hints_used", "INTEGER NOT NULL DEFAULT 0"),
+        ("exercise_state", "passing_code", "TEXT NOT NULL DEFAULT ''"),
+    )
+
+    def _ensure_columns(self) -> None:
+        """Add the columns a later build introduced to an older file.
+
+        `CREATE TABLE IF NOT EXISTS` does nothing at all to a table that is
+        already there, so a column appended to SCHEMA would reach new stores
+        only and be missing from every existing one. Each is added here
+        instead, guarded by what the table actually has, which makes the
+        whole pass idempotent and safe to run on every open.
+        """
+        for table, column, declaration in self.ADDED_COLUMNS:
+            if not self._table_exists(table):
+                continue
+            present = {row[1] for row in
+                       self.db.execute("PRAGMA table_info(%s)" % table)}
+            if column in present:
+                continue
+            with self.tx():
+                self.db.execute("ALTER TABLE %s ADD COLUMN %s %s"
+                                % (table, column, declaration))
+
+    def _table_exists(self, name: str) -> bool:
+        return self.db.execute(
+            "SELECT 1 FROM sqlite_master WHERE type='table' AND name=?",
+            (name,)).fetchone() is not None
 
     def close(self) -> None:
         try:
@@ -214,10 +291,39 @@ class Store:
         except sqlite3.Error:
             pass
         self.db.close()
+        self.is_open = False
+
+    def _begin(self) -> None:
+        """Take the write lock up front, waiting out a second app instance.
+
+        Two copies of the app open the same file - a learner who started it
+        twice, or an old window left behind. SQLite serialises them, but the
+        loser of the race raises "database is locked" out of whatever the
+        learner just clicked, and losing a tick to another window is not
+        acceptable. Claiming the lock before the body runs means the wait
+        happens here, where it can be retried, rather than half way through a
+        transaction.
+        """
+        if self.db.in_transaction:
+            return
+        last: Exception | None = None
+        for attempt in range(WRITE_ATTEMPTS):
+            try:
+                self.db.execute("BEGIN IMMEDIATE")
+                return
+            except sqlite3.OperationalError as exc:
+                text = str(exc).lower()
+                if "locked" not in text and "busy" not in text:
+                    raise
+                last = exc
+                if attempt + 1 < WRITE_ATTEMPTS:
+                    time.sleep(0.2 * (attempt + 1))
+        raise last if last is not None else RuntimeError("could not begin")
 
     @contextmanager
     def tx(self) -> Iterator[sqlite3.Connection]:
         """One atomic unit of work; rolls back on any exception."""
+        self._begin()
         try:
             yield self.db
             self.db.commit()
@@ -225,23 +331,114 @@ class Store:
             self.db.rollback()
             raise
 
+    KEEP_SNAPSHOTS = 12
+    KEEP_DAILY = 7
+
     def backup(self, tag: str = "") -> Path:
-        """Copy the database to the backups folder, keeping the last 12."""
+        """Copy the database to the backups folder.
+
+        The last 7 daily snapshots and the last 12 of every other kind are
+        kept, counted apart: a week of automatic ones must never push out the
+        copy taken before a reset or an upgrade.
+        """
         self.db.commit()
         stamp = datetime.now().strftime("%Y%m%d-%H%M%S")
         name = "progress-%s%s.db" % (stamp, ("-" + tag) if tag else "")
         target = paths.backups_dir() / name
-        dest = sqlite3.connect(target)
-        with dest:
-            self.db.backup(dest)
-        dest.close()
-        existing = sorted(paths.backups_dir().glob("progress-*.db"))
-        for old in existing[:-12]:
+        try:
+            dest = sqlite3.connect(target)
+            try:
+                with dest:
+                    self.db.backup(dest)
+            finally:
+                dest.close()
+        except sqlite3.Error as exc:
+            # A full disk or a folder that cannot be written. The menus catch
+            # OSError; a bare sqlite3 error made the snapshot fail silently.
+            raise OSError("The snapshot could not be written: %s" % exc) \
+                from exc
+        existing = self.snapshots()[::-1]           # oldest first
+        daily = [p for p in existing if _snapshot_tag(p) == "daily"]
+        other = [p for p in existing if _snapshot_tag(p) != "daily"]
+        for old in daily[:-self.KEEP_DAILY] + other[:-self.KEEP_SNAPSHOTS]:
             try:
                 old.unlink()
             except OSError:
                 pass
         return target
+
+    def backup_daily(self) -> Path | None:
+        """The automatic snapshot: at most one a day, taken at launch."""
+        today = date.today().isoformat()
+        if self.get_meta("last_daily_backup") == today:
+            return None
+        target = self.backup(tag="daily")
+        self.set_meta("last_daily_backup", today)
+        return target
+
+    @staticmethod
+    def snapshots() -> list:
+        """Every database copy in the backups folder, newest first."""
+        return sorted(paths.backups_dir().glob("progress-*.db"),
+                      key=lambda p: p.name, reverse=True)
+
+    @staticmethod
+    def snapshot_summary(snapshot: Path) -> dict | None:
+        """What a snapshot holds, read without changing a byte of it."""
+        uri = Path(snapshot).resolve().as_uri() + "?immutable=1"
+        try:
+            db = sqlite3.connect(uri, uri=True)
+        except sqlite3.Error:
+            return None
+        try:
+            one = lambda sql: db.execute(sql).fetchone()[0]  # noqa: E731
+            return {
+                "ticked": one("SELECT COUNT(*) FROM checks"),
+                "exercises": one("SELECT COUNT(*) FROM exercise_state "
+                                 "WHERE status='passed'"),
+                "projects": one("SELECT COUNT(*) FROM project_state "
+                                "WHERE status='shipped'"),
+            }
+        except sqlite3.Error:
+            return None
+        finally:
+            db.close()
+
+    def restore_snapshot(self, snapshot: Path) -> None:
+        """Bring back a copy from the backups folder.
+
+        The copy is opened on a scratch duplicate, so an older schema is
+        upgraded there and never in the backups folder, and replayed through
+        restore() - which snapshots the current state first, so this too can
+        be undone the same way.
+        """
+        import shutil
+        import tempfile
+
+        snapshot = Path(snapshot)
+        if not snapshot.is_file():
+            raise ValueError("That snapshot is no longer in the backups "
+                             "folder.")
+        with tempfile.TemporaryDirectory(prefix="opcon-snapshot-") as folder:
+            scratch = Path(folder) / "snapshot.db"
+            shutil.copy2(snapshot, scratch)
+            try:
+                other = _ScratchStore(scratch)
+            except (sqlite3.Error, RuntimeError) as exc:
+                raise ValueError("That snapshot cannot be read: %s" % exc) \
+                    from exc
+            try:
+                payload = other.dump()
+            finally:
+                other.close()
+        # Progress comes back; preferences stay as they are now, as they do
+        # across a reset. A first-day snapshot was taken while onboarding was
+        # still open, and restoring it must not send the learner through
+        # onboarding again or revert their track, theme and pace.
+        for table in ("settings", "meta"):
+            payload["tables"][table] = [
+                dict(r) for r in self.db.execute("SELECT * FROM " + table)]
+        self.restore(payload)
 
     # -- meta and settings -----------------------------------------------
 
@@ -273,6 +470,17 @@ class Store:
                 "INSERT INTO settings(key,value) VALUES(?,?) "
                 "ON CONFLICT(key) DO UPDATE SET value=excluded.value",
                 (key, json.dumps(value)))
+
+    def disclosure_open(self, key: str) -> bool:
+        """Whether this learner has opened a folded group before.
+
+        Remembered per group, so a page that was expanded once opens expanded
+        the next time rather than making the same person click twice.
+        """
+        return bool(self.setting("disclosure:" + key, False))
+
+    def set_disclosure_open(self, key: str, is_open: bool) -> None:
+        self.set_setting("disclosure:" + key, bool(is_open))
 
     def all_settings(self) -> dict:
         out = dict(DEFAULT_SETTINGS)
@@ -371,8 +579,19 @@ class Store:
             "SELECT * FROM logs ORDER BY day DESC, id DESC LIMIT ?", (limit,)))
 
     def delete_log(self, log_id: int) -> None:
+        """Remove an entry, and the study time it added to its day.
+
+        add_log adds the hours to the activity table, so deleting a mistaken
+        eight-hour entry used to leave the chart and the streak inflated.
+        """
         with self.tx():
+            row = self.db.execute(
+                "SELECT day, hours FROM logs WHERE id=?", (log_id,)).fetchone()
             self.db.execute("DELETE FROM logs WHERE id=?", (log_id,))
+            if row is not None:
+                self.db.execute(
+                    "UPDATE activity SET minutes=MAX(0, minutes-?) WHERE day=?",
+                    (int(float(row["hours"] or 0) * 60), row["day"]))
 
     def total_hours(self) -> float:
         row = self.db.execute(
@@ -436,10 +655,20 @@ class Store:
     def seen_cards(self) -> set:
         return {r["card_id"] for r in self.db.execute("SELECT card_id FROM srs")}
 
-    def suspend_card(self, card_id: str, suspended: bool = True) -> None:
+    def suspend_card(self, card_id: str, suspended: bool = True,
+                     kind: str = "", phase: str = "") -> None:
+        """Bury or restore a card, whether or not it has been answered.
+
+        This was an UPDATE, so burying a card nobody had answered yet - a
+        new one, which is exactly the card worth burying - matched no row
+        and did nothing at all.
+        """
         with self.tx():
-            self.db.execute("UPDATE srs SET suspended=? WHERE card_id=?",
-                            (int(suspended), card_id))
+            self.db.execute(
+                "INSERT INTO srs(card_id,kind,phase,suspended) "
+                "VALUES(?,?,?,?) ON CONFLICT(card_id) DO UPDATE SET "
+                "suspended=excluded.suspended",
+                (card_id, kind, phase, int(suspended)))
 
     def card_counts(self, now=None) -> dict:
         stamp = (now or datetime.now(timezone.utc)).isoformat()
@@ -516,7 +745,8 @@ class Store:
             (exercise_id,)).fetchone()
         if row is None:
             return {"exercise_id": exercise_id, "code": "", "status": "new",
-                    "attempts": 0, "passed_at": None, "revealed": 0}
+                    "attempts": 0, "passed_at": None, "revealed": 0,
+                    "hints_used": 0, "passing_code": ""}
         return dict(row)
 
     def save_exercise_code(self, exercise_id: str, code: str) -> None:
@@ -533,16 +763,21 @@ class Store:
         with self.tx():
             self.db.execute(
                 "INSERT INTO exercise_state(exercise_id,code,status,attempts,"
-                "passed_at,updated_at) VALUES(?,?,?,1,?,?) "
+                "passed_at,updated_at,passing_code) VALUES(?,?,?,1,?,?,?) "
                 "ON CONFLICT(exercise_id) DO UPDATE SET "
                 "code=excluded.code, "
                 "status=CASE WHEN exercise_state.status='passed' THEN 'passed' "
                 "            ELSE excluded.status END, "
                 "attempts=exercise_state.attempts+1, "
                 "passed_at=COALESCE(exercise_state.passed_at,excluded.passed_at),"
+                # The last version that passed, kept so a learner who carries
+                # on experimenting can always get back to working code.
+                "passing_code=CASE WHEN excluded.passing_code<>'' "
+                "                  THEN excluded.passing_code "
+                "                  ELSE exercise_state.passing_code END, "
                 "updated_at=excluded.updated_at",
                 (exercise_id, code, "passed" if passed else "attempted",
-                 _now() if passed else None, _now()))
+                 _now() if passed else None, _now(), code if passed else ""))
         if passed and not already:
             self.bump_activity(exercises=1)
 
@@ -561,6 +796,60 @@ class Store:
     def passed_exercise_ids(self) -> set:
         return {r["exercise_id"] for r in self.db.execute(
             "SELECT exercise_id FROM exercise_state WHERE status='passed'")}
+
+    def exercise_rows(self) -> dict:
+        """Every stored exercise, whole, keyed by id.
+
+        `exercise_statuses` answers one question per row; the practice list
+        needs the status, whether the answer was read and how many hints went
+        with it, and one pass over the table is cheaper than three.
+        """
+        return {r["exercise_id"]: dict(r) for r in self.db.execute(
+            "SELECT * FROM exercise_state")}
+
+    def use_hint(self, exercise_id: str, count: int = 1) -> None:
+        """Record that `count` hints have now been revealed for an exercise.
+
+        The highest number wins rather than a running total, so closing the
+        exercise and opening the first hint again does not inflate the count:
+        "2 hints used" means two of them have been seen.
+        """
+        count = max(0, int(count))
+        with self.tx():
+            self.db.execute(
+                "INSERT INTO exercise_state(exercise_id,hints_used,updated_at)"
+                " VALUES(?,?,?) ON CONFLICT(exercise_id) DO UPDATE SET "
+                "hints_used=MAX(exercise_state.hints_used,excluded.hints_used),"
+                "updated_at=excluded.updated_at",
+                (exercise_id, count, _now()))
+
+    def hints_used(self, exercise_id: str) -> int:
+        row = self.db.execute(
+            "SELECT hints_used FROM exercise_state WHERE exercise_id=?",
+            (exercise_id,)).fetchone()
+        return int(row["hints_used"]) if row is not None else 0
+
+    def revealed_exercise_ids(self) -> set:
+        return {r["exercise_id"] for r in self.db.execute(
+            "SELECT exercise_id FROM exercise_state WHERE revealed<>0")}
+
+    def rearm_exercise(self, exercise_id: str) -> None:
+        """Put an exercise back to unanswered so it can be earned again.
+
+        Reading the solution is recorded for good reason, but a learner who
+        wants to come back and write it themselves should be able to. The
+        attempt count, the pass and the reveal all go; the hints already seen
+        and the last passing version stay, because neither is something the
+        learner is trying to undo.
+        """
+        with self.tx():
+            self.db.execute(
+                "INSERT INTO exercise_state(exercise_id,status,attempts,"
+                "passed_at,revealed,updated_at) VALUES(?,'new',0,NULL,0,?) "
+                "ON CONFLICT(exercise_id) DO UPDATE SET "
+                "status='new', attempts=0, passed_at=NULL, revealed=0, "
+                "updated_at=excluded.updated_at",
+                (exercise_id, _now()))
 
     # -- projects and certificates ----------------------------------------
 
@@ -602,6 +891,16 @@ class Store:
     def project_statuses(self) -> dict:
         return {r["project_id"]: r["status"] for r in self.db.execute(
             "SELECT project_id,status FROM project_state")}
+
+    def project_states(self) -> dict:
+        """Every project's saved row in one query, keyed by project id.
+
+        A project with no row yet is simply absent; `project()` supplies the
+        defaults for one. The Projects page syncs all its cards from this
+        instead of issuing one SELECT per card on every visit.
+        """
+        return {r["project_id"]: dict(r) for r in self.db.execute(
+            "SELECT * FROM project_state")}
 
     def cert_status(self, cert_id: str) -> int:
         row = self.db.execute(
@@ -694,35 +993,107 @@ class Store:
         return out
 
     def restore(self, payload: dict) -> None:
-        """Replace all learner data with a previous dump()."""
-        if payload.get("app") != "operators-console":
+        """Replace all learner data with a previous dump().
+
+        Every way a backup can be wrong ends in a ValueError with a sentence
+        the Settings page can show; nothing else escapes, and nothing is
+        changed unless the whole backup is usable.
+        """
+        if not isinstance(payload, dict) or \
+                payload.get("app") != "operators-console":
             raise ValueError(
                 "That file was not exported by this application.")
-        schema = int(payload.get("schema", 0))
+        raw_schema = payload.get("schema", 0)
+        try:
+            if isinstance(raw_schema, bool) or raw_schema is None:
+                raise TypeError       # dump() always writes a whole number
+            schema = int(raw_schema)
+        except (TypeError, ValueError):
+            raise ValueError("That backup's version number is damaged.") \
+                from None
         if schema > SCHEMA_VERSION:
             raise ValueError(
                 "Backup schema %d is newer than this build (%d)."
                 % (schema, SCHEMA_VERSION))
-        tables = payload.get("tables") or {}
+        tables = payload.get("tables")
+        if not isinstance(tables, dict) or not tables:
+            raise ValueError(
+                "That backup has no tables in it, so restoring from it would "
+                "erase everything and put nothing back.")
+
+        # Validate the whole payload before deleting a single row. A restore
+        # that starts by emptying every table and then discovers the backup is
+        # truncated has already destroyed the learner's work, and reported
+        # success while doing it.
+        plan: dict[str, tuple] = {}
+        for table, rows in tables.items():
+            if table not in self.TABLES:
+                raise ValueError(
+                    "That backup mentions an unknown table (%s)." % table)
+            if not isinstance(rows, list):
+                raise ValueError(
+                    "The '%s' section of that backup is damaged." % table)
+            if not rows:
+                plan[table] = ((), ())
+                continue
+            if not all(isinstance(r, dict) for r in rows):
+                raise ValueError(
+                    "The '%s' section of that backup is damaged." % table)
+            # (cid, name, type, notnull, default, pk) per column
+            info = list(self.db.execute("PRAGMA table_info(%s)" % table))
+            cols = [c[1] for c in info]
+            usable = [c for c in cols if c in rows[0]]
+            if not usable:
+                raise ValueError(
+                    "The '%s' section of that backup has no recognisable "
+                    "columns." % table)
+            # Only the first row chose the columns; every other row must
+            # carry the required ones too, or the insert fails half way. A
+            # TEXT primary key would even accept a NULL.
+            required = [c[1] for c in info
+                        if (c[3] and c[4] is None and not c[5])
+                        or (c[5] and str(c[2]).upper() != "INTEGER")]
+            for row in rows:
+                absent = [c for c in required if row.get(c) is None]
+                if absent:
+                    raise ValueError(
+                        "A row in the '%s' section of that backup is missing "
+                        "%s." % (table, ", ".join(absent)))
+                if any(isinstance(row.get(c), (dict, list)) for c in usable):
+                    raise ValueError(
+                        "The '%s' section of that backup holds a value the "
+                        "database cannot store." % table)
+            if table == "srs":
+                _check_schedule_rows(rows)
+            plan[table] = (tuple(usable),
+                           [tuple(r.get(c) for c in usable) for r in rows])
+
+        missing = [t for t in self.TABLES if t not in plan]
+        if missing:
+            raise ValueError(
+                "That backup is incomplete - it has nothing for %s. Restoring "
+                "it would erase that data rather than replace it."
+                % ", ".join(missing))
+
         self.backup(tag="pre-restore")
-        with self.tx():
-            for table in self.TABLES:
-                self.db.execute("DELETE FROM " + table)
-            for table in self.TABLES:
-                rows = tables.get(table) or []
-                if not rows:
-                    continue
-                cols = [c[1] for c in self.db.execute(
-                    "PRAGMA table_info(%s)" % table)]
-                usable = [c for c in cols if c in rows[0]]
-                if not usable:
-                    continue
-                placeholders = ",".join("?" for _ in usable)
-                self.db.executemany(
-                    "INSERT OR REPLACE INTO %s (%s) VALUES (%s)"
-                    % (table, ",".join(usable), placeholders),
-                    [tuple(r.get(c) for c in usable) for r in rows])
+        try:
+            with self.tx():
+                for table in self.TABLES:
+                    self.db.execute("DELETE FROM " + table)
+                for table in self.TABLES:
+                    usable, values = plan[table]
+                    if not usable or not values:
+                        continue
+                    placeholders = ",".join("?" for _ in usable)
+                    self.db.executemany(
+                        "INSERT OR REPLACE INTO %s (%s) VALUES (%s)"
+                        % (table, ",".join(usable), placeholders), values)
+        except sqlite3.Error as exc:
+            # The transaction rolled back, so nothing changed.
+            raise ValueError("That backup could not be restored (%s). "
+                             "Nothing was changed." % exc) from exc
         self.set_meta("schema_version", str(SCHEMA_VERSION))
+        self.generation += 1
 
     def reset_progress(self) -> None:
         """Wipe learner data but keep settings. Always backs up first."""
@@ -732,3 +1103,66 @@ class Store:
                           "reviews", "quiz_attempts", "exercise_state",
                           "project_state", "cert_state", "activity"):
                 self.db.execute("DELETE FROM " + table)
+        self.generation += 1
+
+
+# ---------------------------------------------------------------------------
+# snapshots
+# ---------------------------------------------------------------------------
+
+SNAPSHOT_REASONS = {
+    "": "Snapshot",
+    "manual": "Snapshot you took",
+    "daily": "Daily automatic snapshot",
+    "pre-reset": "Taken just before a progress reset",
+    "pre-restore": "Taken just before a restore or an import",
+}
+
+
+def _check_schedule_rows(rows) -> None:
+    """A schedule row the scheduler cannot read would break the Review page
+    and every count of cards, long after the restore said it worked."""
+    states = {state.value for state in State}
+    for row in rows:
+        try:
+            state = int(row.get("state") or 0)
+            step = int(row.get("step") or 0)
+        except (TypeError, ValueError):
+            state, step = -1, -1
+        if state not in states or step < 0:
+            raise ValueError(
+                "A review card in that backup has a schedule this version "
+                "cannot read (%s)." % row.get("card_id", "?"))
+
+
+def _snapshot_tag(snapshot: Path) -> str:
+    """"progress-20260922-170409-pre-reset.db" -> "pre-reset"."""
+    parts = Path(snapshot).stem.split("-", 3)
+    return parts[3] if len(parts) == 4 else ""
+
+
+def describe_snapshot(snapshot: Path) -> tuple:
+    """(when it was taken or None, why it was taken) for one backups file."""
+    parts = Path(snapshot).stem.split("-", 3)
+    try:
+        when = datetime.strptime(parts[1] + parts[2], "%Y%m%d%H%M%S")
+    except (IndexError, ValueError):
+        when = None
+    tag = _snapshot_tag(snapshot)
+    if tag.startswith("pre-migration"):
+        reason = "Taken just before an upgrade changed the database"
+    else:
+        reason = SNAPSHOT_REASONS.get(tag, "Snapshot (%s)" % tag)
+    return when, reason
+
+
+class _ScratchStore(Store):
+    """A store opened on a throwaway copy, only to be read.
+
+    Opening an older copy upgrades it, and an upgrade takes a backup. That
+    backup would land in the real backups folder and push a genuine one out,
+    so here it is a no-op: the file is a copy already.
+    """
+
+    def backup(self, tag: str = "") -> Path:
+        return self.path

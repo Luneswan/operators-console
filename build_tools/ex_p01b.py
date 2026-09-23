@@ -1,5 +1,25 @@
 """Phase 01 - part B: functions, errors, files, standard library."""
 from ex_lib import ex
+from ex_p01a import raises, uses_syntax
+
+#: Counts the files count_lines opens through open() and fails if any is left
+#: open. Path.read_text closes its own file, so that answer passes too.
+CLOSES = (
+    "import builtins\n"
+    "real_open = builtins.open\n"
+    "opened = []\n"
+    "def tracking_open(*args, **kwargs):\n"
+    "    handle = real_open(*args, **kwargs)\n"
+    "    opened.append(handle)\n"
+    "    return handle\n"
+    "builtins.open = tracking_open\n"
+    "try:\n"
+    "    count_lines('notes.txt')\n"
+    "finally:\n"
+    "    builtins.open = real_open\n"
+    "still_open = [handle for handle in opened if not handle.closed]\n"
+    "assert not still_open, "
+    "'count_lines left the file open - a with block closes it for you'")
 
 
 def build():
@@ -40,7 +60,10 @@ def build():
        [("several hits", "assert positions(['a', 'b', 'a'], 'a') == [0, 2]"),
         ("no hits", "assert positions([1, 2], 9) == []"),
         ("numbers", "assert positions([0, 0, 1], 0) == [0, 1]"),
-        ("empty input", "assert positions([], 'x') == []")],
+        ("empty input", "assert positions([], 'x') == []"),
+        ("every position", "assert positions(['z', 'z', 'z'], 'z') == [0, 1, 2]")],
+       hints=["enumerate(items) gives you (index, item) pairs as you loop.",
+              "Keep the index whenever item == target - a list comprehension with an if does it in one line."],
        solution="""
        def positions(items, target):
            return [i for i, item in enumerate(items) if item == target]
@@ -82,7 +105,8 @@ def build():
         ("empty", "assert totals([]) == {}"),
         ("single row",
          "assert totals([{'category': 'x', 'amount': 1.5}]) == {'x': 1.5}")],
-       hints=["Reach for dict.get(key, 0) again, or collections.defaultdict(float)."],
+       hints=["Start with an empty dict and walk the rows once, adding each amount to its category.",
+              "Reach for dict.get(key, 0) again, or collections.defaultdict(float)."],
        solution="""
        def totals(rows):
            out = {}
@@ -143,6 +167,8 @@ def build():
         ("no values at all", "assert describe() == '0 values'"),
         ("options are sorted",
          "assert describe(1, b=2, a=1) == '1 values | a=1 b=2'")],
+       hints=["With no options, return the count alone - no pipe, no trailing space.",
+              "Sort the keyword names before joining them: ' '.join(f'{k}={options[k]}' for k in sorted(options))."],
        solution="""
        def describe(*values, **options):
            head = f"{len(values)} values"
@@ -164,8 +190,7 @@ def build():
        [("zero", "assert factorial(0) == 1"),
         ("five", "assert factorial(5) == 120"),
         ("ten", "assert factorial(10) == 3628800"),
-        ("rejects negatives",
-         "try:\n    factorial(-1)\nexcept ValueError:\n    pass\nelse:\n    raise AssertionError('should raise ValueError')")],
+        ("rejects negatives", raises("factorial(-1)"))],
        hints=["Write the base case first, then the recursive step.",
               "Without a base case you get a RecursionError, not a wrong answer."],
        solution="""
@@ -190,9 +215,12 @@ def build():
        [("normal division", "assert safe_div(10, 4) == 2.5"),
         ("division by zero", "assert safe_div(1, 0) is None"),
         ("zero numerator", "assert safe_div(0, 5) == 0"),
-        ("uses try",
-         "import inspect; assert 'try' in inspect.getsource(safe_div)")],
-       hints=["Catch ZeroDivisionError specifically. A bare `except:` would swallow real bugs."],
+        ("negative result", "assert safe_div(-9, 3) == -3"),
+        ("uses try", uses_syntax(
+            "safe_div", ["Try"],
+            "safe_div should catch the error with try / except rather than test for zero first"))],
+       hints=["Put the division inside `try:` and return None from the `except` branch.",
+              "Catch ZeroDivisionError specifically. A bare `except:` would swallow real bugs."],
        solution="""
        def safe_div(a, b):
            try:
@@ -215,12 +243,10 @@ def build():
        """,
        [("int passes through", "assert validate_age(30) == 30"),
         ("numeric string", "assert validate_age('42') == 42"),
-        ("rejects nonsense",
-         "try:\n    validate_age('old')\nexcept ValueError:\n    pass\nelse:\n    raise AssertionError('expected ValueError')"),
-        ("rejects out of range",
-         "try:\n    validate_age(500)\nexcept ValueError:\n    pass\nelse:\n    raise AssertionError('expected ValueError')"),
-        ("rejects wrong type",
-         "try:\n    validate_age([1])\nexcept TypeError:\n    pass\nelse:\n    raise AssertionError('expected TypeError')")],
+        ("rejects nonsense", raises("validate_age('old')")),
+        ("rejects out of range", raises("validate_age(500)")),
+        ("rejects a negative age", raises("validate_age(-1)")),
+        ("rejects wrong type", raises("validate_age([1])", "TypeError"))],
        hints=["int('old') raises ValueError; int([1]) raises TypeError.",
               "Check the type first, then the conversion, then the range."],
        solution="""
@@ -269,20 +295,31 @@ def build():
     ex("p01.029", "p01", "Files", "Count the non-empty lines", 3,
        """
        A file named `notes.txt` already exists in the working directory.
-       Write `count_lines(path)` returning how many lines in it contain
-       something other than whitespace.
+       Write `count_lines(path)` returning how many lines in the file at
+       `path` contain something other than whitespace.
+
+       Close the file when you are done - a `with` block does that for you,
+       even when something goes wrong while you read.
        """,
        """
        def count_lines(path):
            pass
        """,
        [("counts the real lines", "assert count_lines('notes.txt') == 3"),
-        ("uses a with block",
-         "import inspect; assert 'with ' in inspect.getsource(count_lines)")],
+        ("reads the file it is given", "assert count_lines('more.txt') == 4"),
+        ("an empty file", "assert count_lines('empty.txt') == 0"),
+        ("only whitespace", "assert count_lines('blank.txt') == 0"),
+        ("closes the file", CLOSES)],
        setup="""
        LINES = ["first", "", "  ", "second", "third"]
        with open("notes.txt", "w", encoding="utf-8") as fh:
            fh.write(chr(10).join(LINES) + chr(10))
+       with open("more.txt", "w", encoding="utf-8") as fh:
+           fh.write(chr(10).join(["one", chr(9), "two", "three", "four"]))
+       with open("empty.txt", "w", encoding="utf-8") as fh:
+           pass
+       with open("blank.txt", "w", encoding="utf-8") as fh:
+           fh.write(chr(10).join(["   ", chr(9), ""]) + chr(10))
        """,
        hints=["`with open(path) as fh:` closes the file even if something raises.",
               "A line of only spaces is not empty until you strip it."],
@@ -317,6 +354,10 @@ def build():
          "payload = {'name': 'ada', 'years': [1815, 1852], 'ok': True}\nsave('out.json', payload)\nassert load('out.json') == payload"),
         ("really writes a file",
          "import os\nsave('check.json', {'a': 1})\nassert os.path.getsize('check.json') > 0"),
+        ("a second payload",
+         "payload = {'title': 'Caf\\u00e9', 'tags': [], 'extra': {'n': None, 'x': 1.5}}\nsave('second.json', payload)\nassert load('second.json') == payload"),
+        ("saving again replaces the file",
+         "save('again.json', {'a': 1})\nsave('again.json', {'b': 2})\nassert load('again.json') == {'b': 2}"),
         ("writes valid json",
          "import json\nsave('valid.json', {'a': [1, 2]})\nassert json.load(open('valid.json', encoding='utf-8')) == {'a': [1, 2]}")],
        hints=["json.dump writes to a file object; json.dumps returns a string.",
@@ -418,8 +459,11 @@ def build():
         ("one zero fails", "assert all_positive([1, 0]) is False"),
         ("empty is vacuously true", "assert all_positive([]) is True"),
         ("finds a negative", "assert has_negative([1, -2]) is True"),
-        ("none present", "assert has_negative([1, 2]) is False")],
-       hints=["all() and any() short-circuit, so they stop at the first decisive value."],
+        ("none present", "assert has_negative([1, 2]) is False"),
+        ("a negative is not positive", "assert all_positive([-1, 5]) is False"),
+        ("an empty list has no negative", "assert has_negative([]) is False")],
+       hints=["Each function is one line: pass a generator expression to a built-in.",
+              "all() and any() short-circuit, so they stop at the first decisive value."],
        solution="""
        def all_positive(numbers):
            return all(n > 0 for n in numbers)
@@ -467,7 +511,8 @@ def build():
         ("empty", "assert invert({}) == {}"),
         ("original untouched",
          "src = {'a': 1}\ninvert(src)\nassert src == {'a': 1}")],
-       hints=["A dict comprehension reads {value: key for key, value in mapping.items()}."],
+       hints=["A comprehension can build a dict directly - what goes on each side of the colon?",
+              "A dict comprehension reads {value: key for key, value in mapping.items()}."],
        solution="""
        def invert(mapping):
            return {value: key for key, value in mapping.items()}

@@ -9,8 +9,14 @@ import ex_p04
 import ex_p05
 import ex_mid
 import ex_late
+import ex_tail
 
-for module in (ex_p01a, ex_p01b, ex_p02, ex_p04, ex_p05, ex_mid, ex_late):
+for module in (ex_p01a, ex_p01b, ex_p02):
+    module.build()
+# The bundle order is the order Practice lists them in, so p04's warm-ups go
+# in ahead of its own exercises.
+ex_tail.build_warmups()
+for module in (ex_p04, ex_p05, ex_mid, ex_late, ex_tail):
     module.build()
 
 OUT = Path(__file__).resolve().parent.parent / "src" / "operators_console" / "data" / "exercises.json"

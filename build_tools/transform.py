@@ -18,6 +18,56 @@ DATA = ROOT / "src" / "operators_console" / "data"
 DATA.mkdir(parents=True, exist_ok=True)
 
 raw = json.loads((HERE / "raw_curriculum.json").read_text(encoding="utf-8"))
+PICKS = json.loads((HERE / "resource_picks.json").read_text(encoding="utf-8"))
+
+# A group of resources is "optional" when a learner only needs one of them to
+# get started; the rest is study material the interface folds away. Which one
+# leads is an editorial decision, so it is hand-authored in
+# resource_picks.json rather than guessed from the data. A group with fewer
+# than two entries is never folded and therefore never picked.
+FOLD_MINIMUM = 2
+
+
+class PickError(SystemExit):
+    pass
+
+
+def mark_group(kind: str, key: str, items: list) -> bool:
+    """Flag the primary resource in one group. Returns whether it folds.
+
+    Fails the build rather than shipping a group that folds the wrong thing:
+    a missing pick, an unknown name, or a name matching two resources are all
+    errors you want at generate time, not in front of a learner.
+    """
+    table = PICKS[kind]
+    wanted = table.get(key)
+    if len(items) < FOLD_MINIMUM:
+        if wanted is not None:
+            raise PickError(
+                "resource_picks.json: %s %r has only %d resource(s) and is "
+                "never folded, so it must not have a pick" % (kind, key,
+                                                              len(items)))
+        return False
+    if wanted is None:
+        raise PickError(
+            "resource_picks.json: no primary chosen for %s %r (%d resources: "
+            "%s)" % (kind, key, len(items),
+                     ", ".join(i["name"] for i in items)))
+    hits = [i for i in items if i["name"] == wanted]
+    if len(hits) != 1:
+        raise PickError(
+            "resource_picks.json: %s %r picks %r, which matches %d of its "
+            "resources" % (kind, key, wanted, len(hits)))
+    hits[0]["primary"] = True
+    return True
+
+
+def check_every_pick_was_used(kind: str, used: set) -> None:
+    extra = sorted(set(PICKS[kind]) - used)
+    if extra:
+        raise PickError(
+            "resource_picks.json: %s has picks for groups that do not exist: "
+            "%s" % (kind, ", ".join(extra)))
 
 
 def slug(text: str, length: int = 8) -> str:
@@ -85,6 +135,7 @@ def plain(text: str) -> str:
 
 
 phases = []
+picked_phases = set()
 for ph in raw["PHASES"]:
     pid = ph["id"]
     sections = []
@@ -104,6 +155,14 @@ for ph in raw["PHASES"]:
             ],
         }
 
+    resources = [
+        {"name": r["n"], "kind": r["k"], "why": r["w"], "url": r["u"]}
+        for r in (ph.get("res") or [])
+    ]
+    resources_optional = mark_group("phase", pid, resources) if resources         else False
+    if resources:
+        picked_phases.add(pid)
+
     phases.append({
         "id": pid,
         "num": ph["num"],
@@ -115,25 +174,95 @@ for ph in raw["PHASES"]:
         "level": LEVEL.get(pid, 3),
         "tags": TAGS.get(pid, []),
         "prereq": PREREQ.get(pid, []),
-        "resources": [
-            {"name": r["n"], "kind": r["k"], "why": r["w"], "url": r["u"]}
-            for r in (ph.get("res") or [])
-        ],
+        "resources": resources,
         "sections": sections,
         "snippet": ph.get("snippet") or "",
         "gate": gate,
+        # Gates, sections and projects are the work itself and are never
+        # folded; only this resource list can be.
+        "resources_optional": resources_optional,
     })
+
+check_every_pick_was_used("phase", picked_phases)
+
+# -- quiz answer positions ----------------------------------------------------
+# Authors write the correct choice wherever is convenient (usually first), so
+# the authored order says nothing a learner should be able to use. The bundle
+# places each correct answer by a fixed rule instead: a quiz's questions are
+# taken four at a time, and each block of four gets its own ordering of the
+# positions 0-3, so every position is used equally within a block. The
+# distractors fill the other slots in an order derived from the question id.
+# Everything is a hash of ids, never of the text or the clock, so the output
+# is reproducible and fixing a typo never moves an answer.
+#
+# Question ids are positional ("q04.7" is the eighth question of q04) and
+# learners' review history is keyed on them: questions are only ever edited
+# in place or appended, never reordered or deleted.
+BLOCK = 4
+
+
+def _rank(*parts: object) -> str:
+    return hashlib.sha1(":".join(map(str, parts)).encode("utf-8")).hexdigest()
+
+
+def answer_slot(quiz_id: str, index: int, n_choices: int) -> int:
+    """Where the correct answer of question `index` of `quiz_id` goes."""
+    block, offset = divmod(index, BLOCK)
+    order = sorted(range(BLOCK), key=lambda p: _rank(quiz_id, block, p))
+    return order[offset] % n_choices
+
+
+def place_answer(qid: str, slot: int, choices: list, correct: int,
+                 explain_choice: list) -> tuple[list, int, list]:
+    """Reorder choices (and their explanations, in lockstep) so the correct
+    one sits at `slot`."""
+    others = [i for i in range(len(choices)) if i != correct]
+    others.sort(key=lambda i: _rank(qid, "distractor", i))
+    order = others[:slot] + [correct] + others[slot:]
+    return ([choices[i] for i in order], slot,
+            [explain_choice[i] for i in order])
+
+
+class QuizError(SystemExit):
+    pass
+
+
+KNOWN_ITEMS = {i["id"] for p in phases for s in p["sections"] for i in s["items"]}
+KNOWN_ITEMS |= {g["id"] for p in phases if p["gate"] for g in p["gate"]["items"]}
 
 quizzes = []
 for qz in raw["QUIZZES"]:
     questions = []
     for i, q in enumerate(qz["qs"]):
+        qid = f"{qz['id']}.{i}"
+        choices = list(q["a"])
+        explain_choice = list(q.get("explain_choice") or [""] * len(choices))
+        teaches = q.get("teaches", "")
+        if len(explain_choice) != len(choices):
+            raise QuizError("%s: explain_choice has %d entries for %d choices"
+                            % (qid, len(explain_choice), len(choices)))
+        if not 0 <= q["c"] < len(choices):
+            raise QuizError("%s: correct index %r is out of range" % (qid, q["c"]))
+        if explain_choice[q["c"]]:
+            raise QuizError("%s: the correct choice carries a 'why it is wrong' "
+                            "note" % qid)
+        if teaches and teaches not in KNOWN_ITEMS:
+            raise QuizError("%s: teaches %r, which is not a checklist item"
+                            % (qid, teaches))
+        slot = answer_slot(qz["id"], i, len(choices))
+        choices, correct, explain_choice = place_answer(
+            qid, slot, choices, q["c"], explain_choice)
         questions.append({
-            "id": f"{qz['id']}.{i}",
+            "id": qid,
             "prompt": q["q"],
-            "choices": q["a"],
-            "correct": q["c"],
+            "choices": choices,
+            "correct": correct,
             "explain": q["e"],
+            # One note per choice, indexed like `choices`: why a learner who
+            # picked it was wrong. The correct choice's entry is "".
+            "explain_choice": explain_choice,
+            # The checklist item this question checks, when there is one.
+            "teaches": teaches,
         })
     quizzes.append({
         "id": qz["id"],
@@ -144,15 +273,21 @@ for qz in raw["QUIZZES"]:
     })
 
 fields = []
+picked_fields = set()
 for f in raw["FIELDS"]:
+    libs = [{"name": n, "url": u} for n, u in f["libs"]]
     fields.append({
         "id": f["id"],
         "group": f["g"],
         "name": f["n"],
         "blurb": f["blurb"],
         "build": f["build"],
-        "libs": [{"name": n, "url": u} for n, u in f["libs"]],
+        "libs": libs,
+        "libs_optional": mark_group("field", f["id"], libs),
     })
+    if len(libs) >= FOLD_MINIMUM:
+        picked_fields.add(f["id"])
+check_every_pick_was_used("field", picked_fields)
 
 certs = [{
     "id": c["id"], "name": c["n"], "by": c["by"], "cost": c["cost"],
@@ -160,13 +295,25 @@ certs = [{
     "url": c.get("u", ""),
 } for c in raw["CERTS"]]
 
-channels = [{
-    "group": c["g"],
-    "items": [{"name": i["n"], "url": i["u"], "why": i["w"]} for i in c["items"]],
-} for c in raw["CHANNELS"]]
+channels = []
+for c in raw["CHANNELS"]:
+    items = [{"name": i["n"], "url": i["u"], "why": i["w"]} for i in c["items"]]
+    channels.append({
+        "group": c["g"],
+        "items": items,
+        "optional": mark_group("channels", c["g"], items),
+    })
+check_every_pick_was_used("channels", {c["group"] for c in channels})
 
-shelf = [{"group": g, "items": [{"name": n, "url": u} for n, u in items]}
-         for g, items in raw["SHELF"]]
+shelf = []
+for group, entries in raw["SHELF"]:
+    items = [{"name": n, "url": u} for n, u in entries]
+    shelf.append({
+        "group": group,
+        "items": items,
+        "optional": mark_group("shelf", group, items),
+    })
+check_every_pick_was_used("shelf", {g["group"] for g in shelf})
 
 matrix = [{"skill": s, "covers": c, "proof": p} for s, c, p in raw["MATRIX"]]
 
@@ -191,4 +338,9 @@ print(f"gate items  {sum(len(p['gate']['items']) for p in phases if p['gate'])}"
 print(f"resources   {sum(len(p['resources']) for p in phases)}")
 print(f"quizzes     {len(quizzes)} / {sum(len(q['questions']) for q in quizzes)} questions")
 print(f"fields      {len(fields)}   certs {len(certs)}   shelf groups {len(shelf)}")
+folded = (sum(1 for p in phases if p["resources_optional"])
+          + sum(1 for f in fields if f["libs_optional"])
+          + sum(1 for c in channels if c["optional"])
+          + sum(1 for g in shelf if g["optional"]))
+print(f"folded      {folded} optional groups, one primary each")
 print(f"wrote       {out}  ({out.stat().st_size // 1024} KB)")

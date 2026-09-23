@@ -12,13 +12,19 @@ import sys
 
 
 def main(argv=None) -> int:
+    # A multiprocessing worker in the frozen build is this executable again,
+    # with --multiprocessing-fork. freeze_support() runs the worker and exits;
+    # without it a learner's Pool would open a second copy of the app.
+    import multiprocessing
+    multiprocessing.freeze_support()
+
     argv = list(sys.argv[1:] if argv is None else argv)
 
     # Absolute imports: PyInstaller executes this file as a top-level
     # script, where a relative import has no parent package to resolve.
-    from operators_console.core.runner import RUNNER_FLAG, child_main
+    from operators_console.core.runner import RUNNER_FLAG, child_main, exit_now
     if RUNNER_FLAG in argv:
-        return child_main()
+        exit_now(child_main())
 
     from operators_console.core.updates import APPLY_FLAG, apply_update
     if APPLY_FLAG in argv:
@@ -53,9 +59,10 @@ def _run_updater(argv, apply_update) -> int:
     parser.add_argument("--pid", type=int, required=True)
     parser.add_argument("--kind", default="")
     parser.add_argument("--target", required=True)
+    parser.add_argument("--sha256", default="")
     options, _rest = parser.parse_known_args(argv)
     return apply_update(Path(options.package), options.pid, options.kind,
-                        Path(options.target))
+                        Path(options.target), options.sha256)
 
 
 if __name__ == "__main__":

@@ -24,8 +24,8 @@
     }
    ],
    "hints": [
-    "An f-string is the shortest route: f\"Hello, {name}!\"",
-    "`return` hands a value back to the caller; `print` only writes to the screen."
+    "`return` hands a value back to the caller; `print` only writes to the screen.",
+    "An f-string puts a name's value inside text: f\"Hello, {name}!\""
    ],
    "solution": "def greet(name):\n    return f\"Hello, {name}!\"\n",
    "setup": ""
@@ -53,10 +53,15 @@
     },
     {
      "name": "fractions survive",
-     "code": "assert abs(to_fahrenheit(36.6) - 97.88) < 1e-9"
+     "code": "assert round(to_fahrenheit(36.6), 9) == 97.88"
+    },
+    {
+     "name": "room temperature",
+     "code": "assert to_fahrenheit(20) == 68"
     }
    ],
    "hints": [
+    "Translate the formula symbol by symbol: multiply by 9, divide by 5, then add 32.",
     "Use `9 / 5`, not `9 // 5`. Integer division would throw away the fraction."
    ],
    "solution": "def to_fahrenheit(celsius):\n    return celsius * 9 / 5 + 32\n",
@@ -89,7 +94,11 @@
     },
     {
      "name": "all parts are ints",
-     "code": "assert all(isinstance(p, int) for p in hms(3661))"
+     "code": "assert [type(p).__name__ for p in hms(3661)] == ['int', 'int', 'int']"
+    },
+    {
+     "name": "a long day",
+     "code": "assert hms(90061) == (25, 1, 1)"
     }
    ],
    "hints": [
@@ -163,6 +172,7 @@
     }
    ],
    "hints": [
+    "An f-string can format a number as well as insert it - look up the format spec after the colon.",
     "Format specs compose: f\"{amount:,.2f}\" adds separators and fixes the decimals."
    ],
    "solution": "def price(amount):\n    return f\"${amount:,.2f}\"\n",
@@ -198,12 +208,20 @@
      "code": "assert grade(0) == 'F'"
     },
     {
+     "name": "C",
+     "code": "assert grade(75) == 'C'"
+    },
+    {
+     "name": "boundary 100",
+     "code": "assert grade(100) == 'A'"
+    },
+    {
      "name": "rejects over 100",
-     "code": "try:\n    grade(101)\nexcept ValueError:\n    pass\nelse:\n    raise AssertionError('should raise ValueError')"
+     "code": "try:\n    result = grade(101)\nexcept ValueError:\n    pass\nelse:\n    raise AssertionError('grade(101) should raise ValueError, but it returned %r' % (result,))"
     },
     {
      "name": "rejects negative",
-     "code": "try:\n    grade(-1)\nexcept ValueError:\n    pass\nelse:\n    raise AssertionError('should raise ValueError')"
+     "code": "try:\n    result = grade(-1)\nexcept ValueError:\n    pass\nelse:\n    raise AssertionError('grade(-1) should raise ValueError, but it returned %r' % (result,))"
     }
    ],
    "hints": [
@@ -314,6 +332,7 @@
     }
    ],
    "hints": [
+    "Loop from 1 to n inclusive and decide one position at a time with if / elif / else.",
     "Test for 15 first. If you test 3 first, no number ever reaches the FizzBuzz branch."
    ],
    "solution": "def fizzbuzz(n):\n    out = []\n    for value in range(1, n + 1):\n        if value % 15 == 0:\n            out.append(\"FizzBuzz\")\n        elif value % 3 == 0:\n            out.append(\"Fizz\")\n        elif value % 5 == 0:\n            out.append(\"Buzz\")\n        else:\n            out.append(value)\n    return out\n",
@@ -391,7 +410,8 @@
     }
    ],
    "hints": [
-    "The shape is [expression for item in iterable if condition]."
+    "The shape is [expression for item in iterable if condition].",
+    "A number is even when n % 2 == 0; the square is n * n."
    ],
    "solution": "def even_squares(numbers):\n    return [n * n for n in numbers if n % 2 == 0]\n",
    "setup": ""
@@ -490,9 +510,16 @@
     {
      "name": "empty",
      "code": "assert acronym('') == ''"
+    },
+    {
+     "name": "extra spaces",
+     "code": "assert acronym('  as   soon as possible ') == 'ASAP'"
     }
    ],
-   "hints": [],
+   "hints": [
+    "phrase.split() gives you the words and drops the extra spaces.",
+    "Take word[0] from each word, upper-case it, and ''.join the letters."
+   ],
    "solution": "def acronym(phrase):\n    return \"\".join(word[0].upper() for word in phrase.split())\n",
    "setup": ""
   },
@@ -556,7 +583,7 @@
     },
     {
      "name": "no get used",
-     "code": "import inspect; assert '.get(' not in inspect.getsource(lookup)"
+     "code": "import ast, inspect, textwrap\ntree = ast.parse(textwrap.dedent(inspect.getsource(lookup)))\ncalled = set()\nfor node in ast.walk(tree):\n    if isinstance(node, ast.Call):\n        if isinstance(node.func, ast.Name):\n            called.add(node.func.id)\n        elif isinstance(node.func, ast.Attribute):\n            called.add('.' + node.func.attr)\nused = sorted(called & set(('.get',)))\nassert not used, 'lookup should make the decision itself with `in`, not call .get() - found: ' + ', '.join(used)"
     }
    ],
    "hints": [
@@ -619,6 +646,10 @@
     {
      "name": "input untouched",
      "code": "src = ['B X', 'A X']\nby_surname(src)\nassert src == ['B X', 'A X']"
+    },
+    {
+     "name": "three people",
+     "code": "assert by_surname(['Linus Torvalds', 'Ada Lovelace', 'Alan Turing']) == ['Ada Lovelace', 'Linus Torvalds', 'Alan Turing']"
     },
     {
      "name": "empty",
@@ -689,9 +720,16 @@
     {
      "name": "empty input",
      "code": "assert positions([], 'x') == []"
+    },
+    {
+     "name": "every position",
+     "code": "assert positions(['z', 'z', 'z'], 'z') == [0, 1, 2]"
     }
    ],
-   "hints": [],
+   "hints": [
+    "enumerate(items) gives you (index, item) pairs as you loop.",
+    "Keep the index whenever item == target - a list comprehension with an if does it in one line."
+   ],
    "solution": "def positions(items, target):\n    return [i for i, item in enumerate(items) if item == target]\n",
    "setup": ""
   },
@@ -747,6 +785,7 @@
     }
    ],
    "hints": [
+    "Start with an empty dict and walk the rows once, adding each amount to its category.",
     "Reach for dict.get(key, 0) again, or collections.defaultdict(float)."
    ],
    "solution": "def totals(rows):\n    out = {}\n    for row in rows:\n        key = row[\"category\"]\n        out[key] = out.get(key, 0) + row[\"amount\"]\n    return out\n",
@@ -807,7 +846,10 @@
      "code": "assert describe(1, b=2, a=1) == '1 values | a=1 b=2'"
     }
    ],
-   "hints": [],
+   "hints": [
+    "With no options, return the count alone - no pipe, no trailing space.",
+    "Sort the keyword names before joining them: ' '.join(f'{k}={options[k]}' for k in sorted(options))."
+   ],
    "solution": "def describe(*values, **options):\n    head = f\"{len(values)} values\"\n    if not options:\n        return head\n    tail = \" \".join(f\"{k}={options[k]}\" for k in sorted(options))\n    return f\"{head} | {tail}\"\n",
    "setup": ""
   },
@@ -834,7 +876,7 @@
     },
     {
      "name": "rejects negatives",
-     "code": "try:\n    factorial(-1)\nexcept ValueError:\n    pass\nelse:\n    raise AssertionError('should raise ValueError')"
+     "code": "try:\n    result = factorial(-1)\nexcept ValueError:\n    pass\nelse:\n    raise AssertionError('factorial(-1) should raise ValueError, but it returned %r' % (result,))"
     }
    ],
    "hints": [
@@ -866,11 +908,16 @@
      "code": "assert safe_div(0, 5) == 0"
     },
     {
+     "name": "negative result",
+     "code": "assert safe_div(-9, 3) == -3"
+    },
+    {
      "name": "uses try",
-     "code": "import inspect; assert 'try' in inspect.getsource(safe_div)"
+     "code": "import ast, inspect, textwrap\ntree = ast.parse(textwrap.dedent(inspect.getsource(safe_div)))\nassert any(isinstance(node, (ast.Try,)) for node in ast.walk(tree)), 'safe_div should catch the error with try / except rather than test for zero first'"
     }
    ],
    "hints": [
+    "Put the division inside `try:` and return None from the `except` branch.",
     "Catch ZeroDivisionError specifically. A bare `except:` would swallow real bugs."
    ],
    "solution": "def safe_div(a, b):\n    try:\n        return a / b\n    except ZeroDivisionError:\n        return None\n",
@@ -895,15 +942,19 @@
     },
     {
      "name": "rejects nonsense",
-     "code": "try:\n    validate_age('old')\nexcept ValueError:\n    pass\nelse:\n    raise AssertionError('expected ValueError')"
+     "code": "try:\n    result = validate_age('old')\nexcept ValueError:\n    pass\nelse:\n    raise AssertionError(\"validate_age('old') should raise ValueError, but it returned %r\" % (result,))"
     },
     {
      "name": "rejects out of range",
-     "code": "try:\n    validate_age(500)\nexcept ValueError:\n    pass\nelse:\n    raise AssertionError('expected ValueError')"
+     "code": "try:\n    result = validate_age(500)\nexcept ValueError:\n    pass\nelse:\n    raise AssertionError('validate_age(500) should raise ValueError, but it returned %r' % (result,))"
+    },
+    {
+     "name": "rejects a negative age",
+     "code": "try:\n    result = validate_age(-1)\nexcept ValueError:\n    pass\nelse:\n    raise AssertionError('validate_age(-1) should raise ValueError, but it returned %r' % (result,))"
     },
     {
      "name": "rejects wrong type",
-     "code": "try:\n    validate_age([1])\nexcept TypeError:\n    pass\nelse:\n    raise AssertionError('expected TypeError')"
+     "code": "try:\n    result = validate_age([1])\nexcept TypeError:\n    pass\nelse:\n    raise AssertionError('validate_age([1]) should raise TypeError, but it returned %r' % (result,))"
     }
    ],
    "hints": [
@@ -956,7 +1007,7 @@
    "topic": "Files",
    "title": "Count the non-empty lines",
    "difficulty": 3,
-   "prompt": "A file named `notes.txt` already exists in the working directory.\nWrite `count_lines(path)` returning how many lines in it contain\nsomething other than whitespace.",
+   "prompt": "A file named `notes.txt` already exists in the working directory.\nWrite `count_lines(path)` returning how many lines in the file at\n`path` contain something other than whitespace.\n\nClose the file when you are done - a `with` block does that for you,\neven when something goes wrong while you read.",
    "starter": "def count_lines(path):\n    pass\n",
    "tests": [
     {
@@ -964,8 +1015,20 @@
      "code": "assert count_lines('notes.txt') == 3"
     },
     {
-     "name": "uses a with block",
-     "code": "import inspect; assert 'with ' in inspect.getsource(count_lines)"
+     "name": "reads the file it is given",
+     "code": "assert count_lines('more.txt') == 4"
+    },
+    {
+     "name": "an empty file",
+     "code": "assert count_lines('empty.txt') == 0"
+    },
+    {
+     "name": "only whitespace",
+     "code": "assert count_lines('blank.txt') == 0"
+    },
+    {
+     "name": "closes the file",
+     "code": "import builtins\nreal_open = builtins.open\nopened = []\ndef tracking_open(*args, **kwargs):\n    handle = real_open(*args, **kwargs)\n    opened.append(handle)\n    return handle\nbuiltins.open = tracking_open\ntry:\n    count_lines('notes.txt')\nfinally:\n    builtins.open = real_open\nstill_open = [handle for handle in opened if not handle.closed]\nassert not still_open, 'count_lines left the file open - a with block closes it for you'"
     }
    ],
    "hints": [
@@ -973,7 +1036,7 @@
     "A line of only spaces is not empty until you strip it."
    ],
    "solution": "def count_lines(path):\n    total = 0\n    with open(path, encoding=\"utf-8\") as fh:\n        for line in fh:\n            if line.strip():\n                total += 1\n    return total\n",
-   "setup": "LINES = [\"first\", \"\", \"  \", \"second\", \"third\"]\nwith open(\"notes.txt\", \"w\", encoding=\"utf-8\") as fh:\n    fh.write(chr(10).join(LINES) + chr(10))\n"
+   "setup": "LINES = [\"first\", \"\", \"  \", \"second\", \"third\"]\nwith open(\"notes.txt\", \"w\", encoding=\"utf-8\") as fh:\n    fh.write(chr(10).join(LINES) + chr(10))\nwith open(\"more.txt\", \"w\", encoding=\"utf-8\") as fh:\n    fh.write(chr(10).join([\"one\", chr(9), \"two\", \"three\", \"four\"]))\nwith open(\"empty.txt\", \"w\", encoding=\"utf-8\") as fh:\n    pass\nwith open(\"blank.txt\", \"w\", encoding=\"utf-8\") as fh:\n    fh.write(chr(10).join([\"   \", chr(9), \"\"]) + chr(10))\n"
   },
   {
    "id": "p01.030",
@@ -991,6 +1054,14 @@
     {
      "name": "really writes a file",
      "code": "import os\nsave('check.json', {'a': 1})\nassert os.path.getsize('check.json') > 0"
+    },
+    {
+     "name": "a second payload",
+     "code": "payload = {'title': 'Caf\\u00e9', 'tags': [], 'extra': {'n': None, 'x': 1.5}}\nsave('second.json', payload)\nassert load('second.json') == payload"
+    },
+    {
+     "name": "saving again replaces the file",
+     "code": "save('again.json', {'a': 1})\nsave('again.json', {'b': 2})\nassert load('again.json') == {'b': 2}"
     },
     {
      "name": "writes valid json",
@@ -1102,9 +1173,18 @@
     {
      "name": "none present",
      "code": "assert has_negative([1, 2]) is False"
+    },
+    {
+     "name": "a negative is not positive",
+     "code": "assert all_positive([-1, 5]) is False"
+    },
+    {
+     "name": "an empty list has no negative",
+     "code": "assert has_negative([]) is False"
     }
    ],
    "hints": [
+    "Each function is one line: pass a generator expression to a built-in.",
     "all() and any() short-circuit, so they stop at the first decisive value."
    ],
    "solution": "def all_positive(numbers):\n    return all(n > 0 for n in numbers)\n\n\ndef has_negative(numbers):\n    return any(n < 0 for n in numbers)\n",
@@ -1174,6 +1254,7 @@
     }
    ],
    "hints": [
+    "A comprehension can build a dict directly - what goes on each side of the colon?",
     "A dict comprehension reads {value: key for key, value in mapping.items()}."
    ],
    "solution": "def invert(mapping):\n    return {value: key for key, value in mapping.items()}\n",
@@ -1234,8 +1315,12 @@
      "code": "seen = []\nfor v in Countdown(2):\n    seen.append(v)\nassert seen == [2, 1]"
     },
     {
+     "name": "counts down from five",
+     "code": "assert list(Countdown(5)) == [5, 4, 3, 2, 1]"
+    },
+    {
      "name": "raises StopIteration",
-     "code": "it = iter(Countdown(1))\nnext(it)\ntry:\n    next(it)\nexcept StopIteration:\n    pass\nelse:\n    raise AssertionError('must raise StopIteration')"
+     "code": "it = iter(Countdown(1))\nnext(it)\ntry:\n    result = next(it)\nexcept StopIteration:\n    pass\nelse:\n    raise AssertionError('next(it) should raise StopIteration, but it returned %r' % (result,))"
     }
    ],
    "hints": [
@@ -1260,11 +1345,15 @@
     },
     {
      "name": "is a generator",
-     "code": "import inspect; assert inspect.isgeneratorfunction(fib)"
+     "code": "import inspect\nassert inspect.isgeneratorfunction(fib), 'fib must be a generator function - use yield, not a list'"
     },
     {
      "name": "each call is independent",
-     "code": "a, b = fib(), fib()\nassert next(a) == next(b) == 0"
+     "code": "a, b = fib(), fib()\nnext(a)\nnext(a)\nnext(a)\nassert next(b) == 0"
+    },
+    {
+     "name": "the twentieth value",
+     "code": "import itertools\nassert next(itertools.islice(fib(), 20, 21)) == 6765"
     },
     {
      "name": "goes far without trouble",
@@ -1400,7 +1489,7 @@
     },
     {
      "name": "does not swallow the error",
-     "code": "t = Tag('x')\ntry:\n    with t:\n        raise ValueError\nexcept ValueError:\n    pass\nelse:\n    raise AssertionError('exception must propagate')"
+     "code": "t = Tag('x')\ntry:\n    with t:\n        raise ValueError\nexcept ValueError:\n    pass\nelse:\n    raise AssertionError('the ValueError raised inside the with block should reach the caller, but it was swallowed')"
     }
    ],
    "hints": [
@@ -1512,6 +1601,10 @@
     {
      "name": "slices",
      "code": "assert Deck()[1:3] == ['B', 'C']"
+    },
+    {
+     "name": "follows its cards",
+     "code": "d = Deck()\nd.cards = ['X', 'Y']\nassert len(d) == 2\nassert d[-1] == 'Y'\nassert list(d) == ['X', 'Y']"
     }
    ],
    "hints": [
@@ -1539,16 +1632,24 @@
      "code": "assert Temperature(100).fahrenheit == 212"
     },
     {
+     "name": "converts below zero",
+     "code": "assert Temperature(-40).fahrenheit == -40"
+    },
+    {
+     "name": "follows a later change",
+     "code": "t = Temperature(0)\nt.celsius = 100\nassert t.fahrenheit == 212"
+    },
+    {
      "name": "rejects impossible values",
-     "code": "try:\n    Temperature(-300)\nexcept ValueError:\n    pass\nelse:\n    raise AssertionError('expected ValueError')"
+     "code": "try:\n    result = Temperature(-300)\nexcept ValueError:\n    pass\nelse:\n    raise AssertionError('Temperature(-300) should raise ValueError, but it returned %r' % (result,))"
     },
     {
      "name": "rejects on later assignment",
-     "code": "t = Temperature(0)\ntry:\n    t.celsius = -400\nexcept ValueError:\n    pass\nelse:\n    raise AssertionError('expected ValueError')"
+     "code": "t = Temperature(0)\ntry:\n    t.celsius = -400\nexcept ValueError:\n    pass\nelse:\n    raise AssertionError('`t.celsius = -400` should raise ValueError, but it went through')"
     },
     {
      "name": "fahrenheit is read only",
-     "code": "t = Temperature(0)\ntry:\n    t.fahrenheit = 1\nexcept AttributeError:\n    pass\nelse:\n    raise AssertionError('should not be settable')"
+     "code": "t = Temperature(0)\ntry:\n    t.fahrenheit = 1\nexcept AttributeError:\n    pass\nelse:\n    raise AssertionError('`t.fahrenheit = 1` should raise AttributeError, but it went through')"
     }
    ],
    "hints": [
@@ -1572,8 +1673,16 @@
      "code": "e = Event.from_string('2026-01-31')\nassert (e.year, e.month, e.day) == (2026, 1, 31)"
     },
     {
+     "name": "reads a different date",
+     "code": "e = Event.from_string('1999-12-05')\nassert (e.year, e.month, e.day) == (1999, 12, 5)"
+    },
+    {
      "name": "validates good input",
      "code": "assert Event.is_valid_string('2026-01-31') is True"
+    },
+    {
+     "name": "rejects a short month",
+     "code": "assert Event.is_valid_string('2026-1-31') is False"
     },
     {
      "name": "rejects bad input",
@@ -1618,7 +1727,7 @@
     },
     {
      "name": "immutable",
-     "code": "p = Point(1, 2)\ntry:\n    p.x = 5\nexcept Exception:\n    pass\nelse:\n    raise AssertionError('must be frozen')"
+     "code": "p = Point(1, 2)\ntry:\n    p.x = 5\nexcept AttributeError:\n    pass\nelse:\n    raise AssertionError('`p.x = 5` should raise AttributeError, but it went through')"
     },
     {
      "name": "readable repr",
@@ -1626,8 +1735,8 @@
     }
    ],
    "hints": [
-    "@dataclass(frozen=True, order=True) gives you all of it.",
-    "frozen=True is what makes instances hashable."
+    "The @dataclass decorator takes options - read which ones give ordering and immutability.",
+    "@dataclass(frozen=True, order=True) gives you all of it; frozen=True is also what makes instances hashable."
    ],
    "solution": "from dataclasses import dataclass\n\n\n@dataclass(frozen=True, order=True)\nclass Point:\n    x: int\n    y: int\n",
    "setup": ""
@@ -1647,15 +1756,23 @@
     },
     {
      "name": "circle area",
-     "code": "assert abs(Circle(1).area() - math.pi) < 1e-9"
+     "code": "import math\nassert round(Circle(1).area(), 9) == round(math.pi, 9)"
+    },
+    {
+     "name": "a bigger circle",
+     "code": "assert round(Circle(2).area(), 6) == 12.566371"
     },
     {
      "name": "describe uses the subclass name",
      "code": "assert Rectangle(2, 2).describe() == 'Rectangle with area 4'"
     },
     {
+     "name": "describe on another rectangle",
+     "code": "assert Rectangle(3, 5).describe() == 'Rectangle with area 15'"
+    },
+    {
      "name": "abstract cannot be built",
-     "code": "try:\n    Shape()\nexcept TypeError:\n    pass\nelse:\n    raise AssertionError('Shape must be abstract')"
+     "code": "try:\n    result = Shape()\nexcept TypeError:\n    pass\nelse:\n    raise AssertionError('Shape() should raise TypeError, but it returned %r' % (result,))"
     }
    ],
    "hints": [
@@ -1696,7 +1813,7 @@
     },
     {
      "name": "rejects a size of zero",
-     "code": "try:\n    list(chunks([1], 0))\nexcept ValueError:\n    pass\nelse:\n    raise AssertionError('expected ValueError')"
+     "code": "try:\n    result = list(chunks([1], 0))\nexcept ValueError:\n    pass\nelse:\n    raise AssertionError('list(chunks([1], 0)) should raise ValueError, but it returned %r' % (result,))"
     }
    ],
    "hints": [
@@ -1720,8 +1837,16 @@
      "code": "assert slow_fib(10) == 55"
     },
     {
-     "name": "base cases",
-     "code": "assert slow_fib(0) == 0 and slow_fib(1) == 1"
+     "name": "base case zero",
+     "code": "assert slow_fib(0) == 0"
+    },
+    {
+     "name": "base case one",
+     "code": "assert slow_fib(1) == 1"
+    },
+    {
+     "name": "further along",
+     "code": "assert slow_fib(30) == 832040"
     },
     {
      "name": "fast enough to be cached",
@@ -1733,8 +1858,8 @@
     }
    ],
    "hints": [
-    "functools.lru_cache(maxsize=None), or functools.cache on 3.9 and later.",
-    "The decorator caches by arguments, so the recursion hits the cache too."
+    "The standard library can remember a function's answers for you - look in functools.",
+    "functools.lru_cache(maxsize=None) or functools.cache; it caches by arguments, so the recursion hits the cache too."
    ],
    "solution": "import functools\n\n\n@functools.lru_cache(maxsize=None)\ndef slow_fib(n):\n    if n < 2:\n        return n\n    return slow_fib(n - 1) + slow_fib(n - 2)\n",
    "setup": ""
@@ -1754,21 +1879,153 @@
     },
     {
      "name": "items is annotated",
-     "code": "import typing\nhints = typing.get_type_hints(first_or_default)\nassert 'items' in hints"
+     "code": "import typing\nhints = typing.get_type_hints(first_or_default)\nassert 'items' in hints, 'items has no annotation yet'"
+    },
+    {
+     "name": "items is a list",
+     "code": "import typing\nhint = typing.get_type_hints(first_or_default).get('items')\nassert typing.get_origin(hint) in (list,), 'items should be annotated as a list'"
+    },
+    {
+     "name": "of strings",
+     "code": "import typing\nhint = typing.get_type_hints(first_or_default).get('items')\nassert typing.get_args(hint) == (str,), 'items should be a list of strings: list[str]'"
     },
     {
      "name": "return is annotated",
-     "code": "import typing\nassert typing.get_type_hints(first_or_default)['return'] is str"
+     "code": "import typing\nassert typing.get_type_hints(first_or_default).get('return') in (str,), 'annotate the return type: -> str'"
     },
     {
      "name": "default is a string",
-     "code": "import typing\nassert typing.get_type_hints(first_or_default)['default'] is str"
+     "code": "import typing\nassert typing.get_type_hints(first_or_default).get('default') in (str,), 'annotate default as a string: default: str = ...'"
     }
    ],
    "hints": [
+    "An annotation goes after the parameter name with a colon; the return type goes after -> before the final colon.",
     "list[str] works directly on modern Python; no typing import needed for it."
    ],
    "solution": "def first_or_default(items: list[str], default: str = \"none\") -> str:\n    return items[0] if items else default\n",
+   "setup": ""
+  },
+  {
+   "id": "p04.011",
+   "phase": "p04",
+   "topic": "Queues",
+   "title": "Where a ring buffer writes",
+   "difficulty": 2,
+   "prompt": "A ring buffer is a fixed list of slots and a write position that wraps\nback to slot 0 after the last slot, overwriting whatever was there.\n\nWrite `ring_slots(capacity, pushes)` that pushes the values\n`0, 1, 2, ... pushes - 1` one at a time into `capacity` slots and\nreturns the slots as they are laid out in memory - a list of length\n`capacity`, with `None` in any slot never written.\n\n`ring_slots(3, 4)` is `[3, 1, 2]`: the value 3 wrapped round and\noverwrote 0. Raise `ValueError` when `capacity` is below 1.",
+   "starter": "def ring_slots(capacity, pushes):\n    pass\n",
+   "tests": [
+    {
+     "name": "under capacity",
+     "code": "assert ring_slots(3, 2) == [0, 1, None]"
+    },
+    {
+     "name": "wraps and overwrites",
+     "code": "assert ring_slots(3, 4) == [3, 1, 2]"
+    },
+    {
+     "name": "wraps twice",
+     "code": "assert ring_slots(2, 5) == [4, 3]"
+    },
+    {
+     "name": "nothing pushed",
+     "code": "assert ring_slots(3, 0) == [None, None, None]"
+    },
+    {
+     "name": "one slot",
+     "code": "assert ring_slots(1, 3) == [2]"
+    },
+    {
+     "name": "rejects no slots",
+     "code": "try:\n    result = ring_slots(0, 3)\nexcept ValueError:\n    pass\nelse:\n    raise AssertionError('expected ValueError, but it returned %r' % (result,))"
+    }
+   ],
+   "hints": [
+    "Where the n-th value lands depends only on n and the capacity.",
+    "Start from `[None] * capacity`; the slot for a value is `value % capacity`."
+   ],
+   "solution": "def ring_slots(capacity, pushes):\n    if capacity < 1:\n        raise ValueError(\"capacity must be at least 1\")\n    slots = [None] * capacity\n    for value in range(pushes):\n        slots[value % capacity] = value\n    return slots\n",
+   "setup": ""
+  },
+  {
+   "id": "p04.012",
+   "phase": "p04",
+   "topic": "Hash tables",
+   "title": "Count the collisions",
+   "difficulty": 2,
+   "prompt": "A toy hash table puts an integer key in bucket `key % buckets`.\n\nWrite `count_collisions(keys, buckets)` returning how many keys landed\nin a bucket that already held a different key. A key seen before is\nthe same entry being overwritten, not a collision, so repeats count\nnothing. Negative keys use Python's `%`, which always gives a bucket\nbetween 0 and `buckets - 1`.\n\nRaise `ValueError` when `buckets` is below 1.",
+   "starter": "def count_collisions(keys, buckets):\n    pass\n",
+   "tests": [
+    {
+     "name": "no collisions",
+     "code": "assert count_collisions([1, 2, 3], 4) == 0"
+    },
+    {
+     "name": "all in one bucket",
+     "code": "assert count_collisions([1, 5, 9], 4) == 2"
+    },
+    {
+     "name": "repeats are not collisions",
+     "code": "assert count_collisions([1, 1, 1], 4) == 0"
+    },
+    {
+     "name": "two busy buckets",
+     "code": "assert count_collisions([0, 8, 16, 3, 11], 8) == 3"
+    },
+    {
+     "name": "negative keys",
+     "code": "assert count_collisions([-1, 3], 4) == 1"
+    },
+    {
+     "name": "rejects no buckets",
+     "code": "try:\n    result = count_collisions([1], 0)\nexcept ValueError:\n    pass\nelse:\n    raise AssertionError('expected ValueError, but it returned %r' % (result,))"
+    }
+   ],
+   "hints": [
+    "You need to remember two things as you go: which keys you have seen, and which buckets are already occupied.",
+    "Two sets do it. Skip a key already in the first; otherwise a bucket already in the second is a collision."
+   ],
+   "solution": "def count_collisions(keys, buckets):\n    if buckets < 1:\n        raise ValueError(\"buckets must be at least 1\")\n    seen = set()\n    used = set()\n    collisions = 0\n    for key in keys:\n        if key in seen:\n            continue\n        seen.add(key)\n        bucket = key % buckets\n        if bucket in used:\n            collisions += 1\n        else:\n            used.add(bucket)\n    return collisions\n",
+   "setup": ""
+  },
+  {
+   "id": "p04.013",
+   "phase": "p04",
+   "topic": "Heaps",
+   "title": "Check the heap property",
+   "difficulty": 3,
+   "prompt": "A min-heap stored in a list keeps one rule: no item is smaller than its\nparent. The parent of index `i` is at index `(i - 1) // 2`.\n\nWrite `heap_violation(values)` returning the index of the first item\nthat is smaller than its parent, or `None` when the list is a valid\nmin-heap. Equal values are allowed. An empty list and a one-item list\nare valid heaps.",
+   "starter": "def heap_violation(values):\n    pass\n",
+   "tests": [
+    {
+     "name": "valid heap",
+     "code": "assert heap_violation([1, 3, 2, 7, 4]) is None"
+    },
+    {
+     "name": "empty and single",
+     "code": "assert heap_violation([]) is None\nassert heap_violation([5]) is None"
+    },
+    {
+     "name": "child smaller than root",
+     "code": "assert heap_violation([5, 3]) == 1"
+    },
+    {
+     "name": "deep violation",
+     "code": "assert heap_violation([1, 3, 2, 0]) == 3"
+    },
+    {
+     "name": "equal values are fine",
+     "code": "assert heap_violation([1, 1, 1]) is None"
+    },
+    {
+     "name": "reports the first one",
+     "code": "assert heap_violation([2, 3, 4, 5, 6, 1, 0]) == 5"
+    }
+   ],
+   "hints": [
+    "Every item except the root has exactly one parent. Compare each item with its parent, once.",
+    "Walk `i` from 1 to the end and compare `values[i]` with `values[(i - 1) // 2]`; return at the first failure."
+   ],
+   "solution": "def heap_violation(values):\n    for i in range(1, len(values)):\n        if values[i] < values[(i - 1) // 2]:\n            return i\n    return None\n",
    "setup": ""
   },
   {
@@ -1843,6 +2100,7 @@
     }
    ],
    "hints": [
+    "You need a container that forgets its oldest item once it is full - look at what the starter imports.",
     "collections.deque(maxlen=n) drops from the far end automatically."
    ],
    "solution": "from collections import deque\n\n\nclass RingBuffer:\n    def __init__(self, capacity):\n        self._data = deque(maxlen=capacity)\n\n    def push(self, item):\n        self._data.append(item)\n\n    def items(self):\n        return list(self._data)\n\n    def __len__(self):\n        return len(self._data)\n",
@@ -1870,16 +2128,28 @@
      "code": "assert to_list(reverse(from_list([9]))) == [9]"
     },
     {
-     "name": "empty chain",
-     "code": "assert to_list(reverse(from_list([]))) is not None or True"
+     "name": "empty chain is None",
+     "code": "assert from_list([]) is None"
+    },
+    {
+     "name": "empty chain reads back empty",
+     "code": "assert to_list(from_list([])) == []"
+    },
+    {
+     "name": "reversing an empty chain",
+     "code": "assert reverse(from_list([])) is None"
     },
     {
      "name": "empty returns None",
      "code": "assert reverse(None) is None"
     },
     {
+     "name": "reverses in place",
+     "code": "head = from_list(['a', 'b', 'c'])\ntail = head.next.next\nnew_head = reverse(head)\nassert new_head is tail, 'reverse should relink the nodes it was given, so the old tail becomes the head'\nassert head.next is None, 'the old head should now be the last node'"
+    },
+    {
      "name": "no list used in reverse",
-     "code": "import inspect\nsrc = inspect.getsource(reverse)\nassert 'to_list' not in src and 'from_list' not in src"
+     "code": "import ast, inspect, textwrap\ntree = ast.parse(textwrap.dedent(inspect.getsource(reverse)))\ncalled = set()\nfor node in ast.walk(tree):\n    if isinstance(node, ast.Call):\n        if isinstance(node.func, ast.Name):\n            called.add(node.func.id)\n        elif isinstance(node.func, ast.Attribute):\n            called.add('.' + node.func.attr)\nused = sorted(called & set(('from_list', 'list', 'reversed', 'to_list')))\nassert not used, 'reverse should relink the nodes one at a time, without a Python list - found: ' + ', '.join(used)"
     }
    ],
    "hints": [
@@ -1904,7 +2174,7 @@
     },
     {
      "name": "overwrites",
-     "code": "m = HashMap()\nm.put('a', 1)\nm.put('a', 2)\nassert m.get('a') == 2 and len(m) == 1"
+     "code": "m = HashMap()\nm.put('a', 1)\nm.put('a', 2)\nassert m.get('a') == 2\nassert len(m) == 1"
     },
     {
      "name": "missing key default",
@@ -1912,7 +2182,7 @@
     },
     {
      "name": "survives collisions",
-     "code": "m = HashMap(buckets=1)\nfor i in range(20):\n    m.put(i, i * 2)\nassert m.get(19) == 38 and len(m) == 20"
+     "code": "m = HashMap(buckets=1)\nfor i in range(20):\n    m.put(i, i * 2)\nassert m.get(19) == 38\nassert m.get(0) == 0\nassert len(m) == 20"
     },
     {
      "name": "counts entries",
@@ -1946,6 +2216,10 @@
     {
      "name": "rejects absent values",
      "code": "assert BST().contains(1) is False"
+    },
+    {
+     "name": "a second tree",
+     "code": "t = BST()\nfor v in [8, 1, 9, 3, 7]:\n    t.insert(v)\nassert t.in_order() == [1, 3, 7, 8, 9]\nassert t.contains(7) is True\nassert t.contains(4) is False"
     },
     {
      "name": "ignores duplicates",
@@ -2052,7 +2326,11 @@
    "tests": [
     {
      "name": "respects dependencies",
-     "code": "result = order({'app': ['lib'], 'lib': [], 'test': ['app']})\nassert result.index('lib') < result.index('app') < result.index('test')"
+     "code": "result = order({'app': ['lib'], 'lib': [], 'test': ['app']})\nassert result.index('lib') < result.index('app'), 'lib must come before app'\nassert result.index('app') < result.index('test'), 'app must come before test'"
+    },
+    {
+     "name": "every task once",
+     "code": "assert sorted(order({'app': ['lib'], 'lib': [], 'test': ['app']})) == ['app', 'lib', 'test']"
     },
     {
      "name": "independent tasks all appear",
@@ -2060,7 +2338,11 @@
     },
     {
      "name": "detects a cycle",
-     "code": "try:\n    order({'a': ['b'], 'b': ['a']})\nexcept ValueError:\n    pass\nelse:\n    raise AssertionError('expected ValueError')"
+     "code": "try:\n    result = order({'a': ['b'], 'b': ['a']})\nexcept ValueError:\n    pass\nelse:\n    raise AssertionError(\"order({'a': ['b'], 'b': ['a']}) should raise ValueError, but it returned %r\" % (result,))"
+    },
+    {
+     "name": "detects a longer cycle",
+     "code": "try:\n    result = order({'a': ['c'], 'b': ['a'], 'c': ['b'], 'd': []})\nexcept ValueError:\n    pass\nelse:\n    raise AssertionError(\"order({'a': ['c'], 'b': ['a'], 'c': ['b'], 'd': []}) should raise ValueError, but it returned %r\" % (result,))"
     },
     {
      "name": "empty",
@@ -2100,13 +2382,21 @@
      "code": "assert merge_sorted() == []"
     },
     {
+     "name": "works on iterators",
+     "code": "assert merge_sorted(iter([1, 5]), (n for n in [2, 3, 9])) == [1, 2, 3, 5, 9]"
+    },
+    {
+     "name": "uses heapq",
+     "code": "import ast, inspect, textwrap\ntree = ast.parse(textwrap.dedent(inspect.getsource(merge_sorted)))\ncalled = set()\nfor node in ast.walk(tree):\n    if isinstance(node, ast.Call):\n        if isinstance(node.func, ast.Name):\n            called.add(node.func.id)\n        elif isinstance(node.func, ast.Attribute):\n            called.add('.' + node.func.attr)\nassert called & set(('.heapify', '.heappop', '.heappush', '.heappushpop', '.heapreplace', '.merge', 'heapify', 'heappop', 'heappush', 'merge')), 'merge_sorted should use heapq - heapq.merge, or heappush and heappop'"
+    },
+    {
      "name": "merges rather than re-sorting",
-     "code": "import inspect\nsrc = inspect.getsource(merge_sorted)\nassert 'heapq' in src"
+     "code": "import ast, inspect, textwrap\ntree = ast.parse(textwrap.dedent(inspect.getsource(merge_sorted)))\ncalled = set()\nfor node in ast.walk(tree):\n    if isinstance(node, ast.Call):\n        if isinstance(node.func, ast.Name):\n            called.add(node.func.id)\n        elif isinstance(node.func, ast.Attribute):\n            called.add('.' + node.func.attr)\nused = sorted(called & set(('.sort', 'sorted')))\nassert not used, 'merge_sorted should merge the streams, not sort the combined result - found: ' + ', '.join(used)"
     }
    ],
    "hints": [
-    "heapq.merge does exactly this and returns an iterator.",
-    "Wrap the result in list() to return a real list."
+    "The heapq module in the standard library already knows how to merge sorted inputs.",
+    "heapq.merge does exactly this and returns an iterator - wrap it in list() to return a real list."
    ],
    "solution": "import heapq\n\n\ndef merge_sorted(*streams):\n    return list(heapq.merge(*streams))\n",
    "setup": ""
@@ -2130,11 +2420,11 @@
     },
     {
      "name": "evicts the oldest",
-     "code": "c = LRUCache(2)\nc.put('a', 1)\nc.put('b', 2)\nc.put('c', 3)\nassert c.get('a') == -1 and c.get('c') == 3"
+     "code": "c = LRUCache(2)\nc.put('a', 1)\nc.put('b', 2)\nc.put('c', 3)\nassert c.get('a') == -1\nassert c.get('c') == 3"
     },
     {
      "name": "reading refreshes",
-     "code": "c = LRUCache(2)\nc.put('a', 1)\nc.put('b', 2)\nc.get('a')\nc.put('c', 3)\nassert c.get('a') == 1 and c.get('b') == -1"
+     "code": "c = LRUCache(2)\nc.put('a', 1)\nc.put('b', 2)\nc.get('a')\nc.put('c', 3)\nassert c.get('a') == 1\nassert c.get('b') == -1"
     },
     {
      "name": "updating refreshes",
@@ -2174,8 +2464,16 @@
      "code": "assert two_sum([1, 2], 50) is None"
     },
     {
+     "name": "negatives",
+     "code": "assert two_sum([-3, 4, 3, 90], 0) == (0, 2)"
+    },
+    {
+     "name": "one pass over a long list",
+     "code": "class OverBudget(BaseException):\n    pass\nclass Counted(list):\n    spent = 0\n    budget = 0\n    def spend(self, reads):\n        Counted.spent += reads\n        if Counted.spent > Counted.budget:\n            raise OverBudget\n    def __iter__(self):\n        for value in list.__iter__(self):\n            self.spend(1)\n            yield value\n    def __getitem__(self, index):\n        if isinstance(index, slice):\n            part = Counted(list.__getitem__(self, index))\n            self.spend(len(part))\n            return part\n        self.spend(1)\n        return list.__getitem__(self, index)\n    def __contains__(self, value):\n        self.spend(len(self))\n        return list.__contains__(self, value)\n    def index(self, *args):\n        self.spend(len(self))\n        return list.index(self, *args)\n    def count(self, value):\n        self.spend(len(self))\n        return list.count(self, value)\ndata = Counted(range(2000))\nCounted.budget = 1 * len(data)\ntry:\n    result = two_sum(data, 3997)\nexcept OverBudget:\n    raise AssertionError('two_sum read more than %d values from a list of %d - one pass with a dict reads each number once' % (Counted.budget, len(data))) from None\nCounted.budget = float('inf')\nassert result == (1998, 1999)"
+    },
+    {
      "name": "single pass",
-     "code": "import inspect\nsrc = inspect.getsource(two_sum)\nassert src.count('for ') <= 1"
+     "code": "import ast, inspect, textwrap\ntree = ast.parse(textwrap.dedent(inspect.getsource(two_sum)))\nloops = [node for node in ast.walk(tree) if isinstance(node, (\n    ast.For, ast.AsyncFor, ast.While, ast.comprehension))]\nassert len(loops) <= 1, 'two_sum should walk the list once, but it has %d loops' % len(loops)"
     }
    ],
    "hints": [
@@ -2289,8 +2587,12 @@
      "code": "import random\nfor _ in range(50):\n    data = [random.randint(-50, 50) for _ in range(30)]\n    assert merge_sort(data) == sorted(data)"
     },
     {
+     "name": "leaves the input alone",
+     "code": "data = [3, 1, 2]\nmerge_sort(data)\nassert data == [3, 1, 2]"
+    },
+    {
      "name": "does not use sorted",
-     "code": "import inspect\nsrc = inspect.getsource(merge_sort)\nassert 'sorted(' not in src and '.sort(' not in src"
+     "code": "import ast, inspect, textwrap\ntree = ast.parse(textwrap.dedent(inspect.getsource(merge_sort)))\ncalled = set()\nfor node in ast.walk(tree):\n    if isinstance(node, ast.Call):\n        if isinstance(node.func, ast.Name):\n            called.add(node.func.id)\n        elif isinstance(node.func, ast.Attribute):\n            called.add('.' + node.func.attr)\nused = sorted(called & set(('.sort', 'sorted')))\nassert not used, 'merge_sort should do the dividing and merging itself - found: ' + ', '.join(used)"
     }
    ],
    "hints": [
@@ -2475,7 +2777,7 @@
    "topic": "Complexity",
    "title": "Make it fast enough",
    "difficulty": 4,
-   "prompt": "`count_pairs(numbers, target)` counts how many unordered pairs sum to\n`target`. The naive version is O(n^2) and is too slow for the last\ncheck here.\n\nWrite an O(n) version. Each pair counts once; the input may contain\nduplicates.",
+   "prompt": "`count_pairs(numbers, target)` counts how many unordered pairs sum to\n`target`. The naive version is O(n^2): the last check hands it 60,000\nnumbers and stops it long before it could finish.\n\nWrite an O(n) version. Each pair counts once; the input may contain\nduplicates.",
    "starter": "def count_pairs(numbers, target):\n    pass\n",
    "tests": [
     {
@@ -2491,8 +2793,12 @@
      "code": "assert count_pairs([1, 2], 99) == 0"
     },
     {
-     "name": "fast on a big input",
-     "code": "import time, random\ndata = [random.randint(0, 1000) for _ in range(60000)]\nstart = time.monotonic()\ncount_pairs(data, 500)\nassert time.monotonic() - start < 2.0"
+     "name": "pairs of equal values",
+     "code": "assert count_pairs([2, 2, 3, 3], 5) == 4"
+    },
+    {
+     "name": "linear on a big input",
+     "code": "import random\nclass OverBudget(BaseException):\n    pass\nclass Counted(list):\n    spent = 0\n    budget = 0\n    def spend(self, reads):\n        Counted.spent += reads\n        if Counted.spent > Counted.budget:\n            raise OverBudget\n    def __iter__(self):\n        for value in list.__iter__(self):\n            self.spend(1)\n            yield value\n    def __getitem__(self, index):\n        if isinstance(index, slice):\n            part = Counted(list.__getitem__(self, index))\n            self.spend(len(part))\n            return part\n        self.spend(1)\n        return list.__getitem__(self, index)\n    def __contains__(self, value):\n        self.spend(len(self))\n        return list.__contains__(self, value)\n    def index(self, *args):\n        self.spend(len(self))\n        return list.index(self, *args)\n    def count(self, value):\n        self.spend(len(self))\n        return list.count(self, value)\ndata = Counted(random.Random(5).choices(range(1001), k=60000))\nCounted.budget = 3 * len(data)\ntry:\n    result = count_pairs(data, 500)\nexcept OverBudget:\n    raise AssertionError('count_pairs read more than %d values from a list of %d - count what you have seen in a dict instead of looping inside a loop' % (Counted.budget, len(data))) from None\nCounted.budget = float('inf')\nplain = list(data)\nseen = {}\nexpected = 0\nfor value in plain:\n    expected += seen.get(500 - value, 0)\n    seen[value] = seen.get(value, 0) + 1\nassert result == expected"
     }
    ],
    "hints": [
@@ -2517,15 +2823,19 @@
     },
     {
      "name": "creates the folder",
-     "code": "from pathlib import Path\nlog_path('made', 'x')\nassert (Path('made') / 'logs').is_dir()"
+     "code": "from pathlib import Path\nlog_path('made', 'x')\nassert (Path('made') / 'logs').is_dir(), 'log_path should create the logs folder when it is missing'"
     },
     {
      "name": "returns a Path",
      "code": "from pathlib import Path\nassert isinstance(log_path('a', 'b'), Path)"
     },
     {
+     "name": "accepts a Path as the root",
+     "code": "from pathlib import Path\nassert log_path(Path('root2'), 'app.v2') == Path('root2') / 'logs' / 'app.v2.log'"
+    },
+    {
      "name": "no manual separators",
-     "code": "import inspect\nassert '/' not in inspect.getsource(log_path).split('\\\"\\\"\\\"')[-1] or True"
+     "code": "import ast, inspect, textwrap\ntree = ast.parse(textwrap.dedent(inspect.getsource(log_path)))\nbody = tree.body[0].body\nif body and isinstance(body[0], ast.Expr) and isinstance(body[0].value, ast.Constant):\n    body = body[1:]    # a docstring may say anything it likes\nslashes = [node.value for statement in body for node in ast.walk(statement)\n           if isinstance(node, ast.Constant) and isinstance(node.value, str)\n           and ('/' in node.value or chr(92) in node.value)]\nassert not slashes, 'log_path glues text with a slash in it - join the parts with the / operator on Path objects instead'"
     }
    ],
    "hints": [
@@ -2565,8 +2875,20 @@
      "code": "assert build_parser().parse_args(['x']).verbose is False"
     },
     {
+     "name": "every option at once",
+     "code": "args = build_parser().parse_args(['other.log', '--limit', '42', '--verbose'])\nassert args.path == 'other.log'\nassert args.limit == 42\nassert args.verbose is True"
+    },
+    {
+     "name": "options before the path",
+     "code": "args = build_parser().parse_args(['--limit', '3', 'late.txt'])\nassert args.path == 'late.txt'\nassert args.limit == 3"
+    },
+    {
      "name": "missing positional fails",
-     "code": "import argparse\ntry:\n    build_parser().parse_args([])\nexcept SystemExit:\n    pass\nelse:\n    raise AssertionError('should fail')"
+     "code": "try:\n    result = build_parser().parse_args([])\nexcept SystemExit:\n    pass\nelse:\n    raise AssertionError('build_parser().parse_args([]) should raise SystemExit, but it returned %r' % (result,))"
+    },
+    {
+     "name": "a limit that is not a number fails",
+     "code": "try:\n    result = build_parser().parse_args(['x', '--limit', 'many'])\nexcept SystemExit:\n    pass\nelse:\n    raise AssertionError(\"build_parser().parse_args(['x', '--limit', 'many']) should raise SystemExit, but it returned %r\" % (result,))"
     }
    ],
    "hints": [
@@ -2604,6 +2926,18 @@
     {
      "name": "different lengths",
      "code": "assert newer('1.1', '1.0.9') is True"
+    },
+    {
+     "name": "a missing part counts as zero",
+     "code": "assert newer('1.1', '1.1.0') is False"
+    },
+    {
+     "name": "and the other way round",
+     "code": "assert newer('1.1.0', '1.1') is False"
+    },
+    {
+     "name": "minor numbers compare as numbers",
+     "code": "assert newer('1.10.0', '1.9.0') is True"
     }
    ],
    "hints": [
@@ -2668,8 +3002,16 @@
      "code": "assert books_after(CONN, 2100) == []"
     },
     {
+     "name": "another database",
+     "code": "import sqlite3\nother = sqlite3.connect(':memory:')\nother.row_factory = sqlite3.Row\nother.executescript(\n    'CREATE TABLE authors (id INTEGER PRIMARY KEY, name TEXT NOT NULL);'\n    'CREATE TABLE books (id INTEGER PRIMARY KEY, author_id INTEGER NOT NULL,'\n    ' title TEXT NOT NULL, year INTEGER NOT NULL, copies INTEGER NOT NULL DEFAULT 0);'\n    \"INSERT INTO authors (id, name) VALUES (1,'Chiang'),(2,'Jemisin'),(3,'Borges');\"\n    'INSERT INTO books (author_id, title, year, copies) VALUES'\n    \" (1,'Exhalation',2019,2),(2,'The Fifth Season',2015,5),\"\n    \" (2,'The Obelisk Gate',2016,1),(2,'The Stone Sky',2017,3);\")\nassert books_after(other, 2015) == ['Exhalation', 'The Obelisk Gate', 'The Stone Sky']"
+    },
+    {
+     "name": "cannot be injected",
+     "code": "assert books_after(CONN, '1975 OR 1=1') == [], 'the year was read as SQL - bind it as a parameter instead'"
+    },
+    {
      "name": "parameterised",
-     "code": "import inspect\nsrc = inspect.getsource(books_after)\nassert '?' in src and 'f\\\"' not in src and \"f'\" not in src"
+     "code": "import ast, inspect, textwrap\ntree = ast.parse(textwrap.dedent(inspect.getsource(books_after)))\ndef is_text(node):\n    return isinstance(node, ast.JoinedStr) or (\n        isinstance(node, ast.Constant) and isinstance(node.value, str))\nbuilt = []\nfor node in ast.walk(tree):\n    if isinstance(node, ast.JoinedStr):\n        built.append('an f-string')\n    elif (isinstance(node, ast.BinOp)\n          and isinstance(node.op, (ast.Add, ast.Mod))\n          and (is_text(node.left) or is_text(node.right))):\n        built.append('text joined with an operator')\n    elif (isinstance(node, ast.Call)\n          and isinstance(node.func, ast.Attribute)\n          and node.func.attr == 'format'):\n        built.append('.format()')\nassert not built, 'books_after should pass the year as a parameter, not build it into the SQL - found ' + built[0]"
     }
    ],
    "hints": [
@@ -2701,8 +3043,12 @@
      "code": "assert titles_by(CONN, 'Nobody') == []"
     },
     {
+     "name": "another database",
+     "code": "import sqlite3\nother = sqlite3.connect(':memory:')\nother.row_factory = sqlite3.Row\nother.executescript(\n    'CREATE TABLE authors (id INTEGER PRIMARY KEY, name TEXT NOT NULL);'\n    'CREATE TABLE books (id INTEGER PRIMARY KEY, author_id INTEGER NOT NULL,'\n    ' title TEXT NOT NULL, year INTEGER NOT NULL, copies INTEGER NOT NULL DEFAULT 0);'\n    \"INSERT INTO authors (id, name) VALUES (1,'Chiang'),(2,'Jemisin'),(3,'Borges');\"\n    'INSERT INTO books (author_id, title, year, copies) VALUES'\n    \" (1,'Exhalation',2019,2),(2,'The Fifth Season',2015,5),\"\n    \" (2,'The Obelisk Gate',2016,1),(2,'The Stone Sky',2017,3);\")\nassert titles_by(other, 'Jemisin') == ['The Fifth Season', 'The Obelisk Gate', 'The Stone Sky']"
+    },
+    {
      "name": "single query",
-     "code": "import inspect\nassert inspect.getsource(titles_by).lower().count('select') == 1"
+     "code": "class Cursor:\n    def __init__(self, spy):\n        self.spy = spy\n        self.inner = spy.conn.cursor()\n    def execute(self, *args, **kwargs):\n        self.spy.queries += 1\n        self.inner.execute(*args, **kwargs)\n        return self\n    def __iter__(self):\n        return iter(self.inner)\n    def __getattr__(self, name):\n        return getattr(self.inner, name)\nclass Spy:\n    def __init__(self, conn):\n        self.conn = conn\n        self.queries = 0\n    def execute(self, *args, **kwargs):\n        self.queries += 1\n        return self.conn.execute(*args, **kwargs)\n    def cursor(self):\n        return Cursor(self)\n    def __getattr__(self, name):\n        return getattr(self.conn, name)\nspy = Spy(CONN)\ntitles_by(spy, 'Butler')\nassert spy.queries == 1, 'titles_by should ask the database once, with a JOIN - it sent %d queries' % spy.queries"
     }
    ],
    "hints": [
@@ -2718,7 +3064,7 @@
    "topic": "Aggregation",
    "title": "Group and count",
    "difficulty": 3,
-   "prompt": "Write `book_counts(conn)` returning a dict mapping every author name to\nhow many books they have, including authors with none.\n\nSort is irrelevant; the counts are what matter.",
+   "prompt": "Write `book_counts(conn)` returning a dict mapping every author name to\nhow many books they have, including authors with none.\n\nDo it in a single query - let the database do the counting. Sort is\nirrelevant; the counts are what matter.",
    "starter": "def book_counts(conn):\n    pass\n",
    "tests": [
     {
@@ -2730,8 +3076,12 @@
      "code": "assert isinstance(book_counts(CONN), dict)"
     },
     {
+     "name": "an author with no books counts as zero",
+     "code": "import sqlite3\nother = sqlite3.connect(':memory:')\nother.row_factory = sqlite3.Row\nother.executescript(\n    'CREATE TABLE authors (id INTEGER PRIMARY KEY, name TEXT NOT NULL);'\n    'CREATE TABLE books (id INTEGER PRIMARY KEY, author_id INTEGER NOT NULL,'\n    ' title TEXT NOT NULL, year INTEGER NOT NULL, copies INTEGER NOT NULL DEFAULT 0);'\n    \"INSERT INTO authors (id, name) VALUES (1,'Chiang'),(2,'Jemisin'),(3,'Borges');\"\n    'INSERT INTO books (author_id, title, year, copies) VALUES'\n    \" (1,'Exhalation',2019,2),(2,'The Fifth Season',2015,5),\"\n    \" (2,'The Obelisk Gate',2016,1),(2,'The Stone Sky',2017,3);\")\nassert book_counts(other) == {'Chiang': 1, 'Jemisin': 3, 'Borges': 0}"
+    },
+    {
      "name": "one query",
-     "code": "import inspect\nassert inspect.getsource(book_counts).lower().count('select') == 1"
+     "code": "class Cursor:\n    def __init__(self, spy):\n        self.spy = spy\n        self.inner = spy.conn.cursor()\n    def execute(self, *args, **kwargs):\n        self.spy.queries += 1\n        self.inner.execute(*args, **kwargs)\n        return self\n    def __iter__(self):\n        return iter(self.inner)\n    def __getattr__(self, name):\n        return getattr(self.inner, name)\nclass Spy:\n    def __init__(self, conn):\n        self.conn = conn\n        self.queries = 0\n    def execute(self, *args, **kwargs):\n        self.queries += 1\n        return self.conn.execute(*args, **kwargs)\n    def cursor(self):\n        return Cursor(self)\n    def __getattr__(self, name):\n        return getattr(self.conn, name)\nspy = Spy(CONN)\nbook_counts(spy)\nassert spy.queries == 1, 'book_counts should ask the database once - it sent %d queries' % spy.queries"
     }
    ],
    "hints": [
@@ -2752,11 +3102,11 @@
    "tests": [
     {
      "name": "moves copies",
-     "code": "transfer_copies(CONN, 'Kindred', 'Dawn', 3)\nrows = dict(CONN.execute('SELECT title, copies FROM books'))\nassert rows['Kindred'] == 4 and rows['Dawn'] == 4"
+     "code": "transfer_copies(CONN, 'Kindred', 'Dawn', 3)\nrows = dict(CONN.execute('SELECT title, copies FROM books'))\nassert rows['Kindred'] == 4\nassert rows['Dawn'] == 4"
     },
     {
      "name": "rejects an overdraw",
-     "code": "try:\n    transfer_copies(CONN, 'Dawn', 'Solaris', 999)\nexcept ValueError:\n    pass\nelse:\n    raise AssertionError('expected ValueError')"
+     "code": "try:\n    result = transfer_copies(CONN, 'Dawn', 'Solaris', 999)\nexcept ValueError:\n    pass\nelse:\n    raise AssertionError(\"transfer_copies(CONN, 'Dawn', 'Solaris', 999) should raise ValueError, but it returned %r\" % (result,))"
     },
     {
      "name": "leaves rows untouched after failure",
@@ -2825,24 +3175,32 @@
      "code": "assert clean_signup({'email': ' A@B.COM ', 'age': '30'}) == {'email': 'a@b.com', 'age': 30}"
     },
     {
+     "name": "thirteen is old enough",
+     "code": "assert clean_signup({'email': 'Bob@Example.org', 'age': 13}) == {'email': 'bob@example.org', 'age': 13}"
+    },
+    {
      "name": "rejects a missing email",
-     "code": "try:\n    clean_signup({'age': 20})\nexcept ValueError:\n    pass\nelse:\n    raise AssertionError('expected ValueError')"
+     "code": "try:\n    result = clean_signup({'age': 20})\nexcept ValueError:\n    pass\nelse:\n    raise AssertionError(\"clean_signup({'age': 20}) should raise ValueError, but it returned %r\" % (result,))"
     },
     {
      "name": "rejects a malformed email",
-     "code": "try:\n    clean_signup({'email': 'nope', 'age': 20})\nexcept ValueError:\n    pass\nelse:\n    raise AssertionError('expected ValueError')"
+     "code": "try:\n    result = clean_signup({'email': 'nope', 'age': 20})\nexcept ValueError:\n    pass\nelse:\n    raise AssertionError(\"clean_signup({'email': 'nope', 'age': 20}) should raise ValueError, but it returned %r\" % (result,))"
+    },
+    {
+     "name": "rejects a missing age",
+     "code": "try:\n    result = clean_signup({'email': 'a@b.c'})\nexcept ValueError:\n    pass\nelse:\n    raise AssertionError(\"clean_signup({'email': 'a@b.c'}) should raise ValueError, but it returned %r\" % (result,))"
     },
     {
      "name": "rejects a child",
-     "code": "try:\n    clean_signup({'email': 'a@b.c', 'age': 9})\nexcept ValueError:\n    pass\nelse:\n    raise AssertionError('expected ValueError')"
+     "code": "try:\n    result = clean_signup({'email': 'a@b.c', 'age': 9})\nexcept ValueError:\n    pass\nelse:\n    raise AssertionError(\"clean_signup({'email': 'a@b.c', 'age': 9}) should raise ValueError, but it returned %r\" % (result,))"
     },
     {
      "name": "rejects a non-numeric age",
-     "code": "try:\n    clean_signup({'email': 'a@b.c', 'age': 'old'})\nexcept ValueError:\n    pass\nelse:\n    raise AssertionError('expected ValueError')"
+     "code": "try:\n    result = clean_signup({'email': 'a@b.c', 'age': 'old'})\nexcept ValueError:\n    pass\nelse:\n    raise AssertionError(\"clean_signup({'email': 'a@b.c', 'age': 'old'}) should raise ValueError, but it returned %r\" % (result,))"
     },
     {
      "name": "messages are not empty",
-     "code": "try:\n    clean_signup({})\nexcept ValueError as exc:\n    assert str(exc)"
+     "code": "try:\n    result = clean_signup({})\nexcept ValueError as exc:\n    message = str(exc)\nelse:\n    raise AssertionError('clean_signup({}) should raise ValueError, but it returned %r' % (result,))\nassert message.strip(), 'the ValueError needs a message a client could act on'"
     }
    ],
    "hints": [
@@ -2863,7 +3221,11 @@
    "tests": [
     {
      "name": "first page",
-     "code": "r = paginate(list(range(10)), 1, 3)\nassert r['items'] == [0, 1, 2] and r['pages'] == 4 and r['total'] == 10"
+     "code": "r = paginate(list(range(10)), 1, 3)\nassert r['items'] == [0, 1, 2]\nassert r['page'] == 1\nassert r['pages'] == 4\nassert r['total'] == 10"
+    },
+    {
+     "name": "a middle page",
+     "code": "r = paginate(list('abcdefg'), 2, 2)\nassert r['items'] == ['c', 'd']\nassert r['page'] == 2\nassert r['pages'] == 4\nassert r['total'] == 7"
     },
     {
      "name": "last partial page",
@@ -2875,11 +3237,15 @@
     },
     {
      "name": "empty input",
-     "code": "r = paginate([], 1, 5)\nassert r['items'] == [] and r['pages'] == 0"
+     "code": "r = paginate([], 1, 5)\nassert r['items'] == []\nassert r['pages'] == 0"
     },
     {
      "name": "rejects bad page",
-     "code": "try:\n    paginate([1], 0, 5)\nexcept ValueError:\n    pass\nelse:\n    raise AssertionError('expected ValueError')"
+     "code": "try:\n    result = paginate([1], 0, 5)\nexcept ValueError:\n    pass\nelse:\n    raise AssertionError('paginate([1], 0, 5) should raise ValueError, but it returned %r' % (result,))"
+    },
+    {
+     "name": "rejects a bad page size",
+     "code": "try:\n    result = paginate([1], 1, 0)\nexcept ValueError:\n    pass\nelse:\n    raise AssertionError('paginate([1], 1, 0) should raise ValueError, but it returned %r' % (result,))"
     }
    ],
    "hints": [
@@ -2937,15 +3303,19 @@
    "tests": [
     {
      "name": "succeeds first time",
-     "code": "log = []\n@retry(3, log)\ndef ok():\n    return 'fine'\nassert ok() == 'fine' and log == []"
+     "code": "log = []\n@retry(3, log)\ndef ok():\n    return 'fine'\nassert ok() == 'fine'\nassert log == []"
     },
     {
      "name": "retries then succeeds",
-     "code": "log = []\nstate = {'n': 0}\n@retry(3, log)\ndef flaky():\n    state['n'] += 1\n    if state['n'] < 3:\n        raise RuntimeError('nope')\n    return state['n']\nassert flaky() == 3 and log == [1, 2]"
+     "code": "log = []\nstate = {'n': 0}\n@retry(3, log)\ndef flaky():\n    state['n'] += 1\n    if state['n'] < 3:\n        raise RuntimeError('nope')\n    return state['n']\nassert flaky() == 3\nassert log == [1, 2]"
     },
     {
      "name": "gives up and re-raises",
-     "code": "log = []\n@retry(2, log)\ndef broken():\n    raise ValueError('always')\ntry:\n    broken()\nexcept ValueError:\n    pass\nelse:\n    raise AssertionError('should re-raise')"
+     "code": "log = []\n@retry(2, log)\ndef broken():\n    raise ValueError('always')\ntry:\n    result = broken()\nexcept ValueError:\n    pass\nelse:\n    raise AssertionError('broken() should raise ValueError, but it returned %r' % (result,))\nassert log == [1]"
+    },
+    {
+     "name": "delays keep doubling",
+     "code": "log = []\n@retry(4, log)\ndef broken():\n    raise RuntimeError('down')\ntry:\n    result = broken()\nexcept RuntimeError:\n    pass\nelse:\n    raise AssertionError('broken() should raise RuntimeError, but it returned %r' % (result,))\nassert log == [1, 2, 4]"
     },
     {
      "name": "keeps the name",
@@ -3040,7 +3410,7 @@
     },
     {
      "name": "still concurrent",
-     "code": "import asyncio, time\nSTATE['peak'] = 0\nstart = time.monotonic()\nasyncio.run(fetch_limited([str(i) for i in range(9)], 3))\nassert STATE['peak'] > 1 and time.monotonic() - start < 0.5"
+     "code": "import asyncio, time\nSTATE['peak'] = 0\nstart = time.monotonic()\nasyncio.run(fetch_limited([str(i) for i in range(9)], 3))\nelapsed = time.monotonic() - start\nassert STATE['peak'] > 1, 'only one call was ever in flight - start them together'\nassert elapsed < 0.5, 'nine calls took %.2fs - they should overlap' % elapsed"
     }
    ],
    "hints": [
@@ -3105,8 +3475,12 @@
      "code": "assert hash_password('x').count('$') == 1"
     },
     {
+     "name": "a 16-byte salt",
+     "code": "salt_hex = hash_password('x').split('$')[0]\nassert len(bytes.fromhex(salt_hex)) == 16"
+    },
+    {
      "name": "constant-time comparison",
-     "code": "import inspect\nassert 'compare_digest' in inspect.getsource(verify)"
+     "code": "import ast, inspect, textwrap\ntree = ast.parse(textwrap.dedent(inspect.getsource(verify)))\ncalled = set()\nfor node in ast.walk(tree):\n    if isinstance(node, ast.Call):\n        if isinstance(node.func, ast.Name):\n            called.add(node.func.id)\n        elif isinstance(node.func, ast.Attribute):\n            called.add('.' + node.func.attr)\nassert called & set(('.compare_digest', 'compare_digest')), 'verify should compare with hmac.compare_digest, which takes the same time however much matches'"
     },
     {
      "name": "malformed input is rejected",
@@ -3134,16 +3508,24 @@
      "code": "from pathlib import Path\nassert safe_join('data', 'a/b.txt') == (Path('data').resolve() / 'a' / 'b.txt')"
     },
     {
+     "name": "a harmless dot-dot inside the root",
+     "code": "from pathlib import Path\nassert safe_join('data', 'a/../b.txt') == (Path('data').resolve() / 'b.txt')"
+    },
+    {
      "name": "rejects traversal",
-     "code": "try:\n    safe_join('data', '../../etc/passwd')\nexcept ValueError:\n    pass\nelse:\n    raise AssertionError('expected ValueError')"
+     "code": "try:\n    result = safe_join('data', '../../etc/passwd')\nexcept ValueError:\n    pass\nelse:\n    raise AssertionError(\"safe_join('data', '../../etc/passwd') should raise ValueError, but it returned %r\" % (result,))"
     },
     {
      "name": "rejects an absolute path",
-     "code": "import os\ntarget = 'C:/Windows' if os.name == 'nt' else '/etc'\ntry:\n    safe_join('data', target)\nexcept ValueError:\n    pass\nelse:\n    raise AssertionError('expected ValueError')"
+     "code": "import os\ntarget = 'C:/Windows' if os.name == 'nt' else '/etc'\ntry:\n    result = safe_join('data', target)\nexcept ValueError:\n    pass\nelse:\n    raise AssertionError(\"safe_join('data', target) should raise ValueError, but it returned %r\" % (result,))"
     },
     {
      "name": "rejects a sneaky middle traversal",
-     "code": "try:\n    safe_join('data', 'ok/../../out.txt')\nexcept ValueError:\n    pass\nelse:\n    raise AssertionError('expected ValueError')"
+     "code": "try:\n    result = safe_join('data', 'ok/../../out.txt')\nexcept ValueError:\n    pass\nelse:\n    raise AssertionError(\"safe_join('data', 'ok/../../out.txt') should raise ValueError, but it returned %r\" % (result,))"
+    },
+    {
+     "name": "rejects a sibling with the same prefix",
+     "code": "try:\n    result = safe_join('data', '../data2/x.txt')\nexcept ValueError:\n    pass\nelse:\n    raise AssertionError(\"safe_join('data', '../data2/x.txt') should raise ValueError, but it returned %r\" % (result,))"
     }
    ],
    "hints": [
@@ -3171,12 +3553,16 @@
      "code": "attack = chr(39) + ' OR ' + chr(39) + '1' + chr(39) + '=' + chr(39) + '1'\nassert find_user(CONN, attack) == []"
     },
     {
-     "name": "no string concatenation into sql",
-     "code": "import inspect\nsrc = inspect.getsource(find_user)\nassert ' + ' not in src"
+     "name": "finds another user",
+     "code": "assert [r[0] for r in find_user(CONN, 'grace')] == [2]"
     },
     {
-     "name": "uses a placeholder",
-     "code": "import inspect\nassert '?' in inspect.getsource(find_user)"
+     "name": "a quote in a name is just a character",
+     "code": "assert find_user(CONN, \"o'brien\") == []"
+    },
+    {
+     "name": "no string building into sql",
+     "code": "import ast, inspect, textwrap\ntree = ast.parse(textwrap.dedent(inspect.getsource(find_user)))\ndef is_text(node):\n    return isinstance(node, ast.JoinedStr) or (\n        isinstance(node, ast.Constant) and isinstance(node.value, str))\nbuilt = []\nfor node in ast.walk(tree):\n    if isinstance(node, ast.JoinedStr):\n        built.append('an f-string')\n    elif (isinstance(node, ast.BinOp)\n          and isinstance(node.op, (ast.Add, ast.Mod))\n          and (is_text(node.left) or is_text(node.right))):\n        built.append('text joined with an operator')\n    elif (isinstance(node, ast.Call)\n          and isinstance(node.func, ast.Attribute)\n          and node.func.attr == 'format'):\n        built.append('.format()')\nassert not built, 'find_user should pass the name as a parameter, not build it into the SQL - found ' + built[0]"
     }
    ],
    "hints": [
@@ -3197,23 +3583,35 @@
    "tests": [
     {
      "name": "identical vectors",
-     "code": "assert abs(cosine([1, 2, 3], [1, 2, 3]) - 1.0) < 1e-9"
+     "code": "assert round(cosine([1, 2, 3], [1, 2, 3]), 9) == 1.0"
     },
     {
      "name": "orthogonal",
-     "code": "assert abs(cosine([1, 0], [0, 1])) < 1e-9"
+     "code": "assert round(cosine([1, 0], [0, 1]), 9) == 0.0"
     },
     {
      "name": "opposite",
-     "code": "assert abs(cosine([1, 0], [-1, 0]) + 1.0) < 1e-9"
+     "code": "assert round(cosine([1, 0], [-1, 0]), 9) == -1.0"
     },
     {
-     "name": "zero vector",
+     "name": "an angle in between",
+     "code": "assert round(cosine([1, 0], [1, 1]), 6) == 0.707107"
+    },
+    {
+     "name": "first vector all zeros",
      "code": "assert cosine([0, 0], [1, 1]) == 0.0"
     },
     {
+     "name": "second vector all zeros",
+     "code": "assert cosine([1, 1], [0, 0]) == 0.0"
+    },
+    {
+     "name": "both all zeros",
+     "code": "assert cosine([0, 0], [0, 0]) == 0.0"
+    },
+    {
      "name": "length mismatch",
-     "code": "try:\n    cosine([1], [1, 2])\nexcept ValueError:\n    pass\nelse:\n    raise AssertionError('expected ValueError')"
+     "code": "try:\n    result = cosine([1], [1, 2])\nexcept ValueError:\n    pass\nelse:\n    raise AssertionError('cosine([1], [1, 2]) should raise ValueError, but it returned %r' % (result,))"
     }
    ],
    "hints": [
@@ -3234,19 +3632,23 @@
    "tests": [
     {
      "name": "sums to one",
-     "code": "assert abs(sum(softmax([1, 2, 3])) - 1.0) < 1e-9"
+     "code": "assert round(sum(softmax([1, 2, 3])), 9) == 1.0"
     },
     {
      "name": "order is preserved",
-     "code": "p = softmax([1, 3, 2])\nassert p[1] > p[2] > p[0]"
+     "code": "p = softmax([1, 3, 2])\nassert p[1] > p[2]\nassert p[2] > p[0]"
     },
     {
      "name": "uniform input",
-     "code": "p = softmax([5, 5])\nassert abs(p[0] - 0.5) < 1e-9"
+     "code": "p = softmax([5, 5])\nassert round(p[0], 9) == 0.5"
+    },
+    {
+     "name": "known values",
+     "code": "import math\np = softmax([0, math.log(3)])\nassert [round(x, 9) for x in p] == [0.25, 0.75]"
     },
     {
      "name": "survives huge values",
-     "code": "p = softmax([1000, 1001])\nassert abs(sum(p) - 1.0) < 1e-9"
+     "code": "p = softmax([1000, 1001])\nassert round(sum(p), 9) == 1.0"
     },
     {
      "name": "empty",
@@ -3271,7 +3673,7 @@
    "tests": [
     {
      "name": "sizes",
-     "code": "train, test = train_test_split(list(range(100)), 0.2, 1)\nassert len(test) == 20 and len(train) == 80"
+     "code": "train, test = train_test_split(list(range(100)), 0.2, 1)\nassert len(test) == 20\nassert len(train) == 80"
     },
     {
      "name": "nothing lost",
@@ -3312,7 +3714,7 @@
     },
     {
      "name": "half right",
-     "code": "r = scores([1, 1], [1, 0])\nassert r['precision'] == 0.5 and r['recall'] == 1.0"
+     "code": "r = scores([1, 1], [1, 0])\nassert r['precision'] == 0.5\nassert r['recall'] == 1.0\nassert round(r['f1'], 9) == round(2 / 3, 9)"
     },
     {
      "name": "nothing predicted",
@@ -3324,7 +3726,7 @@
     },
     {
      "name": "length mismatch",
-     "code": "try:\n    scores([1], [1, 0])\nexcept ValueError:\n    pass\nelse:\n    raise AssertionError('expected ValueError')"
+     "code": "try:\n    result = scores([1], [1, 0])\nexcept ValueError:\n    pass\nelse:\n    raise AssertionError('scores([1], [1, 0]) should raise ValueError, but it returned %r' % (result,))"
     }
    ],
    "hints": [
@@ -3332,6 +3734,798 @@
     "F1 is the harmonic mean, 2pr / (p + r)."
    ],
    "solution": "def scores(predicted, actual):\n    if len(predicted) != len(actual):\n        raise ValueError(\"inputs must be the same length\")\n    tp = sum(1 for p, a in zip(predicted, actual) if p == 1 and a == 1)\n    fp = sum(1 for p, a in zip(predicted, actual) if p == 1 and a == 0)\n    fn = sum(1 for p, a in zip(predicted, actual) if p == 0 and a == 1)\n    precision = tp / (tp + fp) if tp + fp else 0.0\n    recall = tp / (tp + fn) if tp + fn else 0.0\n    f1 = (2 * precision * recall / (precision + recall)\n          if precision + recall else 0.0)\n    return {\"precision\": precision, \"recall\": recall, \"f1\": f1}\n",
+   "setup": ""
+  },
+  {
+   "id": "p06.001",
+   "phase": "p06",
+   "topic": "Permissions",
+   "title": "Read an ls -l mode",
+   "difficulty": 2,
+   "prompt": "`ls -l` shows a mode like `-rwxr-xr--`: one file-type character, then\nthree groups of three for owner, group and others. In each group `r`\nis worth 4, `w` 2 and `x` 1, and `-` is worth nothing.\n\nWrite `mode_to_octal(perm)` returning the three-digit string `chmod`\nwould take, so `'-rwxr-xr--'` gives `'754'`. The first character can\nbe anything (`-`, `d`, `l`...). Only `r`, `w`, `x` and `-` appear in\nthe other nine. Raise `ValueError` when `perm` is not 10 characters.",
+   "starter": "def mode_to_octal(perm):\n    pass\n",
+   "tests": [
+    {
+     "name": "a script",
+     "code": "assert mode_to_octal('-rwxr-xr--') == '754'"
+    },
+    {
+     "name": "a private directory",
+     "code": "assert mode_to_octal('drwx------') == '700'"
+    },
+    {
+     "name": "nothing allowed",
+     "code": "assert mode_to_octal('----------') == '000'"
+    },
+    {
+     "name": "world writable",
+     "code": "assert mode_to_octal('-rw-rw-rw-') == '666'"
+    },
+    {
+     "name": "rejects a short mode",
+     "code": "try:\n    result = mode_to_octal('rwx')\nexcept ValueError:\n    pass\nelse:\n    raise AssertionError('expected ValueError, but it returned %r' % (result,))"
+    }
+   ],
+   "hints": [
+    "Skip the first character, then treat the rest as three separate groups of three.",
+    "For each group add 4, 2 and 1 for the positions that are not `-`, and turn the total into a digit with `str()`."
+   ],
+   "solution": "def mode_to_octal(perm):\n    if len(perm) != 10:\n        raise ValueError(\"a mode is 10 characters, like -rwxr-xr--\")\n    digits = []\n    for start in (1, 4, 7):\n        value = 0\n        for char, bit in zip(perm[start:start + 3], (4, 2, 1)):\n            if char != \"-\":\n                value += bit\n        digits.append(str(value))\n    return \"\".join(digits)\n",
+   "setup": ""
+  },
+  {
+   "id": "p06.002",
+   "phase": "p06",
+   "topic": "Processes",
+   "title": "Parse a /proc file",
+   "difficulty": 2,
+   "prompt": "Files under `/proc`, such as `/proc/<pid>/status` and `/proc/meminfo`,\nare lines of `Key: value`, often padded with tabs or spaces.\n\nWrite `parse_status(text)` returning a dict of key to value, both with\nsurrounding whitespace removed. Split each line on its first colon\nonly, because values can contain colons. Skip blank lines and lines\nwith no colon. Values stay strings.",
+   "starter": "def parse_status(text):\n    pass\n",
+   "tests": [
+    {
+     "name": "a status file",
+     "code": "text = 'Name:\\tpython3\\nState:\\tS (sleeping)\\nPid:\\t4242\\n'\nassert parse_status(text) == {'Name': 'python3', 'State': 'S (sleeping)', 'Pid': '4242'}"
+    },
+    {
+     "name": "meminfo padding",
+     "code": "text = 'MemTotal:       16318412 kB\\nMemFree:            1024 kB'\nassert parse_status(text) == {'MemTotal': '16318412 kB', 'MemFree': '1024 kB'}"
+    },
+    {
+     "name": "colon inside a value",
+     "code": "assert parse_status('Cmd: python -c \"a:b\"') == {'Cmd': 'python -c \"a:b\"'}"
+    },
+    {
+     "name": "skips noise",
+     "code": "assert parse_status('\\nNoColonHere\\nUid:  1000\\n\\n') == {'Uid': '1000'}"
+    },
+    {
+     "name": "empty text",
+     "code": "assert parse_status('') == {}"
+    }
+   ],
+   "hints": [
+    "`str.splitlines()` gives you the lines; decide what to do with each one before splitting it.",
+    "`line.partition(':')` splits on the first colon only and tells you whether there was one at all."
+   ],
+   "solution": "def parse_status(text):\n    fields = {}\n    for line in text.splitlines():\n        key, colon, value = line.partition(\":\")\n        if not colon:\n            continue\n        fields[key.strip()] = value.strip()\n    return fields\n",
+   "setup": ""
+  },
+  {
+   "id": "p06.003",
+   "phase": "p06",
+   "topic": "Exit codes",
+   "title": "Say why a process stopped",
+   "difficulty": 3,
+   "prompt": "Write `describe_exit(code)` for a process's exit status:\n\n- `0` gives `'ok'`.\n- A negative code `-N` gives `'killed by signal N'`. This is what\n  `subprocess` reports on Linux when a signal ended the child.\n- A shell reports a signal death as `128 + N`, so a code from 129 to\n  192 inclusive gives `'killed by signal N'` too (137 is signal 9).\n- Any other positive code gives `'failed with code N'`.",
+   "starter": "def describe_exit(code):\n    pass\n",
+   "tests": [
+    {
+     "name": "success",
+     "code": "assert describe_exit(0) == 'ok'"
+    },
+    {
+     "name": "a plain failure",
+     "code": "assert describe_exit(2) == 'failed with code 2'"
+    },
+    {
+     "name": "killed, as subprocess sees it",
+     "code": "assert describe_exit(-9) == 'killed by signal 9'"
+    },
+    {
+     "name": "killed, as a shell sees it",
+     "code": "assert describe_exit(137) == 'killed by signal 9'"
+    },
+    {
+     "name": "128 itself is a plain failure",
+     "code": "assert describe_exit(128) == 'failed with code 128'"
+    },
+    {
+     "name": "above the signal range",
+     "code": "assert describe_exit(255) == 'failed with code 255'"
+    }
+   ],
+   "hints": [
+    "Handle the cases in the order the prompt lists them, and watch both ends of the 129 to 192 range.",
+    "`-code` turns -9 into 9, and `code - 128` turns 137 into 9. `129 <= code <= 192` is a single comparison in Python."
+   ],
+   "solution": "def describe_exit(code):\n    if code == 0:\n        return \"ok\"\n    if code < 0:\n        return \"killed by signal %d\" % -code\n    if 129 <= code <= 192:\n        return \"killed by signal %d\" % (code - 128)\n    return \"failed with code %d\" % code\n",
+   "setup": ""
+  },
+  {
+   "id": "p06.004",
+   "phase": "p06",
+   "topic": "Filesystem",
+   "title": "Roll up sizes like du",
+   "difficulty": 3,
+   "prompt": "A directory tree is given as a dict: a key is a name, an `int` value is\na file's size in bytes, and a `dict` value is a subdirectory.\n\nWrite `du(tree)` returning a dict from each directory's path to the\ntotal bytes beneath it, like `du` does. The top of the tree is `'.'`\nand a subdirectory's path joins names with `/`, so `'./src/lib'`.\nEvery directory appears, including empty ones, which total 0.",
+   "starter": "def du(tree):\n    pass\n",
+   "tests": [
+    {
+     "name": "a small project",
+     "code": "tree = {'a.txt': 100, 'src': {'main.py': 40, 'lib': {'x.py': 10}}, 'empty': {}}\nassert du(tree) == {'.': 150, './src': 50, './src/lib': 10, './empty': 0}"
+    },
+    {
+     "name": "an empty tree",
+     "code": "assert du({}) == {'.': 0}"
+    },
+    {
+     "name": "files only",
+     "code": "assert du({'f': 5, 'g': 7}) == {'.': 12}"
+    },
+    {
+     "name": "deep nesting",
+     "code": "tree = {'d': {'d': {'d': {'f': 1}}}}\nassert du(tree) == {'.': 1, './d': 1, './d/d': 1, './d/d/d': 1}"
+    }
+   ],
+   "hints": [
+    "A directory's total is its own files plus the totals of its subdirectories - a recursive definition.",
+    "Write an inner function `walk(node, path)` that returns the total and records it in a shared dict before returning."
+   ],
+   "solution": "def du(tree):\n    totals = {}\n\n    def walk(node, path):\n        total = 0\n        for name, child in node.items():\n            if isinstance(child, dict):\n                total += walk(child, path + \"/\" + name)\n            else:\n                total += child\n        totals[path] = total\n        return total\n\n    walk(tree, \".\")\n    return totals\n",
+   "setup": ""
+  },
+  {
+   "id": "p07.001",
+   "phase": "p07",
+   "topic": "HTTP",
+   "title": "Read a status code",
+   "difficulty": 2,
+   "prompt": "Write two functions.\n\n`classify_status(code)` returns `'informational'` for 100-199,\n`'success'` for 200-299, `'redirect'` for 300-399, `'client error'`\nfor 400-499 and `'server error'` for 500-599. Raise `ValueError` for\nanything outside 100-599.\n\n`is_retryable(code)` returns True only for the codes where trying the\nsame request again later can succeed: 408, 429, 502, 503 and 504.\nEverything else, including 500, returns False.",
+   "starter": "def classify_status(code):\n    pass\n\n\ndef is_retryable(code):\n    pass\n",
+   "tests": [
+    {
+     "name": "success",
+     "code": "assert classify_status(200) == 'success'"
+    },
+    {
+     "name": "redirect and informational",
+     "code": "assert classify_status(301) == 'redirect'\nassert classify_status(101) == 'informational'"
+    },
+    {
+     "name": "errors",
+     "code": "assert classify_status(404) == 'client error'\nassert classify_status(503) == 'server error'"
+    },
+    {
+     "name": "rejects a made-up code",
+     "code": "try:\n    result = classify_status(600)\nexcept ValueError:\n    pass\nelse:\n    raise AssertionError('expected ValueError, but it returned %r' % (result,))"
+    },
+    {
+     "name": "rate limited is retryable",
+     "code": "assert is_retryable(429) == True"
+    },
+    {
+     "name": "not found is not",
+     "code": "assert is_retryable(404) == False"
+    }
+   ],
+   "hints": [
+    "The first digit of a status code is its class.",
+    "`code // 100` gives the class; a set literal holds the retryable codes."
+   ],
+   "solution": "RETRYABLE = {408, 429, 502, 503, 504}\nCLASSES = {1: \"informational\", 2: \"success\", 3: \"redirect\",\n           4: \"client error\", 5: \"server error\"}\n\n\ndef classify_status(code):\n    if not 100 <= code <= 599:\n        raise ValueError(\"not an HTTP status code: %r\" % code)\n    return CLASSES[code // 100]\n\n\ndef is_retryable(code):\n    return code in RETRYABLE\n",
+   "setup": ""
+  },
+  {
+   "id": "p07.002",
+   "phase": "p07",
+   "topic": "Addressing",
+   "title": "Check an address against an allowlist",
+   "difficulty": 3,
+   "prompt": "Write `allowed(address, networks)` returning True when the IP address\nstring `address` falls inside any of the CIDR blocks in `networks`\n(strings like `'10.0.0.0/8'`), and False otherwise.\n\nUse the standard `ipaddress` module. Both IPv4 and IPv6 must work. An\naddress that does not parse is not allowed - return False rather than\nraising. An empty `networks` list allows nothing. The networks are\nalways well-formed.",
+   "starter": "def allowed(address, networks):\n    pass\n",
+   "tests": [
+    {
+     "name": "inside a /8",
+     "code": "assert allowed('10.1.2.3', ['10.0.0.0/8']) == True"
+    },
+    {
+     "name": "outside every block",
+     "code": "assert allowed('192.168.1.5', ['10.0.0.0/8', '172.16.0.0/12']) == False"
+    },
+    {
+     "name": "edge of a /12",
+     "code": "assert allowed('172.31.255.255', ['10.0.0.0/8', '172.16.0.0/12']) == True"
+    },
+    {
+     "name": "IPv6",
+     "code": "assert allowed('2001:db8::1', ['2001:db8::/32']) == True"
+    },
+    {
+     "name": "garbage is refused",
+     "code": "assert allowed('not-an-ip', ['0.0.0.0/0']) == False"
+    },
+    {
+     "name": "nothing listed",
+     "code": "assert allowed('10.0.0.1', []) == False"
+    }
+   ],
+   "hints": [
+    "Do not compare strings or split on dots: `ipaddress` knows what a network contains.",
+    "`ipaddress.ip_address(a) in ipaddress.ip_network(n)` is the test; parsing a bad address raises `ValueError`."
+   ],
+   "solution": "import ipaddress\n\n\ndef allowed(address, networks):\n    try:\n        ip = ipaddress.ip_address(address)\n    except ValueError:\n        return False\n    return any(ip in ipaddress.ip_network(net) for net in networks)\n",
+   "setup": ""
+  },
+  {
+   "id": "p07.003",
+   "phase": "p07",
+   "topic": "Timeouts and retries",
+   "title": "A retry schedule with a budget",
+   "difficulty": 3,
+   "prompt": "Write `backoff_schedule(base, cap, budget, rand, max_attempts=10)`\nreturning the list of delays, in seconds, a client would wait between\nretries.\n\nAttempt `n` (counting from 0) waits `min(cap, base * 2 ** n) * rand()`.\n`rand` is a function with no arguments returning a number from 0 to 1;\nit is passed in so the jitter can be tested. Call it once per attempt.\n\nStop before a delay would push the running total above `budget` (a\ntotal exactly equal to the budget is fine), or once the list holds\n`max_attempts` delays, whichever comes first.",
+   "starter": "def backoff_schedule(base, cap, budget, rand, max_attempts=10):\n    pass\n",
+   "tests": [
+    {
+     "name": "doubles up to the cap",
+     "code": "assert backoff_schedule(1, 8, 20, lambda: 1.0) == [1, 2, 4, 8]"
+    },
+    {
+     "name": "jitter shrinks each delay",
+     "code": "assert backoff_schedule(1, 8, 20, lambda: 0.5) == [0.5, 1.0, 2.0, 4.0, 4.0, 4.0, 4.0]"
+    },
+    {
+     "name": "the budget can be spent exactly",
+     "code": "assert backoff_schedule(1, 8, 7, lambda: 1.0) == [1, 2, 4]"
+    },
+    {
+     "name": "a budget too small for one retry",
+     "code": "assert backoff_schedule(1, 8, 0.5, lambda: 1.0) == []"
+    },
+    {
+     "name": "max_attempts wins",
+     "code": "assert backoff_schedule(2, 100, 1000, lambda: 1.0, max_attempts=3) == [2, 4, 8]\nassert backoff_schedule(1, 8, 20, lambda: 0.0) == [0.0] * 10"
+    },
+    {
+     "name": "one rand() per attempt",
+     "code": "values = iter([1.0, 0.5, 0.25])\nassert backoff_schedule(4, 100, 100, lambda: next(values), max_attempts=3) == [4.0, 4.0, 4.0]"
+    }
+   ],
+   "hints": [
+    "Keep a running total next to the list, and check it before you append, not after.",
+    "Loop `for n in range(max_attempts)`, compute the delay, and `break` when `total + delay > budget`."
+   ],
+   "solution": "def backoff_schedule(base, cap, budget, rand, max_attempts=10):\n    delays = []\n    total = 0\n    for n in range(max_attempts):\n        delay = min(cap, base * 2 ** n) * rand()\n        if total + delay > budget:\n            break\n        delays.append(delay)\n        total += delay\n    return delays\n",
+   "setup": ""
+  },
+  {
+   "id": "p07.004",
+   "phase": "p07",
+   "topic": "HTTP",
+   "title": "Parse a raw HTTP response",
+   "difficulty": 4,
+   "prompt": "Write `parse_response(raw)` taking the bytes of an HTTP/1.1 response\nand returning a tuple `(status, headers, body)`.\n\n- The head ends at the first `b'\\r\\n\\r\\n'`; everything after it is the\n  body, returned as bytes exactly as sent (it may contain `\\r\\n\\r\\n`\n  itself). If there is no blank line, raise `ValueError`.\n- Decode the head as `'latin-1'` and split it into lines on `'\\r\\n'`.\n- The first line is the status line, like `HTTP/1.1 200 OK`. The\n  reason phrase may be missing (`HTTP/1.1 204`). `status` is the code\n  as an int. Raise `ValueError` if the line does not start `HTTP/`.\n- Each other line is `Name: value`. Header names are case-insensitive,\n  so store them lowercased; strip the values. A header sent more than\n  once has its values joined with `', '` in the order they arrived.",
+   "starter": "def parse_response(raw):\n    pass\n",
+   "tests": [
+    {
+     "name": "status code",
+     "code": "raw = b'HTTP/1.1 200 OK\\r\\nContent-Type: text/plain\\r\\nContent-Length: 2\\r\\n\\r\\nhi'\nassert parse_response(raw)[0] == 200"
+    },
+    {
+     "name": "headers are lowercased",
+     "code": "raw = b'HTTP/1.1 200 OK\\r\\nContent-Type: text/plain\\r\\nContent-Length:  2 \\r\\n\\r\\nhi'\nassert parse_response(raw)[1] == {'content-type': 'text/plain', 'content-length': '2'}"
+    },
+    {
+     "name": "body kept verbatim",
+     "code": "raw = b'HTTP/1.1 200 OK\\r\\nX-Id: 1\\r\\n\\r\\nline1\\r\\n\\r\\nline2'\nassert parse_response(raw)[2] == b'line1\\r\\n\\r\\nline2'"
+    },
+    {
+     "name": "no reason phrase, no body",
+     "code": "assert parse_response(b'HTTP/1.1 204\\r\\n\\r\\n') == (204, {}, b'')"
+    },
+    {
+     "name": "repeated headers are joined",
+     "code": "raw = (b'HTTP/1.1 302 Found\\r\\nSet-Cookie: a=1\\r\\nset-cookie: b=2\\r\\n'\n       b'Location: /home\\r\\n\\r\\n')\nassert parse_response(raw)[1] == {'set-cookie': 'a=1, b=2', 'location': '/home'}"
+    },
+    {
+     "name": "a truncated response",
+     "code": "try:\n    result = parse_response(b'HTTP/1.1 200 OK\\r\\nContent-Type: text/plain')\nexcept ValueError:\n    pass\nelse:\n    raise AssertionError('expected ValueError, but it returned %r' % (result,))"
+    }
+   ],
+   "hints": [
+    "Split the head from the body first, with the bytes still bytes. Only the head is text.",
+    "`raw.partition(b'\\r\\n\\r\\n')` gives head, separator and body in one call; the separator is empty when there was no blank line."
+   ],
+   "solution": "def parse_response(raw):\n    head, blank, body = raw.partition(b\"\\r\\n\\r\\n\")\n    if not blank:\n        raise ValueError(\"no blank line ends the headers\")\n    lines = head.decode(\"latin-1\").split(\"\\r\\n\")\n    status_line = lines[0]\n    if not status_line.startswith(\"HTTP/\"):\n        raise ValueError(\"not an HTTP status line: %r\" % status_line)\n    status = int(status_line.split()[1])\n    headers = {}\n    for line in lines[1:]:\n        name, _, value = line.partition(\":\")\n        name = name.strip().lower()\n        value = value.strip()\n        if name in headers:\n            headers[name] += \", \" + value\n        else:\n            headers[name] = value\n    return status, headers, body\n",
+   "setup": ""
+  },
+  {
+   "id": "p12.001",
+   "phase": "p12",
+   "topic": "Releases",
+   "title": "A semantic version gate",
+   "difficulty": 2,
+   "prompt": "Write `bump_kind(old, new)` for two versions like `'1.4.2'`. Either may\nstart with a `v` (`'v1.4.2'`).\n\nReturn `'major'`, `'minor'` or `'patch'`: the most significant part\nthat went up. Compare the parts as numbers, so `1.10.0` is newer than\n`1.9.0`. Raise `ValueError` when `new` is not newer than `old`, or when\neither is not three whole numbers separated by dots.",
+   "starter": "def bump_kind(old, new):\n    pass\n",
+   "tests": [
+    {
+     "name": "a patch",
+     "code": "assert bump_kind('1.2.3', '1.2.4') == 'patch'"
+    },
+    {
+     "name": "a minor",
+     "code": "assert bump_kind('1.2.3', '1.3.0') == 'minor'"
+    },
+    {
+     "name": "numbers, not text",
+     "code": "assert bump_kind('1.9.0', '1.10.0') == 'minor'"
+    },
+    {
+     "name": "a major with a v prefix",
+     "code": "assert bump_kind('v0.9.9', '1.0.0') == 'major'"
+    },
+    {
+     "name": "the same version is refused",
+     "code": "try:\n    result = bump_kind('1.2.3', '1.2.3')\nexcept ValueError:\n    pass\nelse:\n    raise AssertionError('expected ValueError, but it returned %r' % (result,))"
+    },
+    {
+     "name": "two parts are refused",
+     "code": "try:\n    result = bump_kind('1.2', '1.3.0')\nexcept ValueError:\n    pass\nelse:\n    raise AssertionError('expected ValueError, but it returned %r' % (result,))"
+    }
+   ],
+   "hints": [
+    "Turn each version into a tuple of three ints first; tuples compare part by part, which is exactly the rule.",
+    "`s.removeprefix('v').split('.')`, check there are three parts that are all digits, then compare the tuples and find the first index where they differ."
+   ],
+   "solution": "def _parse(version):\n    parts = version.removeprefix(\"v\").split(\".\")\n    if len(parts) != 3 or not all(p.isdigit() for p in parts):\n        raise ValueError(\"not a MAJOR.MINOR.PATCH version: %r\" % version)\n    return tuple(int(p) for p in parts)\n\n\ndef bump_kind(old, new):\n    before, after = _parse(old), _parse(new)\n    if after <= before:\n        raise ValueError(\"%s is not newer than %s\" % (new, old))\n    for name, a, b in zip((\"major\", \"minor\", \"patch\"), before, after):\n        if a != b:\n            return name\n",
+   "setup": ""
+  },
+  {
+   "id": "p12.002",
+   "phase": "p12",
+   "topic": "CI",
+   "title": "Validate a CI config",
+   "difficulty": 3,
+   "prompt": "A CI config has been loaded into a dict shaped like a GitHub Actions\nworkflow: `{'jobs': {name: job}}`, where a job has `'runs-on'`,\n`'steps'` (a list of dicts) and optionally `'needs'` (a list of job\nnames, or a single name as a string).\n\nWrite `ci_problems(config)` returning a sorted list of problem strings,\nor `[]` when the config is fine. Use exactly these messages:\n\n- `'no jobs'` when `jobs` is missing or empty (nothing else to check).\n- `'<job>: no runs-on'` when a job has no `runs-on`.\n- `'<job>: no steps'` when a job has no steps or an empty list.\n- `'<job>: step <n> needs exactly one of run or uses'` for a step with\n  neither or both of those keys. `n` counts from 1.\n- `'<job>: needs unknown job <other>'` for each name in `needs` that\n  is not a job.",
+   "starter": "def ci_problems(config):\n    pass\n",
+   "tests": [
+    {
+     "name": "a good config",
+     "code": "config = {'jobs': {\n    'test': {'runs-on': 'ubuntu-latest',\n             'steps': [{'uses': 'actions/checkout@v4'}, {'run': 'pytest'}]},\n    'build': {'runs-on': 'ubuntu-latest', 'needs': ['test'],\n              'steps': [{'run': 'make'}]}}}\nassert ci_problems(config) == []"
+    },
+    {
+     "name": "no jobs at all",
+     "code": "assert ci_problems({}) == ['no jobs']\nassert ci_problems({'jobs': {}}) == ['no jobs']"
+    },
+    {
+     "name": "a bare job",
+     "code": "assert ci_problems({'jobs': {'lint': {'steps': []}}}) == ['lint: no runs-on', 'lint: no steps']"
+    },
+    {
+     "name": "bad steps",
+     "code": "config = {'jobs': {'t': {'runs-on': 'x', 'steps': [\n    {'run': 'a'}, {'name': 'oops'}, {'run': 'b', 'uses': 'c'}]}}}\nassert ci_problems(config) == [\n    't: step 2 needs exactly one of run or uses',\n    't: step 3 needs exactly one of run or uses']"
+    },
+    {
+     "name": "needs a job that is not there",
+     "code": "config = {'jobs': {'deploy': {'runs-on': 'x', 'steps': [{'run': 'go'}],\n                              'needs': 'tset'}}}\nassert ci_problems(config) == ['deploy: needs unknown job tset']"
+    }
+   ],
+   "hints": [
+    "Collect problems into a list as you walk the jobs, and sort once at the end.",
+    "`'run' in step` and `'uses' in step` are two booleans; the step is wrong when they are equal. Wrap a string `needs` in a list before looping over it."
+   ],
+   "solution": "def ci_problems(config):\n    jobs = config.get(\"jobs\") or {}\n    if not jobs:\n        return [\"no jobs\"]\n    problems = []\n    for name, job in jobs.items():\n        if not job.get(\"runs-on\"):\n            problems.append(\"%s: no runs-on\" % name)\n        steps = job.get(\"steps\") or []\n        if not steps:\n            problems.append(\"%s: no steps\" % name)\n        for number, step in enumerate(steps, 1):\n            if (\"run\" in step) == (\"uses\" in step):\n                problems.append(\"%s: step %d needs exactly one of run or uses\"\n                                % (name, number))\n        needs = job.get(\"needs\") or []\n        if isinstance(needs, str):\n            needs = [needs]\n        for other in needs:\n            if other not in jobs:\n                problems.append(\"%s: needs unknown job %s\" % (name, other))\n    return sorted(problems)\n",
+   "setup": ""
+  },
+  {
+   "id": "p12.003",
+   "phase": "p12",
+   "topic": "Docker",
+   "title": "Spot a cache-busting Dockerfile",
+   "difficulty": 4,
+   "prompt": "Docker caches each layer until something it depends on changes. Copying\nthe whole project (`COPY . ...`) before `pip install` means every code\nchange reinstalls every dependency.\n\nWrite two functions.\n\n`layers(text)` returns a list of `(INSTRUCTION, arguments)` tuples, one\nper instruction, with the instruction uppercased (Docker accepts\n`run` as well as `RUN`) and the arguments stripped. Skip blank lines\nand comment lines (starting with `#`). A line ending in `\\` continues\non the next line: drop the backslash and join the pieces with a single\nspace. Comments never appear inside a continued instruction.\n\n`cache_busting_lines(text)` returns the 1-based line numbers where\neach `RUN` containing `pip install` starts, when a `COPY` whose first\nsource is `.` came earlier in the same stage. Arguments starting with\n`--` (like `--chown=app`) are options, not sources. A `FROM` starts a\nnew stage and forgets any earlier `COPY`.",
+   "starter": "def layers(text):\n    pass\n\n\ndef cache_busting_lines(text):\n    pass\n",
+   "tests": [
+    {
+     "name": "instructions in order",
+     "code": "text = ('FROM python:3.13-slim\\nWORKDIR /app\\nCOPY requirements.txt .\\n'\n        'RUN pip install -r requirements.txt\\nCOPY . .\\nCMD [\"python\", \"app.py\"]\\n')\nassert layers(text) == [('FROM', 'python:3.13-slim'), ('WORKDIR', '/app'),\n                        ('COPY', 'requirements.txt .'),\n                        ('RUN', 'pip install -r requirements.txt'),\n                        ('COPY', '. .'), ('CMD', '[\"python\", \"app.py\"]')]"
+    },
+    {
+     "name": "the good order is clean",
+     "code": "text = ('FROM python:3.13-slim\\nWORKDIR /app\\nCOPY requirements.txt .\\n'\n        'RUN pip install -r requirements.txt\\nCOPY . .\\n')\nassert cache_busting_lines(text) == []"
+    },
+    {
+     "name": "the bad order is flagged",
+     "code": "text = ('FROM python:3.13-slim\\n# app code\\nWORKDIR /app\\nCOPY . .\\n'\n        'RUN pip install -r requirements.txt\\n')\nassert cache_busting_lines(text) == [5]"
+    },
+    {
+     "name": "continuations, options and lowercase",
+     "code": "text = ('FROM python:3.13\\ncopy --chown=app . /app\\nrun apt-get update && \\\\\\n'\n        '    pip install -r /app/requirements.txt\\n')\nassert layers(text)[2] == ('RUN', 'apt-get update && pip install -r /app/requirements.txt')\nassert cache_busting_lines(text) == [3]"
+    },
+    {
+     "name": "a new stage starts clean",
+     "code": "text = ('FROM python:3.13 AS build\\nCOPY . /src\\nRUN pip install build\\n'\n        'FROM python:3.13-slim\\nRUN pip install /wheels/app.whl\\n')\nassert cache_busting_lines(text) == [3]"
+    },
+    {
+     "name": "only comments",
+     "code": "assert layers('\\n# nothing here\\n\\n') == []"
+    }
+   ],
+   "hints": [
+    "Write `layers` first, but have a helper also remember the line number each instruction started on; `cache_busting_lines` needs it.",
+    "Keep a flag, 'copied everything', set by a matching COPY and cleared by FROM. For COPY, the first argument that does not start with `--` is the first source."
+   ],
+   "solution": "def _instructions(text):\n    found = []\n    pieces = None\n    start = 0\n    for number, line in enumerate(text.splitlines(), 1):\n        stripped = line.strip()\n        if pieces is None:\n            if not stripped or stripped.startswith(\"#\"):\n                continue\n            pieces = []\n            start = number\n        if stripped.endswith(\"\\\\\"):\n            pieces.append(stripped[:-1].strip())\n            continue\n        pieces.append(stripped)\n        found.append((start, \" \".join(p for p in pieces if p)))\n        pieces = None\n    if pieces:\n        found.append((start, \" \".join(p for p in pieces if p)))\n    out = []\n    for number, joined in found:\n        word, _, rest = joined.partition(\" \")\n        out.append((number, word.upper(), rest.strip()))\n    return out\n\n\ndef layers(text):\n    return [(word, args) for _, word, args in _instructions(text)]\n\n\ndef cache_busting_lines(text):\n    flagged = []\n    copied_everything = False\n    for number, word, args in _instructions(text):\n        if word == \"FROM\":\n            copied_everything = False\n        elif word == \"COPY\":\n            sources = [a for a in args.split() if not a.startswith(\"--\")]\n            if sources and sources[0] == \".\":\n                copied_everything = True\n        elif word == \"RUN\" and copied_everything and \"pip install\" in args:\n            flagged.append(number)\n    return flagged\n",
+   "setup": ""
+  },
+  {
+   "id": "p15.001",
+   "phase": "p15",
+   "topic": "Caching",
+   "title": "Cache-aside with a time to live",
+   "difficulty": 3,
+   "prompt": "Write `TTLCache(loader, ttl, clock)` for the cache-aside pattern.\n`loader(key)` fetches the real value (think: a database query).\n`clock()` returns the current time in seconds; it is passed in so\ntests can move time by hand.\n\n- `get(key)` returns the cached value if it was loaded less than\n  `ttl` seconds ago. Otherwise it calls `loader(key)`, stores the\n  result with the current time, and returns it. An entry exactly\n  `ttl` seconds old has expired.\n- If `loader` raises, the exception passes through and nothing is\n  cached.\n- `invalidate(key)` forgets a key. Invalidating a key that is not\n  cached does nothing.",
+   "starter": "class TTLCache:\n    def __init__(self, loader, ttl, clock):\n        pass\n\n    def get(self, key):\n        pass\n\n    def invalidate(self, key):\n        pass\n",
+   "tests": [
+    {
+     "name": "returns the loaded value",
+     "code": "cache = TTLCache(lambda key: key.upper(), 10, lambda: 0.0)\nassert cache.get('b') == 'B'"
+    },
+    {
+     "name": "loads once while fresh",
+     "code": "now, calls = [0.0], []\ndef loader(key):\n    calls.append(key)\n    return key.upper()\ncache = TTLCache(loader, 10, lambda: now[0])\ncache.get('a')\nnow[0] = 9.5\ncache.get('a')\nassert calls == ['a']"
+    },
+    {
+     "name": "expires at exactly ttl",
+     "code": "now, calls = [0.0], []\ndef loader(key):\n    calls.append(key)\n    return key.upper()\ncache = TTLCache(loader, 10, lambda: now[0])\ncache.get('a')\nnow[0] = 10.0\ncache.get('a')\nassert calls == ['a', 'a']"
+    },
+    {
+     "name": "invalidate forces a reload",
+     "code": "calls = []\ndef loader(key):\n    calls.append(key)\n    return len(calls)\ncache = TTLCache(loader, 60, lambda: 0.0)\ncache.get('a')\ncache.invalidate('a')\ncache.invalidate('never-cached')\nassert cache.get('a') == 2"
+    },
+    {
+     "name": "a failure is not cached",
+     "code": "attempts = []\ndef loader(key):\n    attempts.append(key)\n    if len(attempts) == 1:\n        raise ConnectionError('database down')\n    return 'ok'\ncache = TTLCache(loader, 60, lambda: 0.0)\ntry:\n    cache.get('a')\nexcept ConnectionError:\n    pass\nassert cache.get('a') == 'ok'"
+    }
+   ],
+   "hints": [
+    "Store the value together with the time it was loaded, so `get` can decide whether it is still fresh.",
+    "A dict of `key -> (value, loaded_at)`. Fresh means `clock() - loaded_at < ttl`; only write to the dict after `loader` has returned."
+   ],
+   "solution": "class TTLCache:\n    def __init__(self, loader, ttl, clock):\n        self.loader = loader\n        self.ttl = ttl\n        self.clock = clock\n        self._entries = {}\n\n    def get(self, key):\n        now = self.clock()\n        entry = self._entries.get(key)\n        if entry is not None and now - entry[1] < self.ttl:\n            return entry[0]\n        value = self.loader(key)\n        self._entries[key] = (value, now)\n        return value\n\n    def invalidate(self, key):\n        self._entries.pop(key, None)\n",
+   "setup": ""
+  },
+  {
+   "id": "p15.002",
+   "phase": "p15",
+   "topic": "Rate limiting",
+   "title": "A token bucket",
+   "difficulty": 4,
+   "prompt": "Write `TokenBucket(rate, capacity, clock)`. The bucket starts full with\n`capacity` tokens and gains `rate` tokens per second, never holding\nmore than `capacity`. `clock()` returns the current time in seconds.\n\n`allow(cost=1)` first adds the tokens earned since the last call, then\nreturns True and spends `cost` tokens if there are at least that many.\nOtherwise it returns False and spends nothing, so a request bigger\nthan the whole bucket is always refused but costs nothing.",
+   "starter": "class TokenBucket:\n    def __init__(self, rate, capacity, clock):\n        pass\n\n    def allow(self, cost=1):\n        pass\n",
+   "tests": [
+    {
+     "name": "a burst up to capacity",
+     "code": "bucket = TokenBucket(2, 4, lambda: 0.0)\nassert [bucket.allow() for _ in range(5)] == [True, True, True, True, False]"
+    },
+    {
+     "name": "refills with time",
+     "code": "now = [0.0]\nbucket = TokenBucket(2, 4, lambda: now[0])\nfor _ in range(4):\n    bucket.allow()\nnow[0] = 0.5\nassert [bucket.allow(), bucket.allow()] == [True, False]"
+    },
+    {
+     "name": "never holds more than capacity",
+     "code": "now = [0.0]\nbucket = TokenBucket(2, 4, lambda: now[0])\nfor _ in range(4):\n    bucket.allow()\nnow[0] = 100.0\nassert [bucket.allow() for _ in range(5)] == [True, True, True, True, False]"
+    },
+    {
+     "name": "costs",
+     "code": "bucket = TokenBucket(1, 4, lambda: 0.0)\nassert [bucket.allow(3), bucket.allow(2), bucket.allow(1)] == [True, False, True]"
+    },
+    {
+     "name": "a refusal spends nothing",
+     "code": "bucket = TokenBucket(1, 2, lambda: 0.0)\nassert [bucket.allow(3), bucket.allow(2)] == [False, True]"
+    },
+    {
+     "name": "a slow bucket",
+     "code": "now = [0.0]\nbucket = TokenBucket(0.25, 1, lambda: now[0])\nbucket.allow()\nnow[0] = 2.0\nfirst = bucket.allow()\nnow[0] = 4.0\nassert [first, bucket.allow()] == [False, True]"
+    }
+   ],
+   "hints": [
+    "You only need two pieces of state besides the settings: how many tokens there are, and when you last looked.",
+    "On each call: `tokens = min(capacity, tokens + (now - last) * rate)`, then `last = now`, then compare with `cost`."
+   ],
+   "solution": "class TokenBucket:\n    def __init__(self, rate, capacity, clock):\n        self.rate = rate\n        self.capacity = capacity\n        self.clock = clock\n        self.tokens = capacity\n        self.last = clock()\n\n    def allow(self, cost=1):\n        now = self.clock()\n        earned = (now - self.last) * self.rate\n        self.tokens = min(self.capacity, self.tokens + earned)\n        self.last = now\n        if self.tokens >= cost:\n            self.tokens -= cost\n            return True\n        return False\n",
+   "setup": ""
+  },
+  {
+   "id": "p15.003",
+   "phase": "p15",
+   "topic": "Sharding",
+   "title": "A consistent hashing ring",
+   "difficulty": 5,
+   "prompt": "Write `HashRing(nodes=(), replicas=100)` that decides which node owns a\nkey, so that adding or removing a node moves as few keys as possible.\n\nUse the `position(text)` helper in the starter: never `hash()`, which\nchanges between runs. Each node gets `replicas` virtual points on the\nring, at `position(f\"{node}#{i}\")` for `i` in `range(replicas)`. A key\nsits at `position(key)`, and its owner is the node of the first\nvirtual point at or after it, wrapping round to the lowest point when\nthere is none.\n\nSupport `add(node)`, `remove(node)` and `node_for(key)`. `node_for` on\nan empty ring raises `LookupError`. The order nodes were added in must\nnot change any answer.",
+   "starter": "import hashlib\n\n\ndef position(text):\n    return int(hashlib.md5(text.encode()).hexdigest(), 16)\n\n\nclass HashRing:\n    def __init__(self, nodes=(), replicas=100):\n        pass\n\n    def add(self, node):\n        pass\n\n    def remove(self, node):\n        pass\n\n    def node_for(self, key):\n        pass\n",
+   "tests": [
+    {
+     "name": "one node owns everything",
+     "code": "ring = HashRing(['a'])\nassert {ring.node_for('k%d' % i) for i in range(50)} == {'a'}"
+    },
+    {
+     "name": "an empty ring",
+     "code": "try:\n    result = HashRing().node_for('k')\nexcept LookupError:\n    pass\nelse:\n    raise AssertionError('expected LookupError, but it returned %r' % (result,))"
+    },
+    {
+     "name": "order does not matter",
+     "code": "keys = ['user:%d' % i for i in range(300)]\none, two = HashRing(['a', 'b', 'c']), HashRing(['c', 'a', 'b'])\nassert [one.node_for(k) for k in keys] == [two.node_for(k) for k in keys]"
+    },
+    {
+     "name": "adding moves keys only to the new node",
+     "code": "keys = ['user:%d' % i for i in range(1000)]\nring = HashRing(['a', 'b', 'c'])\nbefore = {k: ring.node_for(k) for k in keys}\nring.add('d')\nmoved = {k for k in keys if ring.node_for(k) != before[k]}\nassert {ring.node_for(k) for k in moved} == {'d'}"
+    },
+    {
+     "name": "removing moves only that node's keys",
+     "code": "keys = ['user:%d' % i for i in range(1000)]\nring = HashRing(['a', 'b', 'c'])\nbefore = {k: ring.node_for(k) for k in keys}\nring.remove('b')\nmoved = {k for k in keys if ring.node_for(k) != before[k]}\nassert moved == {k for k in keys if before[k] == 'b'}"
+    },
+    {
+     "name": "virtual nodes spread the load",
+     "code": "ring = HashRing(['a', 'b', 'c'])\ncounts = {}\nfor i in range(3000):\n    owner = ring.node_for('user:%d' % i)\n    counts[owner] = counts.get(owner, 0) + 1\nassert sorted(counts) == ['a', 'b', 'c']\nassert min(counts.values()) > 600"
+    }
+   ],
+   "hints": [
+    "Keep every virtual point in one sorted list of positions, with a dict from position to node.",
+    "`bisect.bisect_left(points, position(key))` finds the first point at or after the key; an index equal to `len(points)` wraps to 0."
+   ],
+   "solution": "import bisect\nimport hashlib\n\n\ndef position(text):\n    return int(hashlib.md5(text.encode()).hexdigest(), 16)\n\n\nclass HashRing:\n    def __init__(self, nodes=(), replicas=100):\n        self.replicas = replicas\n        self._points = []\n        self._owner = {}\n        for node in nodes:\n            self.add(node)\n\n    def add(self, node):\n        for i in range(self.replicas):\n            point = position(f\"{node}#{i}\")\n            self._owner[point] = node\n            bisect.insort(self._points, point)\n\n    def remove(self, node):\n        for i in range(self.replicas):\n            point = position(f\"{node}#{i}\")\n            if self._owner.get(point) == node:\n                del self._owner[point]\n                self._points.remove(point)\n\n    def node_for(self, key):\n        if not self._points:\n            raise LookupError(\"the ring has no nodes\")\n        index = bisect.bisect_left(self._points, position(key))\n        if index == len(self._points):\n            index = 0\n        return self._owner[self._points[index]]\n",
+   "setup": ""
+  },
+  {
+   "id": "p16.001",
+   "phase": "p16",
+   "topic": "Binary data",
+   "title": "Unpack a binary header",
+   "difficulty": 3,
+   "prompt": "A file format starts with a 12-byte header, all numbers little-endian:\n\n- bytes 0-3: the magic bytes `b'OPC1'`\n- bytes 4-5: `version`, an unsigned 16-bit integer\n- byte 6: `flags`, an unsigned 8-bit integer\n- byte 7: padding, ignored\n- bytes 8-11: `length`, an unsigned 32-bit integer\n\nWrite `read_header(data)` returning `{'version': ..., 'flags': ...,\n'length': ...}`. Bytes after the header are the payload and are\nignored. Raise `ValueError` when there are fewer than 12 bytes or the\nmagic is wrong. Use the `struct` module.",
+   "starter": "def read_header(data):\n    pass\n",
+   "tests": [
+    {
+     "name": "a header",
+     "code": "header = b'OPC1\\x02\\x00\\x05\\x00\\x10\\x00\\x00\\x00'\nassert read_header(header) == {'version': 2, 'flags': 5, 'length': 16}"
+    },
+    {
+     "name": "little-endian bytes",
+     "code": "header = b'OPC1\\x02\\x01\\xff\\x00\\x00\\x01\\x00\\x00'\nassert read_header(header) == {'version': 258, 'flags': 255, 'length': 256}"
+    },
+    {
+     "name": "the payload is ignored",
+     "code": "header = b'OPC1\\x02\\x00\\x05\\x00\\x10\\x00\\x00\\x00'\nassert read_header(header + b'payload') == {'version': 2, 'flags': 5, 'length': 16}"
+    },
+    {
+     "name": "too short",
+     "code": "try:\n    result = read_header(b'OPC1\\x02\\x00\\x05\\x00\\x10\\x00\\x00')\nexcept ValueError:\n    pass\nelse:\n    raise AssertionError('expected ValueError, but it returned %r' % (result,))"
+    },
+    {
+     "name": "wrong magic",
+     "code": "try:\n    result = read_header(b'ELF!\\x02\\x00\\x05\\x00\\x10\\x00\\x00\\x00')\nexcept ValueError:\n    pass\nelse:\n    raise AssertionError('expected ValueError, but it returned %r' % (result,))"
+    }
+   ],
+   "hints": [
+    "`struct` describes a layout with one format string: a byte order character, then one letter per field.",
+    "`'<4sHBxI'` is little-endian: 4 bytes, unsigned short, unsigned char, one pad byte, unsigned int. `struct.unpack_from` ignores anything after the header."
+   ],
+   "solution": "import struct\n\nHEADER = struct.Struct(\"<4sHBxI\")\n\n\ndef read_header(data):\n    if len(data) < HEADER.size:\n        raise ValueError(\"a header is %d bytes, got %d\" % (HEADER.size, len(data)))\n    magic, version, flags, length = HEADER.unpack_from(data)\n    if magic != b\"OPC1\":\n        raise ValueError(\"wrong magic: %r\" % magic)\n    return {\"version\": version, \"flags\": flags, \"length\": length}\n",
+   "setup": ""
+  },
+  {
+   "id": "p16.002",
+   "phase": "p16",
+   "topic": "Memory",
+   "title": "Slice records without copying",
+   "difficulty": 3,
+   "prompt": "Slicing `bytes` or a `bytearray` copies. Slicing a `memoryview` does\nnot: it is a window onto the same memory.\n\nWrite `split_records(buf, size)` returning a list of `memoryview`\nslices of `buf`, each `size` bytes long, in order. A trailing piece\nshorter than `size` is left out. Because nothing is copied, changing\n`buf` afterwards must show through the slices. Raise `ValueError` when\n`size` is below 1.",
+   "starter": "def split_records(buf, size):\n    pass\n",
+   "tests": [
+    {
+     "name": "fixed-size records",
+     "code": "parts = split_records(bytearray(b'aaaabbbbcc'), 4)\nassert [bytes(p) for p in parts] == [b'aaaa', b'bbbb']"
+    },
+    {
+     "name": "an exact multiple",
+     "code": "parts = split_records(bytearray(b'abcdef'), 3)\nassert [bytes(p) for p in parts] == [b'abc', b'def']"
+    },
+    {
+     "name": "they are views",
+     "code": "parts = split_records(bytearray(b'abcdef'), 3)\nassert type(parts[0]).__name__ == 'memoryview'"
+    },
+    {
+     "name": "nothing was copied",
+     "code": "buf = bytearray(b'aaaabbbb')\nparts = split_records(buf, 4)\nbuf[4:8] = b'ZZZZ'\nassert bytes(parts[1]) == b'ZZZZ', 'the slices must be views onto buf, not copies of it'"
+    },
+    {
+     "name": "an empty buffer",
+     "code": "assert split_records(bytearray(), 4) == []"
+    },
+    {
+     "name": "rejects a zero size",
+     "code": "try:\n    result = split_records(bytearray(b'ab'), 0)\nexcept ValueError:\n    pass\nelse:\n    raise AssertionError('expected ValueError, but it returned %r' % (result,))"
+    }
+   ],
+   "hints": [
+    "Make one `memoryview` of the whole buffer, then slice that, not the buffer.",
+    "`view = memoryview(buf)`, then step `range(0, len(view) - size + 1, size)` and take `view[i:i + size]`."
+   ],
+   "solution": "def split_records(buf, size):\n    if size < 1:\n        raise ValueError(\"size must be at least 1\")\n    view = memoryview(buf)\n    return [view[i:i + size] for i in range(0, len(view) - size + 1, size)]\n",
+   "setup": ""
+  },
+  {
+   "id": "p16.003",
+   "phase": "p16",
+   "topic": "Buffers",
+   "title": "A byte ring that pushes back",
+   "difficulty": 4,
+   "prompt": "Write `ByteRing(capacity)`, a fixed-size byte queue like a pipe's\nkernel buffer. Allocate one `bytearray(capacity)` in `__init__`, keep\nit in an attribute named `buffer`, and never replace it: the reads and\nwrites wrap round inside it. Raise `ValueError` if `capacity` is\nbelow 1.\n\n- `write(data)` stores as many bytes of `data` as there is free room\n  for and returns how many it took. It never overwrites unread bytes -\n  a full ring takes 0, so the writer has to wait.\n- `read(n)` removes and returns up to `n` of the oldest bytes, as\n  `bytes`. An empty ring returns `b''`.\n- `len(ring)` is the number of unread bytes.",
+   "starter": "class ByteRing:\n    def __init__(self, capacity):\n        pass\n\n    def write(self, data):\n        pass\n\n    def read(self, n):\n        pass\n\n    def __len__(self):\n        pass\n",
+   "tests": [
+    {
+     "name": "takes only what fits",
+     "code": "assert ByteRing(4).write(b'abcdef') == 4"
+    },
+    {
+     "name": "oldest bytes first",
+     "code": "ring = ByteRing(8)\nring.write(b'abc')\nassert ring.read(2) == b'ab'"
+    },
+    {
+     "name": "wraps round",
+     "code": "ring = ByteRing(4)\nring.write(b'abcd')\nring.read(3)\nring.write(b'xyz')\nassert ring.read(10) == b'dxyz'"
+    },
+    {
+     "name": "an empty read",
+     "code": "assert ByteRing(3).read(5) == b''"
+    },
+    {
+     "name": "counts unread bytes",
+     "code": "ring = ByteRing(4)\nring.write(b'ab')\nring.read(1)\nassert len(ring) == 1"
+    },
+    {
+     "name": "one buffer, reused",
+     "code": "ring = ByteRing(4)\nfirst = id(ring.buffer)\nfor _ in range(3):\n    ring.write(b'abc')\n    ring.read(3)\nassert id(ring.buffer) == first, 'buffer must stay the one bytearray made in __init__'\nassert len(ring.buffer) == 4, 'buffer must stay capacity bytes long'"
+    }
+   ],
+   "hints": [
+    "Track where the oldest unread byte is and how many unread bytes there are. Everything else follows from those two numbers.",
+    "The next write goes at `(start + size) % capacity`; a read moves `start` forward with `% capacity` too."
+   ],
+   "solution": "class ByteRing:\n    def __init__(self, capacity):\n        if capacity < 1:\n            raise ValueError(\"capacity must be at least 1\")\n        self.buffer = bytearray(capacity)\n        self._start = 0\n        self._size = 0\n\n    def __len__(self):\n        return self._size\n\n    def write(self, data):\n        capacity = len(self.buffer)\n        count = min(len(data), capacity - self._size)\n        for i in range(count):\n            self.buffer[(self._start + self._size + i) % capacity] = data[i]\n        self._size += count\n        return count\n\n    def read(self, n):\n        capacity = len(self.buffer)\n        count = min(n, self._size)\n        out = bytes(self.buffer[(self._start + i) % capacity] for i in range(count))\n        self._start = (self._start + count) % capacity\n        self._size -= count\n        return out\n",
+   "setup": ""
+  },
+  {
+   "id": "p17.001",
+   "phase": "p17",
+   "topic": "Data quality",
+   "title": "Typed rows with their errors",
+   "difficulty": 3,
+   "prompt": "Write `load_rows(lines)` for CSV text given as a list of lines. Line 1\nis the header `id,name,amount`. Read it with the `csv` module, so a\nquoted field may contain a comma.\n\nReturn `(rows, errors)`. Each good line becomes\n`{'id': int, 'name': str, 'amount': float}`, with the name stripped.\nA bad line is left out of `rows` and adds one `(line_number, field)`\ntuple to `errors`, naming the first field that failed in the order\nid, name, amount. A line with the wrong number of fields reports the\nfield `'columns'`. A name that is empty after stripping fails. Blank\nlines are skipped but still counted. Line numbers count from 1, with\nthe header as line 1. No lines at all gives `([], [])`.",
+   "starter": "def load_rows(lines):\n    pass\n",
+   "tests": [
+    {
+     "name": "good rows",
+     "code": "lines = ['id,name,amount', '1,Ada,10.5', '2, Grace ,3']\nassert load_rows(lines) == ([{'id': 1, 'name': 'Ada', 'amount': 10.5},\n                             {'id': 2, 'name': 'Grace', 'amount': 3.0}], [])"
+    },
+    {
+     "name": "every error is kept",
+     "code": "lines = ['id,name,amount', 'x,Ada,1', '2,,1', '3,Bob,lots', '4,Cy,2']\nassert load_rows(lines)[1] == [(2, 'id'), (3, 'name'), (4, 'amount')]"
+    },
+    {
+     "name": "bad rows are left out",
+     "code": "lines = ['id,name,amount', 'x,Ada,1', '2,,1', '3,Bob,lots', '4,Cy,2']\nassert load_rows(lines)[0] == [{'id': 4, 'name': 'Cy', 'amount': 2.0}]"
+    },
+    {
+     "name": "quoted commas and wrong widths",
+     "code": "lines = ['id,name,amount', '5,\"Hopper, G\",7.25', '6,Too,1,extra', '7,Few']\nassert load_rows(lines) == ([{'id': 5, 'name': 'Hopper, G', 'amount': 7.25}],\n                            [(3, 'columns'), (4, 'columns')])"
+    },
+    {
+     "name": "blank lines still count",
+     "code": "lines = ['id,name,amount', '', '8,Eve,1', 'bad']\nassert load_rows(lines)[1] == [(4, 'columns')]"
+    },
+    {
+     "name": "nothing to read",
+     "code": "assert load_rows([]) == ([], [])\nassert load_rows(['id,name,amount']) == ([], [])"
+    }
+   ],
+   "hints": [
+    "`csv.reader(lines)` accepts a list of strings and gives you each line as a list of fields; a blank line comes back as `[]`.",
+    "Number the records with `enumerate(reader, 1)`, skip the first, and convert one field at a time inside its own `try`, so you know which one failed."
+   ],
+   "solution": "import csv\n\n\ndef load_rows(lines):\n    rows, errors = [], []\n    for number, fields in enumerate(csv.reader(lines), 1):\n        if number == 1 or not fields:\n            continue\n        if len(fields) != 3:\n            errors.append((number, \"columns\"))\n            continue\n        raw_id, raw_name, raw_amount = fields\n        try:\n            row_id = int(raw_id)\n        except ValueError:\n            errors.append((number, \"id\"))\n            continue\n        name = raw_name.strip()\n        if not name:\n            errors.append((number, \"name\"))\n            continue\n        try:\n            amount = float(raw_amount)\n        except ValueError:\n            errors.append((number, \"amount\"))\n            continue\n        rows.append({\"id\": row_id, \"name\": name, \"amount\": amount})\n    return rows, errors\n",
+   "setup": ""
+  },
+  {
+   "id": "p17.002",
+   "phase": "p17",
+   "topic": "Idempotency",
+   "title": "An upsert you can run twice",
+   "difficulty": 3,
+   "prompt": "Write `upsert(table, incoming)`. Both are lists of dicts, and every\ndict has an `'id'`.\n\nReturn a new list: for each incoming row, if a row with that id\nexists, merge the incoming fields into it (incoming values win, other\nfields are kept); otherwise append a copy. Existing rows keep their\norder and new rows follow in the order they arrived. If `incoming`\nrepeats an id, the later row wins.\n\nDo not change `table` or the dicts inside it. Running the same upsert\ntwice must give the same result as running it once. Raise\n`ValueError` for an incoming row with no `'id'`.",
+   "starter": "def upsert(table, incoming):\n    pass\n",
+   "tests": [
+    {
+     "name": "updates merge fields",
+     "code": "table = [{'id': 1, 'name': 'a', 'n': 1}, {'id': 2, 'name': 'b', 'n': 2}]\nassert upsert(table, [{'id': 2, 'n': 5}]) == [{'id': 1, 'name': 'a', 'n': 1},\n                                             {'id': 2, 'name': 'b', 'n': 5}]"
+    },
+    {
+     "name": "inserts append",
+     "code": "table = [{'id': 1, 'name': 'a'}]\nassert upsert(table, [{'id': 3, 'name': 'c'}, {'id': 2, 'name': 'b'}]) == [\n    {'id': 1, 'name': 'a'}, {'id': 3, 'name': 'c'}, {'id': 2, 'name': 'b'}]"
+    },
+    {
+     "name": "running it twice changes nothing",
+     "code": "table = [{'id': 1, 'n': 1}]\nbatch = [{'id': 1, 'n': 2}, {'id': 9, 'n': 0}]\nonce = upsert(table, batch)\nassert upsert(once, batch) == once"
+    },
+    {
+     "name": "the input is untouched",
+     "code": "import copy\ntable = [{'id': 1, 'n': 1}]\nbefore = copy.deepcopy(table)\nupsert(table, [{'id': 1, 'n': 99}, {'id': 2, 'n': 2}])\nassert table == before"
+    },
+    {
+     "name": "the later duplicate wins",
+     "code": "assert upsert([], [{'id': 1, 'v': 1}, {'id': 1, 'v': 2}]) == [{'id': 1, 'v': 2}]"
+    },
+    {
+     "name": "rejects a row with no id",
+     "code": "try:\n    result = upsert([], [{'name': 'x'}])\nexcept ValueError:\n    pass\nelse:\n    raise AssertionError('expected ValueError, but it returned %r' % (result,))"
+    }
+   ],
+   "hints": [
+    "Copy each existing row before you change anything, and keep an index from id to position so you are not searching the list each time.",
+    "`out = [dict(r) for r in table]` and `where = {r['id']: i for i, r in enumerate(out)}`; then `out[where[key]].update(row)` or append and record the new position."
+   ],
+   "solution": "def upsert(table, incoming):\n    out = [dict(row) for row in table]\n    where = {row[\"id\"]: i for i, row in enumerate(out)}\n    for row in incoming:\n        if \"id\" not in row:\n            raise ValueError(\"every row needs an id: %r\" % (row,))\n        key = row[\"id\"]\n        if key in where:\n            out[where[key]].update(row)\n        else:\n            where[key] = len(out)\n            out.append(dict(row))\n    return out\n",
+   "setup": ""
+  },
+  {
+   "id": "p17.003",
+   "phase": "p17",
+   "topic": "Batch processing",
+   "title": "Aggregate in chunks",
+   "difficulty": 4,
+   "prompt": "Data too big for memory is processed a chunk at a time. `rows` is any\niterable of `(key, amount)` pairs, possibly a generator that can only\nbe read once.\n\nWrite `chunk_totals(rows, size)`, a generator that reads `size` rows at\na time and yields one dict of `key -> sum of amounts` for each chunk.\nIt must be lazy: taking the first chunk must read only the first\n`size` rows. The last chunk may be shorter.\n\nWrite `grand_total(rows, size)` returning one dict of totals for all\nrows, built by merging the chunk dicts. Both raise `ValueError` when\n`size` is below 1 (for the generator, when it is first advanced).",
+   "starter": "def chunk_totals(rows, size):\n    pass\n\n\ndef grand_total(rows, size):\n    pass\n",
+   "tests": [
+    {
+     "name": "one dict per chunk",
+     "code": "rows = [('a', 1), ('b', 2), ('a', 3), ('c', 4), ('a', 5)]\nassert list(chunk_totals(rows, 2)) == [{'a': 1, 'b': 2}, {'a': 3, 'c': 4}, {'a': 5}]"
+    },
+    {
+     "name": "grand totals",
+     "code": "rows = [('a', 1), ('b', 2), ('a', 3), ('c', 4), ('a', 5)]\nassert grand_total(rows, 2) == {'a': 9, 'b': 2, 'c': 4}"
+    },
+    {
+     "name": "a generator read once",
+     "code": "rows = [('a', 1), ('b', 2), ('a', 3), ('c', 4), ('a', 5)]\nassert grand_total(iter(rows), 4) == {'a': 9, 'b': 2, 'c': 4}"
+    },
+    {
+     "name": "it is lazy",
+     "code": "pulled = [0]\ndef source():\n    for _ in range(100_000):\n        pulled[0] += 1\n        yield ('k', 1)\nassert next(chunk_totals(source(), 3)) == {'k': 3}\nassert pulled[0] == 3, 'the first chunk should read 3 rows, not the whole input'"
+    },
+    {
+     "name": "no rows",
+     "code": "assert list(chunk_totals([], 3)) == []\nassert grand_total([], 3) == {}"
+    },
+    {
+     "name": "rejects a zero size",
+     "code": "try:\n    result = grand_total([('a', 1)], 0)\nexcept ValueError:\n    pass\nelse:\n    raise AssertionError('expected ValueError, but it returned %r' % (result,))"
+    }
+   ],
+   "hints": [
+    "Take rows from one iterator in slices rather than looping over the whole input first. The standard library has a tool that hands you `size` items at a time.",
+    "`for chunk in itertools.batched(rows, size):` builds each chunk lazily. `grand_total` loops over `chunk_totals` and adds each chunk's values into one dict."
+   ],
+   "solution": "import itertools\n\n\ndef chunk_totals(rows, size):\n    if size < 1:\n        raise ValueError(\"size must be at least 1\")\n    for chunk in itertools.batched(rows, size):\n        totals = {}\n        for key, amount in chunk:\n            totals[key] = totals.get(key, 0) + amount\n        yield totals\n\n\ndef grand_total(rows, size):\n    merged = {}\n    for totals in chunk_totals(rows, size):\n        for key, amount in totals.items():\n            merged[key] = merged.get(key, 0) + amount\n    return merged\n",
    "setup": ""
   }
  ]

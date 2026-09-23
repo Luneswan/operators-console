@@ -1,5 +1,6 @@
 """Phase 05 - algorithms and problem solving."""
 from ex_lib import ex
+from ex_p01a import count_loops, never_calls, reads_at_most
 
 
 def build():
@@ -19,8 +20,14 @@ def build():
         ("later in the list", "assert two_sum([3, 2, 4], 6) == (1, 2)"),
         ("same value twice", "assert two_sum([3, 3], 6) == (0, 1)"),
         ("no answer", "assert two_sum([1, 2], 50) is None"),
-        ("single pass",
-         "import inspect\nsrc = inspect.getsource(two_sum)\nassert src.count('for ') <= 1")],
+        ("negatives", "assert two_sum([-3, 4, 3, 90], 0) == (0, 2)"),
+        ("one pass over a long list", reads_at_most(
+            "two_sum(data, 3997)", "range(2000)", 1,
+            "two_sum read more than %d values from a list of %d - one pass with a dict reads each number once")
+         + "assert result == (1998, 1999)"),
+        ("single pass", count_loops(
+            "two_sum", 1,
+            "two_sum should walk the list once, but it has %d loops"))],
        hints=["As you walk the list, ask whether target minus this value has already been seen.",
               "Store value to index in a dict as you go."],
        solution="""
@@ -108,8 +115,11 @@ def build():
         ("single", "assert merge_sort([1]) == [1]"),
         ("matches sorted for random data",
          "import random\nfor _ in range(50):\n    data = [random.randint(-50, 50) for _ in range(30)]\n    assert merge_sort(data) == sorted(data)"),
-        ("does not use sorted",
-         "import inspect\nsrc = inspect.getsource(merge_sort)\nassert 'sorted(' not in src and '.sort(' not in src")],
+        ("leaves the input alone",
+         "data = [3, 1, 2]\nmerge_sort(data)\nassert data == [3, 1, 2]"),
+        ("does not use sorted", never_calls(
+            "merge_sort", ["sorted", ".sort"],
+            "merge_sort should do the dividing and merging itself"))],
        hints=["Split in half, sort each half recursively, then merge two sorted lists.",
               "The merge step walks both halves with two indices."],
        solution="""
@@ -296,8 +306,8 @@ def build():
     ex("p05.010", "p05", "Complexity", "Make it fast enough", 4,
        """
        `count_pairs(numbers, target)` counts how many unordered pairs sum to
-       `target`. The naive version is O(n^2) and is too slow for the last
-       check here.
+       `target`. The naive version is O(n^2): the last check hands it 60,000
+       numbers and stops it long before it could finish.
 
        Write an O(n) version. Each pair counts once; the input may contain
        duplicates.
@@ -309,8 +319,16 @@ def build():
        [("small case", "assert count_pairs([1, 2, 3, 4], 5) == 2"),
         ("duplicates", "assert count_pairs([1, 1, 1], 2) == 3"),
         ("none", "assert count_pairs([1, 2], 99) == 0"),
-        ("fast on a big input",
-         "import time, random\ndata = [random.randint(0, 1000) for _ in range(60000)]\nstart = time.monotonic()\ncount_pairs(data, 500)\nassert time.monotonic() - start < 2.0")],
+        ("pairs of equal values", "assert count_pairs([2, 2, 3, 3], 5) == 4"),
+        ("linear on a big input", "import random\n" + reads_at_most(
+            "count_pairs(data, 500)",
+            "random.Random(5).choices(range(1001), k=60000)", 3,
+            "count_pairs read more than %d values from a list of %d - "
+            "count what you have seen in a dict instead of looping inside a loop")
+         + "plain = list(data)\nseen = {}\nexpected = 0\n"
+           "for value in plain:\n    expected += seen.get(500 - value, 0)\n"
+           "    seen[value] = seen.get(value, 0) + 1\n"
+           "assert result == expected")],
        hints=["Count how many of each value you have seen so far, then add the matches.",
               "Counting inside the same pass avoids double counting."],
        solution="""

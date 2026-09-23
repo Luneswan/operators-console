@@ -2,6 +2,152 @@
 from ex_lib import ex
 
 
+# -- check builders shared by every ex_ module ------------------------------
+#
+# A check is a string of Python run against the learner's namespace. These
+# build the shapes that recur, so each one explains its own failure: an
+# exception check says what came back instead, and a rule about how the code
+# is written is read off the syntax tree rather than grepped out of the
+# source text, where a helper called merge_sorted would trip a ban on sorted.
+
+
+def raises(action, error="ValueError", before=""):
+    """A check that `action` raises `error`, and says what happened if not.
+
+    `action` is an expression (its value is reported) or one statement such
+    as an assignment. `before` is set-up code run first, outside the try.
+    """
+    try:
+        compile(action, "<action>", "eval")
+    except SyntaxError:
+        body = "    %s\n" % action
+        message = "`%s` should raise %s, but it went through" % (action, error)
+        report = "    raise AssertionError(%r)" % message
+    else:
+        body = "    result = %s\n" % action
+        message = "%s should raise %s, but it returned %%r" % (
+            action.replace("%", "%%"), error)
+        report = "    raise AssertionError(%r %% (result,))" % message
+    head = before.rstrip("\n") + "\n" if before else ""
+    return "%stry:\n%sexcept %s:\n    pass\nelse:\n%s" % (
+        head, body, error, report)
+
+
+_TREE = ("import ast, inspect, textwrap\n"
+         "tree = ast.parse(textwrap.dedent(inspect.getsource(%s)))\n")
+
+_CALLED = ("called = set()\n"
+           "for node in ast.walk(tree):\n"
+           "    if isinstance(node, ast.Call):\n"
+           "        if isinstance(node.func, ast.Name):\n"
+           "            called.add(node.func.id)\n"
+           "        elif isinstance(node.func, ast.Attribute):\n"
+           "            called.add('.' + node.func.attr)\n")
+
+
+def never_calls(func, names, why):
+    """A check that `func` calls none of `names` ('sorted', '.sort', ...)."""
+    return (_TREE % func + _CALLED
+            + "used = sorted(called & set(%r))\n" % (tuple(sorted(names)),)
+            + "assert not used, %r + ', '.join(used)\n" % (why + " - found: "))
+
+
+def must_call(func, names, why):
+    """A check that `func` calls at least one of `names`."""
+    return (_TREE % func + _CALLED
+            + "assert called & set(%r), %r\n" % (tuple(sorted(names)), why))
+
+
+def uses_syntax(func, kinds, why):
+    """A check that `func` contains one of the ast node types in `kinds`."""
+    kinds_text = ", ".join("ast." + kind for kind in kinds) + ","
+    return (_TREE % func
+            + "assert any(isinstance(node, (%s)) for node in ast.walk(tree)), %r\n"
+            % (kinds_text, why))
+
+
+def count_loops(func, most, why):
+    """A check that `func` holds at most `most` loops, comprehensions included."""
+    return (_TREE % func
+            + "loops = [node for node in ast.walk(tree) if isinstance(node, (\n"
+              "    ast.For, ast.AsyncFor, ast.While, ast.comprehension))]\n"
+            + "assert len(loops) <= %d, %r %% len(loops)\n" % (most, why))
+
+
+#: A list that counts how many values are read out of it and stops the
+#: learner's code, fast, once it has read more than its budget. It measures
+#: "one pass" or "linear time" without a stopwatch, so an O(n^2) answer fails
+#: in a moment instead of running the whole grader into its timeout.
+COUNTED = (
+    "class OverBudget(BaseException):\n"
+    "    pass\n"
+    "class Counted(list):\n"
+    "    spent = 0\n"
+    "    budget = 0\n"
+    "    def spend(self, reads):\n"
+    "        Counted.spent += reads\n"
+    "        if Counted.spent > Counted.budget:\n"
+    "            raise OverBudget\n"
+    "    def __iter__(self):\n"
+    "        for value in list.__iter__(self):\n"
+    "            self.spend(1)\n"
+    "            yield value\n"
+    "    def __getitem__(self, index):\n"
+    "        if isinstance(index, slice):\n"
+    "            part = Counted(list.__getitem__(self, index))\n"
+    "            self.spend(len(part))\n"
+    "            return part\n"
+    "        self.spend(1)\n"
+    "        return list.__getitem__(self, index)\n"
+    "    def __contains__(self, value):\n"
+    "        self.spend(len(self))\n"
+    "        return list.__contains__(self, value)\n"
+    "    def index(self, *args):\n"
+    "        self.spend(len(self))\n"
+    "        return list.index(self, *args)\n"
+    "    def count(self, value):\n"
+    "        self.spend(len(self))\n"
+    "        return list.count(self, value)\n")
+
+
+def reads_at_most(call, data, passes, why):
+    """A check that `call` reads `data` (a list expression) in `passes` passes.
+
+    `data` is bound to the name `data` as a Counted list; `call` uses it and
+    its value is bound to `result` for any assert appended after this.
+    """
+    return (COUNTED
+            + "data = Counted(%s)\n" % data
+            + "Counted.budget = %d * len(data)\n" % passes
+            + "try:\n"
+              "    result = %s\n" % call
+            + "except OverBudget:\n"
+              "    raise AssertionError(%r %% (Counted.budget, len(data))) from None\n"
+              % why
+            + "Counted.budget = float('inf')\n")
+
+
+def no_string_building(func, why):
+    """A check that `func` builds no text with f-strings, +, % or .format."""
+    return (_TREE % func
+            + "def is_text(node):\n"
+              "    return isinstance(node, ast.JoinedStr) or (\n"
+              "        isinstance(node, ast.Constant) and isinstance(node.value, str))\n"
+              "built = []\n"
+              "for node in ast.walk(tree):\n"
+              "    if isinstance(node, ast.JoinedStr):\n"
+              "        built.append('an f-string')\n"
+              "    elif (isinstance(node, ast.BinOp)\n"
+              "          and isinstance(node.op, (ast.Add, ast.Mod))\n"
+              "          and (is_text(node.left) or is_text(node.right))):\n"
+              "        built.append('text joined with an operator')\n"
+              "    elif (isinstance(node, ast.Call)\n"
+              "          and isinstance(node.func, ast.Attribute)\n"
+              "          and node.func.attr == 'format'):\n"
+              "        built.append('.format()')\n"
+            + "assert not built, %r + built[0]\n" % (why + " - found "))
+
+
 def build():
     ex("p01.001", "p01", "Values and printing", "Say hello", 1,
        """
@@ -20,8 +166,8 @@ def build():
        [("greets Ada", "assert greet('Ada') == 'Hello, Ada!'"),
         ("greets Linus", "assert greet('Linus') == 'Hello, Linus!'"),
         ("handles an empty name", "assert greet('') == 'Hello, !'")],
-       hints=["An f-string is the shortest route: f\"Hello, {name}!\"",
-              "`return` hands a value back to the caller; `print` only writes to the screen."],
+       hints=["`return` hands a value back to the caller; `print` only writes to the screen.",
+              "An f-string puts a name's value inside text: f\"Hello, {name}!\""],
        solution="""
        def greet(name):
            return f"Hello, {name}!"
@@ -41,8 +187,10 @@ def build():
        [("freezing", "assert to_fahrenheit(0) == 32"),
         ("boiling", "assert to_fahrenheit(100) == 212"),
         ("negative", "assert to_fahrenheit(-40) == -40"),
-        ("fractions survive", "assert abs(to_fahrenheit(36.6) - 97.88) < 1e-9")],
-       hints=["Use `9 / 5`, not `9 // 5`. Integer division would throw away the fraction."],
+        ("fractions survive", "assert round(to_fahrenheit(36.6), 9) == 97.88"),
+        ("room temperature", "assert to_fahrenheit(20) == 68")],
+       hints=["Translate the formula symbol by symbol: multiply by 9, divide by 5, then add 32.",
+              "Use `9 / 5`, not `9 // 5`. Integer division would throw away the fraction."],
        solution="""
        def to_fahrenheit(celsius):
            return celsius * 9 / 5 + 32
@@ -64,7 +212,8 @@ def build():
         ("exact hours", "assert hms(7200) == (2, 0, 0)"),
         ("zero", "assert hms(0) == (0, 0, 0)"),
         ("all parts are ints",
-         "assert all(isinstance(p, int) for p in hms(3661))")],
+         "assert [type(p).__name__ for p in hms(3661)] == ['int', 'int', 'int']"),
+        ("a long day", "assert hms(90061) == (25, 1, 1)")],
        hints=["`//` divides and throws away the remainder; `%` keeps only the remainder.",
               "divmod(a, b) gives you both at once."],
        solution="""
@@ -113,7 +262,8 @@ def build():
         ("small", "assert price(7) == '$7.00'"),
         ("millions", "assert price(1234567.891) == '$1,234,567.89'"),
         ("zero", "assert price(0) == '$0.00'")],
-       hints=["Format specs compose: f\"{amount:,.2f}\" adds separators and fixes the decimals."],
+       hints=["An f-string can format a number as well as insert it - look up the format spec after the colon.",
+              "Format specs compose: f\"{amount:,.2f}\" adds separators and fixes the decimals."],
        solution="""
        def price(amount):
            return f"${amount:,.2f}"
@@ -135,10 +285,10 @@ def build():
         ("B", "assert grade(83) == 'B'"),
         ("boundary 60", "assert grade(60) == 'D'"),
         ("F", "assert grade(0) == 'F'"),
-        ("rejects over 100",
-         "try:\n    grade(101)\nexcept ValueError:\n    pass\nelse:\n    raise AssertionError('should raise ValueError')"),
-        ("rejects negative",
-         "try:\n    grade(-1)\nexcept ValueError:\n    pass\nelse:\n    raise AssertionError('should raise ValueError')")],
+        ("C", "assert grade(75) == 'C'"),
+        ("boundary 100", "assert grade(100) == 'A'"),
+        ("rejects over 100", raises("grade(101)")),
+        ("rejects negative", raises("grade(-1)"))],
        hints=["Check the invalid range first and raise, then the happy path reads top to bottom.",
               "Order your comparisons from highest to lowest so each `elif` only needs one bound."],
        solution="""
@@ -222,7 +372,8 @@ def build():
         ("length", "assert len(fizzbuzz(100)) == 100"),
         ("numbers stay ints", "assert fizzbuzz(2) == [1, 2]"),
         ("zero length", "assert fizzbuzz(0) == []")],
-       hints=["Test for 15 first. If you test 3 first, no number ever reaches the FizzBuzz branch."],
+       hints=["Loop from 1 to n inclusive and decide one position at a time with if / elif / else.",
+              "Test for 15 first. If you test 3 first, no number ever reaches the FizzBuzz branch."],
        solution="""
        def fizzbuzz(n):
            out = []
@@ -282,7 +433,8 @@ def build():
         ("negatives count", "assert even_squares([-2, -3]) == [4]"),
         ("order preserved", "assert even_squares([4, 2]) == [16, 4]"),
         ("is a list", "assert isinstance(even_squares([2]), list)")],
-       hints=["The shape is [expression for item in iterable if condition]."],
+       hints=["The shape is [expression for item in iterable if condition].",
+              "A number is even when n % 2 == 0; the square is n * n."],
        solution="""
        def even_squares(numbers):
            return [n * n for n in numbers if n % 2 == 0]
@@ -352,7 +504,10 @@ def build():
        [("three words", "assert acronym('portable network graphics') == 'PNG'"),
         ("mixed case", "assert acronym('Read The Manual') == 'RTM'"),
         ("one word", "assert acronym('python') == 'P'"),
-        ("empty", "assert acronym('') == ''")],
+        ("empty", "assert acronym('') == ''"),
+        ("extra spaces", "assert acronym('  as   soon as possible ') == 'ASAP'")],
+       hints=["phrase.split() gives you the words and drops the extra spaces.",
+              "Take word[0] from each word, upper-case it, and ''.join the letters."],
        solution="""
        def acronym(phrase):
            return "".join(word[0].upper() for word in phrase.split())
@@ -398,7 +553,9 @@ def build():
         ("missing returns None", "assert lookup({'a': 1}, 'b') is None"),
         ("missing returns default", "assert lookup({}, 'x', 42) == 42"),
         ("falsy values survive", "assert lookup({'a': 0}, 'a', 9) == 0"),
-        ("no get used", "import inspect; assert '.get(' not in inspect.getsource(lookup)")],
+        ("no get used", never_calls(
+            "lookup", [".get"],
+            "lookup should make the decision itself with `in`, not call .get()"))],
        hints=["`in` tests for a key, not a value.",
               "Beware of `if data[key]:` - that would treat 0 and '' as missing."],
        solution="""
@@ -453,6 +610,8 @@ def build():
          "assert by_surname(['Bob Smith', 'Alice Smith']) == ['Alice Smith', 'Bob Smith']"),
         ("input untouched",
          "src = ['B X', 'A X']\nby_surname(src)\nassert src == ['B X', 'A X']"),
+        ("three people",
+         "assert by_surname(['Linus Torvalds', 'Ada Lovelace', 'Alan Turing']) == ['Ada Lovelace', 'Linus Torvalds', 'Alan Turing']"),
         ("empty", "assert by_surname([]) == []")],
        hints=["sorted() returns a new list; list.sort() changes the original.",
               "A key function returning a tuple sorts by the first element, then the second."],

@@ -13,8 +13,8 @@ from pathlib import Path
 
 os.environ.setdefault("QT_QPA_PLATFORM", "offscreen")
 
-from PySide6.QtCore import QPointF, QRectF, Qt  # noqa: E402
-from PySide6.QtGui import (  # noqa: E402
+from PySide6.QtCore import QPointF, QRectF, Qt
+from PySide6.QtGui import (
     QColor, QGuiApplication, QImage, QPainter, QPen, QPolygonF,
 )
 

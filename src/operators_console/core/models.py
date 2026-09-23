@@ -10,10 +10,17 @@ from dataclasses import dataclass
 
 @dataclass(frozen=True, slots=True)
 class Resource:
+    """One thing to read, watch or work through.
+
+    ``primary`` marks the single resource in its group that a learner should
+    open first. Everything else in an optional group is study material they
+    may never need, and the interface keeps it folded away until asked.
+    """
     name: str
     kind: str
     why: str
     url: str
+    primary: bool = False
 
 
 @dataclass(frozen=True, slots=True)
@@ -51,6 +58,7 @@ class Phase:
     sections: tuple[Section, ...]
     snippet: str
     gate: Gate | None
+    resources_optional: bool = False
 
     @property
     def items(self) -> tuple[Item, ...]:
@@ -74,6 +82,10 @@ class Question:
     choices: tuple[str, ...]
     correct: int
     explain: str
+    # Per choice, indexed like `choices`: why a learner who picked it was
+    # wrong ("" for the correct one). Empty for bundles older than 1.1.0.
+    explain_choice: tuple[str, ...] = ()
+    teaches: str = ""                   # the checklist item it checks
 
 
 @dataclass(frozen=True, slots=True)
@@ -127,6 +139,7 @@ class Project:
 class Link:
     name: str
     url: str
+    primary: bool = False
 
 
 @dataclass(frozen=True, slots=True)
@@ -137,6 +150,7 @@ class Field:
     blurb: str
     build: str
     libs: tuple[Link, ...]
+    libs_optional: bool = False
 
 
 @dataclass(frozen=True, slots=True)
@@ -155,6 +169,7 @@ class Cert:
 class Group:
     group: str
     items: tuple[Link, ...]
+    optional: bool = False
 
 
 @dataclass(frozen=True, slots=True)
@@ -162,12 +177,14 @@ class ChannelItem:
     name: str
     url: str
     why: str
+    primary: bool = False
 
 
 @dataclass(frozen=True, slots=True)
 class ChannelGroup:
     group: str
     items: tuple[ChannelItem, ...]
+    optional: bool = False
 
 
 @dataclass(frozen=True, slots=True)
@@ -186,3 +203,26 @@ class Track:
     tags: tuple[str, ...]
     core: tuple[str, ...]
     optional: tuple[str, ...]
+
+
+def primary_of(items) -> object | None:
+    """The one item in a group marked as the place to start, if any."""
+    for item in items:
+        if getattr(item, "primary", False):
+            return item
+    return None
+
+
+def split_optional(items, optional: bool):
+    """Return (shown, folded) for a group of resources.
+
+    A group that is not optional is never folded: gates, exercises, projects
+    and study steps all come through here unchanged.
+    """
+    items = tuple(items)
+    if not optional or len(items) < 2:
+        return items, ()
+    lead = primary_of(items)
+    if lead is None:
+        return items, ()
+    return (lead,), tuple(i for i in items if i is not lead)

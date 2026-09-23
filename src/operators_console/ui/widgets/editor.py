@@ -132,7 +132,7 @@ class CodeEditor(QPlainTextEdit):
 
     def paint_gutter(self, event) -> None:
         painter = QPainter(self.gutter)
-        painter.fillRect(event.rect(), QColor(self.palette_colours.paper_2))
+        painter.fillRect(event.rect(), QColor(self.palette_colours.code_bg))
         block = self.firstVisibleBlock()
         number = block.blockNumber()
         top = self.blockBoundingGeometry(block).translated(
@@ -189,6 +189,10 @@ class CodeEditor(QPlainTextEdit):
             self.insertPlainText("    ")
             return
 
+        if key == Qt.Key.Key_Slash and (ctrl or meta):
+            self.toggle_comment()
+            return
+
         if key in (Qt.Key.Key_Tab, Qt.Key.Key_Backtab) and \
                 self.textCursor().hasSelection():
             self._shift_selection(outdent=key == Qt.Key.Key_Backtab)
@@ -221,14 +225,60 @@ class CodeEditor(QPlainTextEdit):
         cursor.insertText("\n" + " " * indent)
         self.setTextCursor(cursor)
 
-    def _shift_selection(self, outdent: bool) -> None:
+    def _selected_lines(self) -> tuple[int, int]:
+        """The first and last line a line-wise command should change.
+
+        Dragging down over whole lines ends the selection at the start of
+        the next line; that line is not part of what the learner selected.
+        """
         cursor = self.textCursor()
         start, end = cursor.selectionStart(), cursor.selectionEnd()
+        document = self.document()
+        first = document.findBlock(start).blockNumber()
+        end_block = document.findBlock(end)
+        last = end_block.blockNumber()
+        if end > start and last > first and end == end_block.position():
+            last -= 1
+        return first, last
+
+    def toggle_comment(self) -> None:
+        """Ctrl+/ : comment the selected lines out, or back in.
+
+        Uncomments only when every non-blank line is already a comment, and
+        comments at the lines' shared indentation so the block stays
+        aligned. Blank lines are left alone. One edit, so one Ctrl+Z.
+        """
+        first, last = self._selected_lines()
+        document = self.document()
+        blocks = [document.findBlockByNumber(n)
+                  for n in range(first, last + 1)]
+        lines = [block.text() for block in blocks]
+        filled = [text for text in lines if text.strip()]
+        if not filled:
+            return
+        uncomment = all(text.lstrip().startswith("#") for text in filled)
+        column = min(len(text) - len(text.lstrip()) for text in filled)
+        cursor = QTextCursor(document)
         cursor.beginEditBlock()
-        cursor.setPosition(start)
-        first = cursor.blockNumber()
-        cursor.setPosition(end)
-        last = cursor.blockNumber()
+        for block, text in zip(blocks, lines, strict=True):
+            if not text.strip():
+                continue
+            if uncomment:
+                at = block.position() + len(text) - len(text.lstrip())
+                width = 2 if text.lstrip().startswith("# ") else 1
+                cursor.setPosition(at)
+                cursor.setPosition(at + width,
+                                   QTextCursor.MoveMode.KeepAnchor)
+                cursor.removeSelectedText()
+            else:
+                cursor.setPosition(block.position() + column)
+                cursor.insertText("# ")
+        cursor.endEditBlock()
+
+    def _shift_selection(self, outdent: bool) -> None:
+        cursor = self.textCursor()
+        first, last = self._selected_lines()
+        cursor.beginEditBlock()
         cursor.movePosition(QTextCursor.MoveOperation.Start)
         for _ in range(first):
             cursor.movePosition(QTextCursor.MoveOperation.NextBlock)
@@ -249,6 +299,20 @@ class CodeEditor(QPlainTextEdit):
         self.setPlainText(text)
         cursor = self.textCursor()
         cursor.movePosition(QTextCursor.MoveOperation.End)
+        self.setTextCursor(cursor)
+
+    def replace_code(self, text: str) -> None:
+        """Swap in new code as one edit that Ctrl+Z takes back.
+
+        `set_code` is for loading an exercise; its `setPlainText` wipes the
+        undo history, which is right for a fresh exercise and wrong for
+        anything the learner might regret.
+        """
+        cursor = self.textCursor()
+        cursor.beginEditBlock()
+        cursor.select(QTextCursor.SelectionType.Document)
+        cursor.insertText(text)
+        cursor.endEditBlock()
         self.setTextCursor(cursor)
 
     def code(self) -> str:

@@ -31,7 +31,9 @@ class Curriculum:
         self.quizzes: tuple[Quiz, ...] = tuple(_quiz(q) for q in raw["quizzes"])
         self.fields: tuple[Field, ...] = tuple(
             Field(f["id"], f["group"], f["name"], f["blurb"], f["build"],
-                  tuple(Link(l["name"], l["url"]) for l in f["libs"]))
+                  tuple(Link(link["name"], link["url"], link.get("primary", False))
+                        for link in f["libs"]),
+                  f.get("libs_optional", False))
             for f in raw["fields"]
         )
         self.certs: tuple[Cert, ...] = tuple(
@@ -41,11 +43,16 @@ class Curriculum:
         )
         self.channels: tuple[ChannelGroup, ...] = tuple(
             ChannelGroup(c["group"], tuple(
-                ChannelItem(i["name"], i["url"], i["why"]) for i in c["items"]))
+                ChannelItem(i["name"], i["url"], i["why"],
+                            i.get("primary", False)) for i in c["items"]),
+                c.get("optional", False))
             for c in raw["channels"]
         )
         self.shelf: tuple[Group, ...] = tuple(
-            Group(s["group"], tuple(Link(i["name"], i["url"]) for i in s["items"]))
+            Group(s["group"],
+                  tuple(Link(i["name"], i["url"], i.get("primary", False))
+                        for i in s["items"]),
+                  s.get("optional", False))
             for s in raw["shelf"]
         )
         self.matrix: tuple[MatrixRow, ...] = tuple(
@@ -140,7 +147,8 @@ def _phase(p: dict) -> Phase:
         id=p["id"], num=p["num"], name=p["name"], when=p["when"], aim=p["aim"],
         no_progress=p["no_progress"], est_hours=p["est_hours"], level=p["level"],
         tags=tuple(p["tags"]), prereq=tuple(p["prereq"]),
-        resources=tuple(Resource(r["name"], r["kind"], r["why"], r["url"])
+        resources=tuple(Resource(r["name"], r["kind"], r["why"], r["url"],
+                                 r.get("primary", False))
                         for r in p["resources"]),
         sections=tuple(
             Section(s["id"], s["title"],
@@ -148,14 +156,27 @@ def _phase(p: dict) -> Phase:
             for s in p["sections"]
         ),
         snippet=p["snippet"], gate=gate,
+        resources_optional=p.get("resources_optional", False),
     )
+
+
+def _question(x: dict) -> Question:
+    """One quiz question. `explain_choice` holds, per choice and indexed like
+    `choices`, why a learner who picked it was wrong ("" for the correct
+    one); `teaches` names the checklist item it checks. Bundles written
+    before either existed still load, with () and ""."""
+    choices = tuple(x["choices"])
+    notes = tuple(str(n) for n in (x.get("explain_choice") or ()))
+    if len(notes) != len(choices):
+        notes = ()                  # a note on the wrong choice is worse than none
+    return Question(x["id"], x["prompt"], choices, x["correct"], x["explain"],
+                     explain_choice=notes, teaches=x.get("teaches") or "")
 
 
 def _quiz(q: dict) -> Quiz:
     return Quiz(
         q["id"], q["phase"], q["name"], q["desc"],
-        tuple(Question(x["id"], x["prompt"], tuple(x["choices"]), x["correct"],
-                       x["explain"]) for x in q["questions"]),
+        tuple(_question(x) for x in q["questions"]),
     )
 
 

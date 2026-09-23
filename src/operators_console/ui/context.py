@@ -40,8 +40,10 @@ class AppContext(QObject):
         self.today = TodayPlan(self.curriculum, self.store, self.progress,
                                self.planner)
         self.review = ReviewQueue(self.curriculum, self.store, self.progress)
-        self.index = SearchIndex(self.curriculum)
-        self.history = History()
+        # The store as well as the curriculum: the box finds the notes and
+        # the log entries this learner wrote, not only what shipped.
+        self.index = SearchIndex(self.curriculum, self.store)
+        self.history = History(store=self.store)
         self._palette = resolve(self.store.setting("theme", "system"), False)
         self._dark_hint = False
 

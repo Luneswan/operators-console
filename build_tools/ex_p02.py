@@ -1,5 +1,6 @@
 """Phase 02 - Python engineering: protocols, generators, decorators, classes."""
 from ex_lib import ex
+from ex_p01a import raises
 
 
 def build():
@@ -19,8 +20,10 @@ def build():
         ("zero yields nothing", "assert list(Countdown(0)) == []"),
         ("works in a for loop",
          "seen = []\nfor v in Countdown(2):\n    seen.append(v)\nassert seen == [2, 1]"),
-        ("raises StopIteration",
-         "it = iter(Countdown(1))\nnext(it)\ntry:\n    next(it)\nexcept StopIteration:\n    pass\nelse:\n    raise AssertionError('must raise StopIteration')")],
+        ("counts down from five", "assert list(Countdown(5)) == [5, 4, 3, 2, 1]"),
+        ("raises StopIteration", raises(
+            "next(it)", "StopIteration",
+            before="it = iter(Countdown(1))\nnext(it)"))],
        hints=["__iter__ returns the thing that has __next__ - often self.",
               "__next__ raises StopIteration when there is nothing left."],
        solution="""
@@ -53,9 +56,11 @@ def build():
        [("first eight",
          "import itertools\nassert list(itertools.islice(fib(), 8)) == [0, 1, 1, 2, 3, 5, 8, 13]"),
         ("is a generator",
-         "import inspect; assert inspect.isgeneratorfunction(fib)"),
+         "import inspect\nassert inspect.isgeneratorfunction(fib), 'fib must be a generator function - use yield, not a list'"),
         ("each call is independent",
-         "a, b = fib(), fib()\nassert next(a) == next(b) == 0"),
+         "a, b = fib(), fib()\nnext(a)\nnext(a)\nnext(a)\nassert next(b) == 0"),
+        ("the twentieth value",
+         "import itertools\nassert next(itertools.islice(fib(), 20, 21)) == 6765"),
         ("goes far without trouble",
          "import itertools\nassert len(str(next(itertools.islice(fib(), 300, 301)))) > 50")],
        hints=["A function containing `yield` returns a generator when called.",
@@ -192,7 +197,7 @@ def build():
         ("closes on error",
          "t = Tag('i')\ntry:\n    with t:\n        raise RuntimeError('boom')\nexcept RuntimeError:\n    pass\nassert t.parts == ['<i>', '</i>']"),
         ("does not swallow the error",
-         "t = Tag('x')\ntry:\n    with t:\n        raise ValueError\nexcept ValueError:\n    pass\nelse:\n    raise AssertionError('exception must propagate')")],
+         "t = Tag('x')\ntry:\n    with t:\n        raise ValueError\nexcept ValueError:\n    pass\nelse:\n    raise AssertionError('the ValueError raised inside the with block should reach the caller, but it was swallowed')")],
        hints=["__exit__ runs whether or not the block raised.",
               "Returning a truthy value from __exit__ suppresses the exception - do not."],
        solution="""
@@ -325,7 +330,9 @@ def build():
         ("negative index", "assert Deck()[-1] == 'E'"),
         ("iterates", "assert list(Deck()) == ['A', 'B', 'C', 'D', 'E']"),
         ("membership", "assert ('C' in Deck()) is True"),
-        ("slices", "assert Deck()[1:3] == ['B', 'C']")],
+        ("slices", "assert Deck()[1:3] == ['B', 'C']"),
+        ("follows its cards",
+         "d = Deck()\nd.cards = ['X', 'Y']\nassert len(d) == 2\nassert d[-1] == 'Y'\nassert list(d) == ['X', 'Y']")],
        hints=["Delegating to the underlying list gives you slicing for free.",
               "Python builds iteration and `in` out of __getitem__ when __iter__ is absent."],
        solution="""
@@ -354,12 +361,14 @@ def build():
        [("stores and reads",
          "t = Temperature(20)\nassert t.celsius == 20"),
         ("converts", "assert Temperature(100).fahrenheit == 212"),
-        ("rejects impossible values",
-         "try:\n    Temperature(-300)\nexcept ValueError:\n    pass\nelse:\n    raise AssertionError('expected ValueError')"),
+        ("converts below zero", "assert Temperature(-40).fahrenheit == -40"),
+        ("follows a later change",
+         "t = Temperature(0)\nt.celsius = 100\nassert t.fahrenheit == 212"),
+        ("rejects impossible values", raises("Temperature(-300)")),
         ("rejects on later assignment",
-         "t = Temperature(0)\ntry:\n    t.celsius = -400\nexcept ValueError:\n    pass\nelse:\n    raise AssertionError('expected ValueError')"),
+         raises("t.celsius = -400", before="t = Temperature(0)")),
         ("fahrenheit is read only",
-         "t = Temperature(0)\ntry:\n    t.fahrenheit = 1\nexcept AttributeError:\n    pass\nelse:\n    raise AssertionError('should not be settable')")],
+         raises("t.fahrenheit = 1", "AttributeError", before="t = Temperature(0)"))],
        hints=["The setter stores to a differently named attribute, usually _celsius.",
               "Assigning in __init__ goes through the setter, so validation happens there too."],
        solution="""
@@ -397,8 +406,12 @@ def build():
        """,
        [("builds from a string",
          "e = Event.from_string('2026-01-31')\nassert (e.year, e.month, e.day) == (2026, 1, 31)"),
+        ("reads a different date",
+         "e = Event.from_string('1999-12-05')\nassert (e.year, e.month, e.day) == (1999, 12, 5)"),
         ("validates good input",
          "assert Event.is_valid_string('2026-01-31') is True"),
+        ("rejects a short month",
+         "assert Event.is_valid_string('2026-1-31') is False"),
         ("rejects bad input",
          "assert Event.is_valid_string('31/01/2026') is False"),
         ("classmethod returns the right class",
@@ -447,11 +460,10 @@ def build():
        [("equality by value", "assert Point(1, 2) == Point(1, 2)"),
         ("orders", "assert sorted([Point(2, 0), Point(1, 9)])[0] == Point(1, 9)"),
         ("hashable", "assert len({Point(1, 1), Point(1, 1)}) == 1"),
-        ("immutable",
-         "p = Point(1, 2)\ntry:\n    p.x = 5\nexcept Exception:\n    pass\nelse:\n    raise AssertionError('must be frozen')"),
+        ("immutable", raises("p.x = 5", "AttributeError", before="p = Point(1, 2)")),
         ("readable repr", "assert repr(Point(1, 2)) == 'Point(x=1, y=2)'")],
-       hints=["@dataclass(frozen=True, order=True) gives you all of it.",
-              "frozen=True is what makes instances hashable."],
+       hints=["The @dataclass decorator takes options - read which ones give ordering and immutability.",
+              "@dataclass(frozen=True, order=True) gives you all of it; frozen=True is also what makes instances hashable."],
        solution="""
        from dataclasses import dataclass
 
@@ -479,11 +491,13 @@ def build():
            pass
        """,
        [("rectangle area", "assert Rectangle(3, 4).area() == 12"),
-        ("circle area", "assert abs(Circle(1).area() - math.pi) < 1e-9"),
+        ("circle area", "import math\nassert round(Circle(1).area(), 9) == round(math.pi, 9)"),
+        ("a bigger circle", "assert round(Circle(2).area(), 6) == 12.566371"),
         ("describe uses the subclass name",
          "assert Rectangle(2, 2).describe() == 'Rectangle with area 4'"),
-        ("abstract cannot be built",
-         "try:\n    Shape()\nexcept TypeError:\n    pass\nelse:\n    raise AssertionError('Shape must be abstract')")],
+        ("describe on another rectangle",
+         "assert Rectangle(3, 5).describe() == 'Rectangle with area 15'"),
+        ("abstract cannot be built", raises("Shape()", "TypeError"))],
        hints=["type(self).__name__ gives the real subclass name at runtime.",
               "A class with an unimplemented @abstractmethod cannot be instantiated."],
        solution="""
@@ -538,8 +552,7 @@ def build():
          "assert list(chunks((n for n in range(5)), 2)) == [[0, 1], [2, 3], [4]]"),
         ("lazy",
          "import itertools\ninf = itertools.count()\nassert next(iter(chunks(inf, 3))) == [0, 1, 2]"),
-        ("rejects a size of zero",
-         "try:\n    list(chunks([1], 0))\nexcept ValueError:\n    pass\nelse:\n    raise AssertionError('expected ValueError')")],
+        ("rejects a size of zero", raises("list(chunks([1], 0))"))],
        hints=["iter() on the input first, then islice repeatedly from that one iterator.",
               "islice on a fresh iter() each time would restart from the beginning."],
        solution="""
@@ -571,12 +584,14 @@ def build():
            pass
        """,
        [("correct", "assert slow_fib(10) == 55"),
-        ("base cases", "assert slow_fib(0) == 0 and slow_fib(1) == 1"),
+        ("base case zero", "assert slow_fib(0) == 0"),
+        ("base case one", "assert slow_fib(1) == 1"),
+        ("further along", "assert slow_fib(30) == 832040"),
         ("fast enough to be cached",
          "import time\nstart = time.monotonic()\nslow_fib(35)\nassert time.monotonic() - start < 1.0"),
         ("exposes cache info", "assert slow_fib.cache_info().hits >= 0")],
-       hints=["functools.lru_cache(maxsize=None), or functools.cache on 3.9 and later.",
-              "The decorator caches by arguments, so the recursion hits the cache too."],
+       hints=["The standard library can remember a function's answers for you - look in functools.",
+              "functools.lru_cache(maxsize=None) or functools.cache; it caches by arguments, so the recursion hits the cache too."],
        solution="""
        import functools
 
@@ -603,12 +618,17 @@ def build():
        [("still works",
          "assert first_or_default(['a']) == 'a'\nassert first_or_default([]) == 'none'"),
         ("items is annotated",
-         "import typing\nhints = typing.get_type_hints(first_or_default)\nassert 'items' in hints"),
+         "import typing\nhints = typing.get_type_hints(first_or_default)\nassert 'items' in hints, 'items has no annotation yet'"),
+        ("items is a list",
+         "import typing\nhint = typing.get_type_hints(first_or_default).get('items')\nassert typing.get_origin(hint) in (list,), 'items should be annotated as a list'"),
+        ("of strings",
+         "import typing\nhint = typing.get_type_hints(first_or_default).get('items')\nassert typing.get_args(hint) == (str,), 'items should be a list of strings: list[str]'"),
         ("return is annotated",
-         "import typing\nassert typing.get_type_hints(first_or_default)['return'] is str"),
+         "import typing\nassert typing.get_type_hints(first_or_default).get('return') in (str,), 'annotate the return type: -> str'"),
         ("default is a string",
-         "import typing\nassert typing.get_type_hints(first_or_default)['default'] is str")],
-       hints=["list[str] works directly on modern Python; no typing import needed for it."],
+         "import typing\nassert typing.get_type_hints(first_or_default).get('default') in (str,), 'annotate default as a string: default: str = ...'")],
+       hints=["An annotation goes after the parameter name with a colon; the return type goes after -> before the final colon.",
+              "list[str] works directly on modern Python; no typing import needed for it."],
        solution="""
        def first_or_default(items: list[str], default: str = "none") -> str:
            return items[0] if items else default

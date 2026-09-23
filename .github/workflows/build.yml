@@ -32,6 +32,8 @@ jobs:
             libxcb-cursor0 libxcb-icccm4 libxcb-keysyms1 libxcb-shape0 \
             libdbus-1-3 libfontconfig1
       - run: pip install -e ".[dev]"
+      - name: Lint
+        run: ruff check .
       - name: Run the suite, including every shipped solution
         env:
           QT_QPA_PLATFORM: offscreen
@@ -114,14 +116,54 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
       - uses: actions/download-artifact@v4
         with:
           path: artifacts
           merge-multiple: true
       - run: ls -lh artifacts
+
+      - name: Refuse a release that is missing a file or disagrees with its tag
+        run: |
+          # Every build, old and new, finds its update by file name. A missing
+          # windows-setup.exe strands every installed Windows copy, and a file
+          # still called ...-windows-portable.zip would be picked up by 1.0.x
+          # portable builds, whose updater damages the folder it runs from.
+          # The tag must also match version.py, or every file is misnamed and
+          # the installed build reports the wrong version.
+          python packaging/build.py --check-release artifacts --tag "${GITHUB_REF_NAME}"
+
+      - name: Publish a checksum for every artefact
+        run: |
+          # The installers and the in-app updater refuse to install anything
+          # that is not listed here, so this file is what makes a swapped
+          # download detectable. One "<sha256>  <filename>" line per artefact,
+          # exactly the shape sha256sum writes and shasum -c reads.
+          set -eu
+          cd artifacts
+          rm -f SHA256SUMS
+          sha256sum -- * > SHA256SUMS
+          files=$(find . -maxdepth 1 -type f ! -name SHA256SUMS | wc -l)
+          lines=$(wc -l < SHA256SUMS)
+          if [ "$files" -ne "$lines" ]; then
+            echo "SHA256SUMS lists $lines files but there are $files" >&2
+            exit 1
+          fi
+          sha256sum -c SHA256SUMS
+          echo "published checksums:"
+          cat SHA256SUMS
+
       - uses: softprops/action-gh-release@v2
         with:
           files: artifacts/*
+          fail_on_unmatched_files: true
           draft: false
-          generate_release_notes: true
+          prerelease: false
+          make_latest: "true"
+          # The body is the release notes file alone. The in-app update
+          # dialog of every build shows the start of it, and CHANGELOG.md
+          # holds the full record.
+          generate_release_notes: false
           body_file: .github/RELEASE_NOTES.md

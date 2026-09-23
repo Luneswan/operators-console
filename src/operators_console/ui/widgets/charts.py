@@ -48,7 +48,7 @@ class ActivityGrid(QWidget):
         by_width = (self.width() - gap * self.weeks) // self.weeks
         by_height = (self.height() - caption_height - gap * 7) // 7
         cell = max(6, min(20, by_width, by_height))
-        base = QColor(self.colours.paper_2)
+        base = QColor(self.colours.surface_3)   # an empty day: a step up, not a hole
         accent = QColor(self.colours.accent)
         done = QColor(self.colours.done)
 

@@ -1,5 +1,6 @@
 """Phases 09 to 14 - backend, automation, concurrency, security, AI."""
 from ex_lib import ex
+from ex_p01a import must_call, no_string_building, raises
 
 
 def build():
@@ -53,16 +54,15 @@ def build():
        """,
        [("normalises",
          "assert clean_signup({'email': ' A@B.COM ', 'age': '30'}) == {'email': 'a@b.com', 'age': 30}"),
-        ("rejects a missing email",
-         "try:\n    clean_signup({'age': 20})\nexcept ValueError:\n    pass\nelse:\n    raise AssertionError('expected ValueError')"),
-        ("rejects a malformed email",
-         "try:\n    clean_signup({'email': 'nope', 'age': 20})\nexcept ValueError:\n    pass\nelse:\n    raise AssertionError('expected ValueError')"),
-        ("rejects a child",
-         "try:\n    clean_signup({'email': 'a@b.c', 'age': 9})\nexcept ValueError:\n    pass\nelse:\n    raise AssertionError('expected ValueError')"),
-        ("rejects a non-numeric age",
-         "try:\n    clean_signup({'email': 'a@b.c', 'age': 'old'})\nexcept ValueError:\n    pass\nelse:\n    raise AssertionError('expected ValueError')"),
+        ("thirteen is old enough",
+         "assert clean_signup({'email': 'Bob@Example.org', 'age': 13}) == {'email': 'bob@example.org', 'age': 13}"),
+        ("rejects a missing email", raises("clean_signup({'age': 20})")),
+        ("rejects a malformed email", raises("clean_signup({'email': 'nope', 'age': 20})")),
+        ("rejects a missing age", raises("clean_signup({'email': 'a@b.c'})")),
+        ("rejects a child", raises("clean_signup({'email': 'a@b.c', 'age': 9})")),
+        ("rejects a non-numeric age", raises("clean_signup({'email': 'a@b.c', 'age': 'old'})")),
         ("messages are not empty",
-         "try:\n    clean_signup({})\nexcept ValueError as exc:\n    assert str(exc)")],
+         "try:\n    result = clean_signup({})\nexcept ValueError as exc:\n    message = str(exc)\nelse:\n    raise AssertionError('clean_signup({}) should raise ValueError, but it returned %r' % (result,))\nassert message.strip(), 'the ValueError needs a message a client could act on'")],
        hints=["Validate, then normalise. Never trust a payload that came off the network.",
               "Raise with a message a client could act on, without leaking internals."],
        solution="""
@@ -94,15 +94,17 @@ def build():
            pass
        """,
        [("first page",
-         "r = paginate(list(range(10)), 1, 3)\nassert r['items'] == [0, 1, 2] and r['pages'] == 4 and r['total'] == 10"),
+         "r = paginate(list(range(10)), 1, 3)\nassert r['items'] == [0, 1, 2]\nassert r['page'] == 1\nassert r['pages'] == 4\nassert r['total'] == 10"),
+        ("a middle page",
+         "r = paginate(list('abcdefg'), 2, 2)\nassert r['items'] == ['c', 'd']\nassert r['page'] == 2\nassert r['pages'] == 4\nassert r['total'] == 7"),
         ("last partial page",
          "assert paginate(list(range(10)), 4, 3)['items'] == [9]"),
         ("past the end",
          "assert paginate(list(range(10)), 99, 3)['items'] == []"),
         ("empty input",
-         "r = paginate([], 1, 5)\nassert r['items'] == [] and r['pages'] == 0"),
-        ("rejects bad page",
-         "try:\n    paginate([1], 0, 5)\nexcept ValueError:\n    pass\nelse:\n    raise AssertionError('expected ValueError')")],
+         "r = paginate([], 1, 5)\nassert r['items'] == []\nassert r['pages'] == 0"),
+        ("rejects bad page", raises("paginate([1], 0, 5)")),
+        ("rejects a bad page size", raises("paginate([1], 1, 0)"))],
        hints=["Total pages is a ceiling division: -(-total // per_page).",
               "Slicing past the end of a list is already safe."],
        solution="""
@@ -166,11 +168,15 @@ def build():
            pass
        """,
        [("succeeds first time",
-         "log = []\n@retry(3, log)\ndef ok():\n    return 'fine'\nassert ok() == 'fine' and log == []"),
+         "log = []\n@retry(3, log)\ndef ok():\n    return 'fine'\nassert ok() == 'fine'\nassert log == []"),
         ("retries then succeeds",
-         "log = []\nstate = {'n': 0}\n@retry(3, log)\ndef flaky():\n    state['n'] += 1\n    if state['n'] < 3:\n        raise RuntimeError('nope')\n    return state['n']\nassert flaky() == 3 and log == [1, 2]"),
+         "log = []\nstate = {'n': 0}\n@retry(3, log)\ndef flaky():\n    state['n'] += 1\n    if state['n'] < 3:\n        raise RuntimeError('nope')\n    return state['n']\nassert flaky() == 3\nassert log == [1, 2]"),
         ("gives up and re-raises",
-         "log = []\n@retry(2, log)\ndef broken():\n    raise ValueError('always')\ntry:\n    broken()\nexcept ValueError:\n    pass\nelse:\n    raise AssertionError('should re-raise')"),
+         raises("broken()", before="log = []\n@retry(2, log)\ndef broken():\n    raise ValueError('always')")
+         + "\nassert log == [1]"),
+        ("delays keep doubling",
+         raises("broken()", "RuntimeError", before="log = []\n@retry(4, log)\ndef broken():\n    raise RuntimeError('down')")
+         + "\nassert log == [1, 2, 4]"),
         ("keeps the name",
          "log = []\n@retry(1, log)\ndef named():\n    pass\nassert named.__name__ == 'named'")],
        hints=["Loop over the attempts; return on success, record the delay on failure.",
@@ -282,7 +288,7 @@ def build():
         ("respects the limit",
          "import asyncio\nSTATE['peak'] = 0\nasyncio.run(fetch_limited([str(i) for i in range(12)], 3))\nassert STATE['peak'] <= 3"),
         ("still concurrent",
-         "import asyncio, time\nSTATE['peak'] = 0\nstart = time.monotonic()\nasyncio.run(fetch_limited([str(i) for i in range(9)], 3))\nassert STATE['peak'] > 1 and time.monotonic() - start < 0.5")],
+         "import asyncio, time\nSTATE['peak'] = 0\nstart = time.monotonic()\nasyncio.run(fetch_limited([str(i) for i in range(9)], 3))\nelapsed = time.monotonic() - start\nassert STATE['peak'] > 1, 'only one call was ever in flight - start them together'\nassert elapsed < 0.5, 'nine calls took %.2fs - they should overlap' % elapsed")],
        setup="""
        import asyncio
 
@@ -376,8 +382,11 @@ def build():
          "assert hash_password('same') != hash_password('same')"),
         ("stores salt and hash",
          "assert hash_password('x').count('$') == 1"),
-        ("constant-time comparison",
-         "import inspect\nassert 'compare_digest' in inspect.getsource(verify)"),
+        ("a 16-byte salt",
+         "salt_hex = hash_password('x').split('$')[0]\nassert len(bytes.fromhex(salt_hex)) == 16"),
+        ("constant-time comparison", must_call(
+            "verify", [".compare_digest", "compare_digest"],
+            "verify should compare with hmac.compare_digest, which takes the same time however much matches")),
         ("malformed input is rejected",
          "assert verify('x', 'garbage') is False")],
        hints=["scrypt needs n, r and p; n=16384, r=8, p=1 is a common baseline.",
@@ -423,12 +432,14 @@ def build():
        """,
        [("normal file",
          "from pathlib import Path\nassert safe_join('data', 'a/b.txt') == (Path('data').resolve() / 'a' / 'b.txt')"),
-        ("rejects traversal",
-         "try:\n    safe_join('data', '../../etc/passwd')\nexcept ValueError:\n    pass\nelse:\n    raise AssertionError('expected ValueError')"),
-        ("rejects an absolute path",
-         "import os\ntarget = 'C:/Windows' if os.name == 'nt' else '/etc'\ntry:\n    safe_join('data', target)\nexcept ValueError:\n    pass\nelse:\n    raise AssertionError('expected ValueError')"),
-        ("rejects a sneaky middle traversal",
-         "try:\n    safe_join('data', 'ok/../../out.txt')\nexcept ValueError:\n    pass\nelse:\n    raise AssertionError('expected ValueError')")],
+        ("a harmless dot-dot inside the root",
+         "from pathlib import Path\nassert safe_join('data', 'a/../b.txt') == (Path('data').resolve() / 'b.txt')"),
+        ("rejects traversal", raises("safe_join('data', '../../etc/passwd')")),
+        ("rejects an absolute path", raises(
+            "safe_join('data', target)",
+            before="import os\ntarget = 'C:/Windows' if os.name == 'nt' else '/etc'")),
+        ("rejects a sneaky middle traversal", raises("safe_join('data', 'ok/../../out.txt')")),
+        ("rejects a sibling with the same prefix", raises("safe_join('data', '../data2/x.txt')"))],
        hints=["Resolve both paths first, then test containment - string prefixes lie.",
               "Path.is_relative_to does the containment check for you."],
        solution="""
@@ -460,11 +471,13 @@ def build():
         ("injection returns nothing",
          "attack = chr(39) + ' OR ' + chr(39) + '1' + chr(39) + '=' + chr(39) + '1'"
          "\nassert find_user(CONN, attack) == []"),
-        ("no string concatenation into sql",
-         "import inspect\nsrc = inspect.getsource(find_user)"
-         "\nassert ' + ' not in src"),
-        ("uses a placeholder",
-         "import inspect\nassert '?' in inspect.getsource(find_user)")],
+        ("finds another user",
+         "assert [r[0] for r in find_user(CONN, 'grace')] == [2]"),
+        ("a quote in a name is just a character",
+         "assert find_user(CONN, \"o'brien\") == []"),
+        ("no string building into sql", no_string_building(
+            "find_user",
+            "find_user should pass the name as a parameter, not build it into the SQL"))],
        setup="""
        import sqlite3
 
@@ -497,12 +510,14 @@ def build():
        def cosine(a, b):
            pass
        """,
-       [("identical vectors", "assert abs(cosine([1, 2, 3], [1, 2, 3]) - 1.0) < 1e-9"),
-        ("orthogonal", "assert abs(cosine([1, 0], [0, 1])) < 1e-9"),
-        ("opposite", "assert abs(cosine([1, 0], [-1, 0]) + 1.0) < 1e-9"),
-        ("zero vector", "assert cosine([0, 0], [1, 1]) == 0.0"),
-        ("length mismatch",
-         "try:\n    cosine([1], [1, 2])\nexcept ValueError:\n    pass\nelse:\n    raise AssertionError('expected ValueError')")],
+       [("identical vectors", "assert round(cosine([1, 2, 3], [1, 2, 3]), 9) == 1.0"),
+        ("orthogonal", "assert round(cosine([1, 0], [0, 1]), 9) == 0.0"),
+        ("opposite", "assert round(cosine([1, 0], [-1, 0]), 9) == -1.0"),
+        ("an angle in between", "assert round(cosine([1, 0], [1, 1]), 6) == 0.707107"),
+        ("first vector all zeros", "assert cosine([0, 0], [1, 1]) == 0.0"),
+        ("second vector all zeros", "assert cosine([1, 1], [0, 0]) == 0.0"),
+        ("both all zeros", "assert cosine([0, 0], [0, 0]) == 0.0"),
+        ("length mismatch", raises("cosine([1], [1, 2])"))],
        hints=["Cosine is the dot product divided by the product of the magnitudes.",
               "sum(x * y for x, y in zip(a, b)) is the dot product."],
        solution="""
@@ -535,13 +550,15 @@ def build():
            pass
        """,
        [("sums to one",
-         "assert abs(sum(softmax([1, 2, 3])) - 1.0) < 1e-9"),
+         "assert round(sum(softmax([1, 2, 3])), 9) == 1.0"),
         ("order is preserved",
-         "p = softmax([1, 3, 2])\nassert p[1] > p[2] > p[0]"),
+         "p = softmax([1, 3, 2])\nassert p[1] > p[2]\nassert p[2] > p[0]"),
         ("uniform input",
-         "p = softmax([5, 5])\nassert abs(p[0] - 0.5) < 1e-9"),
+         "p = softmax([5, 5])\nassert round(p[0], 9) == 0.5"),
+        ("known values",
+         "import math\np = softmax([0, math.log(3)])\nassert [round(x, 9) for x in p] == [0.25, 0.75]"),
         ("survives huge values",
-         "p = softmax([1000, 1001])\nassert abs(sum(p) - 1.0) < 1e-9"),
+         "p = softmax([1000, 1001])\nassert round(sum(p), 9) == 1.0"),
         ("empty", "assert softmax([]) == []")],
        hints=["exp(1000) overflows a float; exp(1000 - 1001) does not.",
               "Subtracting a constant from every score leaves the result unchanged."],
@@ -574,7 +591,7 @@ def build():
            pass
        """,
        [("sizes",
-         "train, test = train_test_split(list(range(100)), 0.2, 1)\nassert len(test) == 20 and len(train) == 80"),
+         "train, test = train_test_split(list(range(100)), 0.2, 1)\nassert len(test) == 20\nassert len(train) == 80"),
         ("nothing lost",
          "train, test = train_test_split(list(range(50)), 0.3, 7)\nassert sorted(train + test) == list(range(50))"),
         ("reproducible",
@@ -610,13 +627,12 @@ def build():
        [("perfect",
          "r = scores([1, 0, 1], [1, 0, 1])\nassert r == {'precision': 1.0, 'recall': 1.0, 'f1': 1.0}"),
         ("half right",
-         "r = scores([1, 1], [1, 0])\nassert r['precision'] == 0.5 and r['recall'] == 1.0"),
+         "r = scores([1, 1], [1, 0])\nassert r['precision'] == 0.5\nassert r['recall'] == 1.0\nassert round(r['f1'], 9) == round(2 / 3, 9)"),
         ("nothing predicted",
          "r = scores([0, 0], [1, 1])\nassert r == {'precision': 0.0, 'recall': 0.0, 'f1': 0.0}"),
         ("no positives at all",
          "r = scores([0], [0])\nassert r['f1'] == 0.0"),
-        ("length mismatch",
-         "try:\n    scores([1], [1, 0])\nexcept ValueError:\n    pass\nelse:\n    raise AssertionError('expected ValueError')")],
+        ("length mismatch", raises("scores([1], [1, 0])"))],
        hints=["Precision is tp / (tp + fp); recall is tp / (tp + fn).",
               "F1 is the harmonic mean, 2pr / (p + r)."],
        solution="""

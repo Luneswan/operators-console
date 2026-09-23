@@ -23,7 +23,7 @@ def make_release(tag="v9.9.9", names=()):
 
 ALL_ASSETS = (
     "operators-console-1.0.0-windows-setup.exe",
-    "operators-console-1.0.0-windows-portable.zip",
+    "operators-console-1.0.0-windows-x64-portable.zip",
     "operators-console-1.0.0-macos-arm64.dmg",
     "operators-console-1.0.0-macos-arm64-portable.zip",
     "operators-console-1.0.0-macos-x86_64.dmg",
@@ -63,7 +63,7 @@ def test_the_same_or_older_release_is_not_offered():
 
 @pytest.mark.parametrize("platform,kind,expected", [
     ("win32", updates.INSTALLED, "windows-setup.exe"),
-    ("win32", updates.PORTABLE, "windows-portable.zip"),
+    ("win32", updates.PORTABLE, "windows-x64-portable.zip"),
     ("linux", updates.APPIMAGE, "x86_64.AppImage"),
     ("linux", updates.PORTABLE, "linux-portable.zip"),
 ])
@@ -86,6 +86,25 @@ def test_macos_never_offers_the_wrong_architecture(monkeypatch, machine,
     asset = updates.pick_asset(make_release("v9.0.0", ALL_ASSETS),
                                updates.MACAPP)
     assert asset is not None and asset.name.endswith(expected)
+
+
+def test_a_windows_portable_build_still_finds_the_pre_1_1_name(monkeypatch):
+    """A release named the old way is not orphaned for current clients."""
+    monkeypatch.setattr(updates.sys, "platform", "win32")
+    release = make_release("v9.0.0", (
+        "operators-console-1.0.0-windows-portable.zip",))
+    for kind in (updates.PORTABLE, updates.INSTALLED):
+        asset = updates.pick_asset(release, kind)
+        assert asset is not None and asset.name.endswith(
+            "windows-portable.zip")
+
+
+def test_an_installed_windows_build_prefers_the_installer(monkeypatch):
+    monkeypatch.setattr(updates.sys, "platform", "win32")
+    reordered = tuple(sorted(ALL_ASSETS, key=lambda n: "setup" in n))
+    asset = updates.pick_asset(make_release("v9.0.0", reordered),
+                               updates.INSTALLED)
+    assert asset.name.endswith("windows-setup.exe")
 
 
 def test_a_release_without_a_matching_build_picks_nothing(monkeypatch):
@@ -228,3 +247,81 @@ def test_an_update_refuses_to_run_if_it_would_delete_your_data(tmp_path,
 def test_a_normal_layout_passes_the_guard(tmp_path, monkeypatch):
     monkeypatch.setenv("OPERATORS_CONSOLE_HOME", str(tmp_path / "home"))
     updates._guard_user_data(tmp_path / "app")
+
+
+# ---------------------------------------------------------------------------
+# the staging folder does not keep what failed updates left
+# ---------------------------------------------------------------------------
+
+def _age(path, seconds):
+    import os
+    import time
+    then = time.time() - seconds
+    os.utime(path, (then, then))
+
+
+def test_a_stale_package_part_and_sidecar_are_cleared():
+    staging = updates.staging_dir()
+    package = staging / "operators-console-9.9.9-windows-setup.exe"
+    package.write_bytes(b"x" * 64)
+    updates.remember_digest(package, "a" * 64)
+    partial = staging / "operators-console-9.9.9-windows-x64-portable.zip.part"
+    partial.write_bytes(b"half")
+    helper = staging / (updates.HELPER_PREFIX + "4242")
+    helper.mkdir()
+    (helper / "operators-console.exe").write_bytes(b"x")
+    log = staging / "setup.log"
+    log.write_text("what the installer did", encoding="utf-8")
+    for path in (package, updates._digest_sidecar(package), partial, helper,
+                 log):
+        _age(path, 3600)
+
+    updates.tidy_staging()
+
+    assert sorted(p.name for p in staging.iterdir()) == ["setup.log"],         "the installer's log is the one thing worth keeping"
+
+
+def test_a_fresh_download_is_left_alone():
+    """A package younger than the grace period may be about to be applied."""
+    staging = updates.staging_dir()
+    package = staging / "operators-console-9.9.9-windows-setup.exe"
+    package.write_bytes(b"x")
+    partial = staging / "downloading.part"
+    partial.write_bytes(b"x")
+
+    updates.tidy_staging()
+
+    assert package.exists() and partial.exists()
+
+
+def test_a_package_being_handed_over_is_kept_however_old():
+    staging = updates.staging_dir()
+    package = staging / "operators-console-9.9.9-windows-setup.exe"
+    package.write_bytes(b"x")
+    updates.remember_digest(package, "b" * 64)
+    _age(package, 3600)
+    _age(updates._digest_sidecar(package), 3600)
+
+    updates.tidy_staging(keep=(package,))
+
+    assert package.exists()
+    assert updates._digest_sidecar(package).exists()
+
+
+def test_a_failed_update_clears_old_leftovers(tmp_path, monkeypatch):
+    staging = updates.staging_dir()
+    stale = staging / "operators-console-1.0.9-windows-setup.exe"
+    stale.write_bytes(b"old")
+    _age(stale, 3600)
+    package = staging / "operators-console-9.9.9-windows-x64-portable.zip"
+    package.write_bytes(b"not a zip")
+    monkeypatch.setattr(updates, "_wait_for_exit", lambda *a, **k: None)
+    monkeypatch.setattr(updates, "_restart", lambda target: None)
+    monkeypatch.setattr(updates.sys, "platform", "linux")
+
+    code = updates.apply_update(package, 1, updates.PORTABLE,
+                                tmp_path / "app",
+                                updates.sha256_file(package))
+
+    assert code == 1
+    assert not stale.exists(), "a failed update left an old package behind"

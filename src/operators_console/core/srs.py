@@ -33,6 +33,20 @@ MAX_DIFFICULTY = 10.0
 DEFAULT_RETENTION = 0.9
 DEFAULT_MAX_INTERVAL = 3650
 
+# The bounds the reference fitter keeps each weight inside. A weight outside
+# them is not a tuning choice, it is a corrupt settings row, and letting one
+# through produces intervals that look plausible and are not.
+LOWER_BOUNDS: tuple[float, ...] = (
+    0.001, 0.001, 0.001, 0.001, 1.0, 0.001, 0.001, 0.001,
+    0.0, 0.0, 0.001, 0.001, 0.001, 0.001, 0.0, 0.0,
+    1.0, 0.0, 0.0, 0.0, 0.1,
+)
+UPPER_BOUNDS: tuple[float, ...] = (
+    100.0, 100.0, 100.0, 100.0, 10.0, 4.0, 4.0, 0.75,
+    4.5, 0.8, 3.5, 5.0, 0.25, 0.9, 4.0, 1.0,
+    6.0, 2.0, 2.0, 0.8, 0.8,
+)
+
 # Fuzz spreads due dates so a big cohort of cards learned on one day does not
 # come back as one wall of reviews.
 FUZZ_RANGES = (
@@ -74,8 +88,17 @@ class Memory:
     lapses: int = 0
 
     def retrievability(self, now: datetime | None = None,
-                       decay: float = -DEFAULT_PARAMETERS[20]) -> float:
-        """Probability of recall right now; 1.0 for anything never studied."""
+                       decay: float | None = None) -> float:
+        """Probability of recall right now; 1.0 for anything never studied.
+
+        The reference implementation reports 0 for an unstudied card. This
+        one reports 1.0 because the number is also read by the interface,
+        where "nothing is decaying yet" is the honest reading of a card the
+        learner has not been shown. Nothing in the scheduler depends on it:
+        ``review`` only asks once a stability exists.
+        """
+        if decay is None:
+            decay = -DEFAULT_PARAMETERS[20]
         if self.stability is None or self.last_review is None:
             return 1.0
         now = now or utcnow()
@@ -102,6 +125,12 @@ class Scheduler:
     ) -> None:
         if len(parameters) != 21:
             raise ValueError("FSRS-6 needs exactly 21 parameters")
+        for index, (value, low, high) in enumerate(
+                zip(parameters, LOWER_BOUNDS, UPPER_BOUNDS, strict=True)):
+            if not low <= value <= high:
+                raise ValueError(
+                    "FSRS-6 parameter w%d is %r, outside its range "
+                    "[%g, %g]" % (index, value, low, high))
         if not 0.70 <= desired_retention <= 0.99:
             raise ValueError("desired_retention must be between 0.70 and 0.99")
         self.w = parameters
@@ -125,7 +154,7 @@ class Scheduler:
             stability = self._clamp_s(w[rating - 1])
             difficulty = self._initial_difficulty(rating)
         else:
-            elapsed_days = 0.0
+            elapsed_days = None
             if memory.last_review is not None:
                 elapsed_days = max(
                     (now - memory.last_review).total_seconds() / 86400.0, 0.0)
@@ -134,13 +163,20 @@ class Scheduler:
             prior_d = memory.difficulty if memory.difficulty is not None \
                 else self._initial_difficulty(rating)
             difficulty = self._next_difficulty(prior_d, rating)
-            if elapsed_days < 1.0:
+            # A card with a schedule but no last review - restored from a
+            # partial backup, or written by a much older build - has no
+            # short term to speak of. The reference treats it as fully
+            # forgotten rather than as "reviewed a moment ago", which
+            # would otherwise freeze its stability where it already was.
+            if elapsed_days is not None and elapsed_days < 1.0:
                 stability = self._short_term_stability(prior_s, rating)
             else:
                 stability = self._next_stability(
                     difficulty=prior_d,
                     stability=prior_s,
-                    retrievability=memory.retrievability(now, self._decay),
+                    retrievability=(
+                        memory.retrievability(now, self._decay)
+                        if elapsed_days is not None else 0.0),
                     rating=rating,
                 )
 
@@ -182,7 +218,16 @@ class Scheduler:
 
         if state in (State.NEW, State.LEARNING):
             steps = self.learning_steps
-            if not steps or (state is State.LEARNING and step >= len(steps)):
+            if state is State.NEW:
+                # A card that was never answered has not taken a step. A stale
+                # counter (a hand-edited backup) indexed past the step list.
+                step = 0
+            # An AGAIN never graduates a card, even one whose step counter has
+            # run past the end of a shortened step list. Without the rating
+            # test a learner who just failed the card would be told to come
+            # back in days rather than in a minute.
+            if not steps or (state is State.LEARNING and step >= len(steps)
+                             and rating is not Rating.AGAIN):
                 return State.REVIEW, 0, self._review_interval(stability)
             if rating is Rating.AGAIN:
                 return State.LEARNING, 0, steps[0]
@@ -204,14 +249,19 @@ class Scheduler:
             return State.REVIEW, 0, self._review_interval(stability)
 
         steps = self.relearning_steps
-        if not steps or step >= len(steps):
+        if not steps or (step >= len(steps) and rating is not Rating.AGAIN):
             return State.REVIEW, 0, self._review_interval(stability)
         if rating is Rating.AGAIN:
             return State.RELEARNING, 0, steps[0]
         if rating is Rating.HARD:
-            if len(steps) == 1:
+            # Same shape as the learning branch: the average of the first two
+            # steps only applies on the first step. Past it, the reference
+            # repeats the step the card is actually on.
+            if step == 0 and len(steps) == 1:
                 return State.RELEARNING, step, steps[0] * 1.5
-            return State.RELEARNING, step, (steps[0] + steps[1]) / 2.0
+            if step == 0:
+                return State.RELEARNING, step, (steps[0] + steps[1]) / 2.0
+            return State.RELEARNING, step, steps[step]
         if rating is Rating.GOOD:
             if step + 1 >= len(steps):
                 return State.REVIEW, 0, self._review_interval(stability)

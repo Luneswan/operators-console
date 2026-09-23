@@ -23,7 +23,8 @@ def export_backup(store: Store, target: Path) -> Path:
 
 
 def import_backup(store: Store, source: Path) -> None:
-    payload = json.loads(Path(source).read_text(encoding="utf-8"))
+    # utf-8-sig: Notepad and PowerShell 5 put a BOM in front of the JSON.
+    payload = json.loads(Path(source).read_text(encoding="utf-8-sig"))
     store.restore(payload)
 
 
@@ -48,10 +49,15 @@ def export_report(curriculum: Curriculum, store: Store, progress: Progress,
     add("| Track | %s |" % (track.name if track else "Custom"))
     add("| Curriculum complete | %d%% (%d of %d checks) |"
         % (overview.percent, overview.done, overview.total))
-    add("| Phases finished | %d of %d |"
+    add("| Phases proven | %d of %d |"
         % (overview.phases_complete, overview.phases_total))
     add("| Exercises passed | %d of %d |"
         % (overview.exercises_done, overview.exercises_total))
+    revealed = store.revealed_exercise_ids()
+    if revealed:
+        # Worth knowing, and worth being honest about: these were solved
+        # after reading the answer rather than from scratch.
+        add("| Exercises whose answer was read | %d |" % len(revealed))
     add("| Projects shipped | %d of %d |"
         % (overview.projects_shipped, overview.projects_total))
     add("| Logged study hours | %.1f |" % overview.hours)
@@ -75,6 +81,26 @@ def export_report(curriculum: Curriculum, store: Store, progress: Progress,
                ", gate cleared" if st.gate_cleared else ""))
     add("")
 
+    # The checklist above is the plan the learner is on; this is every phase
+    # in the curriculum with the numbers behind it, including the ones the
+    # chosen track leaves out.
+    add("### Every phase in detail")
+    add("")
+    add("| Phase | Checks | Exercises | Gate | Best quiz | Projects |")
+    add("| --- | --- | --- | --- | --- | --- |")
+    for phase in curriculum.phases:
+        st = stats.get(phase.id)
+        if st is None:
+            continue
+        add("| %s %s | %d/%d (%d%%) | %d/%d | %s | %s | %d/%d |"
+            % (phase.num, phase.name, st.done, st.total, st.percent,
+               st.exercises_done, st.exercises_total,
+               ("%d/%d" % (st.gate_done, st.gate_total)) if st.gate_total
+               else "-",
+               ("%d%%" % round(st.quiz_best * 100)) if st.quiz_best else "-",
+               st.projects_shipped, st.projects_total))
+    add("")
+
     shipped = [p for p in curriculum.projects
                if store.project(p.id)["status"] == "shipped"]
     if shipped:
@@ -87,6 +113,8 @@ def export_report(curriculum: Curriculum, store: Store, progress: Progress,
                 % (project.title, project.brief,
                    (" (%s)" % url) if url else ""))
         add("")
+
+    _add_notes(curriculum, store, add)
 
     logs = store.logs(limit=30)
     if logs:
@@ -104,3 +132,40 @@ def export_report(curriculum: Curriculum, store: Store, progress: Progress,
     target = Path(target)
     target.write_text("\n".join(lines), encoding="utf-8")
     return target
+
+
+def _add_notes(curriculum: Curriculum, store: Store, add) -> None:
+    """Everything the learner typed for themselves, kept together.
+
+    Notes were the one thing the report left behind entirely, so the file it
+    produced could not stand in for the application - which is the whole
+    point of being able to export it.
+    """
+    written = []
+    for scope, body in sorted(store.all_notes().items()):
+        body = (body or "").strip()
+        if body:
+            written.append((_note_heading(curriculum, scope), body))
+    for project in curriculum.projects:
+        body = (store.project(project.id)["notes"] or "").strip()
+        if body:
+            written.append(("Project: %s" % project.title, body))
+    if not written:
+        return
+    add("## Notes")
+    add("")
+    for heading, body in written:
+        add("### %s" % heading)
+        add("")
+        add(body)
+        add("")
+
+
+def _note_heading(curriculum: Curriculum, scope: str) -> str:
+    """'phase:p01' reads as the phase it belongs to, not as a key."""
+    kind, _, rest = scope.partition(":")
+    if kind == "phase":
+        phase = curriculum.phase(rest)
+        if phase is not None:
+            return "%s %s" % (phase.num, phase.name)
+    return scope

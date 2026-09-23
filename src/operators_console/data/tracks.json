@@ -7,7 +7,7 @@
    "blurb": "The full spine, in order. Slowest route, widest ceiling. Pick this if you don't yet know what you want to build.",
    "tags": ["language", "cs", "backend", "systems", "devops"],
    "core": ["p00","p01","p02","p03","p04","p05","p06","p07","p08","p09","p10","p11","p12","p13"],
-   "optional": ["p14","p15","p16","p17"]
+   "optional": ["p14","p15","p16","p17","p18","p99"]
   },
   {
    "id": "beginner",
@@ -23,7 +23,7 @@
    "blurb": "Databases, HTTP services, auth, containers and deployment. The most common professional Python job.",
    "tags": ["backend", "web", "sql", "devops", "security"],
    "core": ["p00","p01","p02","p03","p04","p08","p09","p11","p12","p13","p15"],
-   "optional": ["p05","p06","p07","p10","p17"]
+   "optional": ["p05","p06","p07","p10","p17","p18","p99"]
   },
   {
    "id": "data",
@@ -55,7 +55,7 @@
    "blurb": "Linux, networking, containers, pipelines and the operational surface underneath everything else.",
    "tags": ["devops", "linux", "networking", "deployment"],
    "core": ["p00","p01","p02","p03","p06","p07","p12","p15"],
-   "optional": ["p08","p09","p11","p13","p16"]
+   "optional": ["p08","p09","p11","p13","p16","p18","p99"]
   },
   {
    "id": "security",
@@ -71,7 +71,7 @@
    "blurb": "Language, data structures, algorithms, SQL and one shipped, tested, deployed service. Optimised for passing a real hiring loop.",
    "tags": ["interview", "algorithms", "backend", "sql"],
    "core": ["p00","p01","p02","p03","p04","p05","p08","p09","p12"],
-   "optional": ["p11","p13","p10"]
+   "optional": ["p11","p13","p10","p18","p99"]
   }
  ]
 }

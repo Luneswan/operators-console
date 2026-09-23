@@ -1,5 +1,6 @@
 """Phase 04 - computer science core: data structures you build yourself."""
 from ex_lib import ex
+from ex_p01a import must_call, never_calls, raises
 
 
 def build():
@@ -55,7 +56,8 @@ def build():
         ("under capacity",
          "b = RingBuffer(5)\nb.push('a')\nassert b.items() == ['a']"),
         ("empty", "assert RingBuffer(3).items() == []")],
-       hints=["collections.deque(maxlen=n) drops from the far end automatically."],
+       hints=["You need a container that forgets its oldest item once it is full - look at what the starter imports.",
+              "collections.deque(maxlen=n) drops from the far end automatically."],
        solution="""
        from collections import deque
 
@@ -103,10 +105,15 @@ def build():
        [("round trips", "assert to_list(from_list([1, 2, 3])) == [1, 2, 3]"),
         ("reverses", "assert to_list(reverse(from_list([1, 2, 3]))) == [3, 2, 1]"),
         ("single node", "assert to_list(reverse(from_list([9]))) == [9]"),
-        ("empty chain", "assert to_list(reverse(from_list([]))) is not None or True"),
+        ("empty chain is None", "assert from_list([]) is None"),
+        ("empty chain reads back empty", "assert to_list(from_list([])) == []"),
+        ("reversing an empty chain", "assert reverse(from_list([])) is None"),
         ("empty returns None", "assert reverse(None) is None"),
-        ("no list used in reverse",
-         "import inspect\nsrc = inspect.getsource(reverse)\nassert 'to_list' not in src and 'from_list' not in src")],
+        ("reverses in place",
+         "head = from_list(['a', 'b', 'c'])\ntail = head.next.next\nnew_head = reverse(head)\nassert new_head is tail, 'reverse should relink the nodes it was given, so the old tail becomes the head'\nassert head.next is None, 'the old head should now be the last node'"),
+        ("no list used in reverse", never_calls(
+            "reverse", ["to_list", "from_list", "list", "reversed"],
+            "reverse should relink the nodes one at a time, without a Python list"))],
        hints=["Reversal needs three names: previous, current and the saved next.",
               "Save current.next before you overwrite it, or you lose the rest of the chain."],
        solution="""
@@ -156,10 +163,10 @@ def build():
        [("stores and reads",
          "m = HashMap()\nm.put('a', 1)\nassert m.get('a') == 1"),
         ("overwrites",
-         "m = HashMap()\nm.put('a', 1)\nm.put('a', 2)\nassert m.get('a') == 2 and len(m) == 1"),
+         "m = HashMap()\nm.put('a', 1)\nm.put('a', 2)\nassert m.get('a') == 2\nassert len(m) == 1"),
         ("missing key default", "assert HashMap().get('nope', 'x') == 'x'"),
         ("survives collisions",
-         "m = HashMap(buckets=1)\nfor i in range(20):\n    m.put(i, i * 2)\nassert m.get(19) == 38 and len(m) == 20"),
+         "m = HashMap(buckets=1)\nfor i in range(20):\n    m.put(i, i * 2)\nassert m.get(19) == 38\nassert m.get(0) == 0\nassert len(m) == 20"),
         ("counts entries",
          "m = HashMap()\nfor i in range(5):\n    m.put(i, i)\nassert len(m) == 5")],
        hints=["Bucket index is hash(key) % len(self.buckets); hash can be negative, and % fixes it.",
@@ -208,6 +215,8 @@ def build():
         ("finds present values",
          "t = BST()\nt.insert(4)\nassert t.contains(4) is True"),
         ("rejects absent values", "assert BST().contains(1) is False"),
+        ("a second tree",
+         "t = BST()\nfor v in [8, 1, 9, 3, 7]:\n    t.insert(v)\nassert t.in_order() == [1, 3, 7, 8, 9]\nassert t.contains(7) is True\nassert t.contains(4) is False"),
         ("ignores duplicates",
          "t = BST()\nfor v in [2, 2, 2]:\n    t.insert(v)\nassert t.in_order() == [2]"),
         ("handles sorted input",
@@ -357,11 +366,13 @@ def build():
            pass
        """,
        [("respects dependencies",
-         "result = order({'app': ['lib'], 'lib': [], 'test': ['app']})\nassert result.index('lib') < result.index('app') < result.index('test')"),
+         "result = order({'app': ['lib'], 'lib': [], 'test': ['app']})\nassert result.index('lib') < result.index('app'), 'lib must come before app'\nassert result.index('app') < result.index('test'), 'app must come before test'"),
+        ("every task once",
+         "assert sorted(order({'app': ['lib'], 'lib': [], 'test': ['app']})) == ['app', 'lib', 'test']"),
         ("independent tasks all appear",
          "assert sorted(order({'a': [], 'b': []})) == ['a', 'b']"),
-        ("detects a cycle",
-         "try:\n    order({'a': ['b'], 'b': ['a']})\nexcept ValueError:\n    pass\nelse:\n    raise AssertionError('expected ValueError')"),
+        ("detects a cycle", raises("order({'a': ['b'], 'b': ['a']})")),
+        ("detects a longer cycle", raises("order({'a': ['c'], 'b': ['a'], 'c': ['b'], 'd': []})")),
         ("empty", "assert order({}) == []")],
        hints=["Repeatedly take every task whose dependencies are already emitted.",
               "If tasks remain but none are ready, the graph has a cycle."],
@@ -400,10 +411,17 @@ def build():
          "assert merge_sorted([1], [2], [0]) == [0, 1, 2]"),
         ("one empty", "assert merge_sorted([], [1, 2]) == [1, 2]"),
         ("no streams", "assert merge_sorted() == []"),
-        ("merges rather than re-sorting",
-         "import inspect\nsrc = inspect.getsource(merge_sorted)\nassert 'heapq' in src")],
-       hints=["heapq.merge does exactly this and returns an iterator.",
-              "Wrap the result in list() to return a real list."],
+        ("works on iterators",
+         "assert merge_sorted(iter([1, 5]), (n for n in [2, 3, 9])) == [1, 2, 3, 5, 9]"),
+        ("uses heapq", must_call(
+            "merge_sorted", [".merge", "merge", ".heappush", "heappush", ".heappop", "heappop",
+             ".heapify", "heapify", ".heappushpop", ".heapreplace"],
+            "merge_sorted should use heapq - heapq.merge, or heappush and heappop")),
+        ("merges rather than re-sorting", never_calls(
+            "merge_sorted", ["sorted", ".sort"],
+            "merge_sorted should merge the streams, not sort the combined result"))],
+       hints=["The heapq module in the standard library already knows how to merge sorted inputs.",
+              "heapq.merge does exactly this and returns an iterator - wrap it in list() to return a real list."],
        solution="""
        import heapq
 
@@ -430,9 +448,9 @@ def build():
          "c = LRUCache(2)\nc.put('a', 1)\nassert c.get('a') == 1"),
         ("missing key", "assert LRUCache(1).get('nope') == -1"),
         ("evicts the oldest",
-         "c = LRUCache(2)\nc.put('a', 1)\nc.put('b', 2)\nc.put('c', 3)\nassert c.get('a') == -1 and c.get('c') == 3"),
+         "c = LRUCache(2)\nc.put('a', 1)\nc.put('b', 2)\nc.put('c', 3)\nassert c.get('a') == -1\nassert c.get('c') == 3"),
         ("reading refreshes",
-         "c = LRUCache(2)\nc.put('a', 1)\nc.put('b', 2)\nc.get('a')\nc.put('c', 3)\nassert c.get('a') == 1 and c.get('b') == -1"),
+         "c = LRUCache(2)\nc.put('a', 1)\nc.put('b', 2)\nc.get('a')\nc.put('c', 3)\nassert c.get('a') == 1\nassert c.get('b') == -1"),
         ("updating refreshes",
          "c = LRUCache(2)\nc.put('a', 1)\nc.put('b', 2)\nc.put('a', 9)\nc.put('c', 3)\nassert c.get('a') == 9")],
        hints=["OrderedDict.move_to_end(key) marks an entry as most recent.",

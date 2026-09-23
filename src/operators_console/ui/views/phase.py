@@ -6,11 +6,19 @@ from PySide6.QtWidgets import (
     QComboBox, QHBoxLayout, QPlainTextEdit, QVBoxLayout,
 )
 
+from ...core.models import split_optional
+from ...core.progress import proof_line
 from ..widgets.common import (
-    Card, CheckRow, LinkRow, button, divider, heading, label, meter, muted,
-    soft,
+    Card, CheckRow, Disclosure, LinkRow, button, clear_layout, divider,
+    empty_state, frozen, heading, label,
+    meter, muted, plain, soft,
 )
 from .base import View
+
+#: The notes box starts here and follows what is written in it. Past the
+#: ceiling the phase's own content would be pushed off the page instead.
+NOTE_MIN_HEIGHT = 120
+NOTE_MAX_HEIGHT = 360
 
 
 class PhaseView(View):
@@ -18,12 +26,18 @@ class PhaseView(View):
 
     def build(self) -> None:
         picker_row = QHBoxLayout()
-        picker_row.setSpacing(9)
+        picker_row.setSpacing(8)
         self.picker = QComboBox()
         self.picker.setMinimumWidth(300)
+        self.picker.setMaximumWidth(480)
+        # Sized to its longest phase name, so a larger text size does not
+        # elide "11  Async, concurrency & performance" inside 300 px.
+        self.picker.setSizeAdjustPolicy(
+            QComboBox.SizeAdjustPolicy.AdjustToContents)
         self.picker.currentIndexChanged.connect(self._on_pick)
         picker_row.addWidget(muted("PHASE"), 0, Qt.AlignmentFlag.AlignVCenter)
         picker_row.addWidget(self.picker, 1)
+        picker_row.addStretch(1)
         self.prev_button = button("Previous", "quiet")
         self.next_button = button("Next", "quiet")
         self.prev_button.clicked.connect(lambda: self._step(-1))
@@ -43,6 +57,10 @@ class PhaseView(View):
         self.scroller.add(self.progress_meter)
         self.progress_caption = muted("")
         self.scroller.add(self.progress_caption)
+        # Reading is the meter; proof is what finishes the phase. Both are
+        # said, so a full bar never passes for a finished phase.
+        self.proof_caption = label("", "Soft")
+        self.scroller.add(self.proof_caption)
 
         self.jump_row = QHBoxLayout()
         self.jump_row.setSpacing(8)
@@ -50,23 +68,24 @@ class PhaseView(View):
 
         self.scroller.add(divider())
         self.body = QVBoxLayout()
-        self.body.setSpacing(18)
+        self.body.setSpacing(16)
         self.scroller.add_layout(self.body)
 
         self.scroller.add(heading("Your notes for this phase"))
         self.notes = QPlainTextEdit()
         self.notes.setPlaceholderText(
             "What clicked, what did not, and what to pick up next time.")
-        self.notes.setFixedHeight(120)
+        self.notes.setFixedHeight(NOTE_MIN_HEIGHT)
         self._note_timer = QTimer(self)
         self._note_timer.setSingleShot(True)
         self._note_timer.setInterval(600)
         self._note_timer.timeout.connect(self._save_note)
         self.notes.textChanged.connect(self._queue_note_save)
+        self.notes.textChanged.connect(self._grow_notes)
         self.scroller.add(self.notes)
         self.scroller.add_stretch()
 
-        self.current_id = ""
+        self.current_id = self.build_state()
         # The phase whose text is currently in the notes box. A pending save
         # belongs to it, not to whatever phase is opened next.
         self._note_scope = ""
@@ -75,9 +94,61 @@ class PhaseView(View):
     # -- navigation --------------------------------------------------------
 
     def show_target(self, target: str) -> None:
-        if target and self.ctx.curriculum.phase(target) is not None:
+        """Open a phase, or the phase of one line and scroll to that line.
+
+        A line id arrives from "Where this is taught" on a missed review
+        card: the page opens at the line the question tests, with the focus
+        on its checkbox and the line read out on the status bar.
+        """
+        if not target:
+            return
+        if self.ctx.curriculum.phase(target) is not None:
+            self.target_item = ""
             self.current_id = target
             self.refresh()
+            return
+        text = self.ctx.curriculum.item_text(target)
+        phase_id = target.split(".")[0]
+        if text == target or self.ctx.curriculum.phase(phase_id) is None:
+            return
+        self.current_id = phase_id
+        self.target_item = target
+        self.refresh()
+        row = self.row_for(target)
+        if row is None:
+            return
+        row.setFocus(Qt.FocusReason.OtherFocusReason)
+        QTimer.singleShot(0, lambda r=row: self._reveal_row(r))
+        self.ctx.announce("Taught here: %s" % plain(text))
+
+    target_item = ""
+
+    def row_for(self, item_id: str):
+        """The check row drawn for ``item_id`` on the current page, if any."""
+        for row in self.scroller.body.findChildren(CheckRow):
+            if row.item_id == item_id:
+                return row
+        return None
+
+    def _reveal_row(self, row) -> None:
+        try:
+            self.scroller.ensureWidgetVisible(row, 0, 120)
+        except RuntimeError:
+            pass            # the page was rebuilt before the scroll ran
+
+    def resume_target(self) -> str:
+        return self.current_id or ""
+
+    def teardown(self) -> None:
+        if not self._built:
+            return
+        self.flush_note()
+        kept = self.current_id
+        super().teardown()
+        self._kept_phase = kept         # build() starts from it again
+
+    def build_state(self) -> str:
+        return getattr(self, "_kept_phase", "")
 
     def _phase_ids(self) -> list:
         return [p.id for p in self.ctx.curriculum.phases]
@@ -106,6 +177,10 @@ class PhaseView(View):
         phase = self.ctx.curriculum.phase(self.current_id)
         if phase is None:
             return
+        # Every visit used to rebuild the whole page - the picker, the jump
+        # row and every check row - even with nothing changed.
+        if self.store_unchanged(phase.id):
+            return
         self.flush_note()
 
         self._loading = True
@@ -114,6 +189,12 @@ class PhaseView(View):
             self.picker.addItem("%s  %s" % (candidate.num, candidate.name),
                                 candidate.id)
         ids = self._phase_ids()
+        # Wide enough for its longest name at the current text size; the
+        # adjust-to-contents policy alone did not grow it inside a layout.
+        metrics = self.picker.fontMetrics()
+        widest = max((metrics.horizontalAdvance(self.picker.itemText(i))
+                      for i in range(self.picker.count())), default=0)
+        self.picker.setMinimumWidth(min(480, max(300, widest + 64)))
         self.picker.setCurrentIndex(ids.index(phase.id))
         self._loading = False
 
@@ -128,40 +209,48 @@ class PhaseView(View):
         stats = self.ctx.progress.phase(phase)
         self.progress_meter.setVisible(not phase.no_progress)
         self.progress_caption.setVisible(not phase.no_progress)
+        self.proof_caption.setVisible(not phase.no_progress
+                                      and stats.total > 0)
         if not phase.no_progress:
-            self.progress_meter.setValue(stats.percent)
-            self.progress_caption.setText(
-                "%d of %d checks done - about %d hours of work in this phase"
-                % (stats.done, stats.total, phase.est_hours))
+            self._show_progress(phase, stats)
 
-        self._fill_jumps(phase, stats)
-        self._fill_body(phase)
+        with frozen(self.scroller.body):
+            self._fill_jumps(phase, stats)
+            self._fill_body(phase)
+        self.mark_drawn(phase.id)
 
         self._loading = True
         self.notes.setPlainText(self.ctx.store.note("phase:" + phase.id))
         self._note_scope = phase.id
         self._loading = False
 
+    def _show_progress(self, phase, stats) -> None:
+        self.progress_meter.setValue(stats.percent)
+        self.progress_caption.setText(
+            "%d of %d checks done - about %d hours of work in this phase"
+            % (stats.done, stats.total, phase.est_hours))
+        self.proof_caption.setText(proof_line(stats))
+
     def _fill_jumps(self, phase, stats) -> None:
-        _clear(self.jump_row)
+        clear_layout(self.jump_row)
         exercises = self.ctx.curriculum.exercises_for(phase.id)
         quizzes = self.ctx.curriculum.quizzes_for(phase.id)
         projects = self.ctx.curriculum.projects_for(phase.id)
 
         if exercises:
             btn = button("Exercises  %d/%d"
-                         % (stats.exercises_done, len(exercises)), "quiet")
+                         % (stats.exercises_done, len(exercises)))
             btn.clicked.connect(
                 lambda _=False, p=phase.id: self.ctx.navigate.emit("practice", p))
             self.jump_row.addWidget(btn)
         if quizzes:
-            btn = button("Quiz", "quiet")
+            btn = button("Quiz")
             btn.clicked.connect(
                 lambda _=False, q=quizzes[0].id:
                 self.ctx.navigate.emit("quiz", q))
             self.jump_row.addWidget(btn)
         if projects:
-            btn = button("Projects  %d" % len(projects), "quiet")
+            btn = button("Projects  %d" % len(projects))
             btn.clicked.connect(
                 lambda _=False, p=projects[0].id:
                 self.ctx.navigate.emit("projects", p))
@@ -169,16 +258,33 @@ class PhaseView(View):
         self.jump_row.addStretch(1)
 
     def _fill_body(self, phase) -> None:
-        _clear(self.body)
+        clear_layout(self.body)
 
         if phase.resources:
             card = Card()
             card.add(heading("Start here"))
-            for res in phase.resources:
-                card.add(LinkRow(res.name, res.why, res.url, res.kind))
+            shown, folded = split_optional(phase.resources,
+                                           phase.resources_optional)
+            for res in shown:
+                card.add(LinkRow(res.name, res.why, res.url, res.kind,
+                                 primary=res.primary))
+            if folded:
+                more = Disclosure(len(folded), "to study",
+                                  store=self.ctx.store,
+                                  key="phase:" + phase.id)
+                for res in folded:
+                    more.add(LinkRow(res.name, res.why, res.url, res.kind))
+                card.add(more)
             self.body.addWidget(card)
 
         checked = self.ctx.store.checked_ids()
+        if phase.sections:
+            # The right-click menu on every line has been there all along
+            # with nothing anywhere saying so, which is the same as it not
+            # being there.
+            self.body.addWidget(muted(
+                "Any line can join your review deck: right-click it, "
+                "press the ... at its right edge, or Shift+F10."))
         for section in phase.sections:
             card = Card()
             top = QHBoxLayout()
@@ -218,20 +324,29 @@ class PhaseView(View):
                 card.add(row)
             self.body.addWidget(card)
 
+        if not self.body.count():
+            self.body.addWidget(empty_state(
+                "This phase has no checklist of its own.",
+                "It sets the rules the rest of the curriculum follows. Use "
+                "the Roadmap to pick the phase you are actually working on."))
+
     # -- actions -----------------------------------------------------------
 
     def _toggle(self, item_id: str, done: bool) -> None:
-        self.ctx.set_checked(item_id, done)
         phase = self.ctx.curriculum.phase(self.current_id)
+        was_proven = (phase is not None and not phase.no_progress
+                      and self.ctx.progress.phase(phase).is_proven)
+        self.ctx.set_checked(item_id, done)
         if phase is not None and not phase.no_progress:
             stats = self.ctx.progress.phase(phase)
-            self.progress_meter.setValue(stats.percent)
-            self.progress_caption.setText(
-                "%d of %d checks done - about %d hours of work in this phase"
-                % (stats.done, stats.total, phase.est_hours))
-            if stats.is_complete:
+            self._show_progress(phase, stats)
+            if stats.is_proven and not was_proven:
+                self.ctx.announce("Phase %s proven. That is real progress."
+                                  % phase.num)
+            elif stats.is_read and done and not stats.is_proven:
                 self.ctx.announce(
-                    "Phase %s complete. That is real progress." % phase.num)
+                    "Every line in phase %s is ticked. To prove it: %s."
+                    % (phase.num, ", ".join(stats.outstanding())))
 
     def _add_to_review(self, item_id: str) -> None:
         self.ctx.review.add_concept(item_id)
@@ -241,6 +356,41 @@ class PhaseView(View):
         from PySide6.QtWidgets import QApplication
         QApplication.clipboard().setText(text)
         self.ctx.announce("Copied.")
+
+    def _grow_notes(self) -> None:
+        """Let the notes box follow its content, between a floor and a ceiling.
+
+        A fixed 120 px meant the fifth line of a note was being written into
+        a two-line window with a scrollbar of its own - the worst place in
+        the app to be writing anything. The box now grows to about fifteen
+        lines and the page scrolls past that.
+        """
+        notes = getattr(self, "notes", None)
+        if notes is None:
+            return
+        if notes.viewport().width() < 40:
+            return          # not laid out yet; the next change sizes it
+        # A plain text document's layout reports its height in *lines*, not
+        # pixels - wrapped ones included - so this is the one place the two
+        # have to be multiplied rather than used as they come.
+        document = notes.document()
+        lines = max(1.0, float(document.size().height()))
+        wanted = int(lines * notes.fontMetrics().lineSpacing()
+                     + 2 * document.documentMargin()
+                     + 2 * notes.frameWidth() + 6)
+        height = max(NOTE_MIN_HEIGHT, min(NOTE_MAX_HEIGHT, wanted))
+        if height != notes.height():
+            notes.setFixedHeight(height)
+
+    def resizeEvent(self, event) -> None:
+        """A narrower page wraps the note into more lines, and needs more room."""
+        super().resizeEvent(event)
+        if not self._built:
+            return
+        try:
+            self._grow_notes()
+        except RuntimeError:
+            pass        # the page is being torn down underneath us
 
     def _queue_note_save(self) -> None:
         if self._loading or not self._note_scope:
@@ -259,13 +409,3 @@ class PhaseView(View):
             self._note_timer.stop()
             self._save_note()
 
-
-def _clear(layout) -> None:
-    while layout.count():
-        item = layout.takeAt(0)
-        widget = item.widget()
-        if widget is not None:
-            widget.setParent(None)
-            widget.deleteLater()
-        elif item.layout() is not None:
-            _clear(item.layout())

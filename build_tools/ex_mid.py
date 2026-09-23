@@ -1,5 +1,60 @@
 """Phases 03 and 08 - tooling, and SQL against a real SQLite database."""
 from ex_lib import ex
+from ex_p01a import no_string_building, raises
+
+#: A second database built inside a check, with different rows, so a function
+#: that returns a remembered answer for CONN cannot pass. Borges has no books.
+OTHER_DB = (
+    "import sqlite3\n"
+    "other = sqlite3.connect(':memory:')\n"
+    "other.row_factory = sqlite3.Row\n"
+    "other.executescript(\n"
+    "    'CREATE TABLE authors (id INTEGER PRIMARY KEY, name TEXT NOT NULL);'\n"
+    "    'CREATE TABLE books (id INTEGER PRIMARY KEY, author_id INTEGER NOT NULL,'\n"
+    "    ' title TEXT NOT NULL, year INTEGER NOT NULL, copies INTEGER NOT NULL DEFAULT 0);'\n"
+    "    \"INSERT INTO authors (id, name) VALUES (1,'Chiang'),(2,'Jemisin'),(3,'Borges');\"\n"
+    "    'INSERT INTO books (author_id, title, year, copies) VALUES'\n"
+    "    \" (1,'Exhalation',2019,2),(2,'The Fifth Season',2015,5),\"\n"
+    "    \" (2,'The Obelisk Gate',2016,1),(2,'The Stone Sky',2017,3);\")\n")
+
+#: Wraps a connection and counts the statements sent through it, including
+#: through a cursor, so "one query" is measured rather than grepped.
+QUERY_SPY = (
+    "class Cursor:\n"
+    "    def __init__(self, spy):\n"
+    "        self.spy = spy\n"
+    "        self.inner = spy.conn.cursor()\n"
+    "    def execute(self, *args, **kwargs):\n"
+    "        self.spy.queries += 1\n"
+    "        self.inner.execute(*args, **kwargs)\n"
+    "        return self\n"
+    "    def __iter__(self):\n"
+    "        return iter(self.inner)\n"
+    "    def __getattr__(self, name):\n"
+    "        return getattr(self.inner, name)\n"
+    "class Spy:\n"
+    "    def __init__(self, conn):\n"
+    "        self.conn = conn\n"
+    "        self.queries = 0\n"
+    "    def execute(self, *args, **kwargs):\n"
+    "        self.queries += 1\n"
+    "        return self.conn.execute(*args, **kwargs)\n"
+    "    def cursor(self):\n"
+    "        return Cursor(self)\n"
+    "    def __getattr__(self, name):\n"
+    "        return getattr(self.conn, name)\n"
+    "spy = Spy(CONN)\n")
+
+SLASHES = (
+    "import ast, inspect, textwrap\n"
+    "tree = ast.parse(textwrap.dedent(inspect.getsource(log_path)))\n"
+    "body = tree.body[0].body\n"
+    "if body and isinstance(body[0], ast.Expr) and isinstance(body[0].value, ast.Constant):\n"
+    "    body = body[1:]    # a docstring may say anything it likes\n"
+    "slashes = [node.value for statement in body for node in ast.walk(statement)\n"
+    "           if isinstance(node, ast.Constant) and isinstance(node.value, str)\n"
+    "           and ('/' in node.value or chr(92) in node.value)]\n"
+    "assert not slashes, 'log_path glues text with a slash in it - join the parts with the / operator on Path objects instead'")
 
 
 def build():
@@ -21,11 +76,12 @@ def build():
        [("builds the path",
          "from pathlib import Path\np = log_path('data', 'app')\nassert p == Path('data') / 'logs' / 'app.log'"),
         ("creates the folder",
-         "from pathlib import Path\nlog_path('made', 'x')\nassert (Path('made') / 'logs').is_dir()"),
+         "from pathlib import Path\nlog_path('made', 'x')\nassert (Path('made') / 'logs').is_dir(), 'log_path should create the logs folder when it is missing'"),
         ("returns a Path",
          "from pathlib import Path\nassert isinstance(log_path('a', 'b'), Path)"),
-        ("no manual separators",
-         "import inspect\nassert '/' not in inspect.getsource(log_path).split('\\\"\\\"\\\"')[-1] or True")],
+        ("accepts a Path as the root",
+         "from pathlib import Path\nassert log_path(Path('root2'), 'app.v2') == Path('root2') / 'logs' / 'app.v2.log'"),
+        ("no manual separators", SLASHES)],
        hints=["The / operator joins Path objects.",
               "mkdir(parents=True, exist_ok=True) is idempotent."],
        solution="""
@@ -60,8 +116,14 @@ def build():
          "assert build_parser().parse_args(['x', '--verbose']).verbose is True"),
         ("verbose defaults off",
          "assert build_parser().parse_args(['x']).verbose is False"),
+        ("every option at once",
+         "args = build_parser().parse_args(['other.log', '--limit', '42', '--verbose'])\nassert args.path == 'other.log'\nassert args.limit == 42\nassert args.verbose is True"),
+        ("options before the path",
+         "args = build_parser().parse_args(['--limit', '3', 'late.txt'])\nassert args.path == 'late.txt'\nassert args.limit == 3"),
         ("missing positional fails",
-         "import argparse\ntry:\n    build_parser().parse_args([])\nexcept SystemExit:\n    pass\nelse:\n    raise AssertionError('should fail')")],
+         raises("build_parser().parse_args([])", "SystemExit")),
+        ("a limit that is not a number fails",
+         raises("build_parser().parse_args(['x', '--limit', 'many'])", "SystemExit"))],
        hints=["type=int makes argparse convert and validate for you.",
               "action='store_true' is how a flag becomes a boolean."],
        solution="""
@@ -91,7 +153,10 @@ def build():
         ("equal is not newer", "assert newer('1.0.0', '1.0.0') is False"),
         ("major wins", "assert newer('2.0.0', '1.9.9') is True"),
         ("older", "assert newer('1.0.0', '1.0.1') is False"),
-        ("different lengths", "assert newer('1.1', '1.0.9') is True")],
+        ("different lengths", "assert newer('1.1', '1.0.9') is True"),
+        ("a missing part counts as zero", "assert newer('1.1', '1.1.0') is False"),
+        ("and the other way round", "assert newer('1.1.0', '1.1') is False"),
+        ("minor numbers compare as numbers", "assert newer('1.10.0', '1.9.0') is True")],
        hints=["Split on dots and compare tuples of ints.",
               "Pad the shorter version with zeros so 1.1 and 1.1.0 compare equal."],
        solution="""
@@ -178,8 +243,13 @@ def build():
          "assert books_after(CONN, 1975) == ['Dawn', 'Kindred']"),
         ("strictly after", "assert 'Solaris' not in books_after(CONN, 1961)"),
         ("nothing matches", "assert books_after(CONN, 2100) == []"),
-        ("parameterised",
-         "import inspect\nsrc = inspect.getsource(books_after)\nassert '?' in src and 'f\\\"' not in src and \"f'\" not in src")],
+        ("another database",
+         OTHER_DB + "assert books_after(other, 2015) == ['Exhalation', 'The Obelisk Gate', 'The Stone Sky']"),
+        ("cannot be injected",
+         "assert books_after(CONN, '1975 OR 1=1') == [], 'the year was read as SQL - bind it as a parameter instead'"),
+        ("parameterised", no_string_building(
+            "books_after",
+            "books_after should pass the year as a parameter, not build it into the SQL"))],
        setup=SQL_SETUP,
        hints=["conn.execute(sql, (year,)) binds the value safely.",
               "Each row behaves like a tuple, so row[0] is the first column."],
@@ -206,8 +276,10 @@ def build():
         ("ordered by year",
          "assert titles_by(CONN, 'Butler') == ['Kindred', 'Dawn']"),
         ("unknown author", "assert titles_by(CONN, 'Nobody') == []"),
+        ("another database",
+         OTHER_DB + "assert titles_by(other, 'Jemisin') == ['The Fifth Season', 'The Obelisk Gate', 'The Stone Sky']"),
         ("single query",
-         "import inspect\nassert inspect.getsource(titles_by).lower().count('select') == 1")],
+         QUERY_SPY + "titles_by(spy, 'Butler')\nassert spy.queries == 1, 'titles_by should ask the database once, with a JOIN - it sent %d queries' % spy.queries")],
        setup=SQL_SETUP,
        hints=["JOIN authors ON authors.id = books.author_id.",
               "ORDER BY year does the sorting in the database, not in Python."],
@@ -224,7 +296,8 @@ def build():
        Write `book_counts(conn)` returning a dict mapping every author name to
        how many books they have, including authors with none.
 
-       Sort is irrelevant; the counts are what matter.
+       Do it in a single query - let the database do the counting. Sort is
+       irrelevant; the counts are what matter.
        """,
        """
        def book_counts(conn):
@@ -233,8 +306,10 @@ def build():
        [("counts each author",
          "assert book_counts(CONN) == {'Le Guin': 2, 'Butler': 2, 'Lem': 1}"),
         ("returns a dict", "assert isinstance(book_counts(CONN), dict)"),
+        ("an author with no books counts as zero",
+         OTHER_DB + "assert book_counts(other) == {'Chiang': 1, 'Jemisin': 3, 'Borges': 0}"),
         ("one query",
-         "import inspect\nassert inspect.getsource(book_counts).lower().count('select') == 1")],
+         QUERY_SPY + "book_counts(spy)\nassert spy.queries == 1, 'book_counts should ask the database once - it sent %d queries' % spy.queries")],
        setup=SQL_SETUP,
        hints=["LEFT JOIN keeps authors that have no matching books.",
               "COUNT(b.id) counts only real rows; COUNT(*) would count the null side too."],
@@ -259,9 +334,8 @@ def build():
            pass
        """,
        [("moves copies",
-         "transfer_copies(CONN, 'Kindred', 'Dawn', 3)\nrows = dict(CONN.execute('SELECT title, copies FROM books'))\nassert rows['Kindred'] == 4 and rows['Dawn'] == 4"),
-        ("rejects an overdraw",
-         "try:\n    transfer_copies(CONN, 'Dawn', 'Solaris', 999)\nexcept ValueError:\n    pass\nelse:\n    raise AssertionError('expected ValueError')"),
+         "transfer_copies(CONN, 'Kindred', 'Dawn', 3)\nrows = dict(CONN.execute('SELECT title, copies FROM books'))\nassert rows['Kindred'] == 4\nassert rows['Dawn'] == 4"),
+        ("rejects an overdraw", raises("transfer_copies(CONN, 'Dawn', 'Solaris', 999)")),
         ("leaves rows untouched after failure",
          "before = dict(CONN.execute('SELECT title, copies FROM books'))\ntry:\n    transfer_copies(CONN, 'Solaris', 'Dawn', 500)\nexcept ValueError:\n    pass\nafter = dict(CONN.execute('SELECT title, copies FROM books'))\nassert before == after")],
        setup=SQL_SETUP,

@@ -28,7 +28,7 @@ classifiers = [
 dependencies = ["PySide6-Essentials>=6.6"]
 
 [project.optional-dependencies]
-dev = ["pytest>=8.0"]
+dev = ["pytest>=8.0", "ruff>=0.6"]
 build = ["pyinstaller>=6.6"]
 
 [project.gui-scripts]
@@ -38,7 +38,10 @@ operators-console = "operators_console.__main__:main"
 operators-console-cli = "operators_console.__main__:main"
 
 [project.urls]
-Homepage = "https://github.com/operators-console/operators-console"
+Homepage = "https://github.com/Luneswan/operators-console"
+Repository = "https://github.com/Luneswan/operators-console"
+Issues = "https://github.com/Luneswan/operators-console/issues"
+Changelog = "https://github.com/Luneswan/operators-console/blob/main/CHANGELOG.md"
 
 [tool.hatch.version]
 path = "src/operators_console/version.py"
@@ -50,4 +53,14 @@ packages = ["src/operators_console"]
 "src/operators_console/data" = "operators_console/data"
 
 [tool.hatch.build.targets.sdist]
-include = ["src", "tests", "packaging", "README.md", "LICENSE", "pytest.ini"]
+include = ["src", "tests", "packaging", "README.md", "CHANGELOG.md", "LICENSE", "pytest.ini"]
+
+[tool.ruff]
+target-version = "py311"
+extend-exclude = ["graphify-out", "build", "dist", "tests/_*.py"]
+
+[tool.ruff.lint]
+# pyflakes and pycodestyle's error classes (ruff's defaults, stated so they
+# cannot drift), bugbear for the likely-bug patterns, and RUF100 so a stale
+# "noqa" cannot quietly hide the next real finding.
+select = ["E4", "E7", "E9", "F", "B", "RUF100"]

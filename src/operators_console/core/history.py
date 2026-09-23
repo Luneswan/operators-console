@@ -24,16 +24,39 @@ class Action:
     label: str
     undo: Callable[[], None]
     redo: Callable[[], None]
+    epoch: int = 0
 
 
 class History:
-    """A bounded undo and redo stack."""
+    """A bounded undo and redo stack.
 
-    def __init__(self, limit: int = LIMIT) -> None:
-        self.limit = limit
+    Pass ``store`` and the stack becomes aware of the wholesale replacements
+    the store can perform. Restoring a backup or resetting progress leaves
+    every recorded action describing rows that no longer exist; replaying one
+    would write a fragment of the old world into the new one. Both stacks are
+    therefore dropped when the store's generation moves.
+    """
+
+    def __init__(self, limit: int = LIMIT, store=None) -> None:
+        self.limit = max(int(limit), 0)
+        self.store = store
         self._undo: list[Action] = []
         self._redo: list[Action] = []
         self._applying = False
+        self._epoch = self._current_epoch()
+
+    # -- the world this stack describes ------------------------------------
+
+    def _current_epoch(self) -> int:
+        return int(getattr(self.store, "generation", 0) or 0)
+
+    def _sync(self) -> None:
+        """Drop everything if the store has been replaced underneath us."""
+        now = self._current_epoch()
+        if now != self._epoch:
+            self._epoch = now
+            self._undo.clear()
+            self._redo.clear()
 
     # -- recording ---------------------------------------------------------
 
@@ -46,7 +69,11 @@ class History:
         """
         if self._applying:
             return
-        self._undo.append(Action(label, undo, redo))
+        self._sync()
+        if self.limit <= 0:
+            return
+        self._undo.append(Action(label, undo, redo, self._epoch))
+        # del lst[:-0] deletes nothing, so the zero case is handled above.
         del self._undo[:-self.limit]
         self._redo.clear()
 
@@ -58,33 +85,44 @@ class History:
 
     @property
     def can_undo(self) -> bool:
+        self._sync()
         return bool(self._undo)
 
     @property
     def can_redo(self) -> bool:
+        self._sync()
         return bool(self._redo)
 
     def undo_label(self) -> str:
+        self._sync()
         return self._undo[-1].label if self._undo else ""
 
     def redo_label(self) -> str:
+        self._sync()
         return self._redo[-1].label if self._redo else ""
 
     # -- applying ----------------------------------------------------------
 
     def undo(self) -> str:
+        self._sync()
         if not self._undo:
             return ""
-        action = self._undo.pop()
+        action = self._undo[-1]
+        # Only move it once the reversal has actually happened. Popping first
+        # and letting the call fail would strand the action on neither stack,
+        # leaving the change unreachable from either direction.
         self._run(action.undo)
+        self._undo.pop()
         self._redo.append(action)
         return action.label
 
     def redo(self) -> str:
+        self._sync()
         if not self._redo:
             return ""
-        action = self._redo.pop()
+        action = self._redo[-1]
         self._run(action.redo)
+        self._redo.pop()
         self._undo.append(action)
         return action.label
 
@@ -94,3 +132,4 @@ class History:
             call()
         finally:
             self._applying = False
+            self._epoch = self._current_epoch()

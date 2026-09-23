@@ -58,12 +58,7 @@ class Planner:
         self.p = progress
 
     def goal_tags(self) -> set:
-        chosen = set(self.s.setting("goals", []) or [])
-        tags: set = set()
-        for gid, _label, gtags in GOALS:
-            if gid in chosen:
-                tags.update(gtags)
-        return tags
+        return self.p.goal_tags()       # one definition, shared with the plan
 
     def roadmap(self) -> list:
         """Ordered plan, core phases first, then goal-matched extras."""
@@ -80,13 +75,7 @@ class Planner:
         teaching_order = {p.id: i for i, p in enumerate(self.c.phases)}
 
         def extras() -> list:
-            out = []
-            for phase in self.c.phases:
-                if phase.no_progress or phase.id in core or phase.id in optional:
-                    continue
-                if tags and tags.intersection(phase.tags):
-                    out.append(phase.id)
-            return out
+            return self.p.goal_phase_ids(set(core) | set(optional))
 
         rows: list[PlannedPhase] = []
         order = 0

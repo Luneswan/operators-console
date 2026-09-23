@@ -1,0 +1,147 @@
+# Changelog
+
+All notable changes to this project are recorded here. The format follows
+[Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and the project uses
+[semantic versioning](https://semver.org/spec/v2.0.0.html).
+
+## [1.1.0] - 2026-09-23
+
+### Why 1.1.0
+
+A minor release, not a major one, because nothing you already have has to
+change: the progress database is still **schema version 1**, and a 1.1.0 install
+opens a 1.0.x file as it is, with no conversion step. A minor release, not a
+patch, because every page gained features and the update mechanism changed
+shape.
+
+One caveat. New columns were added inside schema version 1, so a 1.0.x build can
+still open a database that 1.1.0 has used, and it will silently ignore what it
+does not know about. Do not run the old version and the new one side by side on
+the same data folder. From 1.1.0 the app refuses to: a second copy hands over to
+the one already open.
+
+### Updating from 1.0.x
+
+- **In-app updates now work from an installed 1.0.x build on Windows.** Before,
+  the 1.0.x updater ran the new installer from the executable it was trying to
+  replace; the installer could not close it and gave up (exit code 5), and the
+  old version reopened. Its own `update.log` shows exactly that. The 1.1.0
+  installer closes whatever holds the program's files and reopens the new
+  version itself. This was proven on real 1.0.x installs with
+  `packaging/windows/check_old_build_update.py`. If the old version ever reopens
+  after updating, close it and run `...-windows-setup.exe` once.
+- **1.0.x portable Windows builds are told there is no download, on purpose.**
+  Their updater damaged the folder it was running from. The 1.1.0 portable zip
+  is named `...-windows-x64-portable.zip`, which those builds do not look for.
+  Download it by hand, or run the one-line installer with `-Portable`.
+
+### Added
+
+- **Progress you have to prove.** A phase now counts as finished when its gate
+  is ticked, its quiz is passed at 85% or better, at least 60% of its exercises
+  pass, and a project is shipped where the phase has one. Ticked lines are shown
+  as reading progress, separately. The "you are here" marker, Today's plan and
+  the roadmap all follow the proven state, and each phase says in plain words
+  what is still missing.
+- **Gate checks as recall cards**, so the "do this from memory" lines at the end
+  of each phase come back for review instead of being read once.
+- **Quizzes that teach when you are wrong.** The question bank was rebalanced so
+  the right answer is no longer usually in the same place, wrong choices carry
+  their own explanation of why they are wrong, and new questions were added.
+- **New graded exercises**, each with its reference solution checked by the
+  build.
+- **A reason for every failed check.** Instead of "Wrong result", the grader
+  shows the value you returned, the value expected, and what differs: wrong
+  type, wrong length, the index or key that differs, a case-only or
+  whitespace-only difference, floats that are close but unequal. Errors keep
+  their message and add a hint for the common ones.
+- **Snapshots you can restore.** One is taken automatically each day, five
+  seconds after launch, and before every reset, import or upgrade. Settings and
+  the File menu list them with their date, reason and contents; restoring one
+  takes a snapshot of the current state first, so a restore can be undone too.
+- **Filters and search where lists got long.** Practice filters by text,
+  difficulty and status, including "solved after reading". The Log filters by
+  text and date range and pages through older entries. The Library has a filter
+  and read marks. Search now covers your own notes, project notes, repository
+  links and log entries, and ranks them above curriculum lines.
+- **Practice:** stop a running exercise; the last passing code is kept and can be
+  restored; Reset is one undoable edit; `Ctrl+/` comments or uncomments the
+  selected lines.
+- **Review:** keyboard keys for every action (Space or Enter, A to D, 1 to 4, S),
+  bury a card and restore it, and undo the rating you just gave.
+- **Log:** edit an entry, and delete one with undo.
+- **Today:** a finished-curriculum state, "Not today" per row, and a line that
+  says how much of today's goal is logged.
+- **Updates found while the app is open.** The check runs shortly after launch
+  and every 30 minutes, and the first-run setup asks before it is turned on.
+- **Help > Keyboard shortcuts (`F1`)**, built from the live menus, plus
+  `Ctrl+,` for Settings and `Ctrl+0` or `Ctrl+L` for the Library.
+- The window remembers its size, position and maximised state.
+- `CHANGELOG.md` (this file), and a `SHA256SUMS` manifest in every release.
+
+### Changed
+
+- **One copy of the app per data folder.** Starting it again brings the open
+  window forward. Two copies started at the same moment, such as the installer
+  and a 1.0.x updater both reopening the app after an update, settle it between
+  them through a lock file: one opens, the other hands over.
+- **The interface was redesigned**, in light and dark: a new colour system with
+  measured contrast, a sidebar with icons and sections, a Today page with a
+  progress ring, and a roadmap drawn as a timeline. Keyboard focus rings appear
+  only when you use the keyboard.
+- **Undo now covers everything one careless click can change:** ticked lines,
+  project status, certificate status, self-assessment ratings, log entries you
+  added, edited or deleted, a review rating, and a card you buried.
+- Onboarding was rebuilt as four clear steps that keep your earlier answers when
+  you run it again.
+- An in-app update reopens the page you were on.
+- Page switches, the Projects page and theme changes are much faster.
+- Optional study resources show the single best one, with the rest folded under
+  "N more to study".
+
+### Fixed
+
+- The installed build's in-app update could never succeed: the updater ran
+  from the folder the installer had to overwrite. It now runs from a copy.
+- A failed or refused update reopened the old version with no word; it now says
+  why, once.
+- A failed update no longer leaves its download in your data folder; old
+  packages, unfinished downloads and their checksum files are cleared.
+- Settings "not saved": two copies of the app were open on one database and the
+  older one overwrote the newer one's settings.
+- Stray blank windows flashing while pages opened.
+- Quiz and Review counted a second press of Check.
+- Practice hid the result and the hint straight after a run.
+- Reset destroyed the learner's code with no way back.
+- Redo was bound twice to `Ctrl+Y`, so neither key worked.
+- A damaged database stayed locked after the app failed to open it.
+- Several grader cases: correct code marked unreadable when something printed
+  after the answer, a learner's own `json.py` breaking later runs, and a long
+  traceback reported as an endless loop.
+
+### Security
+
+- Every download is checked against the release's `SHA256SUMS` before it is
+  installed, by the in-app updater and by both one-line installers, which
+  refuse a release that publishes no checksums. Redirects off HTTPS are refused.
+- The release workflow refuses to publish when an expected file is missing,
+  when the tag does not match `version.py`, or when a file carries a name that
+  1.0.x portable builds would pick up.
+
+## [1.0.2]
+
+- Global undo and redo.
+
+## [1.0.1]
+
+- In-app updates, and the desktop shortcut is always created.
+
+## [1.0.0]
+
+- First release, with builds for Windows, macOS (Apple silicon and Intel) and
+  Linux, and the one-line installers.
+
+[1.1.0]: https://github.com/Luneswan/operators-console/compare/v1.0.2...v1.1.0
+[1.0.2]: https://github.com/Luneswan/operators-console/compare/v1.0.1...v1.0.2
+[1.0.1]: https://github.com/Luneswan/operators-console/compare/v1.0.0...v1.0.1
+[1.0.0]: https://github.com/Luneswan/operators-console/releases/tag/v1.0.0

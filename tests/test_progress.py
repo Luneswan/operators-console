@@ -13,8 +13,22 @@ def planner(curriculum, store, progress):
 
 
 def complete(curriculum, store, phase_id):
+    """Tick every line and gate check: the phase is read, not proven."""
     phase = curriculum.phase(phase_id)
     store.set_many_checked(phase.trackable_ids, True)
+
+
+def prove(curriculum, store, phase_id):
+    """Read the phase and do what proves it: quiz, exercises, a project."""
+    complete(curriculum, store, phase_id)
+    for quiz in curriculum.quizzes_for(phase_id):
+        store.record_quiz(quiz.id, len(quiz.questions), len(quiz.questions),
+                          60)
+    for exercise in curriculum.exercises_for(phase_id):
+        store.record_exercise_run(exercise.id, "pass", True)
+    projects = curriculum.projects_for(phase_id)
+    if projects:
+        store.set_project(projects[0].id, status="shipped")
 
 
 def test_a_fresh_profile_starts_at_zero(progress):
@@ -26,10 +40,21 @@ def test_a_fresh_profile_starts_at_zero(progress):
 
 
 def test_finishing_a_phase_counts_it(curriculum, store, progress):
+    """Reading every line fills the meter; only proof finishes the phase.
+
+    This pinned the old meaning, where ticks alone counted a phase as
+    finished. The tick meter still reads 100%; the phase count waits for
+    the quiz, the exercises and a shipped project.
+    """
     complete(curriculum, store, "p00")
     stats = progress.phase(curriculum.phase("p00"))
-    assert stats.is_complete
+    assert stats.is_read
     assert stats.percent == 100
+    assert not stats.is_proven
+    assert progress.overview().phases_read == 1
+    assert progress.overview().phases_complete == 0
+    prove(curriculum, store, "p00")
+    assert progress.phase(curriculum.phase("p00")).is_proven
     assert progress.overview().phases_complete == 1
 
 
@@ -44,6 +69,8 @@ def test_progress_is_scoped_to_the_chosen_track(curriculum, store, progress):
 def test_the_current_phase_is_the_first_unfinished_one(curriculum, store, progress):
     assert progress.current_phase_id() == "p00"
     complete(curriculum, store, "p00")
+    assert progress.current_phase_id() == "p00", "reading alone moved it"
+    prove(curriculum, store, "p00")
     assert progress.current_phase_id() == "p01"
 
 
@@ -52,6 +79,8 @@ def test_a_phase_unlocks_once_its_prerequisite_is_mostly_done(curriculum, store,
     assert progress.unlocked("p00")
     assert not progress.unlocked("p01")
     complete(curriculum, store, "p00")
+    assert not progress.unlocked("p01"), "ticks alone unlocked the next phase"
+    prove(curriculum, store, "p00")
     assert progress.unlocked("p01")
 
 
