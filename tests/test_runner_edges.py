@@ -159,7 +159,11 @@ def test_the_frozen_entry_point_does_not_launch_the_gui_for_a_worker(
 def test_a_process_pool_failure_explains_itself():
     """Workers cannot import code that only exists in the editor. Making it
     work would re-run the learner's top level in every worker, and no
-    exercise needs a pool, so the grader says why instead."""
+    exercise needs a pool, so the grader says why instead.
+
+    Where the platform starts workers by forking (Linux before 3.14), they
+    inherit the code and the pool simply works - which is fine too."""
+    import multiprocessing
     code = (
         "from concurrent.futures import ProcessPoolExecutor\n"
         "def square(x):\n"
@@ -168,6 +172,9 @@ def test_a_process_pool_failure_explains_itself():
         "    squares = list(pool.map(square, [1, 2, 3]))\n"
         "value = 1\n")
     result = run_exercise(code, VALUE, timeout=60)
+    if multiprocessing.get_context().get_start_method() == "fork":
+        assert result.ok, result.summary
+        return
     assert not result.ok
     assert result.error.startswith(runner.POOL_NOTE)
 

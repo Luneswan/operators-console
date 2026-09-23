@@ -1458,9 +1458,10 @@ def _p17():
        hints=["Take rows from one iterator in slices rather than looping over "
               "the whole input first. The standard library has a tool that "
               "hands you `size` items at a time.",
-              "`for chunk in itertools.batched(rows, size):` builds each chunk "
-              "lazily. `grand_total` loops over `chunk_totals` and adds each "
-              "chunk's values into one dict."],
+              "`it = iter(rows)`, then `chunk = list(itertools.islice(it, size))` "
+              "until it comes back empty. (On Python 3.12+ `itertools.batched` "
+              "does the same.) `grand_total` adds each chunk's values into one "
+              "dict."],
        solution="""
        import itertools
 
@@ -1468,7 +1469,9 @@ def _p17():
        def chunk_totals(rows, size):
            if size < 1:
                raise ValueError("size must be at least 1")
-           for chunk in itertools.batched(rows, size):
+           # itertools.batched does this on 3.12+; islice works on 3.11 too.
+           it = iter(rows)
+           while chunk := list(itertools.islice(it, size)):
                totals = {}
                for key, amount in chunk:
                    totals[key] = totals.get(key, 0) + amount

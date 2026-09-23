@@ -15,8 +15,13 @@ def main(argv=None) -> int:
     # A multiprocessing worker in the frozen build is this executable again,
     # with --multiprocessing-fork. freeze_support() runs the worker and exits;
     # without it a learner's Pool would open a second copy of the app.
-    import multiprocessing
-    multiprocessing.freeze_support()
+    # multiprocessing.freeze_support() only acts on Windows before 3.14, but
+    # a frozen macOS build spawns its workers the same way, so call the
+    # spawn-level helper directly: it runs the worker and exits on any
+    # platform, and does nothing for an ordinary launch.
+    if getattr(sys, "frozen", False):
+        from multiprocessing import spawn
+        spawn.freeze_support()
 
     argv = list(sys.argv[1:] if argv is None else argv)
 
