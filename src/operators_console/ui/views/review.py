@@ -11,7 +11,7 @@ from PySide6.QtWidgets import (
 )
 
 from ...core.review import (
-    GATE, QUIZ, choice_feedback, choice_order, teaching_item,
+    GATE, QUIZ, choice_feedback, teaching_item,
 )
 from ...core.srs import Rating, describe_interval
 from ..widgets.common import (
@@ -290,7 +290,7 @@ class ReviewView(View):
             # Drawn in a fresh order every time the card is shown; each
             # button's id is the choice's stored index, and the letters
             # follow the order on screen.
-            self.shown_order = choice_order(len(self.card.choices), self.rng)
+            self.shown_order = self._fresh_order(self.card)
             self.group = QButtonGroup(card)
             self.group.setExclusive(True)
             for position, stored in enumerate(self.shown_order):
@@ -331,6 +331,24 @@ class ReviewView(View):
         if self.isVisible():
             self.setFocus()
 
+
+    def _fresh_order(self, card) -> list:
+        """A new order, with the right answer under a new letter.
+
+        Where the answer sat last time is kept per card, so seeing a card
+        again - later today or next week - never rewards remembering that
+        the answer was C.
+        """
+        from ...core.quiz_session import fresh_choice_order
+        saved = self.ctx.store.setting("review_correct_at", None)
+        saved = dict(saved) if isinstance(saved, dict) else {}
+        last = saved.get(card.id)
+        order = fresh_choice_order(len(card.choices), card.correct, self.rng,
+                                   last if isinstance(last, int) else None)
+        if card.correct in order:
+            saved[card.id] = order.index(card.correct)
+            self.ctx.store.set_setting("review_correct_at", saved)
+        return order
     @staticmethod
     def _option_text(index: int, choice: str) -> str:
         if index >= len(OPTION_KEYS):

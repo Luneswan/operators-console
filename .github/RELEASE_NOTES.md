@@ -1,6 +1,8 @@
-**1.1.1** — checklist stretch goals are now folded and optional, new releases
-show up in the app within minutes, and checklist lines no longer shift under the
-mouse. Details in the changelog below.
+**1.1.2** - quizzes get a countdown per question (answers after it earn no
+mark), a new layout on every attempt, keyboard answers, and a results page that
+lists exactly which lines of the course to study, each a click away. Exercises
+show worked examples, explain errors in plain words, and end their hints with
+the shape of an answer. Details in the changelog below.
 
 **On 1.0.1 or newer (installed)?** The update button appears on its own. If a
 1.0.x version ever reopens after updating, close it and run the

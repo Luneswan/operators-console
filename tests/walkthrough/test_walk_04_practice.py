@@ -137,15 +137,18 @@ def test_every_exercise_grades_an_empty_editor_a_wrong_answer_and_the_answer(
 
         with step(walk_app, "practice", "%s: reveal every hint" % exercise.id,
                   window):
+            # The ladder: the written hints, rendered, then the shape.
+            from operators_console.ui.views.practice import _hints_for
+            ladder = _hints_for(exercise)
             if exercise.hints:
-                for index in range(len(exercise.hints)):
+                for index in range(len(ladder)):
                     click(walk_app, view.hint_button, pump_rounds=0)
                     assert not view.hint_label.isHidden()
-                    assert exercise.hints[index] in view.hint_label.text()
+                    assert ladder[index][1] in view.hint_label.text()
                 # One more press holds at the last hint: it used to wrap
                 # round to the first while the label still said "3 of 3".
                 click(walk_app, view.hint_button, pump_rounds=0)
-                assert exercise.hints[-1] in view.hint_label.text()
+                assert ladder[-1][1] in view.hint_label.text()
             else:
                 no_hints.append(exercise.id)
                 assert not view.hint_button.isEnabled()

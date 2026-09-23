@@ -79,7 +79,9 @@ def _press_second_and_check(view, qt_app):
     question = view.quiz.questions[view.order[view.position]]
     shown = view.choice_orders[question.id]
     second = view.group.buttons()[1]
-    assert second.text() == question.choices[shown[1]], (
+    # Lettered in the order drawn: "B.  <the choice>".
+    from operators_console.ui.views.quiz import _plain_code
+    assert second.text() == "B.  " + _plain_code(question.choices[shown[1]]), (
         "the buttons are not drawn in the attempt's order")
     second.setChecked(True)
     _skip, submit = view._question_controls
@@ -177,8 +179,9 @@ def test_an_attempt_saved_before_shuffling_still_resumes(qt_app, window,
     assert question.id == quiz.questions[1].id
     assert valid_order(view.choice_orders[question.id],
                        len(question.choices))
-    assert sorted(b.text() for b in view.group.buttons()) == sorted(
-        question.choices)
+    from operators_console.ui.views.quiz import _plain_code
+    assert sorted(b.text()[4:] for b in view.group.buttons()) == sorted(
+        _plain_code(c) for c in question.choices)
 
 
 def test_a_saved_order_that_no_longer_fits_is_redrawn(qt_app, window, store,

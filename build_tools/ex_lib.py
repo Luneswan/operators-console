@@ -34,7 +34,25 @@ def ex(eid, phase, topic, title, diff, prompt, starter, tests,
     })
 
 
+def apply_hint_rewrites() -> None:
+    """Swap in the plain-words hints from hint_rewrites.json (see its _comment)."""
+    rewrites = json.loads((Path(__file__).parent / "hint_rewrites.json")
+                          .read_text(encoding="utf-8"))
+    rewrites = {k: v for k, v in rewrites.items() if not k.startswith("_")}
+    by_id = {e["id"]: e for e in EXERCISES}
+    unknown = sorted(set(rewrites) - set(by_id))
+    if unknown:
+        raise SystemExit("hint_rewrites.json names unknown exercises: %s"
+                         % unknown)
+    for eid, hints in rewrites.items():
+        if not hints or not all(isinstance(h, str) and h.strip()
+                                for h in hints):
+            raise SystemExit("hint_rewrites.json: %s has an empty hint" % eid)
+        by_id[eid]["hints"] = list(hints)
+
+
 def dump(path: Path) -> None:
+    apply_hint_rewrites()
     payload = {"schema": 1, "exercises": EXERCISES}
     Path(path).write_text(
         json.dumps(payload, ensure_ascii=False, indent=1), encoding="utf-8")

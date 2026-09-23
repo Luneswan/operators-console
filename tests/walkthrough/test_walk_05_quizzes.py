@@ -113,7 +113,7 @@ def test_every_wrong_answer_is_explained_and_scheduled(walk_app, window,
             assert best == (0, len(quiz.questions)), (quiz.id, best)
         with step(walk_app, "quiz", "read the wrap-up for %s" % quiz.id,
                   window):
-            assert _named(view, "Retake") is not None
+            assert _named(view, "Retake the whole quiz") is not None
             assert _named(view, "Other quizzes") is not None
             assert _named(view, "Back to the phase") is not None
 
@@ -162,9 +162,9 @@ def test_skipping_retaking_and_leaving_a_quiz(walk_app, window, store,
             nxt = (_named(view, "Next question")
                    or _named(view, "See your score"))
             click(walk_app, nxt, pump_rounds=0)
-        assert _named(view, "Retake") is not None, "no score screen appeared"
+        assert _named(view, "Retake the whole quiz") is not None, "no score screen appeared"
     with step(walk_app, "quiz", "retake it", window):
-        click(walk_app, _named(view, "Retake"))
+        click(walk_app, _named(view, "Retake the whole quiz"))
         assert view.position == 0
     with step(walk_app, "quiz", "go back to the picker", window):
         window.go("quiz", quiz.id)

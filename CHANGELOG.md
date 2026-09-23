@@ -4,6 +4,49 @@ All notable changes to this project are recorded here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and the project uses
 [semantic versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.1.2] - 2026-09-23
+
+### Quizzes
+
+- **A countdown on every question**, sized to how much there is to read
+  (25 to 55 seconds across the bank). It turns amber for the last ten seconds.
+  An answer given after it runs out is still marked and explained but earns no
+  mark, and a right-but-late answer is scheduled as Hard. Running out of time
+  survives closing the app.
+- **Every attempt is laid out anew**: the question order, the first question
+  and the letter each right answer sits under are never the same as the last
+  attempt. Choices are lettered A-D. Review cards follow the same rule, and a
+  review session is shuffled too, with new cards still taking turns by kind.
+- **Results that tell you what to study.** A score card (verdict, percentage,
+  best before, right / wrong / skipped / late, answering time in plain words
+  instead of "279 minutes 25 seconds"). Then *What to study*: the exact
+  checklist lines that teach what you missed, grouped by phase and section in
+  course order, each with an *Open this line* button, plus an unpassed exercise
+  and the phase's first reading for each phase. Then *Question by question*:
+  what you chose, the right answer, why yours is not it, the explanation, and
+  a link to the line. *Practise the N you missed* reruns just those,
+  reshuffled, without recording a score.
+- All 242 questions now name the line that teaches them (121 were unmapped;
+  `build_tools/quiz_teaches.json`, validated by the build).
+- Code in questions and explanations is shown as code, not as backticks.
+- Quizzes take the same keys as Review: A to D picks the answer drawn at that
+  letter, Enter checks it and Enter again moves on.
+- The status bar says the score when a quiz ends, instead of leaving "Time's
+  up" from the last question on screen.
+
+### Practice
+
+- **Every exercise says how it is checked** and shows worked examples taken
+  from its own checks (`greet('Ada') -> 'Hello, Ada!'`), so it is clear the
+  checks call your function for you.
+- **Errors raised while your file loads are explained in plain words** - a
+  bare word without quotes, a parameter used outside its function, a capital
+  letter, a missing colon or bracket - and a call you added at the bottom is
+  named as the reason no check ran.
+- **Hints are a ladder**, rendered with code formatting, ending in *the shape
+  of an answer*: the solution's structure with every expression removed. The
+  36 phase 01 exercises have rewritten beginner hints in plain words.
+
 ## [1.1.1] - 2026-09-23
 
 ### Changed

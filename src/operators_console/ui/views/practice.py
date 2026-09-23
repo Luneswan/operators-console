@@ -202,6 +202,16 @@ class PracticeView(View):
             Qt.TextInteractionFlag.TextSelectableByMouse)
         column.addWidget(self.prompt)
 
+        # The same three things for every exercise, read off its own data:
+        # what a right answer looks like, and that the checks do the calling.
+        self.brief = QLabel("")
+        self.brief.setObjectName("Soft")
+        self.brief.setWordWrap(True)
+        self.brief.setTextFormat(Qt.TextFormat.RichText)
+        self.brief.setTextInteractionFlags(
+            Qt.TextInteractionFlag.TextSelectableByMouse)
+        column.addWidget(self.brief)
+
         self.editor = CodeEditor(self.ctx.palette)
         self.editor.setMinimumHeight(240)
         self.editor.textChanged.connect(self._on_edit)
@@ -257,6 +267,9 @@ class PracticeView(View):
         column.addWidget(self.recovery)
 
         self.hint_label = soft("")
+        self.hint_label.setTextFormat(Qt.TextFormat.RichText)
+        self.hint_label.setTextInteractionFlags(
+            Qt.TextInteractionFlag.TextSelectableByMouse)
         self.hint_label.setVisible(False)
         column.addWidget(self.hint_label)
 
@@ -504,6 +517,7 @@ class PracticeView(View):
         self.ex_meta.setText("Widen the search, the phase or the level to "
                              "see exercises again.")
         self.prompt.setText("")
+        self.brief.setText("")
         self.editor.setPlainText("")
         self.editor.setEnabled(False)
         self.ex_status.setVisible(False)
@@ -522,6 +536,7 @@ class PracticeView(View):
 
         state = self._show_header(exercise)
         self.prompt.setText(_markup(exercise.prompt))
+        self.brief.setText(_brief_html(exercise))
 
         self._loading = True
         self.editor.set_code(state.get("code") or exercise.starter)
@@ -576,7 +591,7 @@ class PracticeView(View):
         self.stop_button.setVisible(running)
         self.stop_button.setEnabled(running)
 
-        hints = tuple(exercise.hints) if exercise is not None else ()
+        hints = _hints_for(exercise) if exercise is not None else ()
         # Shown either way: a button that vanishes reads as a bug, and the
         # tooltip says why it cannot be pressed.
         self.hint_button.setVisible(True)
@@ -728,6 +743,13 @@ class PracticeView(View):
             row.addLayout(body, 1)
             self.results.box.addLayout(row)
 
+        why = getattr(result, "why", "")
+        if why:
+            self.results.add(label("What went wrong", "SectionTitle",
+                                   wrap=False))
+            explained = label(_markup(why), "Soft")
+            explained.setTextFormat(Qt.TextFormat.RichText)
+            self.results.add(explained)
         if result.error:
             self.results.add(label("What Python said", "SectionTitle",
                                    wrap=False))
@@ -768,22 +790,24 @@ class PracticeView(View):
         self.results.add(label(text, "Soft"))
 
     def _next_hint(self) -> None:
-        if self.current is None or not self.current.hints:
+        hints = _hints_for(self.current) if self.current is not None else ()
+        if not hints:
             return
-        total = len(self.current.hints)
+        total = len(hints)
         if self.hint_index >= total:
             # It used to wrap silently back to hint 1 while the label still
             # counted up, so "Hint 4 of 3" showed the first hint again.
             self.ctx.announce(ALL_HINTS)
             self._sync_controls()
             return
-        hint = self.current.hints[self.hint_index]
+        title, body = hints[self.hint_index]
         self.hint_index += 1
         self._hints_shown.append(
-            "Hint %d of %d - %s" % (self.hint_index, total, hint))
+            "<b>Hint %d of %d%s</b><br>%s"
+            % (self.hint_index, total, " - " + title if title else "", body))
         # Every hint read so far stays on screen: hint 2 usually only makes
         # sense next to hint 1.
-        self.hint_label.setText("\n\n".join(self._hints_shown))
+        self.hint_label.setText("<br><br>".join(self._hints_shown))
         self.hint_label.setVisible(True)
         self.ctx.store.use_hint(self.current.id, self.hint_index)
         self._show_header(self.current)
@@ -887,6 +911,44 @@ def _matches(exercise, query: str) -> bool:
     """
     return _text_matches(query, exercise.title, exercise.topic, exercise.id,
                          exercise.prompt)
+
+
+SHAPE_TITLE = "the shape of an answer"
+
+
+def _hints_for(exercise) -> tuple:
+    """(title, html) for every hint: the written ones, then the shape.
+
+    The written hints nudge; the last one shows how the solution is built -
+    its `def`, loops, branches and returns - with every expression taken
+    out, so there is a step between the last nudge and the whole answer.
+    """
+    import html
+
+    from ...core.exercise_brief import skeleton
+    out = [("", _markup(str(h))) for h in (exercise.hints or ())]
+    shape = skeleton(exercise.solution)
+    if shape:
+        out.append((SHAPE_TITLE,
+                    "Fill in every <code>...</code>; the structure is "
+                    "already right.<pre>%s</pre>" % html.escape(shape)))
+    return tuple(out)
+
+
+def _brief_html(exercise) -> str:
+    """Worked examples from the checks, and how the work is judged."""
+    import html
+
+    from ...core.exercise_brief import examples, how_checked
+    parts = []
+    pairs = examples(exercise)
+    if pairs:
+        rows = "<br>".join(
+            "<code>%s</code> &nbsp;&rarr;&nbsp; <code>%s</code>"
+            % (html.escape(call), html.escape(value)) for call, value in pairs)
+        parts.append("<b>For example</b><br>" + rows)
+    parts.append("<b>How it is checked</b><br>" + _markup(how_checked(exercise)))
+    return "<br><br>".join(parts)
 
 
 def _markup(text: str) -> str:

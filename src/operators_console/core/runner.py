@@ -53,6 +53,8 @@ class RunResult:
     timed_out: bool = False
     duration_ms: int = 0
     cancelled: bool = False
+    #: Why the file failed before any check ran, in plain words.
+    why: str = ""
 
     @property
     def passed_count(self) -> int:
@@ -195,7 +197,8 @@ def run_exercise(code: str, tests, setup: str = "",
                   for c in result.get("cases", []))
     return RunResult(ok=bool(result.get("ok")), cases=cases,
                      stdout=result.get("stdout", ""),
-                     error=result.get("error", ""), duration_ms=elapsed)
+                     error=result.get("error", ""), duration_ms=elapsed,
+                     why=str(result.get("why", "") or ""))
 
 
 GRACE_SECONDS = 3.0
@@ -353,6 +356,7 @@ def child_main() -> int:
     namespace = module.__dict__
     buffer = CappedText(OUTPUT_CAP)
     error = ""
+    why = ""
     ok = True
 
     setup = payload.get("setup") or ""
@@ -373,6 +377,8 @@ def child_main() -> int:
         except BaseException as exc:
             ok = False
             error = _learner_traceback(exc)
+            from .load_errors import explain_load_error
+            why = explain_load_error(exc, code)
 
     cases = []
     if ok:
@@ -403,7 +409,7 @@ def child_main() -> int:
                 ok = False
                 with contextlib.redirect_stdout(buffer), \
                         contextlib.redirect_stderr(buffer):
-                    said = explain_error(exc)
+                    said = explain_error(exc, code)
                 cases.append(_case(name, said))
 
     output = buffer.getvalue()
@@ -417,6 +423,7 @@ def child_main() -> int:
         "cases": cases,
         "stdout": output,
         "error": _explain(error),
+        "why": why,
     }))
     answer.flush()
     return 0
@@ -1069,14 +1076,22 @@ def _called(func) -> str:
 # -- everything that is not an assert --------------------------------------
 
 
-def explain_error(exc: BaseException) -> str:
-    """`TypeError: ...` as before, plus a line saying what usually causes it."""
+def explain_error(exc: BaseException, code: str = "") -> str:
+    """`TypeError: ...` as before, plus a line saying what usually causes it.
+
+    With the learner's `code`, a NameError is read against the names the file
+    actually has, so `Name` for `name` is called a capital letter.
+    """
     try:
         head = "%s: %s" % (type(exc).__name__, exc)
     except BaseException:
         head = type(exc).__name__
     try:
-        hint = _error_hint(exc)
+        hint = ""
+        if code and isinstance(exc, NameError):
+            from .load_errors import _name_error
+            hint = _name_error(exc, code, inside=True)
+        hint = hint or _error_hint(exc)
     except BaseException:
         hint = ""
     return _short(head.replace("\n", " ") + ("\n" + hint if hint else ""))

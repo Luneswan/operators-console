@@ -316,8 +316,14 @@ class ReviewQueue:
         return QueueCounts(due=due, new=new, learning=learning,
                            backlog=max(0, due - limit))
 
-    def session(self, now: datetime | None = None) -> list:
-        """The ordered cards to study now, honouring the daily limits."""
+    def session(self, now: datetime | None = None, rng=None) -> list:
+        """The cards to study now, honouring the daily limits.
+
+        Which cards is decided in order - the most overdue reviews first,
+        new cards in course order - and then the chosen ones are shuffled
+        for showing (pass `rng=False` to keep that order). A deck that always
+        opens on the same card lets its neighbours cue the answers.
+        """
         now = now or datetime.now(timezone.utc)
         new_limit = int(self.s.setting("new_cards_per_day", 15))
         review_limit = int(self.s.setting("max_reviews_per_day", 120))
@@ -347,7 +353,14 @@ class ReviewQueue:
 
         introduced = self._new_introduced_today()
         room = max(0, new_limit - introduced)
-        return chosen + fresh[:room]
+        new = fresh[:room]
+        if rng is not False:
+            rng = rng or random
+            rng.shuffle(chosen)
+            # New cards keep taking turns by kind; only who goes first within
+            # each kind is drawn afresh.
+            new = _interleave(new, rng)
+        return chosen + new
 
     def _new_introduced_today(self) -> int:
         today = date.today().isoformat()
@@ -424,7 +437,7 @@ class ReviewQueue:
         return Rating.HARD if hesitated else Rating.GOOD
 
 
-def _interleave(cards: list) -> list:
+def _interleave(cards: list, rng=None) -> list:
     """New cards in turn by kind - a question, a gate check, a saved line.
 
     Sorted by id alone, every gate check of every reached phase came before
@@ -433,6 +446,9 @@ def _interleave(cards: list) -> list:
     lanes: dict = {}
     for card in sorted(cards, key=lambda c: c.id):
         lanes.setdefault(card.kind, []).append(card)
+    if rng is not None:
+        for lane in lanes.values():
+            rng.shuffle(lane)
     order = [QUIZ, GATE, CONCEPT] + sorted(
         k for k in lanes if k not in (QUIZ, GATE, CONCEPT))
     queues = [lanes[k] for k in order if k in lanes]

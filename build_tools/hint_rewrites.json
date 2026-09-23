@@ -1,0 +1,147 @@
+{
+ "_comment": "Beginner hints for phase 01, rewritten as a ladder in plain words: hint 1 says what the checks want and the idea that gets you there; hint 2 names the exact tool with a tiny example. The app adds a third, 'the shape of an answer', from the solution. ex_lib.dump applies these over the authored hints and fails on an unknown id.",
+ "p01.001": [
+  "The checks call `greet(\"Ada\")` and compare what comes back with the text `Hello, Ada!`. So your function has to build that text and hand it back with `return`. `print` only shows text on the screen - the function would give back `None` and every check would fail.",
+  "To put the name inside the text, use an f-string: `f\"Hello, {name}!\"`. The part in braces is replaced by whatever `name` holds, so `return f\"Hello, {name}!\"` is the whole body."
+ ],
+ "p01.002": [
+  "Turn the formula into Python one piece at a time: take `celsius`, multiply it by 9, divide by 5, then add 32 - and `return` the result.",
+  "Write it as `celsius * 9 / 5 + 32`. Use `/`, not `//`: `//` throws away the fraction, so 36.6 degrees would come out wrong."
+ ],
+ "p01.003": [
+  "Work from the smallest unit up: first split the seconds into whole minutes plus leftover seconds, then split those minutes into whole hours plus leftover minutes.",
+  "`divmod(a, b)` gives both parts of a division at once: `divmod(3661, 60)` is `(61, 1)` - 61 whole minutes, 1 second left. Do it again with the minutes and 60, then `return hours, minutes, seconds`."
+ ],
+ "p01.004": [
+  "Break the name into words, take the first letter of each, make it a capital and put a dot after it, then glue the pieces together.",
+  "`full_name.split()` (with nothing in the brackets) splits on any amount of space and never gives empty words. For each word, `word[0].upper() + \".\"`, and `\"\".join(...)` glues the pieces with nothing between them."
+ ],
+ "p01.005": [
+  "An f-string can do more than insert a value: after a colon inside the braces you can say how to format the number - separators, decimals and so on.",
+  "`f\"{amount:,.2f}\"` adds thousands commas (`,`) and exactly two decimals (`.2f`). Put the dollar sign in front: `f\"${amount:,.2f}\"`."
+ ],
+ "p01.006": [
+  "Deal with bad input first: if the score is below 0 or above 100, `raise ValueError(...)`. Then check the grades from the top down, so each test only needs one number.",
+  "`if not 0 <= score <= 100: raise ValueError(\"out of range\")`, then `if score >= 90: return \"A\"`, then `>= 80` for B, and so on, with `return \"F\"` at the end for everything left."
+ ],
+ "p01.007": [
+  "Say the rule out loud as a chain: divisible by 4, and at the same time either not a century, or a century divisible by 400. That whole sentence is one True/False expression.",
+  "`x % n == 0` means \"x divides evenly by n\". The rule is `year % 4 == 0 and (year % 100 != 0 or year % 400 == 0)` - the brackets matter."
+ ],
+ "p01.008": [
+  "Keep a running total that starts at 0, then go through the numbers 1, 2, 3 ... up to n and add each one to it. Return the total at the end.",
+  "`range(1, n + 1)` gives 1 up to n - the stop number itself is left out, so add one. Set `total = 0` before the loop (not inside it) and do `total += value` inside."
+ ],
+ "p01.009": [
+  "Make an empty list, loop over 1 to n, decide what each number becomes, and append it. The order of the tests matters: a multiple of 15 is also a multiple of 3 and 5.",
+  "Test `value % 15 == 0` first, then `% 3`, then `% 5`, with `else` appending the number itself. If you test 3 first, 15 becomes \"Fizz\" and never reaches \"FizzBuzz\"."
+ ],
+ "p01.010": [
+  "Duplicates are the trap: in `[5, 1, 5, 3]` the second largest value is 3, not 5. Remove repeats first, then look at what is left.",
+  "`sorted(set(numbers))` removes repeats and sorts smallest to largest. If that has fewer than 2 values return `None`; otherwise `[-2]` is the second from the end."
+ ],
+ "p01.011": [
+  "A list comprehension builds a new list in one line: for every number, keep it only if it is even, and put its square in the new list.",
+  "The shape is `[what_to_put for item in items if condition]`. Here: `[n * n for n in numbers if n % 2 == 0]` - `n % 2 == 0` means n is even."
+ ],
+ "p01.012": [
+  "Handle the no-answer cases first (shorter than 3, or an even length) by returning `\"\"`. Then find the middle position and take one character either side of it.",
+  "The middle index is `len(text) // 2`. A slice `text[start:stop]` stops before `stop`, so the three middle characters are `text[middle - 1:middle + 2]`."
+ ],
+ "p01.013": [
+  "Three jobs in order: throw away the extra spaces (outside and inside), then capitalise each word.",
+  "`name.split()` gives the words with every run of space removed; `\" \".join(...)` puts them back with single spaces; `.title()` capitalises each word. They chain: `\" \".join(name.split()).title()`."
+ ],
+ "p01.014": [
+  "Split the phrase into words, take the first letter of each, make it a capital, and join the letters with nothing between them.",
+  "`phrase.split()` gives the words. `\"\".join(word[0].upper() for word in phrase.split())` does the rest in one line."
+ ],
+ "p01.015": [
+  "Lower-case the text, split it into words, and keep a dictionary of counts: for each word, add one to its count - starting from 0 the first time you see it.",
+  "`counts.get(word, 0)` returns the count so far, or 0 for a new word, so `counts[word] = counts.get(word, 0) + 1` works for both. Once yours passes, look at `collections.Counter`."
+ ],
+ "p01.016": [
+  "Two cases: the key is in the dictionary, or it is not. Test which one first, then return the right thing for each.",
+  "`if key in data:` checks the keys (not the values). Return `data[key]` there, and `default` otherwise. Do not write `if data[key]:` - that crashes on a missing key and wrongly treats 0 or \"\" as missing."
+ ],
+ "p01.017": [
+  "Walk the list once. Remember what you have already kept; keep an item only the first time you meet it. A set is the fast way to remember, a list keeps the order.",
+  "Start with `seen = set()` and `out = []`. For each item: `if item not in seen:` add it to `seen` and `out.append(item)`. Return `out`."
+ ],
+ "p01.018": [
+  "`sorted` can sort by anything you choose: give it a small function that turns each name into what it should be sorted by - surname first, then first name.",
+  "`name.rpartition(\" \")` splits at the last space: `\"Ada Lovelace\"` gives `(\"Ada\", \" \", \"Lovelace\")`. Return `(last, first)` from the key function and call `sorted(names, key=key)` - it makes a new list."
+ ],
+ "p01.019": [
+  "Sort the names by score, highest first, with ties going alphabetically, then take the first n.",
+  "Sort `scores.items()` with `key=lambda pair: (-pair[1], pair[0])` - a minus sign flips the score so the highest comes first, and the name breaks ties. Then take `[:n]` and keep just the names."
+ ],
+ "p01.020": [
+  "Go through the list with each item's position, and keep the position whenever the item equals the target.",
+  "`enumerate(items)` gives `(index, item)` pairs. `[i for i, item in enumerate(items) if item == target]` collects the positions in one line."
+ ],
+ "p01.021": [
+  "Walk the two lists side by side, pairing the first name with the first score and so on, and build a dictionary from the pairs.",
+  "`zip(names, scores)` pairs them up and stops at the shorter list - exactly the rule you need. `dict(zip(names, scores))` turns the pairs into a dictionary."
+ ],
+ "p01.022": [
+  "Start with an empty dictionary. For each row, add its amount to the running total for its category, starting from 0 for a category you have not seen.",
+  "`out[key] = out.get(key, 0) + row[\"amount\"]` handles both new and known categories, where `key = row[\"category\"]`."
+ ],
+ "p01.023": [
+  "A default like `basket=[]` is made once, when the function is defined, and then shared by every call - that is why items leak between calls. The fix is to make a new list inside the function each time.",
+  "Use `basket=None` as the default, then `if basket is None: basket = []` as the first line of the body. A caller who passes their own list still gets theirs."
+ ],
+ "p01.024": [
+  "`*values` collects the positional arguments into a tuple and `**options` collects the keyword ones into a dictionary. Build the count part first; if there are no options, you are done.",
+  "`head = f\"{len(values)} values\"`. For the options, sort their names and format each as `key=value`: `\" \".join(f\"{k}={options[k]}\" for k in sorted(options))`, then `f\"{head} | {tail}\"`."
+ ],
+ "p01.025": [
+  "A recursive function calls itself on a smaller problem. It needs a stopping case that answers directly - otherwise it never ends and you get a RecursionError.",
+  "Raise `ValueError` for negative n, return 1 when n is 0 or 1, and otherwise `return n * factorial(n - 1)`."
+ ],
+ "p01.026": [
+  "Try the division; if Python raises an error because b is zero, catch that error and return `None` instead of crashing.",
+  "`try: return a / b` then `except ZeroDivisionError: return None`. Name the exact error - a bare `except:` would also hide real bugs."
+ ],
+ "p01.027": [
+  "Three checks, in order: is it a type you accept (a string or a number, but not True/False)? Can it become a whole number? Is it between 0 and 130? Raise the matching error as soon as one fails.",
+  "`isinstance(value, (str, int, float))` checks the type - `bool` counts as an int, so exclude it. Wrap `int(value)` in `try` and turn a failure into `ValueError`, then check `0 <= age <= 130`."
+ ],
+ "p01.028": [
+  "Go through the values one at a time and try to convert each. If one fails, skip it and carry on with the next - the loop must keep going.",
+  "Put the `try` inside the loop around `out.append(int(value))`, and `except (TypeError, ValueError): continue`. `int(\"x\")` raises ValueError; `int(None)` raises TypeError."
+ ],
+ "p01.029": [
+  "Open the file, go through it line by line, and count the lines that still have something in them after you remove the spaces.",
+  "`with open(path, encoding=\"utf-8\") as fh:` opens the file and closes it for you. `for line in fh:` gives each line, and `if line.strip():` is true only when something other than whitespace is there."
+ ],
+ "p01.030": [
+  "`save` writes the dictionary into the file as JSON text; `load` reads that text back into a dictionary. Open the file for writing in one and for reading in the other.",
+  "In `save`: `with open(path, \"w\", encoding=\"utf-8\") as fh: json.dump(data, fh)`. In `load`: open it normally and `return json.load(fh)`. Remember `import json` at the top."
+ ],
+ "p01.031": [
+  "Turn both strings into real dates, subtract one from the other, and take the number of days - positive either way round.",
+  "`date.fromisoformat(\"2026-01-31\")` reads the string (after `from datetime import date`). Subtracting two dates gives a timedelta; `.days` is the number of days, and `abs(...)` makes it positive."
+ ],
+ "p01.032": [
+  "Count only the letters, ignoring case. Then pick the letter with the highest count, and on a tie the one that comes first in the alphabet. No letters at all means `None`.",
+  "`Counter(ch for ch in text.lower() if ch.isalpha())` counts the letters (after `from collections import Counter`). `min(counts, key=lambda ch: (-counts[ch], ch))` picks the most common, breaking ties alphabetically."
+ ],
+ "p01.033": [
+  "Python has two built-ins for exactly these questions: one asks \"is this true for every item?\", the other \"is it true for at least one?\".",
+  "`all(n > 0 for n in numbers)` and `any(n < 0 for n in numbers)`. `all` of an empty list is True, which is what the task asks for."
+ ],
+ "p01.034": [
+  "First clean the text: keep only letters and digits, in lower case. Then a palindrome reads the same backwards as forwards.",
+  "`\"\".join(ch.lower() for ch in text if ch.isalnum())` cleans it. `cleaned[::-1]` is the text reversed, so return `cleaned == cleaned[::-1]`."
+ ],
+ "p01.035": [
+  "Build a new dictionary where each old value becomes a key and each old key becomes its value. If two keys share a value, the later one simply overwrites the earlier.",
+  "A dictionary comprehension does it in one line: `{value: key for key, value in mapping.items()}`."
+ ],
+ "p01.036": [
+  "Keep one running total. For each number, add it to the total and append the total so far to the result list.",
+  "Set `total = 0` and `out = []` before the loop; inside, `total += number` then `out.append(total)`. When it passes, compare with `itertools.accumulate`."
+ ]
+}

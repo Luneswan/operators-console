@@ -586,6 +586,8 @@ QProgressBar {
 }
 QProgressBar::chunk { background: %(accent)s; border-radius: 3px; }
 QProgressBar[tone="done"]::chunk { background: %(done)s; border-radius: 3px; }
+QProgressBar[tone="warn"]::chunk { background: %(warn)s; border-radius: 3px; }
+QProgressBar[tone="bad"]::chunk { background: %(bad)s; border-radius: 3px; }
 
 /* ---- lists and tables ---- */
 QListWidget, QTreeWidget, QTableWidget {

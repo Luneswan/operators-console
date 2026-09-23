@@ -259,6 +259,13 @@ class QuizError(SystemExit):
 KNOWN_ITEMS = {i["id"] for p in phases for s in p["sections"] for i in s["items"]}
 KNOWN_ITEMS |= {g["id"] for p in phases if p["gate"] for g in p["gate"]["items"]}
 
+# Where the raw bundle leaves a question without the line that teaches it,
+# build_tools/quiz_teaches.json supplies one (see its _comment).
+TEACHES = {k: v for k, v in json.loads(
+    (Path(__file__).parent / "quiz_teaches.json").read_text(encoding="utf-8")
+).items() if not k.startswith("_")}
+teaches_used = set()
+
 quizzes = []
 for qz in raw["QUIZZES"]:
     questions = []
@@ -267,6 +274,9 @@ for qz in raw["QUIZZES"]:
         choices = list(q["a"])
         explain_choice = list(q.get("explain_choice") or [""] * len(choices))
         teaches = q.get("teaches", "")
+        if not teaches and qid in TEACHES:
+            teaches = TEACHES[qid]
+            teaches_used.add(qid)
         if len(explain_choice) != len(choices):
             raise QuizError("%s: explain_choice has %d entries for %d choices"
                             % (qid, len(explain_choice), len(choices)))
@@ -300,6 +310,11 @@ for qz in raw["QUIZZES"]:
         "desc": qz["d"],
         "questions": questions,
     })
+
+if set(TEACHES) - teaches_used:
+    raise QuizError("quiz_teaches.json maps questions that are missing or "
+                    "already mapped in the raw bundle: %s"
+                    % sorted(set(TEACHES) - teaches_used))
 
 fields = []
 picked_fields = set()

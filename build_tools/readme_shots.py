@@ -100,6 +100,27 @@ def failed_practice(win):
     pump(0.8)
 
 
+def quiz_results(win):
+    """A finished attempt with three misses, one of them out of time."""
+    win.go("quiz", "q00")
+    pump()
+    view = win.views["quiz"]
+    for index in range(len(view.order)):
+        question = view.quiz.questions[view.order[view.position]]
+        if index == 1:
+            view.question_started -= view.budget + 1
+            view._on_tick()
+        right = index >= 3 or index == 1
+        chosen = question.correct if right else (
+            question.correct + 1) % len(question.choices)
+        view.group.button(chosen).setChecked(True)
+        view._question_controls[1].click()
+        pump(0.1)
+        view._advance()
+        pump(0.1)
+    pump(0.6)
+
+
 def main():
     for theme in ("light", "dark"):
         win = window_for(theme)
@@ -113,6 +134,9 @@ def main():
             view.scroller.verticalScrollBar().maximum())
         shot(win, "practice-%s.png" % theme)
         win.resize(*SIZE)
+        if theme == "dark":
+            quiz_results(win)
+            shot(win, "quiz-dark.png")
         if theme == "light":
             win.go("roadmap", "")
             shot(win, "roadmap-light.png")

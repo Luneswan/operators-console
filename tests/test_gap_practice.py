@@ -89,7 +89,10 @@ def test_a_cancelled_result_carries_the_flag_rather_than_a_failure():
 def test_the_hint_ladder_stops_at_the_last_hint(qt_app, window, curriculum):
     target = _with_hints(curriculum, 2)
     view = _open(qt_app, window, target)
-    total = len(target.hints)
+    from operators_console.ui.views.practice import _hints_for
+    # The written hints, then the shape of an answer.
+    total = len(_hints_for(target))
+    assert total == len(target.hints) + 1
 
     for _ in range(total):
         view.hint_button.click()
@@ -110,8 +113,10 @@ def test_every_hint_read_so_far_stays_on_screen(qt_app, window, curriculum):
     view = _open(qt_app, window, target)
     view.hint_button.click()
     view.hint_button.click()
+    # Rendered: backticks become code, so compare as the learner reads it.
+    from operators_console.ui.views.practice import _markup
     shown = view.hint_label.text()
-    assert target.hints[0] in shown and target.hints[1] in shown
+    assert _markup(target.hints[0]) in shown and _markup(target.hints[1]) in shown
 
 
 def test_hints_used_is_recorded_and_shown_in_the_meta_line(

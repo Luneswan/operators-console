@@ -17,7 +17,7 @@ away while you are busy with phase 9.
 | **21 phases** | From setting up Git to systems internals, ordered so nothing asks you to use something you have not been taught |
 | **536 tracked steps** | 435 study steps plus 101 gate checks. Every study phase ends with a gate you prove rather than read, and your chosen track decides how many apply to you |
 | **119 graded exercises** | 626 individual checks. You write Python, the app runs it in a separate process and tells you which check failed, what your code returned, what was expected and why they differ |
-| **242 quiz questions** | In 20 quizzes. Multiple choice with an explanation, and anything you get wrong is scheduled for review by FSRS-6 |
+| **242 quiz questions** | In 20 quizzes, timed per question and reshuffled every attempt. Each one names the line of the course that teaches it, so the results say exactly what to study, and anything you get wrong is scheduled for review by FSRS-6 |
 | **22 projects** | 130 requirements between them, plus stretch goals and a rubric for what "finished" means |
 | **9 tracks** | A well-rounded engineer, Python for its own sake, backend, data, AI, automation, DevOps, security, or job-ready in the shortest honest time |
 | **30 fields, 24 certificates, 7 shelves** | An opinionated library, with a note on why each thing is worth your time |
@@ -41,14 +41,21 @@ memory" lines are asked again rather than read once.
 **Practice** is the part that makes the difference. Exercises run in a separate
 process with a timeout and a memory cap, so an endless loop kills the child and
 not your work, and you can stop a run yourself. A failed check says why: the
-value you returned, the value expected, and where they differ. Hints are
-laddered and the solution is always available — revealing it is recorded, and
-the list marks the exercises you solved after reading the answer, so the score
-you see is the score you earned. The list filters by text, difficulty and
-status.
+value you returned, the value expected, and where they differ, and an error
+that stops your file before any check runs is explained in plain words. Every
+exercise shows worked examples from its own checks and says how it is checked.
+Hints are laddered, ending in the shape of an answer, and the solution is
+always available — revealing it is recorded, and the list marks the exercises
+you solved after reading the answer, so the score you see is the score you
+earned. The list filters by text, difficulty and status.
 
-**Quizzes** check each phase. A wrong answer is explained, and the question
-goes into your review deck.
+**Quizzes** check each phase. Every attempt shuffles the questions and the
+answers, and never repeats the last layout, so a retake tests ideas, not
+positions. Each question has a countdown sized to its length; an answer after
+it runs out is explained but earns no mark. A wrong answer is explained, and
+the results say exactly what to study: the checklist lines that teach what you
+missed, in course order, each one a click away, with an exercise and a reading
+for its phase and a practice round of just the ones you missed.
 
 **Review** uses FSRS-6, the algorithm Anki adopted as its default. Anything you
 get wrong in a quiz is scheduled automatically. Daily limits stop a week away
@@ -91,9 +98,9 @@ a newer version exists — when it starts, every five minutes while it is open,
 and when you switch back to it — so a new release shows up within minutes and
 it can offer a one-click update. Unchanged answers are free: the app sends the
 last ETag and GitHub replies `304 Not Modified`, which does not count against
-its rate limit. It downloads nothing until you
-press the button, the first-run setup asks before it is ever turned on, and it
-can be turned off in Settings at any time. Updating never touches your progress
+its rate limit. It downloads nothing until you press the button, the first-run
+setup asks before it is ever turned on, and it can be turned off in Settings at
+any time. Updating never touches your progress
 — the database lives in a separate folder, and the updater refuses to run if it
 would overwrite it.
 
@@ -103,7 +110,7 @@ would overwrite it.
 |---|---|
 | ![Today, dark theme](docs/screenshots/today-dark.png) | ![The roadmap as a timeline](docs/screenshots/roadmap-light.png) |
 | ![Practice, with a failed check explained](docs/screenshots/practice-light.png) | ![Practice, dark theme](docs/screenshots/practice-dark.png) |
-| ![Review, with its keys on the buttons](docs/screenshots/review-light.png) | |
+| ![Review, with its keys on the buttons](docs/screenshots/review-light.png) | ![Quiz results: what to study, a click away](docs/screenshots/quiz-dark.png) |
 
 ## Install
 

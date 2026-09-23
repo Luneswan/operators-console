@@ -106,7 +106,7 @@ def test_the_preview_offers_four_intervals(queue):
 
 
 def test_a_wrong_choice_always_maps_to_again(queue):
-    card = queue.session()[0]
+    card = next(c for c in queue.session() if c.choices)
     wrong = (card.correct + 1) % len(card.choices)
     assert ReviewQueue.rating_for_choice(card, wrong, False) is Rating.AGAIN
 

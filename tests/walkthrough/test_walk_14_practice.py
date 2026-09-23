@@ -178,17 +178,21 @@ def test_an_endless_loop_can_be_stopped(walk_app, window, store, curriculum):
 
 def test_the_hint_ladder_stops_where_it_should(walk_app, window, store,
                                                curriculum):
+    from operators_console.ui.views.practice import _hints_for
     target = _with_hints(curriculum, 2)
-    total = len(target.hints)
+    # The written hints, rendered, then the shape of an answer.
+    ladder = _hints_for(target)
+    total = len(ladder)
+    assert total == len(target.hints) + 1
     view = _open(walk_app, window, target.id)
     with step(walk_app, "practice", "read every hint, then press once more",
               window):
         for index in range(total):
             click(walk_app, view.hint_button, pump_rounds=1)
-            assert target.hints[index] in view.hint_label.text()
+            assert ladder[index][1] in view.hint_label.text()
             # Everything read so far is still on screen.
             for earlier in range(index + 1):
-                assert target.hints[earlier] in view.hint_label.text()
+                assert ladder[earlier][1] in view.hint_label.text()
         assert not view.hint_button.isEnabled()
         assert view.hint_button.toolTip() == "That is every hint for this one."
         click(walk_app, view.hint_button, pump_rounds=1)

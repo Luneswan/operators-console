@@ -195,7 +195,9 @@ def test_rating_a_card_advances_by_exactly_one(qt_app, window, store,
     pump(qt_app)
     view = window.views["review"]
 
-    planned = [card.id for card in window.ctx.review.session()]
+    # The session is shuffled when it is drawn, so the plan is the one the
+    # page drew: the card on screen, then its queue.
+    planned = [view.card.id] + [card.id for card in view.queue]
     assert len(planned) >= 6
 
     shown = []

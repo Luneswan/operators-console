@@ -4977,7 +4977,7 @@
       "",
       "A set does answer membership in O(1) on average, but that is hashing, not binary search, and it keeps no order to search."
      ],
-     "teaches": ""
+     "teaches": "p05.s0.1"
     },
     {
      "id": "q05.1",
@@ -4996,7 +4996,7 @@
       "A shrinking inner loop gives n + (n-1) + ... + 1 = n(n+1)/2 steps, which is quadratic, not n log n.",
       "Costs add only when loops run one after the other; nested loops multiply, because the inner loop repeats for every outer step."
      ],
-     "teaches": ""
+     "teaches": "p05.s0.0"
     },
     {
      "id": "q05.2",
@@ -5015,7 +5015,7 @@
       "Base cases are already cheap to compute; the saving comes from not repeating large subproblems.",
       ""
      ],
-     "teaches": ""
+     "teaches": "p05.s0.8"
     },
     {
      "id": "q05.3",
@@ -5034,7 +5034,7 @@
       "On a wide, shallow graph BFS holds an entire level in its queue, while DFS holds only the current path, so DFS is the lighter one.",
       "Directed cycle detection is usually DFS with a 'currently on the stack' colour; BFS has no natural notion of a back edge."
      ],
-     "teaches": ""
+     "teaches": "p05.s0.6"
     },
     {
      "id": "q05.4",
@@ -5053,7 +5053,7 @@
       "A zero-weight edge cannot make a settled distance smaller, so the greedy step stays correct.",
       "Cycles with non-negative weights never shorten a path, so Dijkstra handles them; only negative weights invalidate its settle-once rule."
      ],
-     "teaches": ""
+     "teaches": "p05.s0.9"
     },
     {
      "id": "q05.5",
@@ -5072,7 +5072,7 @@
       "Whether a DP solution exists says nothing about whether the greedy choice is safe; many problems have both.",
       "Tests sample a few inputs; greedy failures often need a specific counterexample, like coins {1, 3, 4} for 6, that a hand-written suite misses."
      ],
-     "teaches": ""
+     "teaches": "p05.s0.5"
     },
     {
      "id": "q05.6",
@@ -5091,7 +5091,7 @@
       "Heapsort is in place but unstable and cannot exploit existing order; Python's sort does use extra memory for merging.",
       ""
      ],
-     "teaches": ""
+     "teaches": "p05.s0.2"
     },
     {
      "id": "q05.7",
@@ -5110,7 +5110,7 @@
       "",
       "Searching first skips the understanding the phase is building, and on a truly new problem there may be nothing to find."
      ],
-     "teaches": ""
+     "teaches": "p05.s1.1"
     },
     {
      "id": "q05.8",
@@ -5129,7 +5129,7 @@
       "An explicit stack is an implementation choice that either approach can use.",
       "Backtracking is usually still exponential in the worst case; pruning shrinks the search in practice, it does not change the complexity class in general."
      ],
-     "teaches": ""
+     "teaches": "p05.s0.10"
     },
     {
      "id": "q05.9",
@@ -5213,7 +5213,7 @@
       "cron finds whichever python is first on its short PATH; the real issue is that PATH, not a fixed rule about system Python.",
       "A user's crontab runs as that user, not root; permission errors are possible but are not the usual cause."
      ],
-     "teaches": ""
+     "teaches": "p06.g.0"
     },
     {
      "id": "q06.1",
@@ -5232,7 +5232,7 @@
       "Output and status are independent; a successful command can print a lot, and a silent one can fail.",
       ""
      ],
-     "teaches": ""
+     "teaches": "p06.s0.2"
     },
     {
      "id": "q06.2",
@@ -5251,7 +5251,7 @@
       "",
       "It is a one-off copy, not a link: redirecting stdout afterwards leaves stderr where it was."
      ],
-     "teaches": ""
+     "teaches": "p06.s0.3"
     },
     {
      "id": "q06.3",
@@ -5270,7 +5270,7 @@
       "That is an orphan: it is still running, and init or a subreaper adopts it. A zombie has already exited.",
       "That is state D; it is alive and waiting on I/O, whereas a zombie has finished."
      ],
-     "teaches": ""
+     "teaches": "p06.g.3"
     },
     {
      "id": "q06.4",
@@ -5289,7 +5289,7 @@
       "Cached pages of a deleted file are discarded with it; the page cache does not keep disk blocks allocated.",
       "The journal records metadata changes and does not pin a deleted file's data until reboot."
      ],
-     "teaches": ""
+     "teaches": "p06.s0.0"
     },
     {
      "id": "q06.5",
@@ -5308,7 +5308,7 @@
       "The grace period you may be thinking of is a tool's own policy, such as `docker stop` sending TERM then KILL; the signal itself cannot be caught.",
       ""
      ],
-     "teaches": ""
+     "teaches": "p06.s1.2"
     },
     {
      "id": "q06.6",
@@ -5327,7 +5327,7 @@
       "These are bash options; `pipefail` did not appear in POSIX until 2024 and is missing from many sh implementations.",
       "set -e is suspended inside conditions and before && or ||, so failures there do not stop the script."
      ],
-     "teaches": ""
+     "teaches": "p06.s0.9"
     },
     {
      "id": "q06.7",
@@ -5346,7 +5346,7 @@
       "",
       "Execute adds 1, so read-write-execute is 7; this describes 744."
      ],
-     "teaches": ""
+     "teaches": "p06.s0.0"
     },
     {
      "id": "q06.8",
@@ -5449,7 +5449,7 @@
       "A down host usually gives connection refused or an OS connect timeout, which raises; the hang comes from a live peer that stops responding.",
       "Keepalive probes start after hours by default and are not a request timeout; the fix is a timeout on the call itself."
      ],
-     "teaches": ""
+     "teaches": "p07.s0.8"
     },
     {
      "id": "q07.1",
@@ -5468,7 +5468,7 @@
       "",
       "A patch can be a relative change, such as incrementing a counter, so repeating it changes the result; the spec does not require PATCH to be idempotent."
      ],
-     "teaches": ""
+     "teaches": "p07.s0.6"
     },
     {
      "id": "q07.2",
@@ -5487,7 +5487,7 @@
       "Overload or maintenance is 503 Service Unavailable, often with Retry-After.",
       "An upstream that is too slow gives 504 Gateway Timeout."
      ],
-     "teaches": ""
+     "teaches": "p07.g.3"
     },
     {
      "id": "q07.3",
@@ -5506,7 +5506,7 @@
       "A 409 leaves the client unsure whether its payment happened; replaying the original response tells it. 409 fits only a repeat that arrives while the first is still in progress.",
       ""
      ],
-     "teaches": ""
+     "teaches": "p07.g.2"
     },
     {
      "id": "q07.4",
@@ -5525,7 +5525,7 @@
       "Plain TCP is readable on the wire; TLS adds encryption on top.",
       "TCP is a stream: sends can be merged or split in transit, so a reader must frame messages itself."
      ],
-     "teaches": ""
+     "teaches": "p07.s0.1"
     },
     {
      "id": "q07.5",
@@ -5544,7 +5544,7 @@
       "",
       "A certificate says nothing about the server's patch level or code quality."
      ],
-     "teaches": ""
+     "teaches": "p07.s0.5"
     },
     {
      "id": "q07.6",
@@ -5563,7 +5563,7 @@
       "Rate limiters count requests per client, however they are timed; jitter is about protecting the server, not evading it.",
       "Retries cannot fix a permanent error such as a 400; backoff needs a cap on attempts or on total time."
      ],
-     "teaches": ""
+     "teaches": "p07.s0.8"
     },
     {
      "id": "q07.7",
@@ -5582,7 +5582,7 @@
       "For rare updates, an idle connection per client for hours costs more than an occasional poll.",
       ""
      ],
-     "teaches": ""
+     "teaches": "p07.s0.7"
     },
     {
      "id": "q07.8",
@@ -5601,7 +5601,7 @@
       "No network device takes part; the check happens inside the browser after the response arrives.",
       "Command-line clients ignore CORS entirely, which is why the same request succeeds from a terminal."
      ],
-     "teaches": ""
+     "teaches": "p07.s0.4"
     },
     {
      "id": "q07.9",
@@ -5704,7 +5704,7 @@
       "That is an inner join; a left join keeps the unmatched left rows too.",
       "Keeping unmatched rows from both sides is a FULL OUTER JOIN."
      ],
-     "teaches": ""
+     "teaches": "p08.s0.1"
     },
     {
      "id": "q08.1",
@@ -5723,7 +5723,7 @@
       "An index on one column does not change how other columns are read; its cost falls on writes and space.",
       "Every insert and delete touches every index on the table, so writes slow down as indexes accumulate."
      ],
-     "teaches": ""
+     "teaches": "p08.s0.6"
     },
     {
      "id": "q08.2",
@@ -5742,7 +5742,7 @@
       "",
       "It is the leading column's distinct count that matters, and only for engines with skip scan; with few values of a they can visit each one."
      ],
-     "teaches": ""
+     "teaches": "p08.s0.6"
     },
     {
      "id": "q08.3",
@@ -5761,7 +5761,7 @@
       "Surviving a crash after commit is durability, the D in ACID, provided by the write-ahead log.",
       ""
      ],
-     "teaches": ""
+     "teaches": "p08.s0.5"
     },
     {
      "id": "q08.4",
@@ -5780,7 +5780,7 @@
       "PostgreSQL does not rely on a timeout; its deadlock detector breaks the cycle within about a second.",
       "A lost update is a different problem that happens without any lock wait; here both are blocked."
      ],
-     "teaches": ""
+     "teaches": "p08.s0.8"
     },
     {
      "id": "q08.5",
@@ -5799,7 +5799,7 @@
       "",
       "Row duplication from a join is a separate effect; N+1 is what happens when you avoid the join."
      ],
-     "teaches": ""
+     "teaches": "p08.g.4"
     },
     {
      "id": "q08.6",
@@ -5818,7 +5818,7 @@
       "That is what plain EXPLAIN does; EXPLAIN ANALYZE actually runs the query.",
       "PostgreSQL recommends nothing; you read the plan and decide on an index yourself."
      ],
-     "teaches": ""
+     "teaches": "p08.s0.9"
     },
     {
      "id": "q08.7",
@@ -5837,7 +5837,7 @@
       "The default action is to reject the delete; cascading needs ON DELETE CASCADE.",
       ""
      ],
-     "teaches": ""
+     "teaches": "p08.s0.4"
     },
     {
      "id": "q08.8",
@@ -5856,7 +5856,7 @@
       "",
       "Pools reuse connections, not results; every query still runs on the server."
      ],
-     "teaches": ""
+     "teaches": "p08.s0.10"
     },
     {
      "id": "q08.9",
@@ -5978,7 +5978,7 @@
       "",
       "That reverses them: checking a password is authentication, and roles and permissions are authorisation."
      ],
-     "teaches": ""
+     "teaches": "p09.s0.3"
     },
     {
      "id": "q09.1",
@@ -5997,7 +5997,7 @@
       "Permissions change and objects differ per request; a login proves identity, not the right to each resource.",
       "A gateway can check the token but not object-level ownership, which needs the application's data."
      ],
-     "teaches": ""
+     "teaches": "p09.s0.5"
     },
     {
      "id": "q09.2",
@@ -6016,7 +6016,7 @@
       "Avoiding a per-request lookup is the whole point of a self-contained token; the cost is revocation.",
       "A standard signed JWT (JWS) is readable by anyone who base64-decodes it; never put secrets in its claims."
      ],
-     "teaches": ""
+     "teaches": "p09.s0.4"
     },
     {
      "id": "q09.3",
@@ -6035,7 +6035,7 @@
       "Encryption is reversible: whoever gets the key, often from the same server, gets every password.",
       ""
      ],
-     "teaches": ""
+     "teaches": "p09.s1.0"
     },
     {
      "id": "q09.4",
@@ -6054,7 +6054,7 @@
       "That reverses them: jumping to page N is offset's strength and cursor pagination's limitation.",
       "OFFSET with ORDER BY is standard and deterministic when the sort key is unique; the problems are cost and drift."
      ],
-     "teaches": ""
+     "teaches": "p09.s0.8"
     },
     {
      "id": "q09.5",
@@ -6073,7 +6073,7 @@
       "pydantic-core is written in Rust, but that speeds up validation; route matching is Starlette's job and unrelated.",
       "Pydantic models are not tied to tables; SQLModel combines the two, but Pydantic alone does no persistence."
      ],
-     "teaches": ""
+     "teaches": "p09.s0.1"
     },
     {
      "id": "q09.6",
@@ -6092,7 +6092,7 @@
       "Each attempt usually gets a new request ID; recognising a duplicate is the job of an idempotency key.",
       ""
      ],
-     "teaches": ""
+     "teaches": "p09.s1.6"
     },
     {
      "id": "q09.7",
@@ -6111,7 +6111,7 @@
       "",
       "HTTPS hides it from eavesdroppers, but the attacker is the client receiving the response."
      ],
-     "teaches": ""
+     "teaches": "p09.s0.6"
     },
     {
      "id": "q09.8",
@@ -6130,7 +6130,7 @@
       "They run in the same process with no extra worker, which is exactly why a restart loses them.",
       "Logging works as normal in background tasks; only the request's own scope has ended."
      ],
-     "teaches": ""
+     "teaches": "p09.s0.7"
     },
     {
      "id": "q09.9",
@@ -6233,7 +6233,7 @@
       "Schedulers do fire twice (retries, failovers, clock changes), and people rerun jobs by hand; the job itself must tolerate it.",
       "Swallowing exceptions hides failures; the second run still creates a duplicate webhook, it just does so silently."
      ],
-     "teaches": ""
+     "teaches": "p10.s0.8"
     },
     {
      "id": "q10.1",
@@ -6252,7 +6252,7 @@
       "Parsers such as BeautifulSoup and lxml keep stable APIs; weekly breakage tracks the site's deploys, not library releases.",
       "Rate limiting shows up as 429 responses or blocks, usually immediately, not as a weekly selector failure."
      ],
-     "teaches": ""
+     "teaches": "p10.s0.2"
     },
     {
      "id": "q10.2",
@@ -6271,7 +6271,7 @@
       "",
       "The request was fine; it needs to be sent later, not discarded."
      ],
-     "teaches": ""
+     "teaches": "p10.s0.9"
     },
     {
      "id": "q10.3",
@@ -6290,7 +6290,7 @@
       "A full browser downloads and renders far more than the HTML; for a large static page an HTTP client is cheaper.",
       ""
      ],
-     "teaches": ""
+     "teaches": "p10.s0.3"
     },
     {
      "id": "q10.4",
@@ -6309,7 +6309,7 @@
       "Long processing risks the sender's timeout, which triggers a redelivery and duplicate work.",
       ""
      ],
-     "teaches": ""
+     "teaches": "p10.s0.5"
     },
     {
      "id": "q10.5",
@@ -6328,7 +6328,7 @@
       "robots.txt is a convention for crawlers, not a licence; the terms of service and applicable law still apply.",
       "Disguising the client is the opposite of respectful crawling and often breaches the terms."
      ],
-     "teaches": ""
+     "teaches": "p10.s0.9"
     },
     {
      "id": "q10.6",
@@ -6347,7 +6347,7 @@
       "Results committed per item are trustworthy; redoing them repeats side effects such as emails or charges.",
       "Each retry redoes all the completed items, and a persistent failure loops forever."
      ],
-     "teaches": ""
+     "teaches": "p10.s1.6"
     },
     {
      "id": "q10.7",
@@ -6366,7 +6366,7 @@
       "",
       "Private repositories get shared, forked, made public and cloned onto laptops; the secret is in every copy of the history."
      ],
-     "teaches": ""
+     "teaches": "p10.s0.0"
     },
     {
      "id": "q10.8",
@@ -6469,7 +6469,7 @@
       "The GIL keeps CPython's internals consistent, not your data: `counter += 1` is several bytecodes and a switch can fall between them.",
       "Each process has its own interpreter and its own GIL, so processes run truly in parallel; that is why multiprocessing exists."
      ],
-     "teaches": ""
+     "teaches": "p11.s0.5"
     },
     {
      "id": "q11.1",
@@ -6488,7 +6488,7 @@
       "",
       "An event loop runs on one thread; coroutines interleave at await points and never run at the same moment."
      ],
-     "teaches": ""
+     "teaches": "p11.s0.6"
     },
     {
      "id": "q11.2",
@@ -6507,7 +6507,7 @@
       "Blocking the thread is exactly what await avoids; the loop's thread moves on to other tasks while this one waits.",
       ""
      ],
-     "teaches": ""
+     "teaches": "p11.s0.1"
     },
     {
      "id": "q11.3",
@@ -6526,7 +6526,7 @@
       "asyncio does no monkey-patching of the standard library; that is gevent's approach, not asyncio's.",
       "Python cannot tell a blocking call from any other call, so it runs silently; only debug mode warns you afterwards."
      ],
-     "teaches": ""
+     "teaches": "p11.s0.1"
     },
     {
      "id": "q11.4",
@@ -6545,7 +6545,7 @@
       "",
       "Speed-up stops at whatever the server or the network allows; past that, extra concurrency only adds errors and retries."
      ],
-     "teaches": ""
+     "teaches": "p11.s0.4"
     },
     {
      "id": "q11.5",
@@ -6564,7 +6564,7 @@
       "Completion order is what asyncio.as_completed gives you; TaskGroup does not return results at all, you read them from the tasks.",
       "The benefit is about lifetime and error handling, not speed; both schedule tasks the same way."
      ],
-     "teaches": ""
+     "teaches": "p11.s0.2"
     },
     {
      "id": "q11.6",
@@ -6583,7 +6583,7 @@
       "Rewriting code that turns out not to be the bottleneck costs days and changes nothing; the profile tells you where C would pay off.",
       "Threads on the GIL build do not speed up CPU-bound Python, and without a profile you do not know the work is CPU-bound anyway."
      ],
-     "teaches": ""
+     "teaches": "p11.s0.9"
     },
     {
      "id": "q11.7",
@@ -6602,7 +6602,7 @@
       "Percentiles keep the slow tail rather than trimming it; that tail is exactly what they are there to show.",
       ""
      ],
-     "teaches": ""
+     "teaches": "p11.s2.1"
     },
     {
      "id": "q11.8",
@@ -6621,7 +6621,7 @@
       "Python raises nothing for unsynchronised access; the corruption is silent, which is what makes races hard to find.",
       ""
      ],
-     "teaches": ""
+     "teaches": "p11.s0.7"
     },
     {
      "id": "q11.9",
@@ -6640,7 +6640,7 @@
       "Swallowing CancelledError hides the cancellation from whoever asked for it; timeouts and task groups then misbehave.",
       "Stopping the loop abandons every task mid-flight, which leaks far more than the one connection you were worried about."
      ],
-     "teaches": ""
+     "teaches": "p11.s0.3"
     }
    ]
   },
@@ -6667,7 +6667,7 @@
       "Classic Dockerfile steps within one stage run in order; only separate stages can build concurrently.",
       ""
      ],
-     "teaches": ""
+     "teaches": "p12.s0.1"
     },
     {
      "id": "q12.1",
@@ -6686,7 +6686,7 @@
       "Privilege checks cost the same for every user; the change is about damage, not speed.",
       "The user an image runs as has no effect on its size; the layers are the same either way."
      ],
-     "teaches": ""
+     "teaches": "p12.s0.3"
     },
     {
      "id": "q12.2",
@@ -6705,7 +6705,7 @@
       "",
       "Squashing is a different feature; a multi-stage image still has layers, just none from the build stage."
      ],
-     "teaches": ""
+     "teaches": "p12.s0.2"
     },
     {
      "id": "q12.3",
@@ -6724,7 +6724,7 @@
       "Images are read-only; each new container starts from the image's clean state, not from the last container's writes.",
       "commit snapshots the container's layer into a new image, but it never captures volumes, which is where the Postgres image keeps its data."
      ],
-     "teaches": ""
+     "teaches": "p12.s0.4"
     },
     {
      "id": "q12.4",
@@ -6743,7 +6743,7 @@
       "The result shows in docker ps and inspect, but its purpose is to drive decisions, not to decorate the logs.",
       "Restarting on exit is the restart policy's job; a health check catches the process that is still running but not working."
      ],
-     "teaches": ""
+     "teaches": "p12.s0.8"
     },
     {
      "id": "q12.5",
@@ -6762,7 +6762,7 @@
       "",
       "Private registries get shared, mirrored and leaked; access to the image should not mean access to the database."
      ],
-     "teaches": ""
+     "teaches": "p12.s0.7"
     },
     {
      "id": "q12.6",
@@ -6781,7 +6781,7 @@
       "Tests check what someone thought to test; review catches design, naming and missing cases that no build can.",
       ""
      ],
-     "teaches": ""
+     "teaches": "p12.s0.9"
     },
     {
      "id": "q12.7",
@@ -6800,7 +6800,7 @@
       "A rebuild pulls whatever base image and dependency versions exist today, so it is a new, untested artifact.",
       "Restoring a backup throws away every write since it was taken; it is disaster recovery, not a rollback."
      ],
-     "teaches": ""
+     "teaches": "p12.g.4"
     }
    ]
   },
@@ -6827,7 +6827,7 @@
       "No setting is wrong; the missing ownership check is a design flaw in the application's own code.",
       "The login works as intended; the flaw is what the logged-in user is allowed to reach afterwards."
      ],
-     "teaches": ""
+     "teaches": "p13.s0.0"
     },
     {
      "id": "q13.1",
@@ -6846,7 +6846,7 @@
       "",
       "Keyword blocklists break real input (a user called Union) and are bypassed with case, comments or encodings."
      ],
-     "teaches": ""
+     "teaches": "p13.s0.2"
     },
     {
      "id": "q13.2",
@@ -6865,7 +6865,7 @@
       "CSRF abuses a victim's browser and cookies; here the server makes the request with its own network access.",
       "XSS needs the fetched content rendered into a page for users; the fetch itself is dangerous even if nothing is shown."
      ],
-     "teaches": ""
+     "teaches": "p13.s0.9"
     },
     {
      "id": "q13.3",
@@ -6884,7 +6884,7 @@
       "Lockouts come from failed attempts, and rate limiting does nothing to prevent a user mistyping their own password.",
       ""
      ],
-     "teaches": ""
+     "teaches": "p13.s0.6"
     },
     {
      "id": "q13.4",
@@ -6903,7 +6903,7 @@
       "Pinning freezes the vulnerable version in place; it stops accidental change but also stops the fix.",
       "A private fork cuts you off from every later upstream security fix, which is usually worse than the original CVE."
      ],
-     "teaches": ""
+     "teaches": "p13.s0.5"
     },
     {
      "id": "q13.5",
@@ -6922,7 +6922,7 @@
       "",
       "Without who did it, a log cannot answer the first question of any investigation; minimise data, do not remove identity."
      ],
-     "teaches": ""
+     "teaches": "p13.s0.8"
     },
     {
      "id": "q13.6",
@@ -6941,7 +6941,7 @@
       "Tampering with the template is a supply-chain problem; injection arrives at run time in content the model reads.",
       "That is a jailbreak, aimed at the model's own rules; injection hijacks your application through content it processes."
      ],
-     "teaches": ""
+     "teaches": "p13.s0.2"
     },
     {
      "id": "q13.7",
@@ -6960,7 +6960,7 @@
       "Encryption is one useful layer, but it does nothing against a request the application wrongly authorises.",
       ""
      ],
-     "teaches": ""
+     "teaches": "p13.s0.3"
     },
     {
      "id": "q13.8",
@@ -6979,7 +6979,7 @@
       "",
       "Harm is not the test; merely accessing a system without authorisation is illegal in most places."
      ],
-     "teaches": ""
+     "teaches": "p13.s1.0"
     }
    ]
   },
@@ -7006,7 +7006,7 @@
       "Changing the weights is the optimiser's job; backprop only supplies the gradients it uses.",
       ""
      ],
-     "teaches": ""
+     "teaches": "p14.s1.2"
     },
     {
      "id": "q14.1",
@@ -7025,7 +7025,7 @@
       "",
       "A converged model still has noisy, non-zero gradients from each batch; exactly zero across a layer means units are switched off."
      ],
-     "teaches": ""
+     "teaches": "p14.s1.7"
     },
     {
      "id": "q14.2",
@@ -7044,7 +7044,7 @@
       "Leakage does not need labels; any statistic computed from test rows gives the model information it will not have in production.",
       "Standard scaling changes each feature's range; it adds no features and does not change model capacity."
      ],
-     "teaches": ""
+     "teaches": "p14.s0.2"
     },
     {
      "id": "q14.3",
@@ -7063,7 +7063,7 @@
       "More fraud rows might help later, but the question is what the score says, and it says almost nothing.",
       "That is recall, which accuracy does not report; the model could catch no fraud at all and still score 99%."
      ],
-     "teaches": ""
+     "teaches": "p14.s0.3"
     },
     {
      "id": "q14.4",
@@ -7082,7 +7082,7 @@
       "Softmax gives soft weights over all positions; copying one token would be hard attention, which is not differentiable.",
       "Reading only the previous step is how a recurrent network passes information; attention can reach any allowed position directly."
      ],
-     "teaches": ""
+     "teaches": "p14.s1.5"
     },
     {
      "id": "q14.5",
@@ -7101,7 +7101,7 @@
       "Instructions cannot supply facts the model was never given; prompt changes help only once retrieval is right.",
       "The point of RAG is answering from your documents, which no model memorised; a bigger model without the passage still guesses."
      ],
-     "teaches": ""
+     "teaches": "p14.s2.1"
     },
     {
      "id": "q14.6",
@@ -7120,7 +7120,7 @@
       "",
       "Examples you train on stop measuring anything; evaluation data must stay out of training to stay honest."
      ],
-     "teaches": ""
+     "teaches": "p14.s2.7"
     },
     {
      "id": "q14.7",
@@ -7139,7 +7139,7 @@
       "Correctness depends on what the model knows and what is in the context; greedy decoding just picks its favourite wrong answer.",
       ""
      ],
-     "teaches": ""
+     "teaches": "p14.s2.4"
     },
     {
      "id": "q14.8",
@@ -7158,7 +7158,7 @@
       "",
       "Exact-match search is what embeddings are weak at; keyword indexes such as BM25 handle it better."
      ],
-     "teaches": ""
+     "teaches": "p14.s2.0"
     },
     {
      "id": "q14.9",
@@ -7177,7 +7177,7 @@
       "A prompt is a request to the model, not a control; injected text can override it.",
       "Logs tell you afterwards what went wrong; a deleted database or a sent email cannot be taken back by reading them."
      ],
-     "teaches": ""
+     "teaches": "p14.s2.5"
     }
    ]
   },
@@ -7204,7 +7204,7 @@
       "If the first attempt succeeded, a full second run repeats its side effects, such as a second email or a second charge.",
       "A duplicate is not a failure; dead-lettering it would bury a valid message and still leave the first copy's effect in place."
      ],
-     "teaches": ""
+     "teaches": "p15.s0.2"
     },
     {
      "id": "q15.1",
@@ -7223,7 +7223,7 @@
       "Brokers with at-least-once delivery do not filter duplicates; the consumer has to.",
       ""
      ],
-     "teaches": ""
+     "teaches": "p15.s0.5"
     },
     {
      "id": "q15.2",
@@ -7242,7 +7242,7 @@
       "",
       "Eviction removes entries under memory pressure but does nothing for a hot entry that stays cached while its data changes."
      ],
-     "teaches": ""
+     "teaches": "p15.s0.1"
     },
     {
      "id": "q15.3",
@@ -7261,7 +7261,7 @@
       "Bigger machines are vertical scaling; horizontal scaling adds more copies, which only works if they are interchangeable.",
       "Sticky sessions work until that instance dies or you scale down, then its users lose their state; they hide the problem."
      ],
-     "teaches": ""
+     "teaches": "p15.s0.7"
     },
     {
      "id": "q15.4",
@@ -7280,7 +7280,7 @@
       "Renewing a lease is a cheap background call; the real danger is a paused holder whose lease lapses while it still acts.",
       ""
      ],
-     "teaches": ""
+     "teaches": "p15.s0.6"
     },
     {
      "id": "q15.5",
@@ -7299,7 +7299,7 @@
       "It is the other way round: logs are usually complete and traces are commonly sampled to control cost.",
       "Spans carry some attributes, but log lines can hold as much detail as you like; the difference is the causal link."
      ],
-     "teaches": ""
+     "teaches": "p15.s0.9"
     },
     {
      "id": "q15.6",
@@ -7318,7 +7318,7 @@
       "",
       "Activities are retried at least once, so an activity that sends email or charges a card still has to be idempotent."
      ],
-     "teaches": ""
+     "teaches": "p15.s0.11"
     },
     {
      "id": "q15.7",
@@ -7356,7 +7356,7 @@
       "Re-scoring in place erases the original reasoning; a new superseding record keeps both decisions visible.",
       ""
      ],
-     "teaches": ""
+     "teaches": "p15.s2.4"
     },
     {
      "id": "q15.9",
@@ -7554,7 +7554,7 @@
       "That is how the JVM and .NET work; CPython keeps a tracing pass only for reference cycles, not for ordinary objects.",
       "`del` removes one name, not the object, and `gc.collect()` only looks for cycles; ordinary objects die as soon as their count hits zero."
      ],
-     "teaches": ""
+     "teaches": "p16.s0.7"
     },
     {
      "id": "q16.1",
@@ -7573,7 +7573,7 @@
       "",
       "Only `a[:]`, `list(a)` or `copy.copy(a)` make a new list; a plain assignment never does."
      ],
-     "teaches": ""
+     "teaches": "p16.s0.6"
     },
     {
      "id": "q16.2",
@@ -7592,7 +7592,7 @@
       "The JIT added in 3.13 is experimental and off by default in 3.14; standard CPython runs bytecode in its interpreter loop.",
       "That describes Cython, a separate tool; CPython itself never produces or compiles C from your code."
      ],
-     "teaches": ""
+     "teaches": "p16.s0.5"
     },
     {
      "id": "q16.3",
@@ -7611,7 +7611,7 @@
       "The speed comes from compiled C over typed memory, not from any special handling of NumPy's Python code.",
       ""
      ],
-     "teaches": ""
+     "teaches": "p16.s0.8"
     },
     {
      "id": "q16.4",
@@ -7630,7 +7630,7 @@
       "Each object's count stays at one because the other still points at it, so reference counting never gets to zero.",
       "`del` only removes names; the objects still point at each other, so their counts stay above zero until the collector runs."
      ],
-     "teaches": ""
+     "teaches": "p16.s0.7"
     },
     {
      "id": "q16.5",
@@ -7649,7 +7649,7 @@
       "asyncio still runs its coroutines on one thread per event loop; removing the GIL helps threads, not coroutines.",
       "Per-object locking and atomic reference counts make single-threaded code somewhat slower, not faster."
      ],
-     "teaches": ""
+     "teaches": "p16.s0.9"
     },
     {
      "id": "q16.6",
@@ -7668,7 +7668,7 @@
       "",
       "Iteration count alone says nothing; a million cheap iterations may take milliseconds, and vectorising may beat C anyway."
      ],
-     "teaches": ""
+     "teaches": "p16.s0.8"
     },
     {
      "id": "q16.7",
@@ -7687,7 +7687,7 @@
       "CPython lists are dynamic arrays, not linked lists, which is why indexing is O(1) and growth needs an occasional copy.",
       ""
      ],
-     "teaches": ""
+     "teaches": "p16.g.0"
     },
     {
      "id": "q16.8",
@@ -7904,7 +7904,7 @@
       "Both are usually batch processes; the difference is where and when the transform runs, not how often.",
       ""
      ],
-     "teaches": ""
+     "teaches": "p17.s0.1"
     },
     {
      "id": "q17.1",
@@ -7923,7 +7923,7 @@
       "Row orientation is CSV's layout and suits reading whole records; Parquet is columnar, which suits analytics.",
       "Parquet is binary and needs a library to read; being human-readable is CSV's advantage, not Parquet's."
      ],
-     "teaches": ""
+     "teaches": "p17.s0.4"
     },
     {
      "id": "q17.2",
@@ -7942,7 +7942,7 @@
       "",
       "Limiting retries caps how many duplicates you get; it does not stop the second attempt duplicating the first."
      ],
-     "teaches": ""
+     "teaches": "p17.s0.2"
     },
     {
      "id": "q17.3",
@@ -7961,7 +7961,7 @@
       "Partitioning changes which files a query reads, not how well each file compresses.",
       "Partitioning groups rows by one column only; a filter on `user_id` still scans every partition unless the data is also clustered by it."
      ],
-     "teaches": ""
+     "teaches": "p17.s0.4"
     },
     {
      "id": "q17.4",
@@ -7980,7 +7980,7 @@
       "Some events can arrive arbitrarily late, so a day would never close; a bounded window is the practical compromise.",
       "Dropping late events makes every published total quietly low, which is how dashboards drift away from the source system."
      ],
-     "teaches": ""
+     "teaches": "p17.s0.3"
     },
     {
      "id": "q17.5",
@@ -7999,7 +7999,7 @@
       "Silent drops hide an upstream bug and make totals wrong with no trace of why.",
       ""
      ],
-     "teaches": ""
+     "teaches": "p17.s0.7"
     },
     {
      "id": "q17.6",
@@ -8018,7 +8018,7 @@
       "",
       "Neither is a plotting library; both hand data to matplotlib or similar just as pandas does."
      ],
-     "teaches": ""
+     "teaches": "p17.s1.7"
     },
     {
      "id": "q17.7",
@@ -8037,7 +8037,7 @@
       "The orchestrator's metadata database stores run state, not your data; outputs still go to a warehouse or files.",
       "Orchestrators schedule your code as it is; they do not make individual tasks run any faster."
      ],
-     "teaches": ""
+     "teaches": "p17.s0.9"
     },
     {
      "id": "q17.8",
@@ -8178,7 +8178,7 @@
       "Urgency and reversibility are separate; an urgent choice can be easy to undo, and a slow one hard.",
       "Who approves a decision is a process question; the door metaphor is about whether you can walk back through."
      ],
-     "teaches": ""
+     "teaches": "p18.s0.3"
     },
     {
      "id": "q18.1",
@@ -8197,7 +8197,7 @@
       "Popularity is a rough proxy at best; boring means well understood by your team for this job.",
       ""
      ],
-     "teaches": ""
+     "teaches": "p18.s0.0"
     },
     {
      "id": "q18.2",
@@ -8216,7 +8216,7 @@
       "",
       "Blameless does not mean actionless; it produces concrete follow-up fixes, just aimed at systems rather than people."
      ],
-     "teaches": ""
+     "teaches": "p18.s1.1"
     },
     {
      "id": "q18.3",
@@ -8235,7 +8235,7 @@
       "The 'expand' is the schema gaining the new shape, not capacity; it has nothing to do with scaling.",
       "The pattern keeps the data; it is about reshaping a schema safely, not reducing its size."
      ],
-     "teaches": ""
+     "teaches": "p18.s0.6"
     },
     {
      "id": "q18.4",
@@ -8254,7 +8254,7 @@
       "",
       "A contract with penalties is an SLA; the SLO is the internal target, usually set stricter than the SLA."
      ],
-     "teaches": ""
+     "teaches": "p18.s1.2"
     },
     {
      "id": "q18.5",
@@ -8273,7 +8273,7 @@
       "Years only help if they were spent reflecting on outcomes; ten years can be one year repeated ten times.",
       ""
      ],
-     "teaches": ""
+     "teaches": "p18.g.5"
     },
     {
      "id": "q18.6",
@@ -8292,7 +8292,7 @@
       "Late, bulk criticism arrives after the learning moment and discourages rather than guides.",
       "Documentation without direction often leaves them searching blind; a question focuses where to look."
      ],
-     "teaches": ""
+     "teaches": "p18.s2.5"
     },
     {
      "id": "q18.7",
@@ -8311,7 +8311,7 @@
       "Features requested by people who still do not use it rarely change that; first learn why they do not.",
       "The stack is rarely why nobody uses a product; a rewrite spends more on something unproven."
      ],
-     "teaches": ""
+     "teaches": "p18.s0.4"
     }
    ]
   },

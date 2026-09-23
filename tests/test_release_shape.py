@@ -257,7 +257,11 @@ def test_the_readme_names_the_screenshots_that_exist_in_the_release():
     shots = re.findall(r"docs/screenshots/([\w-]+\.png)", README)
     assert sorted(set(shots)) == sorted({
         "today-light.png", "today-dark.png", "roadmap-light.png",
-        "practice-light.png", "practice-dark.png", "review-light.png"})
+        "practice-light.png", "practice-dark.png", "review-light.png",
+        "quiz-dark.png"})
+    folder = Path(__file__).resolve().parent.parent / "docs" / "screenshots"
+    missing = [s for s in set(shots) if not (folder / s).is_file()]
+    assert not missing, "README names screenshots that do not exist: %s" % missing
 
 
 def test_the_readme_says_nothing_the_app_stopped_doing():
