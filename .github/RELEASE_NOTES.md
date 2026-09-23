@@ -1,5 +1,17 @@
-**Updating from 1.0.x on Windows?** The in-app update now works from 1.0.x.
-If the old version ever reopens after updating, close it and run the `...-windows-setup.exe` below once.
+**1.1.1** — checklist stretch goals are now folded and optional, new releases
+show up in the app within minutes, and checklist lines no longer shift under the
+mouse. Details in the changelog below.
+
+**On 1.0.1 or newer (installed)?** The update button appears on its own. If a
+1.0.x version ever reopens after updating, close it and run the
+`...-windows-setup.exe` below once.
+**On 1.0.0, or a 1.0.x portable build?** Those cannot update themselves. Run the
+installer command below once; it keeps all your progress, and every later
+version then updates in-app. For a portable build on Windows use:
+
+```powershell
+& ([scriptblock]::Create((irm https://raw.githubusercontent.com/Luneswan/operators-console/main/install.ps1))) -Portable
+```
 
 What changed in this version is in [CHANGELOG.md](https://github.com/Luneswan/operators-console/blob/main/CHANGELOG.md).
 

@@ -34,6 +34,8 @@ class Section:
     id: str
     title: str
     items: tuple[Item, ...]
+    # Stretch work: folded on the page and left out of progress.
+    optional: bool = False
 
 
 @dataclass(frozen=True, slots=True)
@@ -65,11 +67,17 @@ class Phase:
         return tuple(i for s in self.sections for i in s.items)
 
     @property
+    def core_items(self) -> tuple[Item, ...]:
+        """The checklist lines that are the phase itself, not stretch work."""
+        return tuple(i for s in self.sections if not s.optional
+                     for i in s.items)
+
+    @property
     def trackable_ids(self) -> tuple[str, ...]:
         """Ids that count toward the progress meter."""
         if self.no_progress:
             return ()
-        ids = [i.id for i in self.items]
+        ids = [i.id for i in self.core_items]
         if self.gate:
             ids.extend(g.id for g in self.gate.items)
         return tuple(ids)

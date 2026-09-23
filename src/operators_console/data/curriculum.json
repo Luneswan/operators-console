@@ -41,7 +41,8 @@
        "id": "ops.s0.4",
        "text": "Target 4–6 focused hours a day, six days a week."
       }
-     ]
+     ],
+     "optional": false
     },
     {
      "id": "ops.s1",
@@ -71,7 +72,8 @@
        "id": "ops.s1.5",
        "text": "15–30 min — tests, cleanup, commit, log entry."
       }
-     ]
+     ],
+     "optional": false
     },
     {
      "id": "ops.s2",
@@ -97,7 +99,8 @@
        "id": "ops.s2.4",
        "text": "Test the hypothesis. Only then search for help."
       }
-     ]
+     ],
+     "optional": false
     },
     {
      "id": "ops.s3",
@@ -127,7 +130,8 @@
        "id": "ops.s3.5",
        "text": "6. Show an implementation — only after I've attempted it."
       }
-     ]
+     ],
+     "optional": false
     },
     {
      "id": "ops.s4",
@@ -157,7 +161,8 @@
        "id": "ops.s4.5",
        "text": "80% doing, 20% studying. Early phases 60/40, later phases 90/10."
       }
-     ]
+     ],
+     "optional": false
     }
    ],
    "snippet": "",
@@ -240,7 +245,8 @@
        "id": "p00.s0.5",
        "text": "Set <em>git config --global init.defaultBranch main</em>."
       }
-     ]
+     ],
+     "optional": false
     },
     {
      "id": "p00.s1",
@@ -274,7 +280,8 @@
        "id": "p00.s1.6",
        "text": "Pull requests and reviewing someone else's diff."
       }
-     ]
+     ],
+     "optional": false
     },
     {
      "id": "p00.s2",
@@ -300,7 +307,8 @@
        "id": "p00.s2.4",
        "text": "Break the branch on purpose, then recover it with reflog."
       }
-     ]
+     ],
+     "optional": false
     }
    ],
    "snippet": "mkdir git-training && cd git-training\ngit init\n# create README.md and app.py\ngit add . && git commit -m \"Initial project\"\ngit switch -c feature/calculator\n# edit app.py, commit\ngit switch main\n# make a conflicting change, then:\ngit merge feature/calculator",
@@ -421,7 +429,8 @@
        "id": "p01.s0.6",
        "text": "Day 7 · independent → one small app with no project-specific tutorial open."
       }
-     ]
+     ],
+     "optional": false
     },
     {
      "id": "p01.s1",
@@ -455,7 +464,8 @@
        "id": "p01.s1.6",
        "text": "Build: File Organizer with dry-run, undo, duplicate detection, logs."
       }
-     ]
+     ],
+     "optional": false
     },
     {
      "id": "p01.s2",
@@ -485,7 +495,8 @@
        "id": "p01.s2.5",
        "text": "Introduce three bugs deliberately and confirm the suite catches all three."
       }
-     ]
+     ],
+     "optional": false
     },
     {
      "id": "p01.s3",
@@ -519,7 +530,8 @@
        "id": "p01.s3.6",
        "text": "Refactor it once, after the first version works."
       }
-     ]
+     ],
+     "optional": false
     },
     {
      "id": "p01.s4",
@@ -545,7 +557,8 @@
        "id": "p01.s4.4",
        "text": "Meaningful commit messages, committed as you go."
       }
-     ]
+     ],
+     "optional": false
     }
    ],
    "snippet": "",
@@ -652,7 +665,8 @@
        "id": "p02.s0.6",
        "text": "Build: process a multi-GB file with flat memory usage. Prove it with a memory profile."
       }
-     ]
+     ],
+     "optional": false
     },
     {
      "id": "p02.s1",
@@ -682,7 +696,8 @@
        "id": "p02.s1.5",
        "text": "Refactor one earlier project into clean module boundaries."
       }
-     ]
+     ],
+     "optional": false
     },
     {
      "id": "p02.s2",
@@ -704,7 +719,8 @@
        "id": "p02.s2.3",
        "text": "Test the decision logic with zero filesystem access."
       }
-     ]
+     ],
+     "optional": false
     }
    ],
    "snippet": "@timer\n@retry(times=3, backoff=2.0)\ndef fetch(url: str) -> bytes:\n    ...\n\nwith managed_resource() as r:\n    ...",
@@ -827,7 +843,8 @@
        "id": "p03.s0.7",
        "text": "Semantic versioning and writing a changelog."
       }
-     ]
+     ],
+     "optional": false
     },
     {
      "id": "p03.s1",
@@ -857,7 +874,8 @@
        "id": "p03.s1.5",
        "text": "Write a README with install, usage, configuration, limitations."
       }
-     ]
+     ],
+     "optional": false
     }
    ],
    "snippet": "uv venv && source .venv/bin/activate\nuv pip install -e \".[dev]\"\nruff check . && ruff format --check .\nmypy src/\npytest -q\nyour-tool --help",
@@ -976,7 +994,8 @@
        "id": "p04.s0.9",
        "text": "Stack vs heap, allocation, and what garbage collection buys you."
       }
-     ]
+     ],
+     "optional": false
     },
     {
      "id": "p04.s1",
@@ -1018,7 +1037,8 @@
        "id": "p04.s1.8",
        "text": "Every structure gets tests and a benchmark against the stdlib equivalent."
       }
-     ]
+     ],
+     "optional": false
     }
    ],
    "snippet": "pystructures/\n  arrays.py     linked_list.py\n  stack.py      queue.py\n  hash_table.py bst.py\n  heap.py       graph.py       trie.py\n  benchmarks/   tests/",
@@ -1083,14 +1103,14 @@
      "name": "Exercism — Python track",
      "kind": "practice",
      "why": "Exercises with human mentorship on your solutions",
-     "url": "https://exercism.org/tracks/python",
-     "primary": true
+     "url": "https://exercism.org/tracks/python"
     },
     {
      "name": "NeetCode",
      "kind": "practice",
      "why": "Patterned interview problems, grouped by technique",
-     "url": "https://neetcode.io/"
+     "url": "https://neetcode.io/",
+     "primary": true
     },
     {
      "name": "Advent of Code",
@@ -1154,7 +1174,8 @@
        "id": "p05.s0.10",
        "text": "Backtracking and pruning."
       }
-     ]
+     ],
+     "optional": false
     },
     {
      "id": "p05.s1",
@@ -1188,7 +1209,8 @@
        "id": "p05.s1.6",
        "text": "Re-solve any problem you needed help on, 48 hours later, from scratch."
       }
-     ]
+     ],
+     "optional": false
     },
     {
      "id": "p05.s2",
@@ -1210,7 +1232,8 @@
        "id": "p05.s2.3",
        "text": "Level 4 — real-world problem with messy input and hard constraints."
       }
-     ]
+     ],
+     "optional": true
     }
    ],
    "snippet": "",
@@ -1329,7 +1352,8 @@
        "id": "p06.s0.9",
        "text": "Shell scripting: variables, conditionals, loops, <em>set -euo pipefail</em>."
       }
-     ]
+     ],
+     "optional": false
     },
     {
      "id": "p06.s1",
@@ -1359,7 +1383,8 @@
        "id": "p06.s1.5",
        "text": "Handle a process that writes gigabytes to stdout without exploding."
       }
-     ]
+     ],
+     "optional": false
     }
    ],
    "snippet": "",
@@ -1468,7 +1493,8 @@
        "id": "p07.s0.8",
        "text": "Timeouts, retries with jitter, and rate limiting — where each belongs."
       }
-     ]
+     ],
+     "optional": false
     },
     {
      "id": "p07.s1",
@@ -1494,7 +1520,8 @@
        "id": "p07.s1.4",
        "text": "Concurrent downloader with a timeout budget and retry policy."
       }
-     ]
+     ],
+     "optional": false
     }
    ],
    "snippet": "",
@@ -1612,7 +1639,8 @@
        "id": "p08.s0.10",
        "text": "Connection pooling and why it matters under load."
       }
-     ]
+     ],
+     "optional": false
     },
     {
      "id": "p08.s1",
@@ -1642,7 +1670,8 @@
        "id": "p08.s1.5",
        "text": "Only now, wrap it in SQLAlchemy and confirm the generated SQL matches your intent."
       }
-     ]
+     ],
+     "optional": false
     }
    ],
    "snippet": "",
@@ -1769,7 +1798,8 @@
        "id": "p09.s0.11",
        "text": "Testing an API: client fixtures, a test database, isolation between tests."
       }
-     ]
+     ],
+     "optional": false
     },
     {
      "id": "p09.s1",
@@ -1811,7 +1841,8 @@
        "id": "p09.s1.8",
        "text": "OpenAPI docs that a stranger could build a client from."
       }
-     ]
+     ],
+     "optional": false
     }
    ],
    "snippet": "",
@@ -1943,7 +1974,8 @@
        "id": "p10.s0.9",
        "text": "Rate limits and crawling respectfully."
       }
-     ]
+     ],
+     "optional": false
     },
     {
      "id": "p10.s1",
@@ -1977,7 +2009,8 @@
        "id": "p10.s1.6",
        "text": "Make the whole thing resumable after a crash mid-run."
       }
-     ]
+     ],
+     "optional": false
     }
    ],
    "snippet": "",
@@ -2096,7 +2129,8 @@
        "id": "p11.s0.9",
        "text": "Profiling with cProfile and a memory profiler; benchmarking honestly."
       }
-     ]
+     ],
+     "optional": false
     },
     {
      "id": "p11.s1",
@@ -2134,7 +2168,8 @@
        "id": "p11.s1.7",
        "text": "Graceful shutdown on SIGINT that finishes in-flight work."
       }
-     ]
+     ],
+     "optional": false
     },
     {
      "id": "p11.s2",
@@ -2156,7 +2191,8 @@
        "id": "p11.s2.3",
        "text": "Write a one-page conclusion with a table and a recommendation."
       }
-     ]
+     ],
+     "optional": false
     }
    ],
    "snippet": "",
@@ -2273,7 +2309,8 @@
        "id": "p12.s0.10",
        "text": "Tagged releases and a repeatable deploy step."
       }
-     ]
+     ],
+     "optional": false
     },
     {
      "id": "p12.s1",
@@ -2307,7 +2344,8 @@
        "id": "p12.s1.6",
        "text": "Deploy it somewhere real and hit it from the internet."
       }
-     ]
+     ],
+     "optional": false
     }
    ],
    "snippet": "",
@@ -2426,7 +2464,8 @@
        "id": "p13.s0.9",
        "text": "SSRF and why your server fetching a user-supplied URL is dangerous."
       }
-     ]
+     ],
+     "optional": false
     },
     {
      "id": "p13.s1",
@@ -2456,7 +2495,8 @@
        "id": "p13.s1.5",
        "text": "Run a dependency audit against your own real projects and fix what it finds."
       }
-     ]
+     ],
+     "optional": false
     },
     {
      "id": "p13.s2",
@@ -2482,7 +2522,8 @@
        "id": "p13.s2.4",
        "text": "For every action: is there a log line you could investigate later?"
       }
-     ]
+     ],
+     "optional": false
     }
    ],
    "snippet": "",
@@ -2600,7 +2641,8 @@
        "id": "p14.s0.4",
        "text": "Classical ML with scikit-learn: a full pipeline, cross-validated."
       }
-     ]
+     ],
+     "optional": false
     },
     {
      "id": "p14.s1",
@@ -2638,7 +2680,8 @@
        "id": "p14.s1.7",
        "text": "Explain, in your own words, what the gradients are doing at each step."
       }
-     ]
+     ],
+     "optional": false
     },
     {
      "id": "p14.s2",
@@ -2680,7 +2723,8 @@
        "id": "p14.s2.8",
        "text": "Cost, latency, and caching in production."
       }
-     ]
+     ],
+     "optional": false
     },
     {
      "id": "p14.s3",
@@ -2714,7 +2758,8 @@
        "id": "p14.s3.6",
        "text": "API + minimal UI, with logging on every request."
       }
-     ]
+     ],
+     "optional": false
     }
    ],
    "snippet": "",
@@ -2854,7 +2899,8 @@
        "id": "p15.s0.11",
        "text": "Workflow orchestration: durable state, checkpoints, and resuming mid-flight."
       }
-     ]
+     ],
+     "optional": false
     },
     {
      "id": "p15.s1",
@@ -2888,7 +2934,8 @@
        "id": "p15.s1.6",
        "text": "Load-test it and find the actual bottleneck."
       }
-     ]
+     ],
+     "optional": false
     },
     {
      "id": "p15.s2",
@@ -2914,7 +2961,8 @@
        "id": "p15.s2.4",
        "text": "Say what you did NOT choose, and why."
       }
-     ]
+     ],
+     "optional": false
     }
    ],
    "snippet": "            API\n             |\n          [ QUEUE ] --> dead letter --> replay\n       /     |      \\\n   WORKER  WORKER  WORKER\n       \\     |      /\n          DATABASE\n             |\n           CACHE\n             |\n      TRACES · METRICS · LOGS",
@@ -2967,14 +3015,14 @@
      "name": "Extending and Embedding Python",
      "kind": "docs",
      "why": "The CPython boundary",
-     "url": "https://docs.python.org/3/extending/index.html",
-     "primary": true
+     "url": "https://docs.python.org/3/extending/index.html"
     },
     {
      "name": "CS50 — C and memory (week 4)",
      "kind": "video",
      "why": "Pointers, allocation, and what leaks",
-     "url": "https://cs50.harvard.edu/x/weeks/4/"
+     "url": "https://cs50.harvard.edu/x/weeks/4/",
+     "primary": true
     },
     {
      "name": "CPython source",
@@ -3034,7 +3082,8 @@
        "id": "p16.s0.9",
        "text": "Where the free-threaded build (officially supported since 3.14, PEP 779) changes the picture, and what it costs."
       }
-     ]
+     ],
+     "optional": false
     },
     {
      "id": "p16.s1",
@@ -3060,7 +3109,8 @@
        "id": "p16.s1.4",
        "text": "Find and fix a reference cycle keeping memory alive."
       }
-     ]
+     ],
+     "optional": false
     }
    ],
    "snippet": "",
@@ -3202,7 +3252,8 @@
        "id": "p17.s0.11",
        "text": "Cost awareness — scanning terabytes is a bill, not just a wait."
       }
-     ]
+     ],
+     "optional": false
     },
     {
      "id": "p17.s1",
@@ -3240,7 +3291,8 @@
        "id": "p17.s1.7",
        "text": "Replace pandas with Polars somewhere and measure the difference."
       }
-     ]
+     ],
+     "optional": false
     }
    ],
    "snippet": "",
@@ -3350,7 +3402,8 @@
        "id": "p18.s0.7",
        "text": "Reduce scope as a first-class engineering skill."
       }
-     ]
+     ],
+     "optional": false
     },
     {
      "id": "p18.s1",
@@ -3380,7 +3433,8 @@
        "id": "p18.s1.5",
        "text": "Practice a restore from backup. A backup you've never restored isn't one."
       }
-     ]
+     ],
+     "optional": false
     },
     {
      "id": "p18.s2",
@@ -3418,7 +3472,8 @@
        "id": "p18.s2.7",
        "text": "Maintain something long enough to feel the cost of your own decisions."
       }
-     ]
+     ],
+     "optional": true
     },
     {
      "id": "p18.s3",
@@ -3444,7 +3499,8 @@
        "id": "p18.s3.4",
        "text": "Rebuild an old project of yours from scratch and compare."
       }
-     ]
+     ],
+     "optional": true
     }
    ],
    "snippet": "",
@@ -3500,14 +3556,14 @@
      "name": "Build your own X",
      "kind": "reference",
      "why": "From-scratch guides for every kind of system",
-     "url": "https://github.com/codecrafters-io/build-your-own-x"
+     "url": "https://github.com/codecrafters-io/build-your-own-x",
+     "primary": true
     },
     {
      "name": "CodeCrafters",
      "kind": "practice",
      "why": "Test-driven from-scratch challenges: Redis, Git, shells",
-     "url": "https://codecrafters.io/",
-     "primary": true
+     "url": "https://codecrafters.io/"
     },
     {
      "name": "Advent of Code",
@@ -3545,7 +3601,8 @@
        "id": "p99.s0.5",
        "text": "Boss 6 · Flagship product: a real problem, shipped, monitored, secured, benchmarked, iterated."
       }
-     ]
+     ],
+     "optional": false
     },
     {
      "id": "p99.s1",
@@ -3591,7 +3648,8 @@
        "id": "p99.s1.9",
        "text": "Write down what you learned before moving on."
       }
-     ]
+     ],
+     "optional": false
     },
     {
      "id": "p99.s2",
@@ -3629,7 +3687,8 @@
        "id": "p99.s2.7",
        "text": "A written record of your architecture decisions."
       }
-     ]
+     ],
+     "optional": true
     }
    ],
    "snippet": "",

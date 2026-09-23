@@ -172,7 +172,7 @@ def test_the_whole_handover_verifies_then_swaps_then_relaunches(
         def __exit__(self, *_exc):
             return False
 
-    monkeypatch.setattr(updates, "_request", lambda url, timeout=None:
+    monkeypatch.setattr(updates, "_request", lambda url, timeout=None, headers=None:
                         Response(body))
 
     staged = updates.download_update({"_asset": asset})
@@ -378,7 +378,7 @@ def test_the_interfaces_own_call_sequence_works_unchanged(tmp_path,
         "https://example.invalid/u.zip": body,
     }
     monkeypatch.setattr(updates, "_request",
-                        lambda url, timeout=None: Response(served[url]))
+                        lambda url, timeout=None, headers=None: Response(served[url]))
     monkeypatch.setattr(updates.sys, "platform", "linux")
     monkeypatch.setattr(updates, "install_kind", lambda: updates.PORTABLE)
     monkeypatch.setattr(updates, "app_root", lambda: app)

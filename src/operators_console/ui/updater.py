@@ -1,11 +1,14 @@
 """The update button and the dialog behind it.
 
-The check runs on a worker thread at startup and every half hour after, so opening
-the app is never delayed by the network. When there is nothing to install the
+The check runs on a worker thread at startup, every few minutes after, and
+whenever the window comes back to the front, so opening the app is never
+delayed by the network and a new release shows up almost as soon as it is
+published. When there is nothing to install the
 button does not exist, which keeps the chrome quiet.
 """
 from __future__ import annotations
 
+import time
 from datetime import date
 
 from PySide6.QtCore import (
@@ -71,16 +74,22 @@ class _DownloadJob(QRunnable):
             self.signals.finished.emit(path, "")
 
 
-POLL_MINUTES = 30      # two requests an hour, well inside GitHub's limit
+# GitHub answers an unchanged release with a 304, which does not count
+# against its unauthenticated limit (core.updates keeps the ETag), so the
+# only cost of looking often is a few hundred bytes.
+POLL_MINUTES = 5
+# Coming back to the window looks again, but not on every alt-tab.
+REFOCUS_SECONDS = 60
 
 
 class UpdateManager(QObject):
     """Owns the check schedule and hands the window something to show.
 
-    One look shortly after launch, then one every POLL_MINUTES while the
-    window stays open: a release published during a long session shows up
-    on the button within the half hour, no restart needed. The same release
-    is announced once.
+    One look shortly after every launch, one every POLL_MINUTES while the
+    window stays open, and one whenever the app comes back to the front
+    after REFOCUS_SECONDS away: a release shows up on the button within
+    minutes of being published, no restart needed. The same release is
+    announced once.
     """
 
     available = Signal(object)
@@ -95,6 +104,17 @@ class UpdateManager(QObject):
         self._poll.setInterval(POLL_MINUTES * 60 * 1000)
         self._poll.timeout.connect(self.poll)
         self._poll.start()
+        self._last_look = 0.0
+        app = QApplication.instance()
+        if app is not None:
+            app.applicationStateChanged.connect(self._on_app_state)
+
+    def _on_app_state(self, state) -> None:
+        if state != Qt.ApplicationState.ApplicationActive:
+            return
+        if time.monotonic() - self._last_look < REFOCUS_SECONDS:
+            return
+        self.poll()
 
     def latest(self):
         """Ask the core engine what is out there. Blocking - worker only."""
@@ -108,9 +128,9 @@ class UpdateManager(QObject):
                 return
             if not updates.can_self_update():
                 return
-            today = date.today().isoformat()
-            if self.ctx.store.setting("last_update_check", "") == today:
-                return
+        # Every launch looks: a release published an hour after this
+        # morning's check must not wait until tomorrow. The date is kept
+        # only as a record of when the app last asked.
         self.ctx.store.set_setting("last_update_check", date.today().isoformat())
         self._start_job()
 
@@ -125,6 +145,7 @@ class UpdateManager(QObject):
         self._start_job()
 
     def _start_job(self) -> None:
+        self._last_look = time.monotonic()
         job = _CheckJob()
         job.signals.done.connect(self._on_result)
         self.pool.start(job)

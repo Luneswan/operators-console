@@ -212,11 +212,19 @@ class _HttpsOnlyRedirects(urllib.request.HTTPRedirectHandler):
 _opener = urllib.request.build_opener(_HttpsOnlyRedirects)
 
 
-def _request(url: str, timeout: int = TIMEOUT):
+def _request(url: str, timeout: int = TIMEOUT, headers: dict | None = None):
     request = urllib.request.Request(
         secure_url(url), headers={"User-Agent": USER_AGENT,
-                                  "Accept": "application/vnd.github+json"})
+                                  "Accept": "application/vnd.github+json",
+                                  **(headers or {})})
     return _opener.open(request, timeout=timeout)
+
+
+# The last answer about the latest release, and the ETag GitHub sent with
+# it. Asking again with If-None-Match gets a 304 while nothing changed, and
+# GitHub does not count a 304 against the 60-an-hour unauthenticated limit,
+# so the app can look every few minutes without ever being rate limited.
+_latest = {"etag": "", "release": None}
 
 
 def fetch_latest(timeout: int = TIMEOUT) -> Release | None:
@@ -225,12 +233,30 @@ def fetch_latest(timeout: int = TIMEOUT) -> Release | None:
     A failed check must never interrupt a study session, so every network and
     parsing error is swallowed: the button simply does not appear.
     """
+    cached = {"If-None-Match": _latest["etag"]} if _latest["etag"] else {}
     try:
-        with _request(API % REPO, timeout) as response:
+        with _request(API % REPO, timeout, headers=cached) as response:
+            etag = (getattr(response, "headers", None) or {}).get("ETag") or ""
             payload = json.loads(response.read().decode("utf-8"))
-    except (urllib.error.URLError, urllib.error.HTTPError, OSError,
-            ValueError, json.JSONDecodeError, IntegrityError):
+    except urllib.error.HTTPError as exc:
+        if exc.code == 304 and _latest["etag"]:
+            return _latest["release"]       # unchanged since the last look
+        return None
+    except (urllib.error.URLError, OSError, ValueError,
+            json.JSONDecodeError, IntegrityError):
         return None             # IntegrityError: redirected off https
+    release = _release_from(payload, timeout)
+    # Only a settled answer is worth reusing: a release whose checksums
+    # could not be fetched this time is asked for in full next time.
+    if release is None or release.verified:
+        _latest.update(etag=etag, release=release)
+    else:
+        _latest.update(etag="", release=None)
+    return release
+
+
+def _release_from(payload: dict, timeout: int) -> Release | None:
+    """The release a GitHub payload describes, or None if it offers none."""
 
     if payload.get("draft") or payload.get("prerelease"):
         return None

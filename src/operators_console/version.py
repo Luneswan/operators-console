@@ -1,6 +1,6 @@
 """Single source of truth for the application version."""
 
-__version__ = "1.1.0"
+__version__ = "1.1.1"
 
 APP_NAME = "Python Operator's Console"
 APP_ID = "operators-console"

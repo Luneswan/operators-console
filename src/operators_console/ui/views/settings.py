@@ -229,9 +229,9 @@ class SettingsView(View):
         updates_card.add(heading("Updates"))
         updates_card.add(muted(
             "The only time this app touches the network. It asks GitHub "
-            "whether a newer version exists shortly after it starts and every "
-            "30 minutes while it is open, and downloads nothing until you "
-            "press the button."))
+            "whether a newer version exists when it starts, every few minutes "
+            "while it is open and when you come back to it, and downloads "
+            "nothing until you press the button."))
         self.check_updates = QCheckBox("Tell me when a new version is out")
         self.check_updates.stateChanged.connect(
             lambda _s: self._set("check_for_updates",

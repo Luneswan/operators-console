@@ -129,6 +129,27 @@ LEVEL = {
 }
 
 
+# Checklist sections that are stretch work rather than the phase itself.
+# Everything else a phase lists is main: it is what the gate assumes you did.
+# An optional section is folded behind an OPTIONAL pill, stays checkable, and
+# never counts toward the phase's progress, so skipping it holds nothing
+# back. Keyed by phase and the start of the section title; transform fails
+# if a key matches nothing, so a renamed section cannot silently go main.
+#   p05 Challenge ladder  - a way to push past the daily routine, not the
+#                           routine itself.
+#   p18 Leverage          - open source, talks, mentoring: career reach, not
+#                           engineering skill the gate tests.
+#   p18 Staying current   - a standing habit for after the course.
+#   p99 Portfolio target  - a twelve-month outcome, not work you can tick
+#                           off while climbing the ladder.
+OPTIONAL_SECTIONS = {
+    ("p05", "Challenge ladder"),
+    ("p18", "Leverage"),
+    ("p18", "Staying current"),
+    ("p99", "Portfolio target"),
+}
+
+
 def plain(text: str) -> str:
     """Strip the page's <em> code markers for search and review-card text."""
     return re.sub(r"</?em>", "", text)
@@ -136,6 +157,7 @@ def plain(text: str) -> str:
 
 phases = []
 picked_phases = set()
+optional_used = set()
 for ph in raw["PHASES"]:
     pid = ph["id"]
     sections = []
@@ -143,7 +165,11 @@ for ph in raw["PHASES"]:
         items = []
         for ii, text in enumerate(sec["items"]):
             items.append({"id": f"{pid}.s{si}.{ii}", "text": text})
-        sections.append({"id": f"{pid}.s{si}", "title": sec["h"], "items": items})
+        optional = [k for k in OPTIONAL_SECTIONS
+                    if k[0] == pid and sec["h"].startswith(k[1])]
+        optional_used.update(optional)
+        sections.append({"id": f"{pid}.s{si}", "title": sec["h"],
+                         "items": items, "optional": bool(optional)})
 
     gate = None
     if ph.get("gate"):
@@ -184,6 +210,9 @@ for ph in raw["PHASES"]:
     })
 
 check_every_pick_was_used("phase", picked_phases)
+if OPTIONAL_SECTIONS - optional_used:
+    raise PickError("OPTIONAL_SECTIONS names sections that do not exist: %s"
+                    % sorted(OPTIONAL_SECTIONS - optional_used))
 
 # -- quiz answer positions ----------------------------------------------------
 # Authors write the correct choice wherever is convenient (usually first), so

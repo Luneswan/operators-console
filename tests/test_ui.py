@@ -300,7 +300,8 @@ def test_a_release_with_nothing_for_this_platform_cannot_be_installed(
     dialog.reject()
 
 
-def test_the_daily_check_does_not_repeat(qt_app, window, store, monkeypatch):
+def test_every_launch_check_looks(qt_app, window, store, monkeypatch):
+    """A release published after this morning's look shows on relaunch."""
     from datetime import date
 
     calls = []
@@ -313,9 +314,9 @@ def test_the_daily_check_does_not_repeat(qt_app, window, store, monkeypatch):
     assert len(calls) == 1
     assert store.setting("last_update_check") == date.today().isoformat()
     window.updates.maybe_check()
-    assert len(calls) == 1, "the check ran twice in one day"
+    assert len(calls) == 2, "a second launch the same day did not look"
     window.updates.maybe_check(force=True)
-    assert len(calls) == 2, "an explicit check should always run"
+    assert len(calls) == 3, "an explicit check should always run"
 
 
 def test_turning_the_check_off_stops_it(qt_app, window, store, monkeypatch):

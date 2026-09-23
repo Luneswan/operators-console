@@ -26,7 +26,8 @@ def test_the_manager_keeps_looking_while_the_window_is_open(window):
     timer = window.updates._poll
     assert timer.isActive()
     assert timer.interval() == updater.POLL_MINUTES * 60 * 1000
-    assert 15 <= updater.POLL_MINUTES <= 60      # polite to GitHub, prompt for us
+    # Prompt for us; polite to GitHub because unchanged answers are 304s.
+    assert 1 <= updater.POLL_MINUTES <= 5
 
 
 def test_a_poll_announces_a_new_release_without_taking_focus(

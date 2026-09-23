@@ -469,7 +469,7 @@ def test_a_refused_rename_leaves_the_old_build_whole(tmp_path, monkeypatch):
 
 
 def test_a_redirect_off_https_means_no_offer_not_a_crash(monkeypatch):
-    def redirected(url, timeout=None):
+    def redirected(url, timeout=None, headers=None):
         raise updates.IntegrityError(updates.INSECURE_URL_MESSAGE % "http://x")
     monkeypatch.setattr(updates, "_request", redirected)
     assert updates.available() is None

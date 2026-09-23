@@ -152,7 +152,8 @@ def _phase(p: dict) -> Phase:
                         for r in p["resources"]),
         sections=tuple(
             Section(s["id"], s["title"],
-                    tuple(Item(i["id"], i["text"]) for i in s["items"]))
+                    tuple(Item(i["id"], i["text"]) for i in s["items"]),
+                    bool(s.get("optional", False)))
             for s in p["sections"]
         ),
         snippet=p["snippet"], gate=gate,

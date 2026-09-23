@@ -6,7 +6,7 @@
   "p02": "Fluent Python",
   "p03": "Python Packaging User Guide",
   "p04": "CS50x",
-  "p05": "Exercism — Python track",
+  "p05": "NeetCode",
   "p06": "MIT — The Missing Semester",
   "p07": "MDN — HTTP",
   "p08": "PostgreSQL Tutorial",
@@ -17,10 +17,10 @@
   "p13": "OWASP Top 10",
   "p14": "Neural Networks: Zero to Hero — course page",
   "p15": "Designing Data-Intensive Applications",
-  "p16": "Extending and Embedding Python",
+  "p16": "CS50 — C and memory (week 4)",
   "p17": "Data Engineering Zoomcamp",
   "p18": "Python Enhancement Proposals",
-  "p99": "CodeCrafters"
+  "p99": "Build your own X"
  },
  "shelf": {
   "Language & stdlib": "Python Tutorial (official)",

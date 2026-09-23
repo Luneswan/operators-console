@@ -42,7 +42,7 @@ class FakeResponse(io.BytesIO):
 
 def serve(mapping):
     """A _request stand-in that answers from a {url: bytes} map."""
-    def fake(url, timeout=None):
+    def fake(url, timeout=None, headers=None):
         if url not in mapping:
             raise OSError("404 %s" % url)
         return FakeResponse(mapping[url])

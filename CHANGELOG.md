@@ -4,6 +4,34 @@ All notable changes to this project are recorded here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and the project uses
 [semantic versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.1.1] - 2026-09-23
+
+### Changed
+
+- **Main and optional are decided, not assumed.** Four checklist sections are
+  stretch work rather than the phase itself: p05 *Challenge ladder*, p18
+  *Leverage* and *Staying current after 2027*, and p99 *Portfolio target*.
+  They fold behind an OPTIONAL pill, stay checkable, and no longer count
+  toward progress, so a twelve-month portfolio target cannot hold the final
+  phase back. Every other section, the week-by-week work included, is main.
+  Decided at the source (`OPTIONAL_SECTIONS` in `build_tools/transform.py`);
+  item ids are unchanged, so no one's ticks move.
+- Better first picks in three reading lists: NeetCode for algorithms (grouped
+  by the same techniques the phase teaches), CS50 week 4 for systems
+  programming (the phase starts with C and memory), and Build your own X for
+  the final ladder (free, and it covers the first three bosses).
+- **New releases appear within minutes.** The app looks at every launch (not
+  once a day), every five minutes while open, and when you switch back to it.
+  It sends GitHub the last ETag, so an unchanged answer is a `304` that does
+  not count against the rate limit.
+
+### Fixed
+
+- Checklist lines no longer shift when the mouse passes over them. The `...`
+  handle, built on first hover, was taller than a line of text, so the row
+  grew and its centred text dropped below the checkbox. The handle is now one
+  line tall and the text sits level with its box.
+
 ## [1.1.0] - 2026-09-23
 
 ### Why 1.1.0

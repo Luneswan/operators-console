@@ -411,7 +411,11 @@ class CheckRow(QWidget):
         self.text.setTextFormat(Qt.TextFormat.RichText)
         self.text.setTextInteractionFlags(
             Qt.TextInteractionFlag.TextSelectableByMouse)
-        row.addWidget(self.text, 1)
+        # Top, beside its checkbox. Centred, the line floated away from the
+        # box whenever anything made the row taller than one line.
+        self.text.setAlignment(Qt.AlignmentFlag.AlignLeft
+                               | Qt.AlignmentFlag.AlignTop)
+        row.addWidget(self.text, 1, Qt.AlignmentFlag.AlignTop)
 
         # The "..." is built the first time the mouse comes near the row,
         # into space reserved from the start so that nothing moves when it
@@ -463,6 +467,10 @@ class CheckRow(QWidget):
             self._more = button("...", "quiet",
                                 "More for this line (Shift+F10)")
             self._more.setFixedWidth(self.MORE_WIDTH)
+            # No taller than the checkbox line: a full-height button built
+            # on first hover made the row grow under the mouse, and every
+            # line dropped as the pointer passed over it.
+            self._more.setFixedHeight(self.line_height())
             # Not a Tab stop: the keyboard opens this menu from the row.
             self._more.setFocusPolicy(Qt.FocusPolicy.NoFocus)
             self._more.clicked.connect(self._menu_from_button)
@@ -474,6 +482,11 @@ class CheckRow(QWidget):
             # this the line does shift, by exactly the width reserved.
             self._more.show()
         return self._more
+
+    def line_height(self) -> int:
+        """The height of the checkbox line, which the handle must not pass."""
+        return max(self.box.sizeHint().height(),
+                   self.text.fontMetrics().height())
 
     def enterEvent(self, event) -> None:
         self.more                   # noqa: B018 - builds it on first hover
@@ -734,8 +747,11 @@ class Disclosure(QWidget):
     toggled_open = Signal(bool)
 
     def __init__(self, count: int, noun: str = "to study", store=None,
-                 key: str = "", tag: str = "OPTIONAL", parent=None) -> None:
+                 key: str = "", tag: str = "OPTIONAL", more: bool = True,
+                 parent=None) -> None:
         super().__init__(parent)
+        # "more" only when something is already showing above the fold.
+        self._more_word = "more " if more else ""
         self._store = store
         self._key = key
         self._count = count
@@ -843,12 +859,12 @@ class Disclosure(QWidget):
 
     def words(self) -> tuple[str, str]:
         """The caption, and what pressing it will do - both in words."""
-        thing = "%d more %s" % (self._count, self._noun)
+        thing = "%d %s%s" % (self._count, self._more_word, self._noun)
         if self._open:
             return ("Showing " + thing,
                     "Hide the %d optional one%s"
                     % (self._count, "" if self._count == 1 else "s"))
-        return thing, "Show %d more %s" % (self._count, self._noun)
+        return thing, "Show " + thing
 
     def _sync(self, animate: bool) -> None:
         caption, action = self.words()

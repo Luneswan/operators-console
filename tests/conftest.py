@@ -18,6 +18,10 @@ sys.path.insert(0, str(ROOT / "src"))
 def isolated_home(tmp_path, monkeypatch):
     """Never touch the real profile, on any platform."""
     monkeypatch.setenv("OPERATORS_CONSOLE_HOME", str(tmp_path / "home"))
+    # The update check remembers GitHub's last answer for the whole process;
+    # one test's release must not be another test's 304.
+    from operators_console.core import updates
+    updates._latest.update(etag="", release=None)
     yield tmp_path
 
 

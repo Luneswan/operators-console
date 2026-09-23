@@ -249,7 +249,8 @@ class Progress:
 
     def phase(self, phase: Phase) -> PhaseProgress:
         checked = self.s.checked_ids()
-        item_ids = [i.id for i in phase.items]
+        # Optional sections are stretch work and never hold a phase back.
+        item_ids = [i.id for i in phase.core_items]
         gate_ids = [g.id for g in phase.gate.items] if phase.gate else []
         exercises = self.c.exercises_for(phase.id)
         passed = self.s.passed_exercise_ids()

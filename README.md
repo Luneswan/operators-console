@@ -87,8 +87,11 @@ one just saved. A portable install pointed at its own `OPERATORS_CONSOLE_HOME`
 is a separate app and may run alongside.
 
 The app makes one kind of network request and no other: it asks GitHub whether
-a newer version exists — shortly after it starts, and every 30 minutes while it
-is open — so it can offer a one-click update. It downloads nothing until you
+a newer version exists — when it starts, every five minutes while it is open,
+and when you switch back to it — so a new release shows up within minutes and
+it can offer a one-click update. Unchanged answers are free: the app sends the
+last ETag and GitHub replies `304 Not Modified`, which does not count against
+its rate limit. It downloads nothing until you
 press the button, the first-run setup asks before it is ever turned on, and it
 can be turned off in Settings at any time. Updating never touches your progress
 — the database lives in a separate folder, and the updater refuses to run if it
@@ -145,8 +148,46 @@ either one-line installer again does the same.
 Coming from 1.0.x on Windows, the in-app update works too. If the old version
 ever reopens after updating, close it and run the `...-windows-setup.exe` once.
 A 1.0.x *portable* build will say there is no download for your platform; that
-is deliberate, because its updater could damage its own folder. Download the new
-zip by hand, or run `install.ps1` with `-Portable`.
+is deliberate, because its updater could damage its own folder. Use the portable
+command under [Force an update](#force-an-update-keeps-your-progress) instead.
+1.0.0 predates the update check entirely, so it needs that command once too.
+
+### Force an update (keeps your progress)
+
+This reinstalls the newest release over whatever you have, from any version,
+including 1.0.0. It closes the app if it is open (and stops it if it will not
+close), checks the download against `SHA256SUMS`, and replaces only the program.
+Your progress, notes, review deck and settings live in a separate folder, which
+installing, updating and uninstalling never touch:
+`%APPDATA%\Operator's Console` on Windows, `~/Library/Application Support/Operator's Console`
+on macOS, `~/.local/share/operators-console` on Linux.
+
+**Windows, installed** (the usual case) — paste into PowerShell:
+
+```powershell
+irm https://raw.githubusercontent.com/Luneswan/operators-console/main/install.ps1 | iex
+```
+
+**Windows, portable zip** — paste into PowerShell:
+
+```powershell
+& ([scriptblock]::Create((irm https://raw.githubusercontent.com/Luneswan/operators-console/main/install.ps1))) -Portable
+```
+
+**macOS or Linux** — paste into a terminal:
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/Luneswan/operators-console/main/install.sh | sh
+```
+
+Use this if:
+
+* you are on **1.0.0** — the first release has no update check at all, so it
+  can never show the button; run the command once and every later version
+  updates itself;
+* you are on a **1.0.x portable** Windows build — its own updater could damage
+  its folder, so it is deliberately not offered the update;
+* an update ever failed, or you just want a clean reinstall.
 
 ### The first-launch warning
 

@@ -293,11 +293,25 @@ class PhaseView(View):
             counter = muted("%d/%d" % (done, len(section.items)))
             top.addWidget(counter, 0, Qt.AlignmentFlag.AlignRight)
             card.box.addLayout(top)
+            # Stretch work folds behind the same OPTIONAL pill the reading
+            # list uses, and counts for nothing, so the main list is what
+            # the page asks for.
+            fold = None
+            if section.optional:
+                fold = Disclosure(len(section.items),
+                                  "stretch goal%s" % (
+                                      "" if len(section.items) == 1 else "s"),
+                                  store=self.ctx.store,
+                                  key="section:" + section.id, more=False)
+                card.add(fold)
             for item in section.items:
                 row = CheckRow(item.id, item.text, item.id in checked)
                 row.toggled.connect(self._toggle)
                 row.review_requested.connect(self._add_to_review)
-                card.add(row)
+                if fold is not None:
+                    fold.add(row)
+                else:
+                    card.add(row)
             self.body.addWidget(card)
 
         if phase.snippet:

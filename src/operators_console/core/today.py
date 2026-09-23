@@ -408,6 +408,8 @@ class TodayPlan:
             return ""
         checked = self.s.checked_ids()
         for section in phase.sections:
+            if section.optional:
+                continue
             for item in section.items:
                 if item.id not in checked:
                     return "%s - %s" % (section.title, _plain(item.text))
