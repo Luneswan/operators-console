@@ -85,14 +85,15 @@ class Planner:
             order += 1
         for pid in sorted(optional, key=lambda x: teaching_order.get(x, 99)):
             rows.append(self._row(pid, order, "optional",
-                                  "Recommended for your track once the core is solid.",
+                                  "Recommended for your track, after the core "
+                                  "phases.",
                                   stats))
             order += 1
         for pid in sorted(extras(), key=lambda x: teaching_order.get(x, 99)):
             phase = self.c.phase(pid)
             matched = ", ".join(sorted(tags.intersection(phase.tags)))
             rows.append(self._row(pid, order, "extra",
-                                  "Added because you said you care about %s." % matched,
+                                  "Added for your goal: %s." % matched,
                                   stats))
             order += 1
         return rows
@@ -114,15 +115,15 @@ class Planner:
         if phase is None:
             return ""
         if pid == "p00":
-            return "Nothing else is safe to start until version control works."
+            return "Do this first. Every later phase uses Git."
         if pid == "p01" and experience in ("other", "working"):
-            return ("You already program, so treat this as a fast audit: do the "
-                    "gate first and only study what you miss.")
+            return ("You already program. Try the gate first and study only "
+                    "what you miss.")
         if not phase.prereq:
-            return "Foundation for everything that follows."
+            return "Every later phase depends on this."
         names = [self.c.phase(r).name for r in phase.prereq
                  if self.c.phase(r) is not None]
-        return "Builds directly on %s." % ", ".join(names)
+        return "Builds on %s." % ", ".join(names)
 
     # -- weak spots ---------------------------------------------------------
 

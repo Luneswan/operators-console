@@ -51,10 +51,10 @@ class SnapshotDialog(QDialog):
         column.addWidget(label("YOUR SNAPSHOTS", "PageKicker", wrap=False))
         column.addWidget(label("Go back to an earlier point", "PageTitle"))
         column.addWidget(muted(
-            "One is taken automatically each day you open the app, and "
-            "before every reset, import or upgrade. Restoring replaces your "
-            "current progress - which is snapshotted first, so a restore can "
-            "be undone the same way. Your settings stay as they are."))
+            "The app takes one each day you open it, and before every reset, "
+            "import or upgrade. Restoring replaces your current progress. The "
+            "current state is snapshotted first, so a restore can be undone. "
+            "Settings are not changed."))
 
         self.list = QListWidget()
         self.list.setObjectName("SnapshotList")
@@ -63,8 +63,8 @@ class SnapshotDialog(QDialog):
         self.list.currentItemChanged.connect(lambda *_: self._sync())
         column.addWidget(self.list, 1)
         self.empty = muted(
-            "No snapshots yet. The first one is taken automatically a few "
-            "seconds after the app opens.")
+            "No snapshots yet. The first is taken a few seconds after the app "
+            "opens.")
         column.addWidget(self.empty)
 
         row = QHBoxLayout()

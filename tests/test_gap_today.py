@@ -426,7 +426,7 @@ def test_the_empty_list_reads_differently_when_the_plan_is_finished(
     pump(qt_app)
     quiet = page_text(view)
     assert "Nothing outstanding today." in quiet
-    assert "take the evening off" in quiet
+    assert "take the day off" in quiet
 
     view.ctx.today.restore()
     finish_the_plan(store, curriculum, progress)
@@ -436,8 +436,8 @@ def test_the_empty_list_reads_differently_when_the_plan_is_finished(
     view.refresh()
     pump(qt_app)
     done = page_text(view)
-    assert "Nothing due, and nothing left to learn." in done
-    assert "take the evening off" not in done
+    assert "Nothing due. Plan complete." in done
+    assert "take the day off" not in done
 
 
 def test_the_completion_hero_replaces_where_you_are(qt_app, window,
@@ -452,7 +452,7 @@ def test_the_completion_hero_replaces_where_you_are(qt_app, window,
 
     assert view.position_heading.text() == "What you did"
     text = page_text(view.position_card)
-    assert "You finished it." in text
+    assert "Plan complete." in text
     assert "COMPLETE" in text
     assert "2026-01-04 to %s" % date.today().isoformat() in text
     assert "hours logged" in text
@@ -531,8 +531,8 @@ def test_the_roadmap_drops_you_are_here_when_the_plan_is_finished(
     text = page_text(view)
     assert "YOU ARE HERE" not in text
     assert "PLAN COMPLETE" in text
-    assert "You have walked the whole plan." in text
-    assert "all of it behind you" in view.summary.text()
+    assert "Plan complete." in text
+    assert "all done" in view.summary.text()
 
 
 def test_the_roadmap_rail_has_no_current_node_when_finished(qt_app, window,

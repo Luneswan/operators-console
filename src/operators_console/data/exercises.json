@@ -7,7 +7,7 @@
    "topic": "Values and printing",
    "title": "Say hello",
    "difficulty": 1,
-   "prompt": "Write a function `greet(name)` that returns the string\n`Hello, <name>!` - so `greet(\"Ada\")` returns `Hello, Ada!`.\n\nReturn the string. Do not print it. Returning and printing are\ndifferent things, and almost everything you write from here on\nreturns.",
+   "prompt": "Write a function `greet(name)` that returns the string\n`Hello, <name>!` - so `greet(\"Ada\")` returns `Hello, Ada!`.\n\nReturn the string. Do not print it.",
    "starter": "def greet(name):\n    # return the greeting instead of printing it\n    pass\n",
    "tests": [
     {
@@ -24,8 +24,8 @@
     }
    ],
    "hints": [
-    "The checks call `greet(\"Ada\")` and compare what comes back with the text `Hello, Ada!`. So your function has to build that text and hand it back with `return`. `print` only shows text on the screen - the function would give back `None` and every check would fail.",
-    "To put the name inside the text, use an f-string: `f\"Hello, {name}!\"`. The part in braces is replaced by whatever `name` holds, so `return f\"Hello, {name}!\"` is the whole body."
+    "The checks call `greet(\"Ada\")` and compare the result with `Hello, Ada!`. Build that text and hand it back with `return`. `print` only shows it on screen, so the function would return `None`.",
+    "Use an f-string: `return f\"Hello, {name}!\"`. The braces are replaced by the value of `name`."
    ],
    "solution": "def greet(name):\n    return f\"Hello, {name}!\"\n",
    "setup": ""
@@ -61,8 +61,8 @@
     }
    ],
    "hints": [
-    "Turn the formula into Python one piece at a time: take `celsius`, multiply it by 9, divide by 5, then add 32 - and `return` the result.",
-    "Write it as `celsius * 9 / 5 + 32`. Use `/`, not `//`: `//` throws away the fraction, so 36.6 degrees would come out wrong."
+    "Translate the formula piece by piece: multiply by 9, divide by 5, add 32, and return the result.",
+    "`celsius * 9 / 5 + 32`. Use `/`, not `//`, or the fraction is lost."
    ],
    "solution": "def to_fahrenheit(celsius):\n    return celsius * 9 / 5 + 32\n",
    "setup": ""
@@ -102,8 +102,8 @@
     }
    ],
    "hints": [
-    "Work from the smallest unit up: first split the seconds into whole minutes plus leftover seconds, then split those minutes into whole hours plus leftover minutes.",
-    "`divmod(a, b)` gives both parts of a division at once: `divmod(3661, 60)` is `(61, 1)` - 61 whole minutes, 1 second left. Do it again with the minutes and 60, then `return hours, minutes, seconds`."
+    "Split the seconds into minutes and leftover seconds. Then split the minutes into hours and leftover minutes.",
+    "`divmod(a, b)` returns the quotient and the remainder: `divmod(3661, 60)` is `(61, 1)`. Apply it twice, then `return hours, minutes, seconds`."
    ],
    "solution": "def hms(total_seconds):\n    minutes, seconds = divmod(total_seconds, 60)\n    hours, minutes = divmod(minutes, 60)\n    return hours, minutes, seconds\n",
    "setup": ""
@@ -139,8 +139,8 @@
     }
    ],
    "hints": [
-    "Break the name into words, take the first letter of each, make it a capital and put a dot after it, then glue the pieces together.",
-    "`full_name.split()` (with nothing in the brackets) splits on any amount of space and never gives empty words. For each word, `word[0].upper() + \".\"`, and `\"\".join(...)` glues the pieces with nothing between them."
+    "Split the name into words. For each word, take the first letter, make it uppercase and add a dot. Join the pieces.",
+    "`full_name.split()` with no argument ignores extra spaces. `\"\".join(word[0].upper() + \".\" for word in full_name.split())`."
    ],
    "solution": "def initials(full_name):\n    return \"\".join(word[0].upper() + \".\" for word in full_name.split())\n",
    "setup": ""
@@ -172,8 +172,8 @@
     }
    ],
    "hints": [
-    "An f-string can do more than insert a value: after a colon inside the braces you can say how to format the number - separators, decimals and so on.",
-    "`f\"{amount:,.2f}\"` adds thousands commas (`,`) and exactly two decimals (`.2f`). Put the dollar sign in front: `f\"${amount:,.2f}\"`."
+    "An f-string can format a number: put the format after a colon inside the braces.",
+    "`f\"${amount:,.2f}\"`: `,` adds thousands separators, `.2f` gives two decimals."
    ],
    "solution": "def price(amount):\n    return f\"${amount:,.2f}\"\n",
    "setup": ""
@@ -225,8 +225,8 @@
     }
    ],
    "hints": [
-    "Deal with bad input first: if the score is below 0 or above 100, `raise ValueError(...)`. Then check the grades from the top down, so each test only needs one number.",
-    "`if not 0 <= score <= 100: raise ValueError(\"out of range\")`, then `if score >= 90: return \"A\"`, then `>= 80` for B, and so on, with `return \"F\"` at the end for everything left."
+    "Reject bad input first with `raise ValueError(...)`. Then test the grades from highest to lowest.",
+    "`if not 0 <= score <= 100: raise ValueError(\"out of range\")`, then `if score >= 90: return \"A\"`, `>= 80` for B, and so on. End with `return \"F\"`."
    ],
    "solution": "def grade(score):\n    if not 0 <= score <= 100:\n        raise ValueError(\"score must be between 0 and 100\")\n    if score >= 90:\n        return \"A\"\n    if score >= 80:\n        return \"B\"\n    if score >= 70:\n        return \"C\"\n    if score >= 60:\n        return \"D\"\n    return \"F\"\n",
    "setup": ""
@@ -262,8 +262,8 @@
     }
    ],
    "hints": [
-    "Say the rule out loud as a chain: divisible by 4, and at the same time either not a century, or a century divisible by 400. That whole sentence is one True/False expression.",
-    "`x % n == 0` means \"x divides evenly by n\". The rule is `year % 4 == 0 and (year % 100 != 0 or year % 400 == 0)` - the brackets matter."
+    "The rule is one boolean expression: divisible by 4, and either not a century or divisible by 400.",
+    "`x % n == 0` means x is divisible by n. `year % 4 == 0 and (year % 100 != 0 or year % 400 == 0)`."
    ],
    "solution": "def is_leap(year):\n    return year % 4 == 0 and (year % 100 != 0 or year % 400 == 0)\n",
    "setup": ""
@@ -274,7 +274,7 @@
    "topic": "Loops",
    "title": "Sum up to n",
    "difficulty": 1,
-   "prompt": "Write `sum_to(n)` returning the sum of every whole number from 1 to `n`\ninclusive. `sum_to(5)` is 15. `sum_to(0)` is 0.\n\nWrite the loop yourself this time, even though a formula exists.",
+   "prompt": "Write `sum_to(n)` returning the sum of every whole number from 1 to `n`\ninclusive. `sum_to(5)` is 15. `sum_to(0)` is 0.\n\nUse a loop, not the formula.",
    "starter": "def sum_to(n):\n    pass\n",
    "tests": [
     {
@@ -295,8 +295,8 @@
     }
    ],
    "hints": [
-    "Keep a running total that starts at 0, then go through the numbers 1, 2, 3 ... up to n and add each one to it. Return the total at the end.",
-    "`range(1, n + 1)` gives 1 up to n - the stop number itself is left out, so add one. Set `total = 0` before the loop (not inside it) and do `total += value` inside."
+    "Start a total at 0, loop over 1 to n, add each number, return the total.",
+    "`range(1, n + 1)` stops before `n + 1`, so it includes n. Set `total = 0` before the loop and `total += value` inside it."
    ],
    "solution": "def sum_to(n):\n    total = 0\n    for value in range(1, n + 1):\n        total += value\n    return total\n",
    "setup": ""
@@ -332,8 +332,8 @@
     }
    ],
    "hints": [
-    "Make an empty list, loop over 1 to n, decide what each number becomes, and append it. The order of the tests matters: a multiple of 15 is also a multiple of 3 and 5.",
-    "Test `value % 15 == 0` first, then `% 3`, then `% 5`, with `else` appending the number itself. If you test 3 first, 15 becomes \"Fizz\" and never reaches \"FizzBuzz\"."
+    "Build a list. For each number from 1 to n, decide what to append. Test 15 first: a multiple of 15 is also a multiple of 3 and 5.",
+    "Check `value % 15 == 0`, then `% 3`, then `% 5`, and `else` append the number."
    ],
    "solution": "def fizzbuzz(n):\n    out = []\n    for value in range(1, n + 1):\n        if value % 15 == 0:\n            out.append(\"FizzBuzz\")\n        elif value % 3 == 0:\n            out.append(\"Fizz\")\n        elif value % 5 == 0:\n            out.append(\"Buzz\")\n        else:\n            out.append(value)\n    return out\n",
    "setup": ""
@@ -373,8 +373,8 @@
     }
    ],
    "hints": [
-    "Duplicates are the trap: in `[5, 1, 5, 3]` the second largest value is 3, not 5. Remove repeats first, then look at what is left.",
-    "`sorted(set(numbers))` removes repeats and sorts smallest to largest. If that has fewer than 2 values return `None`; otherwise `[-2]` is the second from the end."
+    "Remove duplicates first. In `[5, 1, 5, 3]` the answer is 3, not 5.",
+    "`sorted(set(numbers))` removes duplicates and sorts ascending. If fewer than 2 values remain, return `None`. Otherwise return `[-2]`."
    ],
    "solution": "def second_largest(numbers):\n    distinct = sorted(set(numbers))\n    if len(distinct) < 2:\n        return None\n    return distinct[-2]\n",
    "setup": ""
@@ -410,8 +410,8 @@
     }
    ],
    "hints": [
-    "A list comprehension builds a new list in one line: for every number, keep it only if it is even, and put its square in the new list.",
-    "The shape is `[what_to_put for item in items if condition]`. Here: `[n * n for n in numbers if n % 2 == 0]` - `n % 2 == 0` means n is even."
+    "Keep only the even numbers and put each one's square in the new list.",
+    "`[n * n for n in numbers if n % 2 == 0]`."
    ],
    "solution": "def even_squares(numbers):\n    return [n * n for n in numbers if n % 2 == 0]\n",
    "setup": ""
@@ -447,8 +447,8 @@
     }
    ],
    "hints": [
-    "Handle the no-answer cases first (shorter than 3, or an even length) by returning `\"\"`. Then find the middle position and take one character either side of it.",
-    "The middle index is `len(text) // 2`. A slice `text[start:stop]` stops before `stop`, so the three middle characters are `text[middle - 1:middle + 2]`."
+    "Return `\"\"` for strings shorter than 3 or of even length. Otherwise find the middle index and take one character either side.",
+    "`middle = len(text) // 2`, then `text[middle - 1:middle + 2]`. A slice stops before its end index."
    ],
    "solution": "def middle_three(text):\n    if len(text) < 3 or len(text) % 2 == 0:\n        return \"\"\n    middle = len(text) // 2\n    return text[middle - 1:middle + 2]\n",
    "setup": ""
@@ -480,8 +480,8 @@
     }
    ],
    "hints": [
-    "Three jobs in order: throw away the extra spaces (outside and inside), then capitalise each word.",
-    "`name.split()` gives the words with every run of space removed; `\" \".join(...)` puts them back with single spaces; `.title()` capitalises each word. They chain: `\" \".join(name.split()).title()`."
+    "Remove the extra spaces, then capitalise each word.",
+    "`\" \".join(name.split()).title()`. `split()` drops all extra whitespace; `join` puts single spaces back."
    ],
    "solution": "def tidy(name):\n    return \" \".join(name.split()).title()\n",
    "setup": ""
@@ -517,8 +517,8 @@
     }
    ],
    "hints": [
-    "Split the phrase into words, take the first letter of each, make it a capital, and join the letters with nothing between them.",
-    "`phrase.split()` gives the words. `\"\".join(word[0].upper() for word in phrase.split())` does the rest in one line."
+    "Take the first letter of each word, uppercase it, and join the letters.",
+    "`\"\".join(word[0].upper() for word in phrase.split())`."
    ],
    "solution": "def acronym(phrase):\n    return \"\".join(word[0].upper() for word in phrase.split())\n",
    "setup": ""
@@ -550,8 +550,8 @@
     }
    ],
    "hints": [
-    "Lower-case the text, split it into words, and keep a dictionary of counts: for each word, add one to its count - starting from 0 the first time you see it.",
-    "`counts.get(word, 0)` returns the count so far, or 0 for a new word, so `counts[word] = counts.get(word, 0) + 1` works for both. Once yours passes, look at `collections.Counter`."
+    "Lowercase the text, split it into words, and count each word in a dictionary.",
+    "`counts[word] = counts.get(word, 0) + 1`. `get` returns 0 for a new word. After it passes, try `collections.Counter`."
    ],
    "solution": "def word_count(text):\n    counts = {}\n    for word in text.lower().split():\n        counts[word] = counts.get(word, 0) + 1\n    return counts\n",
    "setup": ""
@@ -562,7 +562,7 @@
    "topic": "Dictionaries",
    "title": "Look up without crashing",
    "difficulty": 2,
-   "prompt": "Write `lookup(data, key, default=None)` returning `data[key]` when the\nkey exists, and `default` when it does not. Do not use `dict.get`;\nwrite the branch yourself so you see what `get` is doing.",
+   "prompt": "Write `lookup(data, key, default=None)` returning `data[key]` when the\nkey exists, and `default` when it does not. Do not use `dict.get`;\nwrite the check yourself.",
    "starter": "def lookup(data, key, default=None):\n    pass\n",
    "tests": [
     {
@@ -587,8 +587,8 @@
     }
    ],
    "hints": [
-    "Two cases: the key is in the dictionary, or it is not. Test which one first, then return the right thing for each.",
-    "`if key in data:` checks the keys (not the values). Return `data[key]` there, and `default` otherwise. Do not write `if data[key]:` - that crashes on a missing key and wrongly treats 0 or \"\" as missing."
+    "Check whether the key exists, then return either the value or the default.",
+    "`if key in data: return data[key]`, otherwise `return default`. Do not use `if data[key]:`: it fails on a missing key and treats 0 and \"\" as missing."
    ],
    "solution": "def lookup(data, key, default=None):\n    if key in data:\n        return data[key]\n    return default\n",
    "setup": ""
@@ -620,8 +620,8 @@
     }
    ],
    "hints": [
-    "Walk the list once. Remember what you have already kept; keep an item only the first time you meet it. A set is the fast way to remember, a list keeps the order.",
-    "Start with `seen = set()` and `out = []`. For each item: `if item not in seen:` add it to `seen` and `out.append(item)`. Return `out`."
+    "Loop once. Keep a set of items already seen, and append an item to the result only the first time.",
+    "`seen = set()`, `out = []`. For each item: `if item not in seen:` add it to `seen` and append it to `out`."
    ],
    "solution": "def unique(items):\n    seen = set()\n    out = []\n    for item in items:\n        if item not in seen:\n            seen.add(item)\n            out.append(item)\n    return out\n",
    "setup": ""
@@ -657,8 +657,8 @@
     }
    ],
    "hints": [
-    "`sorted` can sort by anything you choose: give it a small function that turns each name into what it should be sorted by - surname first, then first name.",
-    "`name.rpartition(\" \")` splits at the last space: `\"Ada Lovelace\"` gives `(\"Ada\", \" \", \"Lovelace\")`. Return `(last, first)` from the key function and call `sorted(names, key=key)` - it makes a new list."
+    "Give `sorted` a key function that returns the surname, then the first name.",
+    "`first, _, last = name.rpartition(\" \")` splits at the last space. Return `(last, first)` and call `sorted(names, key=key)`."
    ],
    "solution": "def by_surname(names):\n    def key(name):\n        first, _, last = name.rpartition(\" \")\n        return (last, first)\n    return sorted(names, key=key)\n",
    "setup": ""
@@ -690,8 +690,8 @@
     }
    ],
    "hints": [
-    "Sort the names by score, highest first, with ties going alphabetically, then take the first n.",
-    "Sort `scores.items()` with `key=lambda pair: (-pair[1], pair[0])` - a minus sign flips the score so the highest comes first, and the name breaks ties. Then take `[:n]` and keep just the names."
+    "Sort by score from highest to lowest, break ties by name, and take the first n names.",
+    "`sorted(scores.items(), key=lambda pair: (-pair[1], pair[0]))`. The minus sign puts high scores first. Then slice `[:n]` and keep the names."
    ],
    "solution": "def top_n(scores, n):\n    ordered = sorted(scores.items(), key=lambda pair: (-pair[1], pair[0]))\n    return [name for name, _score in ordered[:n]]\n",
    "setup": ""
@@ -727,8 +727,8 @@
     }
    ],
    "hints": [
-    "Go through the list with each item's position, and keep the position whenever the item equals the target.",
-    "`enumerate(items)` gives `(index, item)` pairs. `[i for i, item in enumerate(items) if item == target]` collects the positions in one line."
+    "Loop over the list with each item's index and keep the index when the item equals the target.",
+    "`[i for i, item in enumerate(items) if item == target]`."
    ],
    "solution": "def positions(items, target):\n    return [i for i, item in enumerate(items) if item == target]\n",
    "setup": ""
@@ -756,8 +756,8 @@
     }
    ],
    "hints": [
-    "Walk the two lists side by side, pairing the first name with the first score and so on, and build a dictionary from the pairs.",
-    "`zip(names, scores)` pairs them up and stops at the shorter list - exactly the rule you need. `dict(zip(names, scores))` turns the pairs into a dictionary."
+    "Pair each name with the score at the same position and build a dictionary.",
+    "`dict(zip(names, scores))`. `zip` stops at the shorter list."
    ],
    "solution": "def pair_up(names, scores):\n    return dict(zip(names, scores))\n",
    "setup": ""
@@ -785,8 +785,8 @@
     }
    ],
    "hints": [
-    "Start with an empty dictionary. For each row, add its amount to the running total for its category, starting from 0 for a category you have not seen.",
-    "`out[key] = out.get(key, 0) + row[\"amount\"]` handles both new and known categories, where `key = row[\"category\"]`."
+    "Start with an empty dictionary and add each row's amount to its category's total.",
+    "`out[key] = out.get(key, 0) + row[\"amount\"]`, with `key = row[\"category\"]`."
    ],
    "solution": "def totals(rows):\n    out = {}\n    for row in rows:\n        key = row[\"category\"]\n        out[key] = out.get(key, 0) + row[\"amount\"]\n    return out\n",
    "setup": ""
@@ -814,8 +814,8 @@
     }
    ],
    "hints": [
-    "A default like `basket=[]` is made once, when the function is defined, and then shared by every call - that is why items leak between calls. The fix is to make a new list inside the function each time.",
-    "Use `basket=None` as the default, then `if basket is None: basket = []` as the first line of the body. A caller who passes their own list still gets theirs."
+    "A default like `basket=[]` is created once and shared by every call. Create a new list inside the function instead.",
+    "Use `basket=None`, then `if basket is None: basket = []` as the first line."
    ],
    "solution": "def add_item(item, basket=None):\n    if basket is None:\n        basket = []\n    basket.append(item)\n    return basket\n",
    "setup": ""
@@ -847,8 +847,8 @@
     }
    ],
    "hints": [
-    "`*values` collects the positional arguments into a tuple and `**options` collects the keyword ones into a dictionary. Build the count part first; if there are no options, you are done.",
-    "`head = f\"{len(values)} values\"`. For the options, sort their names and format each as `key=value`: `\" \".join(f\"{k}={options[k]}\" for k in sorted(options))`, then `f\"{head} | {tail}\"`."
+    "`*values` is a tuple of positional arguments; `**options` is a dictionary of keyword arguments. With no options, return the count alone.",
+    "`head = f\"{len(values)} values\"`. `tail = \" \".join(f\"{k}={options[k]}\" for k in sorted(options))`. Return `f\"{head} | {tail}\"`."
    ],
    "solution": "def describe(*values, **options):\n    head = f\"{len(values)} values\"\n    if not options:\n        return head\n    tail = \" \".join(f\"{k}={options[k]}\" for k in sorted(options))\n    return f\"{head} | {tail}\"\n",
    "setup": ""
@@ -880,8 +880,8 @@
     }
    ],
    "hints": [
-    "A recursive function calls itself on a smaller problem. It needs a stopping case that answers directly - otherwise it never ends and you get a RecursionError.",
-    "Raise `ValueError` for negative n, return 1 when n is 0 or 1, and otherwise `return n * factorial(n - 1)`."
+    "A recursive function calls itself on a smaller input and needs a base case that returns directly.",
+    "Raise `ValueError` for n below 0. Return 1 for 0 and 1. Otherwise `return n * factorial(n - 1)`."
    ],
    "solution": "def factorial(n):\n    if n < 0:\n        raise ValueError(\"factorial is undefined for negative numbers\")\n    if n <= 1:\n        return 1\n    return n * factorial(n - 1)\n",
    "setup": ""
@@ -892,7 +892,7 @@
    "topic": "Exceptions",
    "title": "Divide without crashing",
    "difficulty": 2,
-   "prompt": "Write `safe_div(a, b)` returning `a / b`, or `None` when `b` is zero.\nCatch the exception rather than testing for zero first, so you see how\n`try` reads.",
+   "prompt": "Write `safe_div(a, b)` returning `a / b`, or `None` when `b` is zero.\nCatch the exception instead of testing for zero first.",
    "starter": "def safe_div(a, b):\n    pass\n",
    "tests": [
     {
@@ -917,8 +917,8 @@
     }
    ],
    "hints": [
-    "Try the division; if Python raises an error because b is zero, catch that error and return `None` instead of crashing.",
-    "`try: return a / b` then `except ZeroDivisionError: return None`. Name the exact error - a bare `except:` would also hide real bugs."
+    "Try the division. If it raises because b is zero, return `None`.",
+    "`try: return a / b` and `except ZeroDivisionError: return None`. Catch only that error."
    ],
    "solution": "def safe_div(a, b):\n    try:\n        return a / b\n    except ZeroDivisionError:\n        return None\n",
    "setup": ""
@@ -958,8 +958,8 @@
     }
    ],
    "hints": [
-    "Three checks, in order: is it a type you accept (a string or a number, but not True/False)? Can it become a whole number? Is it between 0 and 130? Raise the matching error as soon as one fails.",
-    "`isinstance(value, (str, int, float))` checks the type - `bool` counts as an int, so exclude it. Wrap `int(value)` in `try` and turn a failure into `ValueError`, then check `0 <= age <= 130`."
+    "Check in order: the type (string or number, not bool), the conversion to int, then the range 0 to 130.",
+    "`isinstance(value, (str, int, float))`, excluding `bool`. Wrap `int(value)` in `try` and raise `ValueError` on failure. Then check `0 <= age <= 130`."
    ],
    "solution": "def validate_age(value):\n    if not isinstance(value, (str, int, float)) or isinstance(value, bool):\n        raise TypeError(\"age must be a string or a number\")\n    try:\n        age = int(value)\n    except (TypeError, ValueError):\n        raise ValueError(\"age must be a whole number\")\n    if not 0 <= age <= 130:\n        raise ValueError(\"age must be between 0 and 130\")\n    return age\n",
    "setup": ""
@@ -995,8 +995,8 @@
     }
    ],
    "hints": [
-    "Go through the values one at a time and try to convert each. If one fails, skip it and carry on with the next - the loop must keep going.",
-    "Put the `try` inside the loop around `out.append(int(value))`, and `except (TypeError, ValueError): continue`. `int(\"x\")` raises ValueError; `int(None)` raises TypeError."
+    "Convert each value in turn. Skip the ones that fail and keep looping.",
+    "Put `try: out.append(int(value))` inside the loop, with `except (TypeError, ValueError): continue`. `int(None)` raises TypeError."
    ],
    "solution": "def parse_ints(values):\n    out = []\n    for value in values:\n        try:\n            out.append(int(value))\n        except (TypeError, ValueError):\n            continue\n    return out\n",
    "setup": ""
@@ -1032,8 +1032,8 @@
     }
    ],
    "hints": [
-    "Open the file, go through it line by line, and count the lines that still have something in them after you remove the spaces.",
-    "`with open(path, encoding=\"utf-8\") as fh:` opens the file and closes it for you. `for line in fh:` gives each line, and `if line.strip():` is true only when something other than whitespace is there."
+    "Open the file, read it line by line, and count lines that are not blank after stripping.",
+    "`with open(path, encoding=\"utf-8\") as fh:` then `for line in fh:` and `if line.strip():`."
    ],
    "solution": "def count_lines(path):\n    total = 0\n    with open(path, encoding=\"utf-8\") as fh:\n        for line in fh:\n            if line.strip():\n                total += 1\n    return total\n",
    "setup": "LINES = [\"first\", \"\", \"  \", \"second\", \"third\"]\nwith open(\"notes.txt\", \"w\", encoding=\"utf-8\") as fh:\n    fh.write(chr(10).join(LINES) + chr(10))\nwith open(\"more.txt\", \"w\", encoding=\"utf-8\") as fh:\n    fh.write(chr(10).join([\"one\", chr(9), \"two\", \"three\", \"four\"]))\nwith open(\"empty.txt\", \"w\", encoding=\"utf-8\") as fh:\n    pass\nwith open(\"blank.txt\", \"w\", encoding=\"utf-8\") as fh:\n    fh.write(chr(10).join([\"   \", chr(9), \"\"]) + chr(10))\n"
@@ -1069,8 +1069,8 @@
     }
    ],
    "hints": [
-    "`save` writes the dictionary into the file as JSON text; `load` reads that text back into a dictionary. Open the file for writing in one and for reading in the other.",
-    "In `save`: `with open(path, \"w\", encoding=\"utf-8\") as fh: json.dump(data, fh)`. In `load`: open it normally and `return json.load(fh)`. Remember `import json` at the top."
+    "`save` writes the dictionary as JSON; `load` reads it back.",
+    "`import json`. In `save`: `with open(path, \"w\", encoding=\"utf-8\") as fh: json.dump(data, fh)`. In `load`: `return json.load(fh)`."
    ],
    "solution": "import json\n\n\ndef save(path, data):\n    with open(path, \"w\", encoding=\"utf-8\") as fh:\n        json.dump(data, fh)\n\n\ndef load(path):\n    with open(path, encoding=\"utf-8\") as fh:\n        return json.load(fh)\n",
    "setup": ""
@@ -1102,8 +1102,8 @@
     }
    ],
    "hints": [
-    "Turn both strings into real dates, subtract one from the other, and take the number of days - positive either way round.",
-    "`date.fromisoformat(\"2026-01-31\")` reads the string (after `from datetime import date`). Subtracting two dates gives a timedelta; `.days` is the number of days, and `abs(...)` makes it positive."
+    "Convert both strings to dates, subtract, and take the absolute number of days.",
+    "`from datetime import date`, `date.fromisoformat(a)`. Subtracting dates gives a timedelta; use `abs((second - first).days)`."
    ],
    "solution": "from datetime import date\n\n\ndef days_between(a, b):\n    first = date.fromisoformat(a)\n    second = date.fromisoformat(b)\n    return abs((second - first).days)\n",
    "setup": ""
@@ -1139,8 +1139,8 @@
     }
    ],
    "hints": [
-    "Count only the letters, ignoring case. Then pick the letter with the highest count, and on a tie the one that comes first in the alphabet. No letters at all means `None`.",
-    "`Counter(ch for ch in text.lower() if ch.isalpha())` counts the letters (after `from collections import Counter`). `min(counts, key=lambda ch: (-counts[ch], ch))` picks the most common, breaking ties alphabetically."
+    "Count only letters, ignoring case. Pick the highest count; on a tie, the letter first in the alphabet. No letters returns `None`.",
+    "`Counter(ch for ch in text.lower() if ch.isalpha())`, then `min(counts, key=lambda ch: (-counts[ch], ch))`."
    ],
    "solution": "from collections import Counter\n\n\ndef most_common_letter(text):\n    counts = Counter(ch for ch in text.lower() if ch.isalpha())\n    if not counts:\n        return None\n    return min(counts, key=lambda ch: (-counts[ch], ch))\n",
    "setup": ""
@@ -1184,8 +1184,8 @@
     }
    ],
    "hints": [
-    "Python has two built-ins for exactly these questions: one asks \"is this true for every item?\", the other \"is it true for at least one?\".",
-    "`all(n > 0 for n in numbers)` and `any(n < 0 for n in numbers)`. `all` of an empty list is True, which is what the task asks for."
+    "Use the built-ins that answer \"true for every item\" and \"true for at least one item\".",
+    "`all(n > 0 for n in numbers)` and `any(n < 0 for n in numbers)`. `all([])` is True."
    ],
    "solution": "def all_positive(numbers):\n    return all(n > 0 for n in numbers)\n\n\ndef has_negative(numbers):\n    return any(n < 0 for n in numbers)\n",
    "setup": ""
@@ -1221,8 +1221,8 @@
     }
    ],
    "hints": [
-    "First clean the text: keep only letters and digits, in lower case. Then a palindrome reads the same backwards as forwards.",
-    "`\"\".join(ch.lower() for ch in text if ch.isalnum())` cleans it. `cleaned[::-1]` is the text reversed, so return `cleaned == cleaned[::-1]`."
+    "Keep only letters and digits, lowercase them, and compare with the reverse.",
+    "`cleaned = \"\".join(ch.lower() for ch in text if ch.isalnum())`, then `return cleaned == cleaned[::-1]`."
    ],
    "solution": "def is_palindrome(text):\n    cleaned = \"\".join(ch.lower() for ch in text if ch.isalnum())\n    return cleaned == cleaned[::-1]\n",
    "setup": ""
@@ -1254,8 +1254,8 @@
     }
    ],
    "hints": [
-    "Build a new dictionary where each old value becomes a key and each old key becomes its value. If two keys share a value, the later one simply overwrites the earlier.",
-    "A dictionary comprehension does it in one line: `{value: key for key, value in mapping.items()}`."
+    "Build a new dictionary with values as keys and keys as values. A later duplicate overwrites an earlier one.",
+    "`{value: key for key, value in mapping.items()}`."
    ],
    "solution": "def invert(mapping):\n    return {value: key for key, value in mapping.items()}\n",
    "setup": ""
@@ -1287,8 +1287,8 @@
     }
    ],
    "hints": [
-    "Keep one running total. For each number, add it to the total and append the total so far to the result list.",
-    "Set `total = 0` and `out = []` before the loop; inside, `total += number` then `out.append(total)`. When it passes, compare with `itertools.accumulate`."
+    "Keep a running total and append it after adding each number.",
+    "`total = 0` and `out = []` before the loop; inside, `total += number` and `out.append(total)`. Compare with `itertools.accumulate` after."
    ],
    "solution": "def running_total(numbers):\n    out = []\n    total = 0\n    for number in numbers:\n        total += number\n        out.append(total)\n    return out\n",
    "setup": ""
@@ -1299,7 +1299,7 @@
    "topic": "Iterator protocol",
    "title": "Write an iterator by hand",
    "difficulty": 3,
-   "prompt": "Build a class `Countdown(n)` that iterates from `n` down to 1.\n\nImplement `__iter__` and `__next__` yourself. Do not use a generator -\nthe point is to see what a generator is doing underneath.",
+   "prompt": "Build a class `Countdown(n)` that iterates from `n` down to 1.\n\nImplement `__iter__` and `__next__` yourself. Do not use a generator.",
    "starter": "class Countdown:\n    def __init__(self, n):\n        pass\n",
    "tests": [
     {
@@ -1336,7 +1336,7 @@
    "topic": "Generators",
    "title": "Fibonacci, lazily",
    "difficulty": 3,
-   "prompt": "Write a generator function `fib()` yielding the Fibonacci sequence\nstarting 0, 1, 1, 2, 3, 5 and never ending.\n\nBecause it is lazy, an endless generator costs nothing until you take\nvalues from it.",
+   "prompt": "Write a generator function `fib()` yielding the Fibonacci sequence\nstarting 0, 1, 1, 2, 3, 5 and never ending.",
    "starter": "def fib():\n    pass\n",
    "tests": [
     {

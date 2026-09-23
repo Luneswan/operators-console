@@ -29,23 +29,23 @@ from .widgets.common import (
 #: One line under each experience level, so the choice is about what happens
 #: next rather than about how the learner would like to describe themselves.
 EXPERIENCE_NOTES = {
-    "none": "Start at the very beginning. Nothing is assumed.",
-    "some": "The basics stay, and the practice is where the time goes.",
-    "other": "Syntax is skimmed. What is Python-specific is not.",
-    "working": "Straight at the engineering phases, fundamentals as review.",
+    "none": "Starts from zero.",
+    "some": "Keeps the basics, with more practice.",
+    "other": "Skims syntax. Covers what is specific to Python.",
+    "working": "Goes straight to engineering. Fundamentals as review.",
 }
 
 #: The same for each goal: what picking it actually adds to the roadmap.
 GOAL_NOTES = {
-    "web": "HTTP, databases, APIs, and getting them online.",
-    "data": "Pandas, SQL, and pipelines that do not fall over.",
-    "ai": "The maths, the libraries, and what the models really do.",
-    "automation": "Scripts, scraping, and the boring half of a job.",
-    "games": "Loops, state, and making the machine keep up.",
-    "devops": "Linux, containers, CI, and running things in production.",
-    "security": "Networks, common attacks, and code that resists them.",
-    "interview": "Data structures, algorithms, thinking out loud.",
-    "fundamentals": "Memory, the interpreter, what is under the syntax.",
+    "web": "HTTP, databases, APIs, deployment.",
+    "data": "pandas, SQL, data pipelines.",
+    "ai": "The math, the libraries, how models work.",
+    "automation": "Scripts, scraping, repetitive tasks.",
+    "games": "Game loops, state, performance.",
+    "devops": "Linux, containers, CI, production.",
+    "security": "Networks, common attacks, secure code.",
+    "interview": "Data structures, algorithms, explaining your reasoning.",
+    "fundamentals": "Memory, the interpreter, internals.",
 }
 
 #: The label column in the pace step, in pixels at a 1.0x text size.
@@ -147,7 +147,7 @@ class Onboarding(QDialog):
 
         controls = QHBoxLayout()
         controls.setSpacing(8)
-        self.skip_button = button("Skip - I will decide later", "quiet")
+        self.skip_button = button("Skip for now", "quiet")
         self.skip_button.setAutoDefault(False)
         self.skip_button.clicked.connect(self._skip)
         controls.addWidget(self.skip_button)
@@ -184,7 +184,7 @@ class Onboarding(QDialog):
         column.setSpacing(12)
         card = Card(padding=20, spacing=8)
         card.setObjectName("FocusCard")
-        card.add(label("Hello. What should this call you?", "FocusTitle"))
+        card.add(label("What should the app call you?", "FocusTitle"))
         self.name = QLineEdit()
         self.name.setPlaceholderText("Your name, or anything you like")
         self.name.setAccessibleName("Your name")
@@ -194,7 +194,7 @@ class Onboarding(QDialog):
             self.name.fontMetrics().horizontalAdvance("W" * 24) + 32)
         card.add(self.name)
         card.add(muted(
-            "Only used to say hello. It never leaves this machine."))
+            "Used only for greetings. It stays on this computer."))
         column.addWidget(card)
         column.addStretch(1)
         return page
@@ -216,8 +216,7 @@ class Onboarding(QDialog):
             self.experience_buttons.append(option)
         self.experience_buttons[0].setChecked(True)
         column.addWidget(muted(
-            "This changes the tone of the advice, not the content. Nothing is "
-            "hidden from you either way."))
+            "This changes the advice, not the content. Nothing is hidden."))
         column.addStretch(1)
         return page
 
@@ -291,8 +290,7 @@ class Onboarding(QDialog):
         self.pace_months = muted("")
         estimate.add(self.pace_months)
         estimate.add(muted(
-            "Pick what you will actually do on a bad week. A plan built for "
-            "your best week is a plan you will abandon."))
+            "Pick what you can keep up in a busy week."))
         column.addWidget(estimate)
 
         self.check_updates = QCheckBox(
@@ -300,8 +298,8 @@ class Onboarding(QDialog):
             "nothing)")
         self.check_updates.setChecked(True)
         self.check_updates.setToolTip(
-            "One request shortly after the app starts and one every 30 "
-            "minutes while it is open. You can turn this off in Settings.")
+            "Checks GitHub at start, every few minutes while open, and when "
+            "you return to the app. Turn it off in Settings.")
         column.addWidget(self.check_updates)
         column.addStretch(1)
         self._preview_pace()
@@ -310,16 +308,15 @@ class Onboarding(QDialog):
     # -- wizard flow -------------------------------------------------------
 
     COPY = (
-        ("Welcome", "This takes a minute and can be changed at any time. "
-                    "It decides which phases go into your roadmap and how big "
-                    "each day looks."),
+        ("Welcome", "Four questions. They set which phases are in your "
+                    "roadmap and how much each day holds. You can change them "
+                    "later."),
         ("How much programming have you done?",
-         "There is no wrong answer, and nothing gets locked either way."),
+         "Nothing gets locked either way."),
         ("What do you want to be able to build?",
-         "Pick as many as you like, or none. Your answers add relevant phases "
-         "and change what the app suggests each day."),
-        ("How much time do you really have?",
-         "Used for the finish estimate and to size the daily plan."),
+         "Pick any number, or none. Each one adds phases to your plan."),
+        ("How much time do you have?",
+         "Sets the daily plan and the finish estimate."),
     )
 
     def _load(self) -> None:
@@ -412,11 +409,10 @@ class Onboarding(QDialog):
         weekly = self.hours.value() * self.days.value()
         weeks = hours / weekly if weekly else 0
         self.pace_preview.setText(
-            "That is %.1f hours a week - the core of your track takes about "
-            "%d weeks." % (weekly, round(weeks)))
+            "%.1f hours a week. The core of your track takes about %d weeks." % (weekly, round(weeks)))
         months = max(1, round(weeks / 4.35))
         self.pace_months.setText(
-            "Roughly %d month%s, if you keep it up."
+            "About %d month%s at that pace."
             % (months, "" if months == 1 else "s"))
 
     # -- leaving -----------------------------------------------------------

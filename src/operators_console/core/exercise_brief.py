@@ -75,11 +75,10 @@ def how_checked(exercise) -> str:
     names = entry_points(exercise)
     if not names:
         return ("Write the code the task asks for. The checks run your file, "
-                "then test what it defined.")
+                "then test what it defines.")
     shown = ", ".join("`%s`" % n for n in names[:3])
-    return ("Write %s and leave it there: the checks use it themselves, with "
-            "their own values, and compare what comes back. You do not need "
-            "to call it, print it, or ask for input()."
+    return ("Write %s. The checks call it with their own inputs and compare "
+            "the result. Do not call it yourself, print it, or use input()."
             % (shown if len(names) == 1 else "these - " + shown))
 
 

@@ -91,10 +91,10 @@ class _ProjectCard(Card):
 
         # One label per list rather than one per bullet: the text is static.
         if project.stretch:
-            self.add(heading("If you want more"))
+            self.add(heading("Stretch goals"))
             self.add(muted("\n".join("- " + t for t in project.stretch)))
         if project.rubric:
-            self.add(heading("What finished means"))
+            self.add(heading("Rubric"))
             self.add(muted("\n".join("- " + t for t in project.rubric)))
 
         self.add(divider())
@@ -235,9 +235,9 @@ class ProjectsView(View):
     title = "Projects"
 
     def build(self) -> None:
-        self.header("Projects", "build something real",
-                    "Each one is scoped so that finishing it proves a specific "
-                    "claim. Tick a requirement only when it is actually true.")
+        self.header("Projects", "portfolio projects",
+                    "Each project proves one skill. Tick a requirement only "
+                    "when it is done.")
         row = QHBoxLayout()
         row.setSpacing(8)
         self.filter = QComboBox()
@@ -490,7 +490,7 @@ class ProjectsView(View):
     def _set_status(self, project_id: str, status: str) -> None:
         self.ctx.set_project_status(project_id, status)
         if status == "shipped":
-            self.ctx.announce("Shipped. Put it on your CV.")
+            self.ctx.announce("Marked shipped.")
         self._sync()
 
     def _set_repo(self, project_id: str, url: str) -> None:

@@ -335,7 +335,7 @@ def test_a_wrong_boolean_is_explained_as_a_wrong_answer():
     code = "def is_leap(year):\n    return year % 4 == 0\n"
     failed = _failed(_grade("p01.007", code))
     assert failed["century that is not"] == (
-        "The check expects False and your code gave back True.")
+        "The check expects False. Your code returned True.")
 
 
 @pytest.mark.slow

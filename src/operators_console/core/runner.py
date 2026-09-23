@@ -69,7 +69,7 @@ class RunResult:
         if self.cancelled:
             return "Stopped."
         if self.timed_out:
-            return "Timed out - is there an endless loop?"
+            return "Timed out. Check for an endless loop."
         if self.error and not self.cases:
             lines = [x for x in self.error.strip().splitlines() if x.strip()]
             return lines[-1] if lines else "Failed to run"
@@ -514,9 +514,9 @@ def _prepare_module(code: str):
 TRACE_FIRST, TRACE_LAST = 3, 12
 
 POOL_NOTE = (
-    "Process pools cannot run inside the grader: their worker processes "
-    "cannot see code typed into the editor. Save it as a file and run it with "
-    "python in a terminal to try one.")
+    "Process pools do not work in the grader: worker processes cannot see "
+    "code typed in the editor. To try one, save the code to a file and run it "
+    "with python in a terminal.")
 
 
 def _learner_traceback(exc: BaseException, depth: int = 0) -> str:
@@ -700,16 +700,16 @@ def describe_difference(expected, got) -> str:
 
 def _difference(expected, got) -> str:
     if got is None and expected is not None:
-        return "Your function returned None - is a `return` missing?"
+        return "Your function returned None. Is a `return` missing?"
     if expected is None and got is not None:
-        return ("The check expects None, and your code gave back %s."
+        return ("The check expects None. Your code returned %s."
                 % _show(got))
     if _bool_mix(expected, got):
-        return ("True and False are not the same as 1 and 0: the check "
-                "expects %s and your code gave back %s."
+        return ("True/False and 1/0 are different values here. The check "
+                "expects %s. Your code returned %s."
                 % (_show(expected), _show(got)))
     if isinstance(expected, bool) and isinstance(got, bool):
-        return ("The check expects %s and your code gave back %s."
+        return ("The check expects %s. Your code returned %s."
                 % (expected, got))
     if _numberish(expected) and _numberish(got):
         return _number_difference(expected, got)
@@ -744,29 +744,27 @@ def _number_difference(expected, got) -> str:
     except (TypeError, ValueError, OverflowError):
         close = False
     if close:
-        return ("%s is not exactly %s - that is floating point; compare with "
-                "round() or math.isclose." % (_show(got), _show(expected)))
-    return ("The numbers are different: the check expects %s and your code "
-            "gave back %s." % (_show(expected), _show(got)))
+        return ("%s is not exactly %s because of floating-point rounding. "
+                "Compare with round() or math.isclose()." % (_show(got), _show(expected)))
+    return ("Wrong number. The check expects %s. Your code returned %s." % (_show(expected), _show(got)))
 
 
 def _text_difference(expected: str, got: str) -> str:
     if expected == got:
         return ""
     if expected.lower() == got.lower():
-        return ("The letters are right but the capitals are not - check "
-                "where you used upper and lower case.")
+        return ("Right letters, wrong capitals.")
     if "".join(expected.split()) == "".join(got.split()):
-        return ("The characters are right but the spacing is not - check the "
-                "spaces, tabs and line breaks.")
+        return ("Right characters, wrong spacing. Check spaces, tabs and line "
+                "breaks.")
     index = _first_difference(expected, got)
     if index >= len(got):
-        return ("Your text stops early - %s is missing from the end."
+        return ("Your text is missing %s at the end."
                 % _show(expected[index:]))
     if index >= len(expected):
-        return ("Your text carries on too far - %s should not be on the end."
+        return ("Your text has extra %s at the end."
                 % _show(got[index:]))
-    sentence = ("They differ at character %d: expected %s, got %s."
+    sentence = ("First difference at character %d: expected %s, got %s."
                 % (index + 1, _show(expected[index]), _show(got[index])))
     excerpt = _caret(expected, got, index)
     return sentence + ("\n" + excerpt if excerpt else "")
@@ -829,12 +827,12 @@ def _sequence_difference(expected, got) -> str:
                 % (_plain_kind(got), len(got), "" if len(got) == 1 else "s",
                    len(expected), "was" if len(expected) == 1 else "were"))
     if _same_multiset(expected, got):
-        return "The right values in the wrong order."
+        return "Right values, wrong order."
     for index, (want, have) in enumerate(zip(expected, got, strict=False)):
         if want != have:
             nested = _difference(want, have) if _both_containers(want, have) \
                 else ""
-            head = ("They differ at index %d: expected %s, got %s."
+            head = ("First difference at index %d: expected %s, got %s."
                     % (index, _show(want, 80), _show(have, 80)))
             return head + (" " + nested if nested else "")
     return ""
@@ -918,7 +916,7 @@ def _assert_parts(test_code: str, exc: BaseException):
         value = _try_eval(test.args[0], frame)
         if value is _UNREADABLE:
             return "", "", plain
-        return ("The check wants %s to be %s, and yours is %s."
+        return ("Expected %s to be %s. It is %s."
                 % (_code_span(test.args[0]), _code_span(test.args[1]),
                    _kind(value))), "", plain
 
@@ -937,30 +935,27 @@ def _compare_parts(op, expected, got):
         return describe_difference(expected, got), values
     if isinstance(op, ast.Is):
         if expected is None:
-            return ("Your code gave back %s where the check needs None "
-                    "itself." % _show(got)), values
+            return ("Expected None. Your code returned %s." % _show(got)), values
         if _looks_equal(expected, got):
             # Equal but not identical: the one case where identity is the
             # whole story. `assert f() is True` with f returning 1 is not
             # that case - it is a wrong kind of value, and says so below.
-            return ("These are two separate objects - `is` asks whether they "
-                    "are the same one, not whether they look alike."), values
+            return ("These are two separate objects. `is` checks identity, "
+                    "not equality."), values
         # `assert is_leap(1900) is False` failing because the function said
         # True is a wrong answer, not an identity problem.
         return describe_difference(expected, got), values
     if isinstance(op, ast.NotEq):
-        return ("The check needs these two to be different, and they are the "
-                "same."), "both were %s" % _show(got)
+        return ("The check needs these to differ. They are equal."), "both were %s" % _show(got)
     if isinstance(op, ast.IsNot):
         if expected is None or isinstance(expected, bool):
-            return ("The check needs something other than %s, and your code "
-                    "gave back %s." % (_show(expected), _show(got))), ""
-        return ("The check needs these two to be separate objects, and they "
-                "are the same one."), "both were %s" % _show(got)
+            return ("Expected anything but %s. Your code returned %s." % (_show(expected), _show(got))), ""
+        return ("The check needs two separate objects. Both names point to "
+                "the same one."), "both were %s" % _show(got)
     if isinstance(op, ast.In):
         return ("%s is not in %s." % (_show(got), _show(expected))), ""
     if isinstance(op, ast.NotIn):
-        return ("%s is in %s, and the check needs it not to be."
+        return ("%s should not be in %s."
                 % (_show(got), _show(expected))), ""
     word = ORDER_WORDS.get(type(op))
     if word:
@@ -1100,43 +1095,41 @@ def explain_error(exc: BaseException, code: str = "") -> str:
 def _error_hint(exc: BaseException) -> str:
     text = str(exc)
     if isinstance(exc, RecursionError):
-        return ("Your function keeps calling itself and never stops - it "
-                "needs a case that gives an answer without calling again.")
+        return ("Your function calls itself forever. Add a base case that "
+                "returns without recursing.")
     if isinstance(exc, ZeroDivisionError):
-        return ("Something was divided by zero - check the divisor before "
-                "you use it.")
+        return ("Division by zero. Check the divisor first.")
     if isinstance(exc, NameError):
         name = getattr(exc, "name", "") or _quoted(text)
         if name:
-            return ("Nothing in your code defines `%s` - check the spelling, "
-                    "and that it is defined before it is used." % name)
-        return "That name is not defined anywhere in your code."
+            return ("`%s` is not defined. Check the spelling, and that it is "
+                    "defined before use." % name)
+        return "That name is not defined in your code."
     if isinstance(exc, AttributeError):
         if getattr(exc, "obj", _MISSING) is None or "NoneType" in text:
-            return ("You used a dot on None, so something earlier gave "
-                    "nothing back - is a `return` missing?")
+            return ("You used `.` on None. Something earlier returned "
+                    "nothing. Is a `return` missing?")
         name = getattr(exc, "name", "") or ""
         if name:
-            return ("That object has no `%s` - check the spelling, and that "
-                    "it is the kind of object you think it is." % name)
+            return ("That object has no `%s`. Check the spelling and the "
+                    "object's type." % name)
         return ""
     if isinstance(exc, IndexError):
-        return ("You asked for a position that is not there - a list of 3 "
-                "items has positions 0, 1 and 2.")
+        return ("Index out of range. A list of 3 items has indexes 0, 1 and 2.")
     if isinstance(exc, KeyError):
         key = _show(exc.args[0], 60) if exc.args else ""
         if key:
-            return ("There is no %s key in that dictionary - check the "
-                    "spelling, or use .get() if it might be absent." % key)
+            return ("No key %s in that dictionary. Check the spelling, or use "
+                    ".get() if it may be missing." % key)
         return ""
     if isinstance(exc, TypeError):
         return _type_error_hint(text)
     if isinstance(exc, OverflowError):
-        return ("A number grew too large for a float - with exponentials, "
-                "subtract the largest value first so the biggest power is 0.")
+        return ("A number got too large for a float. With exponentials, "
+                "subtract the largest value first.")
     if isinstance(exc, StopIteration):
-        return ("next() was called on an iterator that had nothing left - "
-                "check where the loop stops, or give next() a default.")
+        return ("next() found the iterator empty. Check where the loop stops, "
+                "or pass next() a default.")
     if isinstance(exc, ValueError):
         return _value_error_hint(text)
     return ""
@@ -1144,23 +1137,22 @@ def _error_hint(exc: BaseException) -> str:
 
 def _value_error_hint(text: str) -> str:
     if "invalid literal for int()" in text:
-        return ("int() was given text that is not a whole number - strip it "
-                "first, or catch the ValueError if bad input is expected.")
+        return ("int() got text that is not a whole number. Strip it first, "
+                "or catch ValueError.")
     if "could not convert string to float" in text:
-        return ("float() was given text that is not a number - strip it "
-                "first, or catch the ValueError if bad input is expected.")
+        return ("float() got text that is not a number. Strip it first, or "
+                "catch ValueError.")
     if "values to unpack" in text:
-        return ("The number of names on the left of = does not match the "
-                "number of values on the right.")
+        return ("The number of names left of `=` does not match the number of "
+                "values on the right.")
     if ("math domain error" in text or "nonnegative input" in text
             or "positive input" in text):
-        return ("A maths function was given a value it cannot take, such as "
-                "the square root or logarithm of a negative number.")
+        return ("A math function got a value outside its domain, such as the "
+                "square root of a negative number.")
     if "not in list" in text:
-        return ("list.index() raises when the value is absent - test with "
-                "`in` first if it might not be there.")
-    return ("The value was the right type but not one the function can "
-            "use - look at what was passed in.")
+        return ("list.index() raises when the value is missing. Check with "
+                "`in` first.")
+    return ("Right type, wrong value. Check what was passed in.")
 
 
 def _type_error_hint(text: str) -> str:
@@ -1169,24 +1161,24 @@ def _type_error_hint(text: str) -> str:
                     and ("takes" in text or "missing" in text
                          or "required" in text)))
     if counting:
-        return ("The number of values passed in does not match what your "
-                "function takes - count the names in your `def` line.")
+        return ("Wrong number of arguments. Compare the call with the "
+                "parameters in your `def` line.")
     if "not callable" in text:
-        return ("You used () on something that is not a function - check "
-                "whether that name is holding something else.")
+        return ("You called something that is not a function. Check what that "
+                "name holds.")
     if ("unsupported operand" in text or "can only concatenate" in text
             or "must be str" in text):
-        return ("Those two kinds of value cannot be combined - convert one "
-                "of them first, with str() or int().")
+        return ("These two types cannot be combined. Convert one first with "
+                "str() or int().")
     if "not subscriptable" in text:
-        return ("You used [] on something that does not hold items - check "
-                "what that name is holding.")
+        return ("You used [] on something that is not a container. Check what "
+                "that name holds.")
     if "NoneType" in text:
-        return ("One of the values is None, so something earlier gave "
-                "nothing back - is a `return` missing?")
+        return ("One value is None. Something earlier returned nothing. Is a "
+                "`return` missing?")
     if "unhashable" in text:
-        return ("A list cannot be used as a dictionary key or put in a set - "
-                "a tuple can.")
+        return ("A list cannot be a dictionary key or a set member. Use a "
+                "tuple.")
     return ""
 
 

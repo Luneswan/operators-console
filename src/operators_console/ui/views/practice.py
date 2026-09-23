@@ -114,9 +114,8 @@ class PracticeView(View):
         # header does not jump when switching to it.
         self.scroller.column.setContentsMargins(24, 24, 24, 20)
 
-        self.header("Practice", "write it yourself",
-                    "Every exercise is graded by running your code against real "
-                    "checks. Nothing here is multiple choice.")
+        self.header("Practice", "graded exercises",
+                    "Each exercise runs your code against real checks.")
 
         # Ninety-six exercises need a way in that is not scrolling: a search
         # of its own line, so a long phase name never squeezes it out.
@@ -871,8 +870,8 @@ class PracticeView(View):
             confirm = QMessageBox(self)
             confirm.setWindowTitle("Show the solution?")
             confirm.setText(
-                "You have not passed this one yet.\n\nReading the answer now "
-                "costs you the exercise. Try one more hint first?")
+                "You have not passed this one.\n\nIf you read the answer, it "
+                "is marked as read, not solved. Try another hint first?")
             confirm.setIcon(QMessageBox.Icon.Question)
             show = confirm.addButton("Show it anyway",
                                      QMessageBox.ButtonRole.DestructiveRole)
@@ -887,8 +886,8 @@ class PracticeView(View):
                                wrap=False))
         self.results.add(label(self.current.solution, "Code", selectable=True))
         self.results.add(muted(
-            "Type it out rather than pasting it, then come back tomorrow and "
-            "write it again from memory."))
+            "Type it out instead of pasting. Tomorrow, write it again from "
+            "memory."))
         self.ctx.changed()
         self._fill_list()
         self._show_header(self.current)
@@ -930,8 +929,7 @@ def _hints_for(exercise) -> tuple:
     shape = skeleton(exercise.solution)
     if shape:
         out.append((SHAPE_TITLE,
-                    "Fill in every <code>...</code>; the structure is "
-                    "already right.<pre>%s</pre>" % html.escape(shape)))
+                    "Replace each <code>...</code> with code.<pre>%s</pre>" % html.escape(shape)))
     return tuple(out)
 
 

@@ -188,13 +188,13 @@ class UpdateDialog(QDialog):
         self.asset = updates.pick_asset(release)
         if self.asset is None:
             column.addWidget(label(
-                "This release has no download for your platform yet. It is "
-                "worth checking the releases page directly.", "Soft"))
+                "This release has no download for your platform. Check the "
+                "releases page.", "Soft"))
         else:
             size = self.asset.size / (1024 * 1024)
             column.addWidget(label(
-                "The app will download %s (%.0f MB), install it, and reopen "
-                "itself on the new version. Your progress is untouched."
+                "Downloads %s (%.0f MB), installs it and restarts the app. "
+                "Your progress is kept."
                 % (self.asset.name, size), "Soft"))
 
         notes = (release.notes or "").strip()
@@ -270,7 +270,7 @@ class UpdateDialog(QDialog):
             return
 
         self.package = path
-        self.status.setText("Installing. The app will reopen by itself.")
+        self.status.setText("Installing. The app will restart.")
         self.meter.setRange(0, 0)
         # Give the label a moment to paint before the process goes away.
         QTimer.singleShot(400, self._hand_over)
@@ -449,8 +449,8 @@ class UpdateButton(QPushButton):
         size = self.asset.size / (1024 * 1024)
         notes = (self.release.notes or "").strip().splitlines()
         head = notes[0][:120] if notes else "A new version is ready."
-        return ("%s\n\n%.0f MB. It installs itself and reopens on the new "
-                "version; your progress is untouched." % (head, size))
+        return ("%s\n\n%.0f MB. Installs and restarts the app. Your progress "
+                "is kept." % (head, size))
 
     def _long_notes(self) -> bool:
         return len((self.release.notes or "").strip()) > 320
@@ -528,7 +528,7 @@ class UpdateButton(QPushButton):
         self.set_fill(0.0)
         self.failure = why
         self._say("Try the update again")
-        self.setToolTip("It failed because %s." % why)
+        self.setToolTip("Failed: %s." % why)
         self._show_note("Last try failed: %s." % why)
         self.setEnabled(True)
         self.ctx.announce("The update did not install: %s" % why)

@@ -74,7 +74,7 @@ class PhaseView(View):
         self.scroller.add(heading("Your notes for this phase"))
         self.notes = QPlainTextEdit()
         self.notes.setPlaceholderText(
-            "What clicked, what did not, and what to pick up next time.")
+            "What worked, what did not, what to do next.")
         self.notes.setFixedHeight(NOTE_MIN_HEIGHT)
         self._note_timer = QTimer(self)
         self._note_timer.setSingleShot(True)
@@ -283,8 +283,8 @@ class PhaseView(View):
             # with nothing anywhere saying so, which is the same as it not
             # being there.
             self.body.addWidget(muted(
-                "Any line can join your review deck: right-click it, "
-                "press the ... at its right edge, or Shift+F10."))
+                "To add a line to your review deck: right-click it, click the "
+                "... at its right edge, or press Shift+F10."))
         for section in phase.sections:
             card = Card()
             top = QHBoxLayout()
@@ -328,7 +328,7 @@ class PhaseView(View):
 
         if phase.gate:
             card = Card()
-            card.add(heading("Gate - prove it before you move on"))
+            card.add(heading("Gate"))
             if phase.gate.note:
                 card.add(soft(phase.gate.note))
             for item in phase.gate.items:
@@ -341,8 +341,8 @@ class PhaseView(View):
         if not self.body.count():
             self.body.addWidget(empty_state(
                 "This phase has no checklist of its own.",
-                "It sets the rules the rest of the curriculum follows. Use "
-                "the Roadmap to pick the phase you are actually working on."))
+                "It sets the rules for the rest of the course. Use the "
+                "Roadmap to open the phase you are on."))
 
     # -- actions -----------------------------------------------------------
 
@@ -355,7 +355,7 @@ class PhaseView(View):
             stats = self.ctx.progress.phase(phase)
             self._show_progress(phase, stats)
             if stats.is_proven and not was_proven:
-                self.ctx.announce("Phase %s proven. That is real progress."
+                self.ctx.announce("Phase %s proven."
                                   % phase.num)
             elif stats.is_read and done and not stats.is_proven:
                 self.ctx.announce(

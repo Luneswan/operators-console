@@ -49,9 +49,9 @@ class StatsView(View):
     title = "Progress"
 
     def build(self) -> None:
-        self.header("Progress", "the measurements",
-                    "Checkboxes measure coverage. Exercises, quizzes and "
-                    "reviews measure whether it stuck. Both are here.")
+        self.header("Progress", "statistics",
+                    "Coverage from checkboxes. Retention from exercises, "
+                    "quizzes and reviews.")
 
         tiles = QHBoxLayout()
         tiles.setSpacing(12)
@@ -81,9 +81,9 @@ class StatsView(View):
         phases_card = Card()
         phases_card.add(heading("Phase by phase"))
         phases_card.add(muted(
-            "Click a row to open that phase, or select one and press Enter. "
-            "Click a column heading, or use SORT, to put the weakest first. "
-            "Hover the quiz column to see how the attempts went."))
+            "Click a row, or select it and press Enter, to open the phase. "
+            "Sort with a column heading or SORT. Hover the quiz column for "
+            "attempt details."))
         sort_row = QHBoxLayout()
         sort_row.setSpacing(8)
         sort_row.addWidget(muted("SORT"))
@@ -137,8 +137,7 @@ class StatsView(View):
         skills_card = Card()
         skills_card.add(heading("Self-assessment"))
         skills_card.add(muted(
-            "Rate yourself honestly. The gap between this and your exercise "
-            "results is the most useful signal in the app."))
+            "Rate yourself, then compare with your exercise results."))
         self.skills = QVBoxLayout()
         self.skills.setSpacing(8)
         skills_card.box.addLayout(self.skills)

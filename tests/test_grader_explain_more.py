@@ -44,22 +44,19 @@ def _error(fn) -> str:
 
 def test_the_wrong_boolean_is_a_wrong_answer_not_an_identity_problem():
     said = _explain("assert f() is False", {"f": lambda: True})
-    assert _sentence(said) == ("The check expects False and your code gave "
-                               "back True.")
+    assert _sentence(said) == "The check expects False. Your code returned True."
     assert "separate objects" not in said
     assert "expected False, got True" in said
 
 
 def test_the_other_way_round_too():
     said = _explain("assert f() is True", {"f": lambda: False})
-    assert _sentence(said) == ("The check expects True and your code gave "
-                               "back False.")
+    assert _sentence(said) == "The check expects True. Your code returned False."
 
 
 def test_one_instead_of_true_names_the_kind_of_value():
     said = _explain("assert f() is True", {"f": lambda: 1})
-    assert _sentence(said).startswith("True and False are not the same as "
-                                      "1 and 0")
+    assert _sentence(said).startswith("True/False and 1/0 are different")
 
 
 def test_a_wrong_value_against_a_class_says_how_they_differ():
@@ -77,22 +74,20 @@ def test_equal_but_separate_objects_still_get_the_identity_story():
 
 def test_none_keeps_its_own_sentence():
     said = _explain("assert f() is None", {"f": lambda: 3})
-    assert _sentence(said) == ("Your code gave back 3 where the check needs "
-                               "None itself.")
+    assert _sentence(said) == "Expected None. Your code returned 3."
 
 
 def test_is_not_none_says_what_came_back():
     said = _explain("assert f() is not None", {"f": lambda: None})
-    assert _sentence(said) == ("The check needs something other than None, "
-                               "and your code gave back None.")
+    assert _sentence(said) == ("Expected anything but None. Your code "
+                               "returned None.")
 
 
 def test_is_not_between_objects_keeps_the_identity_story():
     shared = [1]
     said = _explain("assert f() is not shared", {"f": lambda: shared,
                                                  "shared": shared})
-    assert _sentence(said).startswith("The check needs these two to be "
-                                      "separate objects")
+    assert _sentence(said).startswith("The check needs two separate objects")
 
 
 def test_through_the_real_grader_a_wrong_boolean_reads_as_one():
@@ -101,7 +96,7 @@ def test_through_the_real_grader_a_wrong_boolean_reads_as_one():
                           timeout=30)
     case = result.cases[0]
     assert not case.passed
-    assert case.message == "The check expects False and your code gave back True."
+    assert case.message == "The check expects False. Your code returned True."
     assert case.detail == "expected False, got True"
 
 
@@ -155,7 +150,7 @@ def test_overflow_suggests_subtracting_the_largest_value():
 def test_stop_iteration_says_the_iterator_ran_dry():
     said = _error(lambda: next(iter([])))
     assert _sentence(said).startswith("StopIteration")
-    assert "nothing left" in said
+    assert "iterator empty" in said
     assert "default" in said
 
 
@@ -167,7 +162,7 @@ def test_int_of_text_says_the_text_is_not_a_number():
 
 def test_float_of_text_says_the_text_is_not_a_number():
     said = _error(lambda: float("1,5"))
-    assert "float() was given text that is not a number" in said
+    assert "float() got text that is not a number" in said
 
 
 def test_unpacking_the_wrong_count_says_so():
@@ -175,18 +170,18 @@ def test_unpacking_the_wrong_count_says_so():
         first, second = [1, 2, 3]
         return first, second
     said = _error(unpack)
-    assert "number of names on the left" in said
+    assert "number of names left of `=`" in said
 
 
 def test_a_maths_domain_error_names_the_usual_cause():
     import math
     said = _error(lambda: math.sqrt(-1))
-    assert "square root or logarithm of a negative number" in said
+    assert "square root of a negative number" in said
 
 
 def test_index_of_a_missing_value_suggests_in():
     said = _error(lambda: [1, 2].index(5))
-    assert "test with `in` first" in said
+    assert "Check with `in` first" in said
 
 
 def test_any_other_value_error_still_gets_a_line():

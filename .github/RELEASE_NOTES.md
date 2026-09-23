@@ -1,62 +1,60 @@
-**1.1.2** - quizzes get a countdown per question (answers after it earn no
-mark), a new layout on every attempt, keyboard answers, and a results page that
-lists exactly which lines of the course to study, each a click away. Exercises
-show worked examples, explain errors in plain words, and end their hints with
-the shape of an answer. Details in the changelog below.
+**1.1.3**: plain, direct wording across the app, including messages, grader
+explanations, phase aims, library notes, track descriptions, project text and
+hints. No behaviour changes. Details are in the changelog below.
 
-**On 1.0.1 or newer (installed)?** The update button appears on its own. If a
-1.0.x version ever reopens after updating, close it and run the
-`...-windows-setup.exe` below once.
-**On 1.0.0, or a 1.0.x portable build?** Those cannot update themselves. Run the
-installer command below once; it keeps all your progress, and every later
-version then updates in-app. For a portable build on Windows use:
+**Updating from 1.0.1 or later (installed):** use the Update button in the
+sidebar. If a 1.0.x build reopens on the old version after updating, close it
+and run `...-windows-setup.exe` once.
+
+**Updating from 1.0.0, or a 1.0.x portable build:** these cannot update
+in-app. Run the install command below once. It keeps your progress, and later
+versions update in-app. For a Windows portable build:
 
 ```powershell
 & ([scriptblock]::Create((irm https://raw.githubusercontent.com/Luneswan/operators-console/main/install.ps1))) -Portable
 ```
 
-What changed in this version is in [CHANGELOG.md](https://github.com/Luneswan/operators-console/blob/main/CHANGELOG.md).
+Changes per version: [CHANGELOG.md](https://github.com/Luneswan/operators-console/blob/main/CHANGELOG.md).
 
 ## Install
 
-**Windows** — paste into PowerShell:
+Windows (PowerShell):
 
 ```powershell
 irm https://raw.githubusercontent.com/Luneswan/operators-console/main/install.ps1 | iex
 ```
 
-**macOS or Linux** — paste into a terminal:
+macOS or Linux:
 
 ```bash
 curl -fsSL https://raw.githubusercontent.com/Luneswan/operators-console/main/install.sh | sh
 ```
 
-Or download a file below and open it.
+Or download a file below:
 
-| You are on | Download |
+| Platform | File |
 |---|---|
-| Windows | `...-windows-setup.exe`, or `...-windows-x64-portable.zip` to run without installing |
+| Windows | `...-windows-setup.exe`, or `...-windows-x64-portable.zip` without installing |
 | macOS, Apple silicon | `...-macos-arm64.dmg` |
 | macOS, Intel | `...-macos-x86_64.dmg` |
 | Linux | `...-x86_64.AppImage`, the `.deb`, or the `.tar.gz` |
 
-Every file below is listed in `SHA256SUMS`, published with this release. The
-one-line installers and the in-app update check each download against it and
-refuse anything that does not match. To check a file by hand, run
-`sha256sum -c SHA256SUMS --ignore-missing` (Linux), `shasum -a 256 -c SHA256SUMS --ignore-missing`
-(macOS) or `Get-FileHash <file>` (PowerShell) and compare.
+Every file is listed in `SHA256SUMS`. The install scripts and the in-app
+updater verify downloads against it and reject mismatches. To check a file
+manually: `sha256sum -c SHA256SUMS --ignore-missing` (Linux),
+`shasum -a 256 -c SHA256SUMS --ignore-missing` (macOS), or `Get-FileHash <file>`
+(PowerShell).
 
-Nothing here is code-signed, so the first launch needs one extra step:
-Windows shows a SmartScreen warning — click **More info**, then **Run anyway**.
-macOS refuses a double-click — **right-click the app, then Open**. The one-line
-installers above handle the macOS case for you.
+The builds are not code-signed. Windows: in the SmartScreen warning, click
+**More info**, then **Run anyway**. macOS: right-click the app and choose
+**Open**. The macOS install script removes the quarantine flag, so this step is
+not needed after a scripted install.
 
-## Your data and the network
+## Data and network
 
-Your progress is a single file on your own machine. There is no account and no
-sign-in. The app makes one kind of network request and no other: it asks
-GitHub whether a newer version exists (the latest release's details and its
-`SHA256SUMS` list, nothing about you), shortly after it starts and every 30
-minutes while it is open, so it can offer an update. It downloads nothing until
-you press the button, and you can turn the check off in Settings. Links in the
-Library open in your own browser.
+Progress is stored in a local SQLite file. There is no account. The only
+network request is the update check: the app fetches the latest release's
+details and `SHA256SUMS` from GitHub at start, every five minutes while open,
+and when the window regains focus. It sends nothing about you, downloads
+nothing until you press Update, and can be turned off in Settings. Library
+links open in your browser.

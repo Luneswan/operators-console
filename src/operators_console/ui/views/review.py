@@ -24,9 +24,9 @@ RATING_LABEL = {
     # Outlined: in the light theme the solid red was the same red as the
     # suggested rating, so "Again" looked like the recommendation.
     Rating.AGAIN: ("Again", "danger", "I could not recall it"),
-    Rating.HARD: ("Hard", "", "I got there, slowly"),
+    Rating.HARD: ("Hard", "", "Recalled with effort"),
     Rating.GOOD: ("Good", "", "I knew it"),
-    Rating.EASY: ("Easy", "good", "Instant - show it far less often"),
+    Rating.EASY: ("Easy", "good", "Instant recall"),
 }
 
 #: The four ratings, on the four keys under the left hand. The number is
@@ -87,9 +87,7 @@ class ReviewView(View):
 
     def build(self) -> None:
         self.header("Review", "spaced repetition",
-                    "Cards come back exactly as often as your own answers say "
-                    "they need to. Answer honestly - the schedule is only as "
-                    "good as the ratings.")
+                    "Cards come back based on how you rate each answer.")
         self.summary = QHBoxLayout()
         self.summary.setSpacing(12)
         self.tile_due = StatTile("0", "Due now")
@@ -161,14 +159,12 @@ class ReviewView(View):
         if counts.new == 0 and counts.due == 0:
             card.add(label("Nothing due. Come back tomorrow.", "Soft"))
             card.add(muted(
-                "Cards appear here once you have started the phase they belong "
-                "to. Start a phase, or add a line from any phase to the deck "
-                "by right-clicking it."))
+                "Cards appear once you start their phase. You can also "
+                "right-click any line in a phase to add it."))
         else:
             card.add(label("You have hit today's limit.", "Soft"))
             card.add(muted(
-                "Daily limits exist so a week away does not turn into an "
-                "unopenable wall. Raise them in Settings if you want more."))
+                "Raise the daily limits in Settings for more."))
         self._add_buried_row(card)
         forecast = self.ctx.store.forecast(14)
         if any(forecast):
@@ -306,12 +302,11 @@ class ReviewView(View):
             self.group = None
             self.shown_order = []
             if self.card.kind == GATE:
-                card.add(muted("A gate check for this phase. Say how you "
-                               "would do it - out loud, from memory - then "
-                               "reveal the check."))
+                card.add(muted("Gate check. Explain from memory how you would "
+                               "do it, then reveal."))
             else:
-                card.add(muted("Finish the line from memory, out loud, and "
-                               "say where you would use it. Then reveal it."))
+                card.add(muted("Recall the line and where you would use it, "
+                               "then reveal."))
             action = button("Reveal  (Space)", "primary",
                             "Space or Enter - show the line you saved")
             action.clicked.connect(self._reveal_concept)
@@ -387,7 +382,7 @@ class ReviewView(View):
                              % self.card.choices[self.card.correct], "Soft"))
         note = choice_feedback(question, chosen) if question else ""
         if note:
-            result.add(label("About the one you picked: %s" % note, "Soft"))
+            result.add(label("Why not that one: %s" % note, "Soft"))
         result.add(label(self.card.back, "Soft"))
         self.stage.addWidget(result)
 
@@ -595,8 +590,7 @@ class ReviewView(View):
         card = Card()
         card.add(label("Queue clear.", "Big", wrap=False))
         card.add(label(
-            "%d card%s reviewed. Everything you got wrong will come back "
-            "sooner than the rest." % (self.done_today,
+            "%d card%s reviewed. Missed cards come back sooner." % (self.done_today,
                                        "" if self.done_today == 1 else "s"),
             "Soft"))
         again = button("Check for more", "quiet")

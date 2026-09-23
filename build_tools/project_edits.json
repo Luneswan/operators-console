@@ -1,0 +1,105 @@
+{
+ "_comment": "Plain-language replacements for authored project text, applied by proj_lib.dump. Keys are project ids; each maps a field to its new value, or {\"old\": ..., \"new\": ...} pairs for list fields. The build fails if an old value is not found.",
+ "pj.p00.1": {
+  "why": "Breaking things on purpose, with nothing at stake, shows you can recover with Git."
+ },
+ "pj.p01.1": {
+  "why": "Uses most of the phase (input, data structures, files, errors) with no libraries.",
+  "requirements": [
+   {
+    "old": "Reject bad input with a clear message rather than a traceback.",
+    "new": "Reject bad input with a clear message instead of a traceback."
+   }
+  ]
+ },
+ "pj.p01.2": {
+  "why": "Moving the rules from if-statements into a dictionary separates data from logic."
+ },
+ "pj.p02.1": {
+  "why": "Memory has to stay flat, which only generators give you.",
+  "stretch": [
+   {
+    "old": "Parallelise the aggregation and measure whether it actually helps.",
+    "new": "Parallelise the aggregation and measure whether it helps."
+   }
+  ]
+ },
+ "pj.p02.2": {
+  "title": "A small library that implements protocols",
+  "brief": "A reusable package that implements the iterator, context manager and descriptor protocols instead of only using them.",
+  "why": "Implementing the protocols shows how Python's data model works."
+ },
+ "pj.p03.1": {
+  "why": "Makes your code installable by other people, not just runnable on your machine."
+ },
+ "pj.p04.1": {
+  "why": "Building each structure once shows its trade-offs.",
+  "requirements": [
+   {
+    "old": "At least one structure where your version loses, and an honest explanation.",
+    "new": "At least one structure where your version loses, and why."
+   }
+  ]
+ },
+ "pj.p05.1": {
+  "why": "Writing down your reasoning is what carries over to new problems."
+ },
+ "pj.p06.1": {
+  "why": "Exit codes let monitoring systems trust your automation."
+ },
+ "pj.p07.1": {
+  "why": "Seeing the raw bytes makes every higher layer easier to debug."
+ },
+ "pj.p08.1": {
+  "why": "Index tuning only shows its effect with enough data."
+ },
+ "pj.p09.1": {
+  "why": "The closest match to a backend job. It needs to be complete."
+ },
+ "pj.p10.1": {
+  "why": "It must handle network, site and machine failures, not just the happy path."
+ },
+ "pj.p11.1": {
+  "brief": "The same workload implemented four ways, and measured.",
+  "why": "Shows which concurrency model suits which workload, with measurements."
+ },
+ "pj.p12.1": {
+  "why": "Someone new can run it from the README alone."
+ },
+ "pj.p13.1": {
+  "why": "Finding a flaw in your own code teaches more than reading about it."
+ },
+ "pj.p14.1": {
+  "brief": "Train something small, then spend most of the effort measuring whether it works.",
+  "why": "Evaluation is the hard part. Measure whether the model works."
+ },
+ "pj.p14.2": {
+  "why": "Writing the chain rule yourself and checking it numerically shows how autograd works."
+ },
+ "pj.p15.1": {
+  "why": "Tests the design under failure."
+ },
+ "pj.p16.1": {
+  "brief": "Read the bytecode, measure the memory, and write a native extension that is worth its complexity.",
+  "why": "Puts numbers on interpreter internals.",
+  "requirements": [
+   {
+    "old": "Write one extension in C, Cython or Rust and benchmark it honestly.",
+    "new": "Write one extension in C, Cython or Rust and benchmark it against the Python version."
+   }
+  ]
+ },
+ "pj.p17.1": {
+  "why": "A pipeline you can re-run is a pipeline you can fix."
+ },
+ "pj.p99.1": {
+  "brief": "Build, release and maintain something other people use.",
+  "why": "Real users, bug reports and maintenance.",
+  "requirements": [
+   {
+    "old": "A README good enough that nobody has to ask you how to start.",
+    "new": "A README that explains how to start."
+   }
+  ]
+ }
+}

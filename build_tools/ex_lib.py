@@ -51,8 +51,32 @@ def apply_hint_rewrites() -> None:
         by_id[eid]["hints"] = list(hints)
 
 
+def apply_prompt_edits() -> None:
+    """Apply prompt_edits.json (see its _comment)."""
+    import re
+    edits = json.loads((Path(__file__).parent / "prompt_edits.json")
+                       .read_text(encoding="utf-8"))
+    by_id = {e["id"]: e for e in EXERCISES}
+    for eid, pairs in edits.items():
+        if eid.startswith("_"):
+            continue
+        if eid not in by_id:
+            raise SystemExit("prompt_edits.json names unknown exercise " + eid)
+        prompt = by_id[eid]["prompt"]
+        for old, new in pairs:
+            pattern = r"\s+".join(re.escape(word) for word in old.split())
+            if not new:
+                pattern = r"\s*" + pattern          # take the gap before it too
+            prompt, count = re.subn(pattern, lambda _m, text=new: text, prompt,
+                                    count=1)
+            if not count:
+                raise SystemExit("prompt_edits.json: %s has no %r" % (eid, old))
+        by_id[eid]["prompt"] = prompt.rstrip()
+
+
 def dump(path: Path) -> None:
     apply_hint_rewrites()
+    apply_prompt_edits()
     payload = {"schema": 1, "exercises": EXERCISES}
     Path(path).write_text(
         json.dumps(payload, ensure_ascii=False, indent=1), encoding="utf-8")

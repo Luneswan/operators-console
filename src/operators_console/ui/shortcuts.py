@@ -24,7 +24,7 @@ REVIEW_SHORTCUTS = (
     ("Space, Enter", "Reveal the line, or check the option you picked"),
     ("A, B, C, D", "Pick that multiple-choice option"),
     ("1, 2, 3, 4", "Again, Hard, Good, Easy - once the answer is showing"),
-    ("S", "Skip this card. Skip it twice and it waits until tomorrow"),
+    ("S", "Skip this card. Skipped twice, it moves to tomorrow"),
     ("Ctrl+Z", "Undo the answer you just gave"),
 )
 
@@ -81,9 +81,9 @@ class ShortcutsDialog(QDialog):
                 line += 1
         column.addLayout(grid)
         column.addWidget(muted(
-            "Ctrl+K searches the curriculum and your own writing - phases, "
-            "exercises, projects, library entries, your notes and your log. "
-            "Arrow keys move through the results, Enter opens one."))
+            "Ctrl+K searches phases, exercises, projects, the library, your "
+            "notes and your log. Arrow keys move through results. Enter opens "
+            "one."))
 
         row = QHBoxLayout()
         row.addStretch(1)

@@ -156,7 +156,7 @@ def test_a_quiet_day_and_a_finished_plan_do_not_say_the_same_thing(
         pump(walk_app, 2)
         quiet = _page_text(view)
         assert "Nothing outstanding today." in quiet, quiet
-        assert "take the evening off" in quiet
+        assert "take the day off" in quiet
         view.ctx.today.restore()
 
     with step(walk_app, "today", "finish the entire curriculum", window):
@@ -169,8 +169,8 @@ def test_a_quiet_day_and_a_finished_plan_do_not_say_the_same_thing(
         view.refresh()
         pump(walk_app, 2)
         done = _page_text(view)
-        assert "Nothing due, and nothing left to learn." in done, done
-        assert "take the evening off" not in done
+        assert "Nothing due. Plan complete." in done, done
+        assert "take the day off" not in done
         REC.bump("curriculum completions reached")
 
 
@@ -190,7 +190,7 @@ def test_the_completion_hero_and_all_three_of_its_buttons(
     with step(walk_app, "today", "read what the finished plan says", window):
         assert view.position_heading.text() == "What you did"
         text = _page_text(view.position_card)
-        assert "You finished it." in text, text
+        assert "Plan complete." in text, text
         assert "COMPLETE" in text
         assert "2026-01-04 to %s" % date.today().isoformat() in text
         assert "hours logged" in text

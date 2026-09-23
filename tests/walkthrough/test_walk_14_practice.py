@@ -90,8 +90,8 @@ def test_a_nearly_right_answer_is_told_exactly_what_is_wrong(
         failing = [case for case in _cases(view) if not case.passed]
         assert len(failing) == 3, [c.name for c in failing]
         for case in failing:
-            assert case.message == ("Your text stops early - '!' is missing "
-                                    "from the end."), case.message
+            assert case.message == "Your text is missing '!' at the end.", \
+                case.message
             assert case.detail.startswith("expected "), case.detail
         # Each check shows the values it actually used, not a generic line.
         said = _panel_text(view)
@@ -105,8 +105,9 @@ def test_a_nearly_right_answer_is_told_exactly_what_is_wrong(
         _run_and_wait(walk_app, view)
         failing = [case for case in _cases(view) if not case.passed]
         assert failing
-        assert failing[0].message == ("They differ at character 6: expected "
-                                      "',', got ':'."), failing[0].message
+        assert failing[0].message == ("First difference at character 6: "
+                                      "expected ',', got ':'."), \
+            failing[0].message
         # The caret excerpt is drawn under the character that differs.
         assert "^" in failing[0].detail
 
@@ -118,7 +119,7 @@ def test_a_nearly_right_answer_is_told_exactly_what_is_wrong(
         failing = [case for case in _cases(view) if not case.passed]
         assert failing
         assert failing[0].message.startswith(
-            "The letters are right but the capitals are not"), \
+            "Right letters, wrong capitals"), \
             failing[0].message
     REC.bump("wrong answers explained down to the character", 1)
 

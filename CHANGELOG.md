@@ -4,6 +4,27 @@ All notable changes to this project are recorded here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and the project uses
 [semantic versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.1.3] - 2026-09-24
+
+### Changed
+
+- **Plain wording throughout.** About 200 strings in the app were rewritten to
+  be direct: page text, dialogs, tooltips, status messages, onboarding,
+  grader explanations and error explanations. Slogans and justifications are
+  gone ("Watching is not learning", "a receipt for time spent", "The first one
+  is the hardest"). Page kickers are plain labels (preferences, statistics,
+  graded exercises). The same pass covers the phase aims and gate notes, field
+  and certificate notes, track descriptions, project "why" lines, the 72 phase
+  01 hints and six exercise prompts.
+- Section headings are plain: Gate, Stretch goals, Rubric, Project idea.
+- Ten checklist lines lost their flourishes ("never string-concatenate a path
+  again", "the WHERE clause that saves you"). Their ids are unchanged, so no
+  ticks move.
+- README rewritten as a technical reference: contents, features with exact
+  limits and defaults, install, updating, data, keyboard, development, code
+  layout and content sources.
+- Onboarding no longer says the update check runs every 30 minutes.
+
 ## [1.1.2] - 2026-09-23
 
 ### Quizzes

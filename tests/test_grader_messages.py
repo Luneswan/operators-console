@@ -37,7 +37,7 @@ def _fails(code: str, check: str):
 
 def test_none_is_called_out_as_a_missing_return():
     said = describe_difference(6, None)
-    assert said == "Your function returned None - is a `return` missing?"
+    assert said == "Your function returned None. Is a `return` missing?"
 
 
 def test_expecting_none_says_so_the_other_way_round():
@@ -67,22 +67,22 @@ def test_one_item_is_not_pluralised():
 
 def test_the_same_values_in_another_order_say_exactly_that():
     said = describe_difference([1, 2, 3], [3, 2, 1])
-    assert said == "The right values in the wrong order."
+    assert said == "Right values, wrong order."
 
 
 def test_out_of_order_is_found_even_when_the_items_are_unhashable():
     said = describe_difference([[1], [2]], [[2], [1]])
-    assert said == "The right values in the wrong order."
+    assert said == "Right values, wrong order."
 
 
 def test_one_wrong_item_names_the_index_and_both_values():
     said = describe_difference([1, 4, 3], [1, 9, 3])
-    assert said == "They differ at index 1: expected 4, got 9."
+    assert said == "First difference at index 1: expected 4, got 9."
 
 
 def test_a_wrong_item_inside_a_list_of_lists_explains_the_inner_one_too():
     said = describe_difference([[1, 2], [3]], [[1, 2], [3, 4]])
-    assert said.startswith("They differ at index 1:")
+    assert said.startswith("First difference at index 1:")
     assert "2 items, 1 was expected" in said     # the nested reason too
 
 
@@ -125,7 +125,7 @@ def test_a_set_with_only_extras_says_only_that():
 
 def test_a_wrong_character_is_pointed_at_with_a_caret():
     said = describe_difference("hello", "hellp")
-    assert _sentence(said) == ("They differ at character 5: expected 'o', "
+    assert _sentence(said) == ("First difference at character 5: expected 'o', "
                                "got 'p'.")
     lines = said.splitlines()
     assert lines[1].strip().startswith("expected")
@@ -138,34 +138,33 @@ def test_a_wrong_character_is_pointed_at_with_a_caret():
 def test_a_caret_is_left_out_when_a_line_break_would_break_it():
     said = describe_difference("one\ntwo", "one\nfour")
     assert "^" not in said
-    assert said.startswith("They differ at character")
+    assert said.startswith("First difference at character")
 
 
 def test_only_the_capitals_being_wrong_is_said_in_so_many_words():
     said = describe_difference("Hello", "hello")
-    assert said.startswith("The letters are right but the capitals are not")
+    assert said.startswith("Right letters, wrong capitals")
 
 
 def test_only_the_spacing_being_wrong_is_said_in_so_many_words():
     said = describe_difference("a b", "ab")
-    assert said.startswith("The characters are right but the spacing is not")
+    assert said.startswith("Right characters, wrong spacing")
 
 
 def test_text_that_stops_early_says_what_is_missing():
     said = describe_difference("hello", "hell")
-    assert said == "Your text stops early - 'o' is missing from the end."
+    assert said == "Your text is missing 'o' at the end."
 
 
 def test_text_that_runs_on_says_what_is_extra():
     said = describe_difference("hell", "hello")
-    assert said == ("Your text carries on too far - 'o' should not be on "
-                    "the end.")
+    assert said == "Your text has extra 'o' at the end."
 
 
 def test_a_float_that_is_nearly_right_blames_floating_point():
     said = describe_difference(3, 3.0000000001)
-    assert said == ("3.0000000001 is not exactly 3 - that is floating "
-                    "point; compare with round() or math.isclose.")
+    assert said == ("3.0000000001 is not exactly 3 because of floating-point "
+                    "rounding. Compare with round() or math.isclose().")
 
 
 def test_numbers_that_are_plainly_different_are_not_blamed_on_floats():
@@ -176,16 +175,16 @@ def test_numbers_that_are_plainly_different_are_not_blamed_on_floats():
 
 def test_true_is_not_the_same_as_one():
     said = describe_difference(1, True)
-    assert said.startswith("True and False are not the same as 1 and 0")
+    assert said.startswith("True/False and 1/0 are different values")
 
 
 def test_false_where_a_zero_was_wanted_is_caught_the_same_way():
-    assert describe_difference(0, False).startswith("True and False")
+    assert describe_difference(0, False).startswith("True/False")
 
 
 def test_two_booleans_name_both_of_them():
     said = describe_difference(True, False)
-    assert said == "The check expects True and your code gave back False."
+    assert said == "The check expects True. Your code returned False."
 
 
 def test_nothing_useful_to_say_is_an_empty_string_rather_than_a_guess():
@@ -221,8 +220,8 @@ def _explain(check: str, namespace: dict) -> str:
 
 def test_a_bare_equality_check_names_the_reason_and_both_values():
     said = _explain("assert total == 6", {"total": 5})
-    assert _sentence(said) == ("The numbers are different: the check "
-                               "expects 6 and your code gave back 5.")
+    assert _sentence(said) == ("Wrong number. The check expects 6. Your code "
+                               "returned 5.")
     assert "expected 6, got 5" in said
 
 
@@ -262,13 +261,12 @@ def test_a_membership_check_says_what_was_not_in_what():
 
 def test_a_not_in_check_reads_the_other_way_round():
     said = _explain("assert 3 not in numbers", {"numbers": [1, 3]})
-    assert "is in" in _sentence(said)
+    assert "should not be in" in _sentence(said)
 
 
 def test_an_isinstance_check_names_the_kind_it_wanted():
     said = _explain("assert isinstance(total, int)", {"total": "5"})
-    assert _sentence(said) == ("The check wants `total` to be `int`, and "
-                               "yours is a string.")
+    assert _sentence(said) == "Expected `total` to be `int`. It is a string."
 
 
 def test_an_ordering_check_says_which_way_round_it_wanted_them():
@@ -278,7 +276,7 @@ def test_an_ordering_check_says_which_way_round_it_wanted_them():
 
 def test_an_is_none_check_is_not_reported_as_a_missing_return():
     said = _explain("assert value is None", {"value": 7})
-    assert "None itself" in _sentence(said)
+    assert "Expected None" in _sentence(said)
 
 
 def test_a_check_whose_operand_cannot_be_read_again_still_says_something():
@@ -328,12 +326,12 @@ def test_the_exception_line_is_still_the_first_thing_said():
 
 
 def test_dividing_by_zero_suggests_guarding_the_divisor():
-    assert "divided by zero" in _error(lambda: 1 / 0)
+    assert "Division by zero" in _error(lambda: 1 / 0)
 
 
 def test_a_missing_name_says_nothing_defines_it():
     said = _error(lambda: undefined_thing)          # noqa: F821
-    assert "Nothing in your code defines `undefined_thing`" in said
+    assert "`undefined_thing` is not defined" in said
 
 
 def test_the_wrong_number_of_arguments_points_at_the_def_line():
@@ -341,22 +339,22 @@ def test_the_wrong_number_of_arguments_points_at_the_def_line():
         return a
 
     said = _error(lambda: takes_one(1, 2))
-    assert "does not match what your function takes" in said
+    assert "Wrong number of arguments" in said
 
 
 def test_an_index_past_the_end_explains_how_positions_count():
     said = _error(lambda: [1, 2, 3][9])
-    assert "positions 0, 1 and 2" in said
+    assert "indexes 0, 1 and 2" in said
 
 
 def test_a_missing_key_names_it_and_offers_get():
     said = _error(lambda: {"a": 1}["b"])
-    assert "no 'b' key" in said and ".get()" in said
+    assert "No key 'b'" in said and ".get()" in said
 
 
 def test_a_dot_on_none_is_read_as_a_missing_return():
     said = _error(lambda: None.upper())
-    assert "used a dot on None" in said and "`return` missing" in said
+    assert "`.` on None" in said and "`return` missing" in said
 
 
 def test_a_missing_attribute_on_a_real_object_says_to_check_the_spelling():
@@ -369,12 +367,12 @@ def test_endless_recursion_says_it_needs_a_stopping_case():
         return forever(n + 1)
 
     said = _error(lambda: forever(0))
-    assert "needs a case that gives an answer" in said
+    assert "Add a base case" in said
 
 
 def test_adding_a_string_to_a_number_suggests_converting_one():
     said = _error(lambda: "1" + 1)
-    assert "convert one of them first" in said
+    assert "Convert one first" in said
 
 
 def test_calling_something_that_is_not_a_function_says_so():
@@ -398,7 +396,7 @@ def test_a_wrong_answer_run_for_real_names_the_index_and_the_values():
         "def evens(n):\n    return [i for i in range(n) if i % 2]\n",
         "assert evens(6) == [0, 2, 4]")
     assert not case.passed
-    assert case.message == "They differ at index 0: expected 0, got 1."
+    assert case.message == "First difference at index 0: expected 0, got 1."
     assert case.detail == "expected [0, 2, 4], got [1, 3, 5]"
 
 

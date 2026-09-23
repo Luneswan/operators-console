@@ -76,9 +76,9 @@ class SettingsView(View):
     title = "Settings"
 
     def build(self) -> None:
-        self.header("Settings", "make it yours",
-                    "Changing your track or goals reshapes the roadmap "
-                    "immediately. Nothing you have already done is lost.")
+        self.header("Settings", "preferences",
+                    "Changing your track or goals updates the roadmap. "
+                    "Completed work is kept.")
         self._loading = False
 
         plan = Card()
@@ -113,8 +113,7 @@ class SettingsView(View):
         plan.add(self.track_blurb)
         plan.add(divider())
         plan.add(heading("What you want to build"))
-        plan.add(muted("These add relevant phases to your roadmap and change "
-                       "what Today suggests."))
+        plan.add(muted("Each goal adds phases to your roadmap."))
         self.goal_boxes = {}
         goals_grid = QGridLayout()
         goals_grid.setSpacing(8)
@@ -130,15 +129,14 @@ class SettingsView(View):
         self.setup_button = button("Run setup again")
         self.setup_button.clicked.connect(self._run_setup)
         setup_row.addWidget(self.setup_button)
-        setup_row.addWidget(muted("The four questions from your first launch, "
-                                  "with your answers already filled in."), 1)
+        setup_row.addWidget(muted("The first-launch questions, with your "
+                                  "current answers."), 1)
         plan.box.addLayout(setup_row)
         self.scroller.add(plan)
 
         pace = Card()
         pace.add(heading("Pace"))
-        pace.add(muted("Used for the finish estimate and the size of the daily "
-                       "plan. Be realistic rather than aspirational."))
+        pace.add(muted("Sets the daily plan and the finish estimate."))
         pace_grid = QGridLayout()
         pace_grid.setColumnMinimumWidth(0, LABEL_COLUMN)
         pace_grid.setSpacing(8)
@@ -166,8 +164,8 @@ class SettingsView(View):
         review = Card()
         review.add(heading("Review"))
         review.add(muted(
-            "A higher retention target means shorter intervals and more work "
-            "per day. Ninety percent is the sensible default."))
+            "Higher retention means shorter intervals and more reviews per "
+            "day. Default: 90%."))
         review_grid = QGridLayout()
         review_grid.setColumnMinimumWidth(0, LABEL_COLUMN)
         review_grid.setSpacing(8)
@@ -228,10 +226,9 @@ class SettingsView(View):
         updates_card = Card()
         updates_card.add(heading("Updates"))
         updates_card.add(muted(
-            "The only time this app touches the network. It asks GitHub "
-            "whether a newer version exists when it starts, every few minutes "
-            "while it is open and when you come back to it, and downloads "
-            "nothing until you press the button."))
+            "The app's only network use. It checks GitHub for a new version "
+            "at start, every few minutes, and when you return to the app. "
+            "Nothing downloads until you press Update."))
         self.check_updates = QCheckBox("Tell me when a new version is out")
         self.check_updates.stateChanged.connect(
             lambda _s: self._set("check_for_updates",
@@ -245,8 +242,8 @@ class SettingsView(View):
         data = Card()
         data.add(heading("Your data"))
         data.add(muted(
-            "Everything is stored locally, in one folder, and saved the moment "
-            "you change it. Nothing is uploaded anywhere."))
+            "All data is in one local folder and saved as you change it. "
+            "Nothing is uploaded."))
         self.location = label("", "Mono", wrap=True, selectable=True)
         data.add(self.location)
         row = QHBoxLayout()
@@ -266,10 +263,9 @@ class SettingsView(View):
         data.add(divider())
         data.add(label("Second copy", "SectionTitle", wrap=False))
         data.add(muted(
-            "Every backup lives in one folder on one disk, which is one "
-            "failure away from none. Point this at another drive, or at a "
-            "folder that syncs, and Copy now writes a fresh export and the "
-            "newest snapshot there as well."))
+            "Backups are on one disk. Choose a folder on another drive, or a "
+            "synced folder, and Copy now also writes an export and the latest "
+            "snapshot there."))
         self.mirror_path = label("", "Mono", wrap=True, selectable=True)
         data.add(self.mirror_path)
         mirror_row = QHBoxLayout()
@@ -286,9 +282,8 @@ class SettingsView(View):
         data.add(divider())
         data.add(label("Snapshots", "SectionTitle", wrap=False))
         data.add(muted(
-            "A copy of your progress is taken automatically each day you "
-            "open the app, and before every reset, import or upgrade. The "
-            "last %d daily copies and %d others are kept."
+            "Taken each day you open the app, and before every reset, import "
+            "or upgrade. Keeps the last %d daily snapshots and %d others."
             % (Store.KEEP_DAILY, Store.KEEP_SNAPSHOTS)))
         snaps = QHBoxLayout()
         snaps.setSpacing(8)
@@ -517,9 +512,8 @@ class SettingsView(View):
             return
         confirm = QMessageBox.question(
             self, "Replace everything?",
-            "Importing replaces all of your current progress.\n\n"
-            "A backup of the current state is taken first, into the backups "
-            "folder. Continue?",
+            "Importing replaces all current progress.\n\nA backup of the "
+            "current state is saved first. Continue?",
             QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
             QMessageBox.StandardButton.No)
         if confirm != QMessageBox.StandardButton.Yes:
@@ -585,10 +579,9 @@ class SettingsView(View):
     def _reset(self) -> None:
         confirm = QMessageBox.question(
             self, "Reset all progress?",
-            "This clears every checkbox, exercise, review, project and log "
-            "entry.\n\nA snapshot is taken first, so Restore a snapshot "
-            "(here in Settings) can bring it all back. Your settings are "
-            "kept.",
+            "This clears all checkboxes, exercises, reviews, projects and log "
+            "entries.\n\nA snapshot is taken first. Use Restore a snapshot in "
+            "Settings to undo. Settings are kept.",
             QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
             QMessageBox.StandardButton.No)
         if confirm != QMessageBox.StandardButton.Yes:
@@ -597,5 +590,5 @@ class SettingsView(View):
         self.ctx.rebuild_review()
         self.ctx.changed()
         self.refresh()
-        self.ctx.announce("Progress reset. Restore a snapshot in Settings "
-                          "brings it back.")
+        self.ctx.announce("Progress reset. Use Restore a snapshot in Settings "
+                          "to undo.")

@@ -88,9 +88,7 @@ class RoadmapView(View):
 
     def build(self) -> None:
         self.header("Your roadmap", "the plan",
-                    "Ordered so that nothing asks you to use something you have "
-                    "not been taught. Phases are never locked - the state is "
-                    "advice, not a gate.")
+                    "Phases are in teaching order. None are locked.")
         self.summary = muted("")
         self.scroller.add(self.summary)
 
@@ -100,14 +98,13 @@ class RoadmapView(View):
         self.finished_banner = Card()
         banner_top = QHBoxLayout()
         banner_top.setSpacing(8)
-        banner_top.addWidget(label("You have walked the whole plan.",
+        banner_top.addWidget(label("Plan complete.",
                                    "FocusTitle"), 1)
         banner_top.addWidget(pill("PLAN COMPLETE", "done"))
         self.finished_banner.box.addLayout(banner_top)
         self.finished_banner.add(muted(
-            "Nothing is marked as current because nothing is left to reach. "
             "Open any phase to revisit it, or change your track in Settings "
-            "to put new ones on the rail."))
+            "to add phases."))
         self.finished_banner.setVisible(False)
         self.scroller.add(self.finished_banner)
 
@@ -118,8 +115,8 @@ class RoadmapView(View):
         self.scroller.add(divider())
         self.scroller.add(heading("Not in your plan"))
         self.scroller.add(muted(
-            "Available any time. Change your track in Settings to bring one "
-            "into the plan."))
+            "Open any time. Change your track in Settings to add them to the "
+            "plan."))
         self.extras = QVBoxLayout()
         self.extras.setSpacing(8)
         self.scroller.add_layout(self.extras)
@@ -155,7 +152,7 @@ class RoadmapView(View):
         self.summary.setText(
             "%s - %d phases, roughly %d hours of work%s"
             % (track.name if track else "Custom", len(rows), hours,
-               ", all of it behind you." if finished else "."))
+               ", all done." if finished else "."))
 
         # The marker always names a phase, so on a finished plan it pins
         # "YOU ARE HERE" to the last one for ever. There is no here any more.

@@ -62,7 +62,7 @@ RESUME_WITHIN_SECONDS = 15 * 60
 
 # Said once, to the learner who has never opened the Help menu.
 GUIDE_SETTING = "guide_pointed"
-GUIDE_HINT = "New here? Help > How this app works explains every page"
+GUIDE_HINT = "New here? See Help > How this app works"
 
 
 def announce(widget) -> None:
@@ -141,8 +141,7 @@ class QuestionDialog(QDialog):
         if question.explain:
             column.addWidget(label(question.explain, "Soft"))
         column.addWidget(muted(
-            "Reading this changes nothing. Answer it for real from Quizzes "
-            "or Review."))
+            "Preview only. Answer it in Quizzes or Review."))
 
         row = QHBoxLayout()
         row.addStretch(1)
@@ -800,7 +799,8 @@ class MainWindow(QMainWindow):
 
     def _on_update_available(self, release) -> None:
         self.update_button.announce(release)
-        self.toast("Version %s is available. The button is in the sidebar."
+        self.toast("Version %s is available. Use the Update button in the "
+                   "sidebar."
                    % release.label)
 
     def remember_place(self) -> None:
@@ -838,7 +838,7 @@ class MainWindow(QMainWindow):
         """The Help menu entry, which always reports back."""
         from ..core import updates as update_core
         if not update_core.can_self_update():
-            self.toast("Running from source - update with git pull.")
+            self.toast("Running from source. Update with git pull.")
             return
         self.toast("Checking for a new version...")
         self.updates.maybe_check(force=True)
@@ -867,22 +867,15 @@ class MainWindow(QMainWindow):
         from PySide6.QtWidgets import QMessageBox
         QMessageBox.information(
             self, "How this app works",
-            "Today tells you what to do next. Follow it and you can ignore "
-            "everything else.\n\n"
-            "Roadmap is the plan, ordered so nothing depends on something you "
-            "have not been taught. Phases are never locked.\n\n"
-            "Practice runs your code against real checks. Quizzes catch "
-            "misunderstandings. Anything you get wrong is scheduled for "
-            "Review automatically.\n\n"
-            "Review uses spaced repetition, so early phases do not leak away "
-            "while you work on later ones.\n\n"
-            "Projects are the proof. A phase is not finished until its gate "
-            "and its project are.\n\n"
-            "Ctrl+K searches everything: the curriculum, and the notes and "
-            "log entries you wrote yourself. Arrow keys pick a result, Enter "
-            "opens it. F1 lists every other key.\n\n"
-            "Everything saves the instant you change it. There is no save "
-            "button and nothing is uploaded anywhere.")
+            "Today: what to do next.\n\nRoadmap: your plan, in teaching "
+            "order. No phase is locked.\n\nPractice: write code, and real "
+            "checks grade it.\n\nQuizzes: one per phase. Wrong answers go to "
+            "Review.\n\nReview: spaced repetition of earlier "
+            "material.\n\nProjects: one or more per phase. A phase is "
+            "finished when its gate and project are done.\n\nCtrl+K searches "
+            "the curriculum, your notes and your log. Arrow keys pick a "
+            "result, Enter opens it. F1 lists the other keys.\n\nEverything "
+            "saves as you change it. Nothing is uploaded.")
 
     def _show_shortcuts(self) -> None:
         from .shortcuts import ShortcutsDialog

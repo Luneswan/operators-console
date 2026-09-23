@@ -1,0 +1,9 @@
+{
+ "_comment": "Plain-language edits to authored exercise prompts, applied by ex_lib.dump. Each exercise id maps to [old, new] pairs; old is matched with any whitespace between words, since prompts wrap mid-sentence. The build fails if an old phrase is not found.",
+ "p01.001": [["Returning and printing are different things, and almost everything you write from here on returns.", ""]],
+ "p01.008": [["Write the loop yourself this time, even though a formula exists.", "Use a loop, not the formula."]],
+ "p01.016": [["write the branch yourself so you see what `get` is doing.", "write the check yourself."]],
+ "p01.026": [["Catch the exception rather than testing for zero first, so you see how `try` reads.", "Catch the exception instead of testing for zero first."]],
+ "p02.001": [["Do not use a generator - the point is to see what a generator is doing underneath.", "Do not use a generator."]],
+ "p02.002": [["Because it is lazy, an endless generator costs nothing until you take values from it.", ""]]
+}

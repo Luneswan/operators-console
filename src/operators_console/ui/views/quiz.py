@@ -153,10 +153,9 @@ class QuizView(View):
         self.kicker.setText("SELF CHECK")
         self.title_label.setText("Quizzes")
         self.desc.setText(
-            "One quiz per phase. Every attempt shuffles the questions and the "
-            "answers, and never repeats the last layout. Each question has a "
-            "countdown: answer after it runs out and it earns no mark. What "
-            "you miss joins your review deck, with the line that teaches it.")
+            "One quiz per phase. Questions and answers are reshuffled on "
+            "every attempt. Each question is timed, and a late answer scores "
+            "zero. Missed questions go to your review deck.")
         self.progress.setVisible(False)
         self.filters.setVisible(True)
         self._offer_resume()
@@ -261,8 +260,8 @@ class QuizView(View):
         card.add(label("UNFINISHED", "PageKicker", wrap=False))
         card.add(label(quiz.name, "FocusTitle"))
         card.add(muted(
-            "You stopped at question %d of %d, with %d answered. Everything "
-            "you answered is already scored and in your review deck."
+            "Stopped at question %d of %d, %d answered. Answered questions "
+            "are already scored."
             % (min(position + 1, len(order)), len(order), len(answers))))
         row = QHBoxLayout()
         row.setSpacing(8)
@@ -378,9 +377,8 @@ class QuizView(View):
         self._tick.stop()
         confirm = QMessageBox.question(
             self, "Leave this quiz?",
-            "What you have answered is already scored and scheduled for "
-            "review.\n\nThe rest of this attempt is dropped, and the quiz "
-            "starts from the beginning next time. Leave it?",
+            "Answered questions are already scored.\n\nThe rest of this "
+            "attempt is discarded, and the quiz starts over next time. Leave?",
             QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
             QMessageBox.StandardButton.No)
         if confirm != QMessageBox.StandardButton.Yes:
@@ -388,7 +386,7 @@ class QuizView(View):
             return
         self._forget()
         self._reset_to_picker()
-        self.ctx.announce("Left the quiz. Nothing you answered was lost.")
+        self.ctx.announce("Left the quiz. Your answers are saved.")
 
     # -- one attempt -------------------------------------------------------
 
@@ -492,8 +490,8 @@ class QuizView(View):
         controls.setSpacing(8)
         # It was labelled "Skip" and scored as a wrong answer without a word.
         skip = button("Skip (counts as wrong)", "quiet",
-                      "Scored as a wrong answer, so this question comes back "
-                      "sooner in your review deck.")
+                      "Counts as a wrong answer. It comes back sooner in "
+                      "review.")
         skip.clicked.connect(lambda: self._answer(-1))
         controls.addWidget(skip)
         leave = button("Leave this quiz", "quiet")
@@ -562,8 +560,7 @@ class QuizView(View):
         self.question_started = time.monotonic() - self.budget
         self._show_clock()
         self.clock_note.setText(
-            "Time's up. You can still answer and see why, but this one no "
-            "longer earns a mark.")
+            "Time's up. You can still answer, but it will not score.")
         self.clock_note.setVisible(True)
         if save:
             self._remember()
@@ -609,7 +606,7 @@ class QuizView(View):
 
         card = Card()
         if correct and late:
-            card.add(pill("RIGHT, BUT OUT OF TIME - NO MARK", "warn"))
+            card.add(pill("CORRECT, TOO LATE - NO MARK", "warn"))
         else:
             card.add(pill("CORRECT" if correct else "NOT QUITE",
                           "done" if correct else "bad"))
@@ -618,7 +615,7 @@ class QuizView(View):
                            % question.choices[question.correct], "Soft"))
         note = choice_feedback(question, chosen)
         if note:
-            card.add(_rich("About the one you picked: %s" % note, "Soft"))
+            card.add(_rich("Why not that one: %s" % note, "Soft"))
         card.add(_rich(question.explain, "Soft"))
         self.stage.addWidget(card)
 
@@ -739,13 +736,13 @@ class QuizView(View):
         controls.setSpacing(8)
         if missed:
             again = button("Practise the %d you missed" % len(missed), "primary",
-                           "The same questions, reshuffled, without a score")
+                           "Same questions, reshuffled, not scored")
             indexes = [self.quiz.questions.index(q) for q in missed]
             again.clicked.connect(
                 lambda _=False, only=indexes: self._start(self.quiz, only))
             controls.addWidget(again)
         retake = button("Retake the whole quiz", "" if missed else "primary",
-                        "A new order, and new places for every answer")
+                        "New question order and answer positions")
         retake.clicked.connect(lambda: self._start(self.quiz))
         controls.addWidget(retake)
         controls.addStretch(1)
@@ -773,19 +770,18 @@ class QuizView(View):
         column.setSpacing(4)
         if self.practice_round:
             verdict, tone = "PRACTICE ROUND", ""
-            words = ("Not recorded as a quiz score. The ones you missed are "
-                     "still in your review deck.")
+            words = ("Not recorded. Missed questions stay in your review deck.")
         elif ratio >= QUIZ_PROOF - 1e-9:
             verdict, tone = "PASSED", "done"
-            words = "Solid. This counts toward proving the phase."
+            words = "Passed. This counts toward proving the phase."
         elif ratio >= 0.6:
             verdict, tone = "CLOSE", "warn"
-            words = ("Close. Study the lines below, then retake it - "
-                     "%d%% passes." % round(QUIZ_PROOF * 100))
+            words = ("Close. Study the lines below and retake it. Pass mark: "
+                     "%d%%." % round(QUIZ_PROOF * 100))
         else:
             verdict, tone = "NOT YET", "bad"
-            words = ("Not yet. Work through the lines below before you retake "
-                     "it - %d%% passes." % round(QUIZ_PROOF * 100))
+            words = ("Not yet. Study the lines below before retaking it. Pass "
+                     "mark: %d%%." % round(QUIZ_PROOF * 100))
         head = QHBoxLayout()
         head.setSpacing(8)
         head.addWidget(pill(verdict, tone))
@@ -807,17 +803,14 @@ class QuizView(View):
         facts.append("answering time %s" % format_duration(seconds))
         card.add(muted("  -  ".join(facts)))
         if wrong or late_right:
-            card.add(muted("Everything you missed is in your review deck and "
-                           "comes back soon."))
+            card.add(muted("Missed questions are in your review deck."))
         return card
 
     def _study_card(self, missed) -> Card:
         """What to study: the lines that teach what was missed, in course order."""
         card = Card(spacing=10)
         card.add(heading("What to study"))
-        card.add(muted("The part of the course that teaches each question you "
-                       "missed, in the order the course teaches it. Open a "
-                       "line to go straight to it."))
+        card.add(muted("Where each missed question is taught, in course order."))
         passed = self.ctx.store.passed_exercise_ids()
         offered = set()
         for group in study_plan(self.ctx.curriculum, self.quiz, missed):
@@ -893,7 +886,7 @@ class QuizView(View):
             if chosen < 0:
                 yours, colour = "You skipped it.", palette.bad
             elif chosen == question.correct:
-                yours = "You chose the right answer, after the time ran out."
+                yours = "Correct, but after time ran out."
                 colour = palette.warn
             else:
                 yours = "You chose: %s" % _plain_code(question.choices[chosen])
@@ -911,7 +904,7 @@ class QuizView(View):
                 card.add(right)
                 note = choice_feedback(question, chosen)
                 if note:
-                    card.add(_rich("Why yours is not it: %s" % note, "Soft"))
+                    card.add(_rich("Why yours is wrong: %s" % note, "Soft"))
             card.add(_rich(question.explain, "Soft"))
             item_id = teaching_item(self.ctx.curriculum, question)
             if item_id:

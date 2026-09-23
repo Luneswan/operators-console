@@ -208,14 +208,12 @@ class DashboardView(View):
         """The empty list. Finishing the plan is not the same as a quiet day."""
         if self.ctx.progress.is_finished:
             return empty_state(
-                "Nothing due, and nothing left to learn.",
-                "Every phase in your plan is finished. Keep the review deck "
-                "ticking over, ship something of your own, or pick a new "
-                "track in Settings.")
+                "Nothing due. Plan complete.",
+                "Every phase in your plan is finished. Keep up your reviews, "
+                "or pick a new track in Settings.")
         return empty_state(
             "Nothing outstanding today.",
-            "Pick any phase and push it forward, or take the evening off. "
-            "The plan will still be here tomorrow.")
+            "Open any phase to continue, or take the day off.")
 
     def _hidden_row(self, count: int) -> QWidget:
         """The way back from "Not today"."""
@@ -227,7 +225,7 @@ class DashboardView(View):
                       "Put back what you pushed off today")
         back.clicked.connect(self._restore_hidden)
         box.addWidget(back)
-        box.addWidget(muted("They come back tomorrow anyway."), 1)
+        box.addWidget(muted("They return tomorrow."), 1)
         return row
 
     def _dismiss_button(self, action):
@@ -359,7 +357,7 @@ class DashboardView(View):
         top.addStretch(1)
         card.box.addLayout(top)
 
-        card.add(label("You finished it.", "FocusTitle"))
+        card.add(label("Plan complete.", "FocusTitle"))
         card.add(label(
             "%d of %d checks ticked, %d of %d phases proven, %d of %d "
             "exercises passed and %d of %d projects shipped."
@@ -373,7 +371,7 @@ class DashboardView(View):
                                     "Write the whole record out as Markdown")
         self.report_button.clicked.connect(self._export_report)
         self.reviewing_button = button(
-            "Keep reviewing", "", "Your deck still comes due")
+            "Keep reviewing", "", "Cards keep coming due")
         self.reviewing_button.clicked.connect(
             lambda: self.ctx.navigate.emit("review", ""))
         self.track_button = button("Change track", "quiet",

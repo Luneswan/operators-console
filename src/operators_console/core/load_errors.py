@@ -37,8 +37,8 @@ def _explain(exc: BaseException, code: str) -> str:
     where = ""
     if top:
         source = lines[top - 1].strip() if 0 < top <= len(lines) else ""
-        where = ("Line %d%s raised this while your file was loading, "
-                 "before any check had a turn, so none of them ran."
+        where = ("Line %d%s failed while the file was loading, so no checks "
+                 "ran."
                  % (top, " (`%s`)" % source if source else ""))
 
     parts = []
@@ -49,11 +49,9 @@ def _explain(exc: BaseException, code: str) -> str:
     call = _top_level_call(code, top)
     if call:
         parts.append(
-            "You do not need that line at all. The checks call `%s` for you, "
-            "with their own values, and compare what it returns. Anything "
-            "outside your functions runs first, so an error there stops "
-            "every check. Delete the line, or try your function in a Python "
-            "prompt instead." % call)
+            "Delete that line. The checks call `%s` themselves. Code outside "
+            "your functions runs before any check, so an error there stops "
+            "all of them." % call)
     # One paragraph per point: what is wrong, where, and what to do.
     return "\n\n".join(p for p in parts if p)
 
@@ -128,7 +126,7 @@ def _name_error(exc: NameError, code: str, inside: bool = False) -> str:
         end = text.find("'", start + 1)
         name = text[start + 1:end] if 0 <= start < end else ""
     if not name:
-        return "Python met a name that nothing in your file defines."
+        return "Your file uses a name it never defines."
     bound, params = _names_in(code)
     known = bound | params | set(dir(builtins))
 
@@ -139,23 +137,20 @@ def _name_error(exc: NameError, code: str, inside: bool = False) -> str:
     same_but_case = [k for k in reachable
                      if k.lower() == name.lower() and k != name]
     if same_but_case:
-        return ("`%s` is not defined, but `%s` is. Python treats capitals as "
-                "different letters, so these are two different names."
+        return ("`%s` is not defined. `%s` is. Python treats upper and lower "
+                "case as different letters."
                 % (name, same_but_case[0]))
     if name in params:
-        return ("`%s` is a parameter, and a parameter only exists inside its "
-                "own function while that function runs. Out here it has no "
-                "value." % name)
+        return ("`%s` is a parameter. It only exists inside its function." % name)
     close = difflib.get_close_matches(name, sorted(known), n=1, cutoff=0.8)
     if close:
-        return ("`%s` is not defined. Did you mean `%s`? Check the spelling."
+        return ("`%s` is not defined. Did you mean `%s`?"
                 % (name, close[0]))
     if name.isidentifier() and not keyword.iskeyword(name):
-        return ("`%s` has no quotes around it, so Python reads it as the name "
-                "of a variable, and nothing called `%s` was ever given a "
-                "value. If you meant the text %s, put it in quotes: "
+        return ("`%s` has no quotes, so Python reads it as a variable, and no "
+                "variable `%s` exists. If you meant the text %s, write "
                 "`\"%s\"`." % (name, name, name, name))
-    return "`%s` is used before anything gives it a value." % name
+    return "`%s` is used before it is given a value." % name
 
 
 def _syntax(exc: SyntaxError, code: str) -> str:
@@ -164,30 +159,26 @@ def _syntax(exc: SyntaxError, code: str) -> str:
     lines = code.splitlines()
     source = lines[line - 1].strip() if 0 < line <= len(lines) else ""
     at = "Line %d%s" % (line, " (`%s`)" % source if source else "")
-    lead = ("%s is not valid Python, so the file could not even start and no "
-            "check ran. " % at)
+    lead = ("%s is not valid Python, so the file did not run and no checks "
+            "ran. " % at)
     if "expected ':'" in msg:
-        return lead + ("A line that opens a block - `def`, `if`, `for`, "
-                       "`while`, `class` - must end with a colon.")
+        return lead + ("Lines that start a block (`def`, `if`, `for`, "
+                       "`while`, `class`) end with a colon.")
     if "indent" in msg:
-        return lead + ("Indentation is how Python knows which lines belong "
-                       "to a block: every line inside a `def` or `if` needs "
-                       "the same four spaces, and the block needs at least "
-                       "one line (use `pass` as a placeholder).")
+        return lead + ("Every line in a block needs the same indent, usually "
+                       "four spaces. An empty block needs `pass`.")
     if "never closed" in msg or "unmatched" in msg or "does not match" in msg:
-        return lead + ("A bracket or quote is opened and not closed (or "
-                       "closed and never opened). Count them in pairs; the "
-                       "real mistake is often on the line before.")
+        return lead + ("A bracket or quote is not closed, or is closed "
+                       "without being opened. The mistake is often on the "
+                       "line before.")
     if "unterminated string" in msg or "eol while scanning" in msg:
-        return lead + ("A string starts with a quote but the matching quote "
-                       "at its end is missing.")
+        return lead + ("A string is missing its closing quote.")
     if "forgot a comma" in msg:
-        return lead + "Two values sit side by side with no comma between them."
+        return lead + "Two values are missing a comma between them."
     if "'=' " in msg or "maybe you meant '=='" in msg or "cannot assign" in msg:
-        return lead + ("`=` gives a name a value; to compare two values, use "
-                       "`==`.")
+        return lead + ("`=` assigns. To compare, use `==`.")
     if "invalid character" in msg:
         return lead + ("It contains a character Python does not accept, often "
                        "a curly quote or dash pasted from a document. Retype "
-                       "it with plain quotes.")
-    return lead + "Python's own message below says what it expected there."
+                       "it.")
+    return lead + "Python's message below says what it expected."

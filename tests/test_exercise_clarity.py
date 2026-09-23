@@ -21,7 +21,7 @@ def test_a_bare_word_is_explained_as_missing_quotes_and_an_unneeded_call():
     why = _why("def greet(ANAS):\n    pass\ngreet(anas)\n")
     assert "no quotes" in why and '"anas"' in why
     assert "Line 3" in why
-    assert "checks call `greet` for you" in why
+    assert "checks call `greet` themselves" in why
 
 
 def test_a_parameter_used_outside_its_function_is_named_as_such():
@@ -31,7 +31,7 @@ def test_a_parameter_used_outside_its_function_is_named_as_such():
 
 def test_a_capital_letter_is_called_a_capital_letter():
     why = _why('def greet(name):\n    return "Hi " + Name\ngreet("x")\n')
-    assert "`Name` is not defined, but `name` is" in why
+    assert "`Name` is not defined. `name` is." in why
 
 
 def test_a_missing_colon_is_explained():
@@ -42,7 +42,7 @@ def test_a_missing_colon_is_explained():
 def test_the_explanation_reaches_a_failing_check_too():
     result = runner.run_exercise(
         'def greet(name):\n    return "Hi " + Name\n', GREET)
-    assert "but `name` is" in result.cases[0].detail
+    assert "`name` is." in result.cases[0].detail
 
 
 def test_a_working_file_has_nothing_to_explain():

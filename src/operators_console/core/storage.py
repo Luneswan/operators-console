@@ -1018,8 +1018,8 @@ class Store:
         tables = payload.get("tables")
         if not isinstance(tables, dict) or not tables:
             raise ValueError(
-                "That backup has no tables in it, so restoring from it would "
-                "erase everything and put nothing back.")
+                "That backup has no tables. Restoring it would erase "
+                "everything.")
 
         # Validate the whole payload before deleting a single row. A restore
         # that starts by emptying every table and then discovers the backup is
@@ -1071,8 +1071,8 @@ class Store:
         missing = [t for t in self.TABLES if t not in plan]
         if missing:
             raise ValueError(
-                "That backup is incomplete - it has nothing for %s. Restoring "
-                "it would erase that data rather than replace it."
+                "That backup is incomplete: it has nothing for %s. Restoring "
+                "it would erase that data."
                 % ", ".join(missing))
 
         self.backup(tag="pre-restore")

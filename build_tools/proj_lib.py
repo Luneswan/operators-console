@@ -38,7 +38,31 @@ DEFAULT_RUBRIC = (
 )
 
 
+def apply_edits() -> None:
+    """Swap in the plain-language text from project_edits.json."""
+    edits = json.loads((Path(__file__).parent / "project_edits.json")
+                       .read_text(encoding="utf-8"))
+    by_id = {p["id"]: p for p in PROJECTS}
+    for pid, fields in edits.items():
+        if pid.startswith("_"):
+            continue
+        if pid not in by_id:
+            raise SystemExit("project_edits.json: unknown project %s" % pid)
+        project = by_id[pid]
+        for field, value in fields.items():
+            if isinstance(value, str):
+                project[field] = value
+                continue
+            for pair in value:
+                items = project[field]
+                if pair["old"] not in items:
+                    raise SystemExit("project_edits.json: %s %s has no %r"
+                                     % (pid, field, pair["old"]))
+                items[items.index(pair["old"])] = pair["new"]
+
+
 def dump(path: Path) -> None:
+    apply_edits()
     for project in PROJECTS:
         if not project["rubric"]:
             project["rubric"] = list(DEFAULT_RUBRIC)

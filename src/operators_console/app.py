@@ -256,9 +256,9 @@ def _open(app, shown) -> int:
     except Exception as exc:
         QMessageBox.critical(
             None, APP_NAME,
-            "Your progress database could not be opened.\n\n%s\n\n"
-            "The file is in your application data folder. Move it aside and "
-            "restart to begin again, or restore a backup." % exc)
+            "The progress database could not be opened.\n\n%s\n\nIt is in the "
+            "application data folder. To start over, move it out and restart. "
+            "To recover, restore a backup." % exc)
         return 1
 
     try:
@@ -268,9 +268,9 @@ def _open(app, shown) -> int:
         # rather than vanishing without a window.
         QMessageBox.critical(
             None, APP_NAME,
-            "Your progress could be opened but not read.\n\n%s\n\n"
-            "Restore a snapshot from the backups folder, or move the "
-            "database aside to begin again." % exc)
+            "The progress database opened but could not be "
+            "read.\n\n%s\n\nRestore a snapshot from the backups folder, or "
+            "move the database out and restart to start over." % exc)
         store.close()
         return 1
     ctx.set_dark_hint(_system_is_dark(app))

@@ -110,8 +110,7 @@ class TodayPlan:
             actions.append(Action(
                 REVIEW,
                 "Clear %d due review%s" % (due, "" if due == 1 else "s"),
-                "Spaced repetition keeps earlier phases from decaying. "
-                "Do this first, while it is small.",
+                "Do these first, while the pile is small.",
                 "", minutes, weight=100))
 
         # A finished plan has no current phase to study, practise or gate:
@@ -139,8 +138,7 @@ class TodayPlan:
                 actions.append(Action(
                     PRACTICE,
                     "Practise: %s" % ex.title,
-                    "%s - difficulty %d of 5. Write it yourself before "
-                    "looking at the hints." % (ex.topic, ex.difficulty),
+                    "%s - difficulty %d of 5. Try it before opening the hints." % (ex.topic, ex.difficulty),
                     ex.id, 20, weight=WEIGHT_PRACTICE))
 
             quiz = self._weak_quiz(pid)
@@ -157,15 +155,14 @@ class TodayPlan:
                 actions.append(Action(
                     GATE,
                     "Clear the phase %s gate" % phase.num,
-                    "%d of %d checks left. The gate is the proof, not the "
-                    "reading." % (remaining, stats.gate_total),
+                    "%d of %d checks left." % (remaining, stats.gate_total),
                     pid, 45, weight=70))
 
             project = self._active_project(pid)
             if project is not None:
                 state = self.s.project(project.id)
                 verb = ("Start" if state["status"] == "not-started"
-                        else "Push forward")
+                        else "Continue this phase")
                 actions.append(Action(
                     PROJECT, "%s: %s" % (verb, project.title),
                     project.brief, project.id,
@@ -180,14 +177,13 @@ class TodayPlan:
         if promise:
             actions.append(Action(
                 LEARN, "You said you'd start with: %s" % promise,
-                "Your own words in the log on %s." % said_on,
+                "From your log entry on %s." % said_on,
                 "", 15, weight=WEIGHT_PROMISE))
 
         if not self._logged_today():
             actions.append(Action(
                 LOG, "Write today's log entry",
-                "One sentence on what you built and where you got stuck. "
-                "Takes a minute and makes the next session start faster.",
+                "One sentence on what you built and where you got stuck.",
                 "", 5, weight=10))
 
         return actions
@@ -222,9 +218,8 @@ class TodayPlan:
             best = self.s.best_quiz_score(quiz.id)
             out.append(Action(
                 QUIZ, "Sit %s again" % quiz.name,
-                ("Never attempted - the one piece of the plan you have no "
-                 "measurement for." if best is None else
-                 "Best so far %d/%d, the weakest score you have left." % best),
+                ("Never attempted." if best is None else
+                 "Best so far %d/%d. Your weakest quiz." % best),
                 quiz.id, 10, weight=60))
         return out
 
@@ -261,8 +256,8 @@ class TodayPlan:
                 continue
             return Action(
                 LEARN, "Shore up %s" % wphase.name,
-                "Your scores here are behind the rest of the plan. A short "
-                "session on it today, between the new work.",
+                "Your scores here are lower than elsewhere. Spend a short "
+                "session on it today.",
                 wphase.id, 25, weight=WEIGHT_MIXED)
 
         stats = self.p.all_phases()
@@ -281,12 +276,11 @@ class TodayPlan:
         if quizzes:
             return Action(
                 QUIZ, "Mix in phase %s: %s" % (phase.num, quizzes[0].name),
-                "Finished a while ago. Answering it cold today is what keeps "
-                "it.", quizzes[0].id, 10, weight=WEIGHT_MIXED)
+                "Finished a while ago. Answer it from memory to keep it.", quizzes[0].id, 10, weight=WEIGHT_MIXED)
         return Action(
             LEARN, "Mix in phase %s - %s" % (phase.num, phase.name),
             "Finished a while ago. Explain its gate checks from memory, then "
-            "open the page to see what you missed.",
+            "open the page and compare.",
             phase.id, 15, weight=WEIGHT_MIXED)
 
     def _last_quizzed(self, phase_id: str) -> str:

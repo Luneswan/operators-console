@@ -75,7 +75,7 @@ class ActivityGrid(QWidget):
         painter.drawText(
             QRectF(0, 7 * (cell + gap) + 2, self.width(), caption_height),
             Qt.AlignmentFlag.AlignLeft,
-            "Last %d weeks - darker squares are heavier days" % self.weeks)
+            "Last %d weeks. Darker squares mean more study." % self.weeks)
 
     def sizeHint(self):
         from PySide6.QtCore import QSize

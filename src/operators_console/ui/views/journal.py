@@ -64,9 +64,8 @@ class JournalView(View):
     _editing = None
 
     def build(self) -> None:
-        self.header("Log", "one entry a day",
-                    "The entry takes a minute and makes tomorrow start faster. "
-                    "Hours recorded here feed the pace estimate on Today.")
+        self.header("Log", "daily log",
+                    "Hours logged here set the pace estimate on Today.")
 
         self._window = PAGE
         self._editing = None
@@ -159,7 +158,7 @@ class JournalView(View):
         find_row.addWidget(muted("FIND"))
         self.filter = QLineEdit()
         self.filter.setPlaceholderText(
-            "A word from the focus, what you built, what stuck, or what is next")
+            "Search focus, built, stuck and next")
         self.filter.setClearButtonEnabled(True)
         self.filter.setAccessibleName("Filter the log and the notes")
         find_row.addWidget(self.filter, 1)
@@ -188,8 +187,8 @@ class JournalView(View):
         self.scroller.add(divider())
         self.scroller.add(heading("Your notes"))
         self.scroller.add(muted(
-            "Everything you have written on a phase or a project page, in one "
-            "place. The filter above searches these too."))
+            "Notes from phase and project pages. The filter above searches "
+            "these too."))
         self.notes = QVBoxLayout()
         self.notes.setSpacing(8)
         self.scroller.add_layout(self.notes)
@@ -331,7 +330,7 @@ class JournalView(View):
                 card.add(muted("No entry matches that filter. Widen the range "
                                "or clear the box above."))
             else:
-                card.add(muted("No entries yet. The first one is the hardest."))
+                card.add(muted("No entries yet."))
             self.history.addWidget(card)
             return
         for row in shown:

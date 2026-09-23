@@ -110,9 +110,8 @@ class LibraryView(View):
         self._flashed = None
         self._forced = {}
         self.scroller.column.setContentsMargins(24, 24, 24, 20)
-        self.header("Library", "everything worth reading",
-                    "Curated rather than exhaustive. If something is not here, "
-                    "it did not earn a place.")
+        self.header("Library", "reading list",
+                    "A short, selected list.")
 
         # One field over all four tabs: a shelf of eighty entries is a list
         # to search, not a list to read top to bottom.
@@ -419,7 +418,7 @@ class LibraryView(View):
     def _fill_fields(self) -> None:
         with self.fields_tab.rebuilding():
             self.fields_tab.add(muted(
-                "Pick one or two. Breadth without depth reads as inexperience."))
+                "Pick one or two and go deep."))
             current_group = None
             group_heading = None
             for field in self.ctx.curriculum.fields:
@@ -432,7 +431,7 @@ class LibraryView(View):
                 title.setStyleSheet("font-size: 15px; font-weight: 700;")
                 card.add(title)
                 card.add(label(field.blurb, "Soft"))
-                card.add(muted("Build to prove it: " + field.build))
+                card.add(muted("Project idea: " + field.build))
                 shown, folded = split_optional(field.libs, field.libs_optional)
                 row = QHBoxLayout()
                 row.setSpacing(8)
@@ -475,8 +474,8 @@ class LibraryView(View):
     def _fill_channels(self) -> None:
         with self.channels_tab.rebuilding():
             self.channels_tab.add(muted(
-                "Watching is not learning. Use these to unblock a concept, then "
-                "close the tab and write code."))
+                "Use these when a concept does not click, then go back to "
+                "writing code."))
             for group in self.ctx.curriculum.channels:
                 card = Card()
                 card.add(heading(group.group))
@@ -515,8 +514,7 @@ class LibraryView(View):
                          if value[0] != CERTS}
         with self.certs_tab.rebuilding():
             self.certs_tab.add(muted(
-                "A certificate is a receipt for time spent. A shipped project is "
-                "evidence of ability. Prefer the second."))
+                "Optional. A shipped project shows more than a certificate."))
             for cert in self.ctx.curriculum.certs:
                 state = self.ctx.store.cert_status(cert.id)
                 card = Card()

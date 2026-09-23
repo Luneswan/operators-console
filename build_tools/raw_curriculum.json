@@ -5,7 +5,7 @@
    "num": "OS",
    "name": "Operating rules",
    "when": "Read once. Re-read weekly.",
-   "aim": "The curriculum only works if the process is boring and repeatable. These are habits, not progress — they don't count toward the meter.",
+   "aim": "Study habits. These do not count toward progress.",
    "noProgress": true,
    "sections": [
     {
@@ -69,7 +69,7 @@
    "num": "00",
    "name": "Environment & Git",
    "when": "Day 0 · 1–2 days",
-   "aim": "Build the workshop before the workshop builds you. Every project from here on is version-controlled from its first commit.",
+   "aim": "Set up your tools. Every project from here on uses Git from its first commit.",
    "res": [
     {
      "n": "Git & GitHub Crash Course — freeCodeCamp",
@@ -117,7 +117,7 @@
     {
      "h": "Learn",
      "items": [
-      "What a commit actually is — a snapshot, not a diff.",
+      "What a commit is: a snapshot, not a diff.",
       "Local vs remote: working tree, index, HEAD, origin.",
       "<em>init · status · add · commit · log · diff</em>",
       "Branching, switching, merging, resolving a conflict by hand.",
@@ -139,7 +139,7 @@
    ],
    "snippet": "mkdir git-training && cd git-training\ngit init\n# create README.md and app.py\ngit add . && git commit -m \"Initial project\"\ngit switch -c feature/calculator\n# edit app.py, commit\ngit switch main\n# make a conflicting change, then:\ngit merge feature/calculator",
    "gate": {
-    "note": "Do all seven from memory, in one sitting, without a cheat sheet open.",
+    "note": "Do all seven from memory, in one sitting, without notes.",
     "items": [
      "Create a repo, clone it, make and inspect three commits.",
      "Create two branches and merge them.",
@@ -156,7 +156,7 @@
    "num": "01",
    "name": "Python foundations",
    "when": "Weeks 1–4",
-   "aim": "Learn the language by shipping a working program every single day. Syntax is learned as a side effect of building, never as the goal.",
+   "aim": "Learn the language by writing a working program every day.",
    "res": [
     {
      "n": "CS50P — Introduction to Programming with Python",
@@ -207,7 +207,7 @@
      "items": [
       "Modules, imports, <em>__name__</em>, and how Python finds things.",
       "Exceptions: raising, catching narrowly, custom exception classes.",
-      "Files with <em>pathlib</em> — never string-concatenate a path again.",
+      "Files with <em>pathlib</em>, instead of joining path strings.",
       "JSON and CSV round-trips.",
       "<em>argparse</em> for a real CLI interface.",
       "<em>logging</em> instead of print for anything that runs unattended.",
@@ -229,7 +229,7 @@
      "h": "Week 4 — objects",
      "items": [
       "Classes, instances, <em>__init__</em>, and attribute lookup.",
-      "Composition first; inheritance only when it genuinely is-a.",
+      "Composition first; inheritance only for a true is-a relationship.",
       "Properties, class methods, static methods.",
       "<em>dataclasses</em> for data-shaped objects.",
       "Dunder methods: <em>__repr__ __eq__ __len__ __iter__</em>.",
@@ -249,7 +249,7 @@
     }
    ],
    "gate": {
-    "note": "Open an empty file. No tutorial, no template, no AI writing code for you.",
+    "note": "Start from an empty file. No tutorial, template or AI-written code.",
     "items": [
      "Build a working CLI program from a blank file in under two hours.",
      "It uses functions, a collection type, file I/O, and exception handling.",
@@ -264,7 +264,7 @@
    "num": "02",
    "name": "Python engineering",
    "when": "Weeks 5–6",
-   "aim": "Stop thinking in syntax. Start understanding Python as a language with a runtime, an object model, and a set of protocols you can implement yourself.",
+   "aim": "Learn how Python works: the runtime, the object model, and the protocols you can implement.",
    "res": [
     {
      "n": "Python HOWTOs",
@@ -275,7 +275,7 @@
     {
      "n": "Python Language Reference",
      "k": "docs",
-     "w": "When you need to know exactly what happens",
+     "w": "The precise definition of the language",
      "u": "https://docs.python.org/3/reference/"
     },
     {
@@ -327,7 +327,7 @@
    ],
    "snippet": "@timer\n@retry(times=3, backoff=2.0)\ndef fetch(url: str) -> bytes:\n    ...\n\nwith managed_resource() as r:\n    ...",
    "gate": {
-    "note": "Explanation is the test. Reproducing syntax is not.",
+    "note": "Explain each one. Reproducing syntax does not count.",
     "items": [
      "Implement an iterator class and an equivalent generator, and say why you'd choose each.",
      "Write a caching decorator from a blank file, with <em>functools.wraps</em> applied correctly.",
@@ -342,7 +342,7 @@
    "num": "03",
    "name": "Packaging & tooling",
    "when": "Week 7",
-   "aim": "Make your work installable, reproducible, typed, and maintainable by someone who isn't you.",
+   "aim": "Make your code installable, reproducible, typed and maintainable by other people.",
    "res": [
     {
      "n": "Python Packaging User Guide",
@@ -377,7 +377,7 @@
     {
      "n": "Hypothesis",
      "k": "docs",
-     "w": "Property-based testing — finds bugs you'd never write a case for",
+     "w": "Generates test cases you would not think of",
      "u": "https://hypothesis.readthedocs.io/en/latest/"
     }
    ],
@@ -409,7 +409,7 @@
    ],
    "snippet": "uv venv && source .venv/bin/activate\nuv pip install -e \".[dev]\"\nruff check . && ruff format --check .\nmypy src/\npytest -q\nyour-tool --help",
    "gate": {
-    "note": "Do this on a machine — or in a container — that has never seen the project.",
+    "note": "Do this on a machine or container that has never seen the project.",
     "items": [
      "Clone into a clean environment and install with one command.",
      "The full test suite passes.",
@@ -424,7 +424,7 @@
    "num": "04",
    "name": "Computer science core",
    "when": "Weeks 8–11",
-   "aim": "Learn the layer beneath the language, so frameworks become interchangeable tools rather than things you memorize.",
+   "aim": "Learn data structures and what happens under the language, so frameworks become interchangeable.",
    "res": [
     {
      "n": "CS50x",
@@ -499,7 +499,7 @@
    "num": "05",
    "name": "Algorithms & problem solving",
    "when": "Weeks 12–13",
-   "aim": "Train the transferable skill: turn a vague problem into a precise, efficient, defensible solution.",
+   "aim": "Turn a vague problem into a precise, efficient solution you can justify.",
    "res": [
     {
      "n": "Data Structures & Algorithms — freeCodeCamp",
@@ -528,7 +528,7 @@
     {
      "n": "Advent of Code",
      "k": "practice",
-     "w": "Messy inputs, real constraints, escalating difficulty",
+     "w": "Messy inputs and rising difficulty",
      "u": "https://adventofcode.com/"
     },
     {
@@ -593,7 +593,7 @@
    "num": "06",
    "name": "Linux & systems",
    "when": "Week 14",
-   "aim": "Understand the environment your Python actually runs inside. Most production bugs are environment bugs.",
+   "aim": "Learn the operating system your Python runs on. Many production bugs come from the environment.",
    "res": [
     {
      "n": "MIT — The Missing Semester",
@@ -649,7 +649,7 @@
     }
    ],
    "gate": {
-    "note": "Keep it local and defensive. The goal is systems understanding, not persistence or evasion.",
+    "note": "Work only on your own machine. The goal is understanding the system.",
     "items": [
      "Diagnose why a script works in your shell but fails under cron.",
      "Find which process is holding a port, and explain how you found it.",
@@ -664,7 +664,7 @@
    "num": "07",
    "name": "Networking",
    "when": "Weeks 15–16",
-   "aim": "Understand every step between a client and a server, so 'the API call failed' becomes a specific question instead of a shrug.",
+   "aim": "Learn every step between a client and a server, so you can find where a failed API call broke.",
    "res": [
     {
      "n": "MDN — HTTP",
@@ -693,7 +693,7 @@
       "TCP vs UDP: ordering, delivery, handshake, cost.",
       "DNS resolution and where it's cached.",
       "The HTTP request/response cycle, byte by byte.",
-      "Headers, cookies, sessions, and where auth state actually lives.",
+      "Headers, cookies, sessions, and where auth state lives.",
       "TLS conceptually: certificates, chains, and what verification proves.",
       "REST semantics, idempotency, and correct status codes.",
       "WebSockets and when to use them over polling.",
@@ -712,7 +712,7 @@
     }
    ],
    "gate": {
-    "note": "Take one real API call you make and narrate the whole journey.",
+    "note": "Take one real API call and describe every step.",
     "items": [
      "Name resolution → connection → TLS → request → response → parse → error handling.",
      "Say where a timeout belongs at each layer, and what happens if it's missing.",
@@ -727,7 +727,7 @@
    "num": "08",
    "name": "SQL & PostgreSQL",
    "when": "Weeks 17–18",
-   "aim": "Treat the database as a system with its own behaviour — not a black box behind an ORM.",
+   "aim": "Learn how the database behaves on its own, not only through an ORM.",
    "res": [
     {
      "n": "PostgreSQL Tutorial",
@@ -752,7 +752,7 @@
     {
      "h": "Learn",
      "items": [
-      "SELECT, INSERT, UPDATE, DELETE — and the WHERE clause that saves you.",
+      "SELECT, INSERT, UPDATE, DELETE, and the WHERE clause.",
       "Joins: inner, left, and thinking relationally rather than procedurally.",
       "GROUP BY, HAVING, and aggregate functions.",
       "Subqueries and CTEs; when a CTE hurts performance.",
@@ -792,7 +792,7 @@
    "num": "09",
    "name": "Backend engineering",
    "when": "Weeks 19–20",
-   "aim": "Turn Python into a service that other software depends on.",
+   "aim": "Build Python services that other software depends on.",
    "res": [
     {
      "n": "FastAPI Tutorial",
@@ -826,7 +826,7 @@
       "Routing, path and query params, and correct HTTP semantics.",
       "Pydantic models for request validation and response shaping.",
       "Dependency injection and why it makes testing trivial.",
-      "Authentication vs authorization — they are different problems.",
+      "Authentication vs authorization.",
       "Sessions vs JWT: tradeoffs, revocation, refresh.",
       "Role and permission checks at the boundary, not scattered in handlers.",
       "Middleware: logging, request IDs, error handling.",
@@ -867,7 +867,7 @@
    "num": "10",
    "name": "Automation & web",
    "when": "Week 21",
-   "aim": "Use Python as the integration layer between files, APIs, browsers, and services. This is where the leverage lives.",
+   "aim": "Use Python to connect files, APIs, browsers and services.",
    "res": [
     {
      "n": "Automate the Boring Stuff",
@@ -890,7 +890,7 @@
     {
      "n": "Playwright for Python",
      "k": "docs",
-     "w": "Browser automation that actually works",
+     "w": "Reliable browser automation",
      "u": "https://playwright.dev/python/"
     },
     {
@@ -902,7 +902,7 @@
     {
      "n": "Textual",
      "k": "docs",
-     "w": "Build a real terminal UI for your tools",
+     "w": "Terminal UIs for your tools",
      "u": "https://textual.textualize.io/"
     }
    ],
@@ -951,7 +951,7 @@
    "num": "11",
    "name": "Async, concurrency & performance",
    "when": "Week 22",
-   "aim": "Know when to reach for async, threads, or processes — and be able to prove the choice with numbers.",
+   "aim": "Choose between async, threads and processes, and back the choice with measurements.",
    "res": [
     {
      "n": "asyncio",
@@ -982,8 +982,8 @@
     {
      "h": "Learn",
      "items": [
-      "Concurrency vs parallelism — say the difference out loud.",
-      "The event loop, coroutines, and what <em>await</em> actually yields.",
+      "Concurrency vs parallelism.",
+      "The event loop, coroutines, and what <em>await</em> yields.",
       "Tasks, gather, <em>TaskGroup</em>, and structured concurrency.",
       "Cancellation and cleanup that doesn't leak.",
       "Semaphores and queues for bounded concurrency.",
@@ -991,7 +991,7 @@
       "CPU-bound work on the default build: processes and the cost of pickling across them, subinterpreters, or native code that releases the GIL.",
       "Race conditions, locks, deadlocks — reproduce each one deliberately.",
       "Timeouts at every layer.",
-      "Profiling with cProfile and a memory profiler; benchmarking honestly."
+      "Profiling with cProfile and a memory profiler; fair benchmarks."
      ]
     },
     {
@@ -1032,7 +1032,7 @@
    "num": "12",
    "name": "Docker, CI/CD & deployment",
    "when": "Week 23",
-   "aim": "Make your software run identically somewhere that isn't your laptop.",
+   "aim": "Make your software run the same way on any machine.",
    "res": [
     {
      "n": "Docker — Python guide",
@@ -1098,7 +1098,7 @@
    "num": "13",
    "name": "Application security",
    "when": "Week 24",
-   "aim": "Think like a defender and a reviewer. Every feature you've built so far is now something to attack.",
+   "aim": "Find and fix security flaws in what you have built.",
    "res": [
     {
      "n": "OWASP Top 10",
@@ -1109,7 +1109,7 @@
     {
      "n": "OWASP Web Security Testing Guide",
      "k": "reference",
-     "w": "A real testing methodology",
+     "w": "A structured testing methodology",
      "u": "https://owasp.org/www-project-web-security-testing-guide/"
     },
     {
@@ -1132,7 +1132,7 @@
       "Broken access control — the most common real-world failure.",
       "Cryptographic failures: at rest, in transit, and in your password hashing.",
       "Injection: SQL, command, and template.",
-      "Insecure design — the flaws no library fixes for you.",
+      "Insecure design: flaws no library fixes.",
       "Security misconfiguration and default credentials.",
       "Vulnerable and outdated components; dependency scanning.",
       "Authentication failures: session fixation, credential stuffing, weak resets.",
@@ -1179,7 +1179,7 @@
    "num": "14",
    "name": "AI engineering",
    "when": "Weeks 25–26",
-   "aim": "Build models from scratch to understand them, then build reliable systems around models you didn't train. Both halves matter.",
+   "aim": "Build models from scratch to understand them, then build reliable systems around models you did not train.",
    "res": [
     {
      "n": "Neural Networks: Zero to Hero — Karpathy",
@@ -1276,7 +1276,7 @@
     }
    ],
    "gate": {
-    "note": "'It answered something plausible' is not a quality metric.",
+    "note": "Measure quality with an evaluation set, not by whether answers look plausible.",
     "items": [
      "Train a working neural net you wrote yourself, with no framework.",
      "Explain backpropagation without hand-waving.",
@@ -1291,12 +1291,12 @@
    "num": "15",
    "name": "Architecture & orchestration",
    "when": "Months 7+",
-   "aim": "Design systems that survive growth, failure, and multiple workers running at once.",
+   "aim": "Design systems that handle growth, failures and concurrent workers.",
    "res": [
     {
      "n": "Designing Data-Intensive Applications",
      "k": "book",
-     "w": "The distributed systems book — read it slowly",
+     "w": "The standard book on distributed data systems; read it slowly",
      "u": "https://dataintensive.net/"
     },
     {
@@ -1387,7 +1387,7 @@
    "num": "16",
    "name": "Systems programming & internals",
    "when": "Months 8+",
-   "aim": "Go beneath the abstraction — after the core path is solid, not before.",
+   "aim": "Learn what happens below Python. Do this after the core phases.",
    "res": [
     {
      "n": "Extending and Embedding Python",
@@ -1404,13 +1404,13 @@
     {
      "n": "CPython source",
      "k": "source",
-     "w": "Read the real interpreter when you're ready",
+     "w": "The interpreter's source, for when you are ready",
      "u": "https://github.com/python/cpython"
     },
     {
      "n": "dis — bytecode disassembler",
      "k": "docs",
-     "w": "See what your Python actually compiles to",
+     "w": "See the bytecode your Python compiles to",
      "u": "https://docs.python.org/3/library/dis.html"
     }
    ],
@@ -1456,7 +1456,7 @@
    "num": "17",
    "name": "Data engineering",
    "when": "Months 7+ · parallel track",
-   "aim": "Move data reliably at volume. This is where most well-paid Python work actually lives, and it's the half your roadmap was missing.",
+   "aim": "Move data reliably at volume. Much paid Python work is data engineering.",
    "res": [
     {
      "n": "Data Engineering Zoomcamp",
@@ -1491,7 +1491,7 @@
     {
      "n": "DuckDB",
      "k": "docs",
-     "w": "Analytical SQL on local files — absurdly useful",
+     "w": "Analytical SQL on local files",
      "u": "https://duckdb.org/docs/"
     },
     {
@@ -1534,7 +1534,7 @@
     }
    ],
    "gate": {
-    "note": "A pipeline nobody has to babysit is the deliverable.",
+    "note": "The deliverable is a pipeline that runs without supervision.",
     "items": [
      "Run the pipeline twice on the same window and prove the output is identical.",
      "Backfill a past period and show correct results.",
@@ -1548,8 +1548,8 @@
    "id": "p18",
    "num": "18",
    "name": "Beyond senior",
-   "when": "Ongoing · the real ceiling",
-   "aim": "Senior is 'builds the thing well'. Past senior is judgment, leverage, and being the person others' work depends on. None of this is a library.",
+   "when": "Ongoing",
+   "aim": "Skills past senior level: judgment, leverage, and work others depend on.",
    "res": [
     {
      "n": "Python Enhancement Proposals",
@@ -1626,7 +1626,7 @@
     }
    ],
    "gate": {
-    "note": "These are the ones nobody can fake.",
+    "note": "Each needs evidence.",
     "items": [
      "Ship a design doc that changed a decision.",
      "Have code you wrote merged into a project you don't own.",
@@ -1642,7 +1642,7 @@
    "num": "99",
    "name": "Final-boss ladder",
    "when": "Indefinite",
-   "aim": "Stop learning from predefined projects. Build the things that other software is built on top of.",
+   "aim": "Build the kind of systems other software is built on, without a predefined project.",
    "res": [
     {
      "n": "Build your own X",
@@ -1659,7 +1659,7 @@
     {
      "n": "Advent of Code",
      "k": "practice",
-     "w": "Annual proving ground for messy problems",
+     "w": "Messy inputs and rising difficulty",
      "u": "https://adventofcode.com/"
     }
    ],
@@ -1705,7 +1705,7 @@
     }
    ],
    "gate": {
-    "note": "God-tier is not knowing every library. It is having enough fundamentals and judgment that unfamiliar technology becomes a learnable tool rather than a wall.",
+    "note": "The goal is enough fundamentals and judgment to learn unfamiliar technology quickly.",
     "items": [
      "Enter an empty folder with an unfamiliar problem and produce a working thin slice within a day.",
      "Ship something strangers use.",
@@ -2031,7 +2031,7 @@
    "id": "f-web",
    "g": "Build software",
    "n": "Web backends & APIs",
-   "blurb": "Services that other software and browsers talk to. The most common professional Python job.",
+   "blurb": "Services that browsers and other software call. The most common Python job.",
    "build": "An API with auth, a database, tests, and OpenAPI docs — then deploy it.",
    "libs": [
     [
@@ -2069,7 +2069,7 @@
    "id": "f-auto",
    "g": "Build software",
    "n": "Automation & scripting",
-   "blurb": "Making the computer do the boring thing forever. The fastest payback in this whole list.",
+   "blurb": "Scripts that do repetitive work for you. Quick to pay off.",
    "build": "A scheduled job that watches something, decides something, and reports to you.",
    "libs": [
     [
@@ -2103,7 +2103,7 @@
    "id": "f-cli",
    "g": "Build software",
    "n": "CLI tools & developer tooling",
-   "blurb": "Small sharp programs other engineers install. High leverage, low ceremony.",
+   "blurb": "Small command-line tools other people install.",
    "build": "A CLI you install with one command and use weekly.",
    "libs": [
     [
@@ -2133,8 +2133,8 @@
    "id": "f-gui",
    "g": "Build software",
    "n": "Desktop & mobile apps",
-   "blurb": "Native windows and phone apps in Python. Niche, but real.",
-   "build": "A desktop tool with a real window that does one job well.",
+   "blurb": "Desktop and mobile apps in Python. A small niche.",
+   "build": "A desktop tool with a window that does one job.",
    "libs": [
     [
      "Qt for Python",
@@ -2159,8 +2159,8 @@
    "id": "f-front",
    "g": "Build software",
    "n": "Web UIs without JavaScript",
-   "blurb": "Ship an interface from Python alone. Perfect for internal tools and demos.",
-   "build": "A dashboard over your own data that someone else can actually use.",
+   "blurb": "Web interfaces written only in Python. Good for internal tools and demos.",
+   "build": "A dashboard over your own data that someone else uses.",
    "libs": [
     [
      "Streamlit",
@@ -2189,7 +2189,7 @@
    "id": "f-game",
    "g": "Build software",
    "n": "Game development",
-   "blurb": "2D games and simulations. An excellent way to internalize state, loops, and timing.",
+   "blurb": "2D games and simulations. Good practice for state, loops and timing.",
    "build": "A complete small game with menus, scoring, and a save file.",
    "libs": [
     [
@@ -2207,8 +2207,8 @@
    "id": "f-ds",
    "g": "Data & AI",
    "n": "Data analysis",
-   "blurb": "Turning messy tables into answers. The most transferable non-engineering Python skill.",
-   "build": "Take a real public dataset and answer a question nobody handed you.",
+   "blurb": "Turning messy tables into answers. Useful outside engineering too.",
+   "build": "Take a public dataset and answer a question you chose.",
    "libs": [
     [
      "pandas",
@@ -2241,7 +2241,7 @@
    "id": "f-ml",
    "g": "Data & AI",
    "n": "Machine learning",
-   "blurb": "Models that learn patterns from data. Classical ML solves more real problems than deep learning does.",
+   "blurb": "Models that learn patterns from data. Classical ML covers most practical problems.",
    "build": "An end-to-end model with a proper validation split and a deployed prediction endpoint.",
    "libs": [
     [
@@ -2267,7 +2267,7 @@
    "id": "f-dl",
    "g": "Data & AI",
    "n": "Deep learning from scratch",
-   "blurb": "Building the network yourself — autograd, backprop, attention. This is the part that makes you dangerous.",
+   "blurb": "Neural networks built by hand: autograd, backpropagation, attention.",
    "build": "micrograd, then a character language model, then a small transformer.",
    "libs": [
     [
@@ -2375,7 +2375,7 @@
    "id": "f-de",
    "g": "Data & AI",
    "n": "Data engineering",
-   "blurb": "Moving data reliably, on a schedule, at volume. Quietly one of the best-paid corners of Python.",
+   "blurb": "Moving data reliably, on a schedule, at volume. Well paid.",
    "build": "An orchestrated pipeline with tests, retries, and a working backfill.",
    "libs": [
     [
@@ -2409,7 +2409,7 @@
    "id": "f-sci",
    "g": "Science & numbers",
    "n": "Scientific computing",
-   "blurb": "The reason Python won academia. Simulation, optimization, symbolic math.",
+   "blurb": "Simulation, optimization and symbolic math. Python is standard in research.",
    "build": "Model a physical or statistical system and validate against known results.",
    "libs": [
     [
@@ -2443,8 +2443,8 @@
    "id": "f-fin",
    "g": "Science & numbers",
    "n": "Quantitative finance",
-   "blurb": "Market data, backtesting, risk, and execution. Ruthless about correctness.",
-   "build": "A backtester that is honest about fees, slippage, and lookahead bias.",
+   "blurb": "Market data, backtesting, risk and execution. Correctness matters.",
+   "build": "A backtester that accounts for fees, slippage and lookahead bias.",
    "libs": [
     [
      "ccxt",
@@ -2469,8 +2469,8 @@
    "id": "f-opt",
    "g": "Science & numbers",
    "n": "Optimization & operations research",
-   "blurb": "Scheduling, routing, allocation — problems where the answer is provably best.",
-   "build": "Solve a real scheduling or routing problem for someone you know.",
+   "blurb": "Scheduling, routing and allocation problems with provably optimal answers.",
+   "build": "Solve a scheduling or routing problem for someone you know.",
    "libs": [
     [
      "OR-Tools",
@@ -2488,7 +2488,7 @@
    "g": "Science & numbers",
    "n": "Geospatial & mapping",
    "blurb": "Anything with coordinates: logistics, planning, environment, property.",
-   "build": "Map a real dataset and answer a spatial question with it.",
+   "build": "Map a public dataset and answer a spatial question with it.",
    "libs": [
     [
      "GeoPandas",
@@ -2523,7 +2523,7 @@
    "id": "f-quantum",
    "g": "Science & numbers",
    "n": "Quantum computing",
-   "blurb": "Early, weird, and genuinely interesting. Low practical payoff today.",
+   "blurb": "Early-stage and experimental. Little practical use today.",
    "build": "Implement and run a basic quantum algorithm on a simulator.",
    "libs": [
     [
@@ -2615,7 +2615,7 @@
    "id": "f-embed",
    "g": "Systems & infrastructure",
    "n": "Embedded, IoT & robotics",
-   "blurb": "Python on microcontrollers and robots. Physical output is a different kind of satisfying.",
+   "blurb": "Python on microcontrollers and robots.",
    "build": "A sensor that reads the world and publishes to something you built.",
    "libs": [
     [
@@ -2641,8 +2641,8 @@
    "id": "f-perf",
    "g": "Systems & infrastructure",
    "n": "Performance & native extensions",
-   "blurb": "When Python is too slow, you drop a level instead of switching languages.",
-   "build": "Find your slowest function, rewrite it natively, and prove the speedup.",
+   "blurb": "Speeding up Python by moving hot code to a lower level.",
+   "build": "Find your slowest function, rewrite it natively, and measure the speedup.",
    "libs": [
     [
      "Cython",
@@ -2667,7 +2667,7 @@
    "id": "f-qa",
    "g": "Systems & infrastructure",
    "n": "Testing & QA engineering",
-   "blurb": "Building the systems that prove other systems work.",
+   "blurb": "Test systems and tooling that verify other software.",
    "build": "A test suite that catches a regression before a human notices it.",
    "libs": [
     [
@@ -2697,8 +2697,8 @@
    "id": "f-bots",
    "g": "Odds & ends worth knowing",
    "n": "Bots & integrations",
-   "blurb": "Where automation meets other people. Small projects, immediate users.",
-   "build": "A bot that does something genuinely useful for a group you're in.",
+   "blurb": "Bots and integrations for chat platforms and communities.",
+   "build": "A bot that does something useful for a group you are in.",
    "libs": [
     [
      "discord.py",
@@ -2719,7 +2719,7 @@
    "id": "f-docs",
    "g": "Odds & ends worth knowing",
    "n": "Documents & spreadsheets",
-   "blurb": "Unglamorous, constantly needed, easy to charge for.",
+   "blurb": "Documentation and its tooling. Steady demand.",
    "build": "Turn a folder of messy documents into one clean structured dataset.",
    "libs": [
     [
@@ -2777,7 +2777,7 @@
    "id": "f-lang",
    "g": "Odds & ends worth knowing",
    "n": "Languages, compilers & interpreters",
-   "blurb": "Writing the tools other programs are written in. The deepest kind of fun.",
+   "blurb": "Parsers, interpreters and compilers.",
    "build": "A small interpreted language: lexer, parser, AST, evaluator.",
    "libs": [
     [
@@ -2808,7 +2808,7 @@
    "cost": "Free (free certificate from cs50.harvard.edu)",
    "time": "~100–150 h",
    "what": "The best-taught beginner Python course that exists. Nine problem sets and a final project.",
-   "worth": "High. Real teaching, real problem sets, and the free certificate is genuinely from Harvard.",
+   "worth": "High. Strong teaching and problem sets. The free certificate is from Harvard.",
    "u": "https://cs50.harvard.edu/python/",
    "phase": "p01"
   },
@@ -2819,7 +2819,7 @@
    "cost": "Free, free certificate",
    "time": "200+ h · 14 parts",
    "what": "Text-based, brutally exercise-heavy, 5+5 ECTS. Covers OOP, testing, and databases.",
-   "worth": "High if you learn by doing. The exercise volume is what forces fluency.",
+   "worth": "High if you learn by doing. Many exercises.",
    "u": "https://programming-26.mooc.fi/",
    "phase": "p01"
   },
@@ -2830,7 +2830,7 @@
    "cost": "Free, free verifiable certificate",
    "time": "~300 h",
    "what": "Five graded projects: arithmetic formatter, time calculator, budget app, polygon area, probability calculator.",
-   "worth": "High. The projects are public and verifiable, which is why employers weigh it above badge-farms.",
+   "worth": "High. The projects are public and verifiable.",
    "u": "https://www.freecodecamp.org/learn/scientific-computing-with-python/",
    "phase": "p01"
   },
@@ -2841,7 +2841,7 @@
    "cost": "Free course + free digital badge",
    "time": "~30 h",
    "what": "Syntax through functions, collections, and exceptions. Prepares for the PCEP exam.",
-   "worth": "Medium. Fast, structured, and the badge is free — good for a résumé line early on.",
+   "worth": "Medium. Fast and structured. The badge is free.",
    "u": "https://www.netacad.com/courses/python-essentials-1",
    "phase": "p01"
   },
@@ -2863,7 +2863,7 @@
    "cost": "Paid exam (~$69)",
    "time": "Exam only",
    "what": "Vendor-neutral entry certification. Take it after Python Essentials 1 if you want the credential.",
-   "worth": "Low-medium. Recognized, but a portfolio beats it. Skip unless an employer names it.",
+   "worth": "Low-medium. Recognized, but a portfolio counts for more. Take it only if an employer asks for it.",
    "u": "https://pythoninstitute.org/pcep",
    "phase": "p01"
   },
@@ -2874,7 +2874,7 @@
    "cost": "Paid exam (~$259)",
    "time": "Exam only",
    "what": "Modules, OOP, exceptions, file handling, and standard library depth.",
-   "worth": "Low-medium. Same caveat, higher price. Only worth it if it's a hiring requirement.",
+   "worth": "Low-medium. Same as PCEP, at a higher price. Only if a job requires it.",
    "u": "https://pythoninstitute.org/pcap",
    "phase": "p03"
   },
@@ -2885,7 +2885,7 @@
    "cost": "Free",
    "time": "~1–2 h",
    "what": "A timed coding assessment. Pass and you get a shareable certificate.",
-   "worth": "Medium. Cheap signal, and useful as a self-check under time pressure.",
+   "worth": "Medium. Cheap, and useful as a timed self-check.",
    "u": "https://www.hackerrank.com/skills-directory/python_basic",
    "phase": "p02"
   },
@@ -2896,7 +2896,7 @@
    "cost": "Free, free certificates",
    "time": "3–7 h each",
    "what": "Python, pandas, intro ML, intermediate ML, feature engineering, deep learning.",
-   "worth": "Medium-high for data work. Short, practical, and they stack quickly.",
+   "worth": "Medium-high for data work. Short and practical.",
    "u": "https://www.kaggle.com/learn",
    "phase": "p14"
   },
@@ -2918,7 +2918,7 @@
    "cost": "Free, free certificate",
    "time": "~300 h",
    "what": "TensorFlow-based ML with five graded projects.",
-   "worth": "Medium. Take Karpathy and fast.ai for depth; take this for the credential.",
+   "worth": "Medium. For depth, use Karpathy and fast.ai. Take this for the certificate.",
    "u": "https://www.freecodecamp.org/learn/machine-learning-with-python/",
    "phase": "p14"
   },
@@ -2929,7 +2929,7 @@
    "cost": "Free, free certificate",
    "time": "~15–20 h",
    "what": "smolagents, LlamaIndex, and LangGraph side by side, ending in a benchmarked capstone.",
-   "worth": "High for agent work. The certificate requires shipping running code, not passing a quiz.",
+   "worth": "High for agent work. The certificate requires working code.",
    "u": "https://huggingface.co/learn/agents-course/",
    "phase": "p14"
   },
@@ -2940,7 +2940,7 @@
    "cost": "Free, chapter certificates",
    "time": "~15–20 h",
    "what": "Transformers, fine-tuning, and the Hugging Face stack across 12 chapters.",
-   "worth": "High if you'll ever touch a model beyond an API call.",
+   "worth": "High if you work with models beyond API calls.",
    "u": "https://huggingface.co/learn/llm-course/",
    "phase": "p14"
   },
@@ -2951,7 +2951,7 @@
    "cost": "Free, certificate path",
    "time": "~8 h",
    "what": "Model Context Protocol — how tools and context get wired into models.",
-   "worth": "Medium-high and rising. This is where agent tooling is standardizing.",
+   "worth": "Medium-high. Agent tooling is standardizing on MCP.",
    "u": "https://huggingface.co/learn/mcp-course/",
    "phase": "p14"
   },
@@ -2973,7 +2973,7 @@
    "cost": "Free",
    "time": "~15 h",
    "what": "Regression, classification, data handling, and productionizing models.",
-   "worth": "High as a foundation. Concise and unusually well-written.",
+   "worth": "High as a foundation. Short and well written.",
    "u": "https://developers.google.com/machine-learning/crash-course",
    "phase": "p14"
   },
@@ -2984,7 +2984,7 @@
    "cost": "Free",
    "time": "9 lectures + labs",
    "what": "University-grade deep learning, refreshed every year, with Colab labs.",
-   "worth": "High. The current-year edition keeps pace with the field.",
+   "worth": "High. Updated every year.",
    "u": "https://introtodeeplearning.com/",
    "phase": "p14"
   },
@@ -2995,7 +2995,7 @@
    "cost": "Free (paid verified cert)",
    "time": "7 weeks",
    "what": "Search, knowledge, uncertainty, optimization, learning, neural nets, language.",
-   "worth": "High. The classical-AI foundation most LLM-era courses skip.",
+   "worth": "High. Covers the classical AI that many LLM courses skip.",
    "u": "https://cs50.harvard.edu/ai/",
    "phase": "p14"
   },
@@ -3018,7 +3018,7 @@
    "time": "~6 months",
    "build": "",
    "what": "Six courses: Python, Git, Linux, troubleshooting, configuration management.",
-   "worth": "Medium-high. Strong brand recognition; apply for financial aid rather than paying.",
+   "worth": "Medium-high. A well-known brand. Financial aid is available.",
    "u": "https://www.coursera.org/professional-certificates/google-it-automation",
    "phase": "p06"
   },
@@ -3040,7 +3040,7 @@
    "cost": "Free (cohort certificate)",
    "time": "~4 months",
    "what": "Regression through deployment, with peer-reviewed projects.",
-   "worth": "High. Cohort deadlines are the accountability most self-study lacks.",
+   "worth": "High. Cohort deadlines keep you on schedule.",
    "u": "https://github.com/DataTalksClub/machine-learning-zoomcamp",
    "phase": "p14"
   },
@@ -3051,7 +3051,7 @@
    "cost": "Free (cohort certificate)",
    "time": "~4 months",
    "what": "Docker, Terraform, workflow orchestration, warehouse, dbt, Spark, Kafka.",
-   "worth": "High. The most complete free data engineering curriculum available.",
+   "worth": "High. The most complete free data engineering course.",
    "u": "https://github.com/DataTalksClub/data-engineering-zoomcamp",
    "phase": "p17"
   },
@@ -3109,7 +3109,7 @@
     {
      "n": "mCoding",
      "u": "https://www.youtube.com/@mCoding",
-     "w": "Deep, precise, occasionally brutal explanations of how Python really behaves."
+     "w": "Precise explanations of how Python behaves."
     },
     {
      "n": "anthonywritescode",
@@ -3124,7 +3124,7 @@
     {
      "n": "PyCon US",
      "u": "https://www.youtube.com/@PyConUS",
-     "w": "Conference talks. Search it for any topic — the best 30-minute explanations live here."
+     "w": "Conference talks on most topics. Search it by topic."
     },
     {
      "n": "EuroPython",
@@ -3144,7 +3144,7 @@
     {
      "n": "NeuralNine",
      "u": "https://www.youtube.com/@NeuralNine",
-     "w": "Automation, scripting, and practical real-world builds."
+     "w": "Automation, scripting and practical builds."
     },
     {
      "n": "Python Engineer",
@@ -3189,7 +3189,7 @@
     {
      "n": "NetworkChuck",
      "u": "https://www.youtube.com/@NetworkChuck",
-     "w": "Networking, Linux, and security with real energy."
+     "w": "Networking, Linux and security."
     },
     {
      "n": "Computerphile",
