@@ -166,4 +166,4 @@ jobs:
           # dialog of every build shows the start of it, and CHANGELOG.md
           # holds the full record.
           generate_release_notes: false
-          body_file: .github/RELEASE_NOTES.md
+          body_path: .github/RELEASE_NOTES.md

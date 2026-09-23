@@ -197,7 +197,10 @@ def test_the_current_build_needs_the_manifest_to_call_it_verified():
 
 
 def test_the_release_notes_are_the_body_and_speak_to_old_builds_first():
-    assert "body_file: .github/RELEASE_NOTES.md" in WORKFLOW
+    # softprops/action-gh-release reads body_path; body_file is ignored
+    # silently, which is how 1.1.0 first shipped with no notes.
+    assert "body_path: .github/RELEASE_NOTES.md" in WORKFLOW
+    assert "body_file:" not in WORKFLOW
     notes = (ROOT / ".github" / "RELEASE_NOTES.md").read_text(
         encoding="utf-8")
     # The 1.0.x update dialog shows the first 700 characters of the body.
