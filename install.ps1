@@ -83,6 +83,9 @@ $sumsAsset = $release.assets | Where-Object { $_.name -eq 'SHA256SUMS' } | Selec
 if ($sumsAsset) {
     $sumsUrl = Assert-Https $sumsAsset.browser_download_url 'the checksum file'
     $sums = (Invoke-WebRequest -Uri $sumsUrl -UseBasicParsing).Content
+    # GitHub serves the file as application/octet-stream. Windows PowerShell
+    # 5.1 then returns the content as bytes, not text; decode it.
+    if ($sums -is [byte[]]) { $sums = [Text.Encoding]::UTF8.GetString($sums) }
     foreach ($line in ($sums -split "`n")) {
         $parts = ($line.Trim() -split '\s+', 2)
         if ($parts.Count -eq 2 -and $parts[1].TrimStart('*') -eq $asset.name) {
@@ -95,6 +98,9 @@ if ($sumsAsset) {
 if (-not $expected) {
     if (-not $SkipVerify) {
         Remove-Item $temp -Recurse -Force -ErrorAction SilentlyContinue
+        if ($sumsAsset) {
+            throw "SHA256SUMS in release $($release.tag_name) has no entry for $($asset.name), so the download cannot be verified. Refusing to install it. Re-run with -SkipVerify to install it anyway."
+        }
         throw "This release does not publish a SHA256SUMS file, so the download cannot be verified. Refusing to install it. Re-run with -SkipVerify to install it anyway."
     }
     Write-Warning "Installing without verification because -SkipVerify was given."

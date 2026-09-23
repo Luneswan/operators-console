@@ -258,3 +258,18 @@ def test_the_windows_portable_pattern_finds_both_spellings():
         assert re.match(regex, name, re.IGNORECASE), (pattern, name)
     assert not re.match(regex, "operators-console-1.1.0-macos-arm64-portable.zip",
                         re.IGNORECASE)
+
+
+def test_the_windows_installer_decodes_the_manifest_on_powershell_5():
+    """GitHub serves SHA256SUMS as application/octet-stream, and Windows
+    PowerShell 5.1 then returns Invoke-WebRequest content as bytes. Split as
+    a string, the bytes never matched a line, and every install on 5.1 was
+    refused with "This release does not publish a SHA256SUMS file"."""
+    lookup = PS1[PS1.index("$sumsAsset = "):PS1.index("if (-not $expected)")]
+    assert "-is [byte[]]" in lookup
+    assert "[Text.Encoding]::UTF8.GetString($sums)" in lookup
+    assert lookup.index("GetString") < lookup.index("-split")
+
+
+def test_a_manifest_without_this_file_is_not_called_missing():
+    assert "has no entry for $($asset.name)" in PS1

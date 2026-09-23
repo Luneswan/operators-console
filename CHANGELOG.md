@@ -4,6 +4,17 @@ All notable changes to this project are recorded here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and the project uses
 [semantic versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Fixed
+
+- `install.ps1` refused every install on Windows PowerShell 5.1 with "This
+  release does not publish a SHA256SUMS file". GitHub serves the file as
+  `application/octet-stream`, and 5.1 returns that as bytes, so no line
+  matched. The script now decodes it. A checksum file without an entry for
+  the download now gets its own error message. The script is fetched from
+  `main`, so the fix applies without a new release.
+
 ## [1.1.3] - 2026-09-24
 
 ### Changed
