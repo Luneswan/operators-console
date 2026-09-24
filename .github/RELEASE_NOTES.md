@@ -1,6 +1,4 @@
-**1.1.3**: plain, direct wording across the app, including messages, grader
-explanations, phase aims, library notes, track descriptions, project text and
-hints. No behaviour changes. Details are in the changelog below.
+**1.2.0**: career pathways, a career ladder, user profiles and a report form.
 
 **Updating from 1.0.1 or later (installed):** use the Update button in the
 sidebar. If a 1.0.x build reopens on the old version after updating, close it
@@ -13,6 +11,26 @@ versions update in-app. For a Windows portable build:
 ```powershell
 & ([scriptblock]::Create((irm https://raw.githubusercontent.com/Luneswan/operators-console/main/install.ps1))) -Portable
 ```
+
+**What is new:**
+
+- **14 specializations**, one per career path: data and charts, desktop and
+  mobile apps, command-line tools, games, science, finance, computer vision,
+  NLP, testing, network automation, embedded and IoT, security, bots, and
+  blockchain. Each has a checklist, gate, reading list, quiz, graded
+  exercises and a project. 21 goals and 16 tracks; the roadmap orders phases
+  by what each one needs first and adds missing prerequisites for your goals.
+- **Career ladder**: Starting out, Beginner, Junior, Mid-level, Senior,
+  Senior+. Levels come from proven phases, not ticked lines.
+- **Profiles**: several people on one computer, each with their own
+  progress, settings, review deck and snapshots. File -> Switch profile or
+  Settings -> Profiles. Your existing progress stays where it is.
+- **Report or request**: Settings and Help open a form that fills in a
+  GitHub issue for you to submit. The app sends nothing.
+
+The course is now 35 phases, 161 exercises, 354 quiz questions and 36
+projects. Your progress carries over; question and checklist ids are
+unchanged.
 
 Changes per version: [CHANGELOG.md](https://github.com/Luneswan/operators-console/blob/main/CHANGELOG.md).
 
