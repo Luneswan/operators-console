@@ -1,0 +1,93 @@
+{
+  "sections": {
+    "p10.s0": "The patterns every automation job depends on: talking to APIs, reading pages, driving browsers, and surviving failure. Work in order, since retries, idempotency and scheduling build on the API items. Spend about a day per item, each ending with a small script against a public API or a local test server.",
+    "p10.s1": "One engine that runs declared tasks through pluggable actions and records what happened. Build in order: format, dispatcher, adapters, result shape, persistence, notifications, then resume. Keep each step working end to end with two sample tasks before adding the next; resumability usually takes the most time."
+  },
+  "items": {
+    "p10.s0.0": {
+      "how": "Write three small clients with <em>httpx</em>: one sending an API key in a header, one using <em>httpx.BasicAuth</em>, and one that holds an OAuth access token and refreshes it on a 401 before retrying once. Read the key from an environment variable, never from the source file.",
+      "where": [{"name": "HTTPX authentication", "url": "https://www.python-httpx.org/advanced/authentication/"}, {"name": "OAuth 2.0 overview", "url": "https://oauth.net/2/"}],
+      "done": "You can explain access token versus refresh token, and your client recovers from an expired token without crashing."
+    },
+    "p10.s0.1": {
+      "how": "Page through a real paginated API (the GitHub REST API works without a key) until the last page by following the <em>Link</em> header via <em>response.links</em>. Then write a generator that hides the paging so callers only see items, and note when cursor paging beats offset paging.",
+      "where": [{"name": "GitHub REST pagination", "url": "https://docs.github.com/en/rest/using-the-rest-api/using-pagination-in-the-rest-api"}, {"name": "HTTPX quickstart", "url": "https://www.python-httpx.org/quickstart/"}],
+      "done": "Your generator yields every item exactly once, and you can say why offset paging skips or repeats rows when data changes mid-scan."
+    },
+    "p10.s0.2": {
+      "how": "Save a page to disk and parse it with <em>BeautifulSoup</em>. Write each selector twice: once by position (<em>div:nth-child(3)</em>) and once by a stable attribute, id or visible label. Edit the saved HTML to move elements around and see which selectors still work.",
+      "where": [{"name": "Beautiful Soup documentation", "url": "https://www.crummy.com/software/BeautifulSoup/bs4/doc/"}, {"name": "MDN CSS selectors", "url": "https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_selectors"}],
+      "done": "Your attribute-based selectors survive the edited HTML, and your tests parse a saved file instead of the live site."
+    },
+    "p10.s0.3": {
+      "how": "Script a login-and-search flow on a demo site with Playwright's sync API. Use <em>page.get_by_role</em> and <em>page.get_by_label</em> locators, rely on auto-waiting, and remove every <em>time.sleep</em>. Run it headed, then headless, and compare what differs.",
+      "where": [{"name": "Playwright locators", "url": "https://playwright.dev/python/docs/locators"}, {"name": "Playwright auto-waiting", "url": "https://playwright.dev/python/docs/actionability"}],
+      "done": "The script passes ten headless runs in a row with no fixed sleeps, and you can say what Playwright waits for before a click."
+    },
+    "p10.s0.4": {
+      "how": "Write a script that sorts a downloads folder into subfolders by file type with <em>pathlib</em> and <em>shutil.move</em>, supports a <em>--dry-run</em> flag, and then archives the result by calling an external tool through <em>subprocess.run</em> with <em>check=True</em> and a list of arguments.",
+      "where": [{"name": "pathlib", "url": "https://docs.python.org/3/library/pathlib.html"}, {"name": "subprocess", "url": "https://docs.python.org/3/library/subprocess.html"}],
+      "done": "The dry run prints the same moves the real run makes, and a failing subprocess raises <em>CalledProcessError</em> that you catch and log."
+    },
+    "p10.s0.5": {
+      "how": "Build a small FastAPI endpoint that receives a webhook, checks an HMAC-SHA256 signature over the raw body with <em>hmac.compare_digest</em>, queues the work, and returns 2xx at once. Send it signed and unsigned requests from a local script.",
+      "where": [{"name": "GitHub: validating webhook deliveries", "url": "https://docs.github.com/en/webhooks/using-webhooks/validating-webhook-deliveries"}, {"name": "hmac module", "url": "https://docs.python.org/3/library/hmac.html"}],
+      "done": "Tampered or unsigned requests get a 401, valid ones a fast 2xx, and you can say why the signature is checked over the raw body."
+    },
+    "p10.s0.6": {
+      "how": "Write a <em>retry</em> decorator with exponential backoff, full jitter and a cap on attempts. Test it against a local server that fails the first three calls with 503, and log each delay. Then compare it with the <em>tenacity</em> library.",
+      "where": [{"name": "AWS: Exponential backoff and jitter", "url": "https://aws.amazon.com/blogs/architecture/exponential-backoff-and-jitter/"}, {"name": "Tenacity", "url": "https://tenacity.readthedocs.io/en/latest/"}],
+      "done": "Your log shows growing, randomised delays, and you can explain why many clients retrying without jitter overload a recovering server."
+    },
+    "p10.s0.7": {
+      "how": "Take a script that appends rows to a SQLite table and make it idempotent: give each record a natural key, use <em>INSERT ... ON CONFLICT DO NOTHING</em>, and send an idempotency key header on any POST it makes. Run it twice on the same input.",
+      "where": [{"name": "Stripe: idempotent requests", "url": "https://docs.stripe.com/api/idempotent_requests"}, {"name": "SQLite UPSERT", "url": "https://www.sqlite.org/lang_upsert.html"}],
+      "done": "Running the script twice leaves the same row count as running it once."
+    },
+    "p10.s0.8": {
+      "how": "Schedule one of your scripts with cron or Windows Task Scheduler every five minutes. Add a lock file so a second copy exits if the first is still running, and record the last successful run time so a missed slot catches up.",
+      "where": [{"name": "crontab(5) manual", "url": "https://man7.org/linux/man-pages/man5/crontab.5.html"}, {"name": "Automate the Boring Stuff", "url": "https://automatetheboringstuff.com/"}],
+      "done": "Two copies started together produce one run and one clean exit, and a killed run is picked up correctly next time."
+    },
+    "p10.s0.9": {
+      "how": "Before fetching a site, check its rules with <em>urllib.robotparser</em>. Add a fixed delay per host, a descriptive User-Agent with contact details, and honour <em>429</em> responses and the <em>Retry-After</em> header. Read how Scrapy's AutoThrottle adjusts delay.",
+      "where": [{"name": "urllib.robotparser", "url": "https://docs.python.org/3/library/urllib.robotparser.html"}, {"name": "Scrapy AutoThrottle", "url": "https://docs.scrapy.org/en/latest/topics/autothrottle.html"}],
+      "done": "Your fetcher skips disallowed paths, waits between requests to one host, and backs off when it receives a 429."
+    },
+    "p10.s1.0": {
+      "how": "Define tasks in TOML files with a name, action type, parameters and retry policy. Load them with <em>tomllib</em> into a <em>pydantic</em> model that validates fields, and write three sample task files, one of them deliberately invalid.",
+      "where": [{"name": "tomllib", "url": "https://docs.python.org/3/library/tomllib.html"}, {"name": "Pydantic models", "url": "https://docs.pydantic.dev/latest/concepts/models/"}],
+      "done": "Adding a new task needs only a new file, and the invalid file fails at load time with a message that names the bad field."
+    },
+    "p10.s1.1": {
+      "how": "Write a registry that maps an action type string to a handler, filled by a <em>@register(\"http\")</em> decorator. The dispatcher looks up the handler, calls it with the task parameters, and raises a clear error for an unknown type.",
+      "where": [{"name": "typing.Protocol", "url": "https://docs.python.org/3/library/typing.html#typing.Protocol"}, {"name": "functools", "url": "https://docs.python.org/3/library/functools.html"}],
+      "done": "A unit test registers a fake action, dispatches a task to it, and asserts an unknown type raises your error without running anything."
+    },
+    "p10.s1.2": {
+      "how": "Implement four adapters behind one interface: HTTP with <em>httpx</em>, browser with Playwright, filesystem with <em>pathlib</em> and <em>shutil</em>, subprocess with <em>subprocess.run</em>. Give each a timeout and write one test per adapter against a local target.",
+      "where": [{"name": "HTTPX", "url": "https://www.python-httpx.org/"}, {"name": "Playwright for Python", "url": "https://playwright.dev/python/"}],
+      "done": "All four adapter tests pass offline, and each adapter stops at its timeout instead of hanging."
+    },
+    "p10.s1.3": {
+      "how": "Define a <em>Result</em> dataclass with task id, status, start and end times, output, and error details. Make every adapter return one, and convert any exception into a failed Result at the dispatcher boundary.",
+      "where": [{"name": "dataclasses", "url": "https://docs.python.org/3/library/dataclasses.html"}],
+      "done": "Every task, successful or not, produces a Result you can serialise to JSON with the same keys."
+    },
+    "p10.s1.4": {
+      "how": "Store each run and its Results in SQLite, and write logs with <em>logging</em> to a rotating file that includes the run id and task id on every line. After a forced failure, reconstruct what happened using only the database and the log.",
+      "where": [{"name": "sqlite3", "url": "https://docs.python.org/3/library/sqlite3.html"}, {"name": "Logging cookbook", "url": "https://docs.python.org/3/howto/logging-cookbook.html"}],
+      "done": "Given a run id, one query and one log search show every task, its inputs, its outcome and its error."
+    },
+    "p10.s1.5": {
+      "how": "Add a notifier interface with two backends, such as email via <em>smtplib</em> and a push service like ntfy. Send one summary per run, not one per task, and make a notifier failure log a warning without failing the run.",
+      "where": [{"name": "smtplib", "url": "https://docs.python.org/3/library/smtplib.html"}, {"name": "ntfy docs", "url": "https://docs.ntfy.sh/"}],
+      "done": "A run with one failed task sends one message listing that failure, and a broken notifier does not stop the engine."
+    },
+    "p10.s1.6": {
+      "how": "Record each task's status in the database before and after it runs. On start, skip tasks already marked done for the current run and retry those left running. Kill the process mid-run with Task Manager or <em>kill -9</em> and restart it.",
+      "where": [{"name": "sqlite3", "url": "https://docs.python.org/3/library/sqlite3.html"}, {"name": "os.replace for atomic writes", "url": "https://docs.python.org/3/library/os.html#os.replace"}],
+      "done": "After a hard kill and restart, every task has run to completion once and no finished task repeats."
+    }
+  }
+}

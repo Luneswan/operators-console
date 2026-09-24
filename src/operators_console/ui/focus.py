@@ -18,7 +18,7 @@ only the window, where key and mouse presses arrive.
 """
 from __future__ import annotations
 
-from PySide6.QtCore import QEvent, QObject
+from PySide6.QtCore import QEvent, QObject, Qt
 from PySide6.QtWidgets import QWidget
 
 POINTER_EVENTS = frozenset({
@@ -26,6 +26,22 @@ POINTER_EVENTS = frozenset({
     QEvent.Type.MouseButtonDblClick,
     QEvent.Type.Wheel,
     QEvent.Type.TouchBegin,
+})
+
+# Only keys that move the focus earn a ring. Typing a name into a dialog and
+# pressing Enter used to count: the dialog closed, the focus went back to the
+# sidebar, and "Today" wore a ring nobody had asked for.
+NAVIGATION_KEYS = frozenset(int(k) for k in (
+    Qt.Key.Key_Tab, Qt.Key.Key_Backtab, Qt.Key.Key_Up, Qt.Key.Key_Down,
+    Qt.Key.Key_Left, Qt.Key.Key_Right, Qt.Key.Key_Home, Qt.Key.Key_End,
+    Qt.Key.Key_PageUp, Qt.Key.Key_PageDown))
+
+# Focus that arrives with a window - activation, a dialog closing, Alt+Tab
+# back to the app - is restored, not navigated to.
+QUIET_EVENTS = frozenset({
+    QEvent.Type.WindowActivate,
+    QEvent.Type.WindowDeactivate,
+    QEvent.Type.Show,
 })
 
 _WATCHER = "_opcon_focus_watcher"
@@ -64,8 +80,8 @@ class FocusWatcher(QObject):
     def eventFilter(self, watched, event) -> bool:
         kind = event.type()
         if kind == QEvent.Type.KeyPress:
-            self.keyboard = True
-        elif kind in POINTER_EVENTS:
+            self.keyboard = event.key() in NAVIGATION_KEYS
+        elif kind in POINTER_EVENTS or kind in QUIET_EVENTS:
             self.keyboard = False
         return False
 

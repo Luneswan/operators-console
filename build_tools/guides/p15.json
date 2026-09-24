@@ -1,0 +1,341 @@
+{
+  "sections": {
+    "p15.s0": "The distributed-systems ideas the build depends on. Read in order: items 2 to 6 form one chain about delivery and failure, and 9 to 11 prepare the build. For each item write a short script or diagram that shows the behaviour, and read the matching part of Designing Data-Intensive Applications alongside. About 40 per cent of the phase.",
+    "p15.s1": "Build one small system in the listed order and keep it runnable after every step. Get one worker correct before scaling to three, then add workflows, dead letters, tracing and metrics. Run the load test last, when there is something real to measure. About half the phase.",
+    "p15.s2": "Write one architecture decision record, about two pages, for the system you built. Fill each item from measurements and tests you ran, not from intentions. Allow a day."
+  },
+  "items": {
+    "p15.s0.0": {
+      "how": "Read the Repository pattern chapter of Cosmic Python. Refactor one earlier project so its business logic depends on a <em>typing.Protocol</em> for storage, write a SQL implementation and an in-memory fake, and run the same tests against both.",
+      "where": [
+        {
+          "name": "Cosmic Python: Repository pattern",
+          "url": "https://www.cosmicpython.com/book/chapter_02_repository"
+        },
+        {
+          "name": "Python: typing (Protocol)",
+          "url": "https://docs.python.org/3/library/typing.html"
+        }
+      ],
+      "done": "Your core module imports nothing from the database or web framework, and the test suite passes against the fake."
+    },
+    "p15.s0.1": {
+      "how": "Read the AWS caching best practices page. Put cache-aside in front of a slow function with Redis <em>GET</em> and <em>SET key value EX 60</em>, then write a write-through version. Write a test that shows a stale read after an update when you skip invalidation.",
+      "where": [
+        {
+          "name": "AWS: Caching best practices",
+          "url": "https://aws.amazon.com/caching/best-practices/"
+        },
+        {
+          "name": "Redis: SET command",
+          "url": "https://redis.io/docs/latest/commands/set/"
+        }
+      ],
+      "done": "You can say when each strategy serves stale data, and your test shows the stale read and then its fix."
+    },
+    "p15.s0.2": {
+      "how": "Run a Celery worker with RabbitMQ as the broker and <em>acks_late=True</em> on a slow task. Kill the worker with <em>kill -9</em> mid-task, restart it, and watch the task run again. Note which side effects now happened twice.",
+      "where": [
+        {
+          "name": "Celery: Tasks",
+          "url": "https://docs.celeryq.dev/en/stable/userguide/tasks.html"
+        },
+        {
+          "name": "Celery: Configuration (task_acks_late)",
+          "url": "https://docs.celeryq.dev/en/stable/userguide/configuration.html"
+        }
+      ],
+      "done": "You can show the same task ID executed twice in the logs and explain why at-least-once delivery forces idempotent handlers."
+    },
+    "p15.s0.3": {
+      "how": "Read the AWS article on exponential backoff and jitter. Write a retry decorator with a maximum attempts cap, exponential backoff and full jitter. Simulate 100 clients retrying against a failing server and plot requests per second with and without jitter.",
+      "where": [
+        {
+          "name": "AWS: Exponential backoff and jitter",
+          "url": "https://aws.amazon.com/blogs/architecture/exponential-backoff-and-jitter/"
+        },
+        {
+          "name": "AWS Builders' Library: Timeouts, retries and backoff with jitter",
+          "url": "https://aws.amazon.com/builders-library/timeouts-retries-and-backoff-with-jitter/"
+        }
+      ],
+      "done": "Your plot shows synchronised spikes without jitter and a spread-out load with it, and you can explain how a retry storm starts."
+    },
+    "p15.s0.4": {
+      "how": "Read Stripe's post on idempotency. Add an <em>Idempotency-Key</em> header to a POST endpoint, store the key and response in a table with a unique constraint, and return the stored response on repeats. Fire the same request twice concurrently.",
+      "where": [
+        {
+          "name": "Stripe: Designing robust APIs with idempotency",
+          "url": "https://stripe.com/blog/idempotency"
+        },
+        {
+          "name": "Stripe API: Idempotent requests",
+          "url": "https://docs.stripe.com/api/idempotent_requests"
+        }
+      ],
+      "done": "Two concurrent identical requests cause one side effect and return the same response, and you can explain why delivery itself cannot be exactly-once."
+    },
+    "p15.s0.5": {
+      "how": "Configure a queue so messages that fail N times move to a dead-letter queue, using a RabbitMQ dead-letter exchange or an SQS redrive policy. Send a poison message, confirm it lands there, and write down what you would alert on and how you would replay it.",
+      "where": [
+        {
+          "name": "RabbitMQ: Dead letter exchanges",
+          "url": "https://www.rabbitmq.com/docs/dlx"
+        },
+        {
+          "name": "Amazon SQS: Dead-letter queues",
+          "url": "https://docs.aws.amazon.com/AWSSimpleQueueService/latest/SQSDeveloperGuide/sqs-dead-letter-queues.html"
+        }
+      ],
+      "done": "The poison message stops blocking the main queue after N attempts, and you can list the steps to inspect, fix and replay it."
+    },
+    "p15.s0.6": {
+      "how": "Read Kleppmann's post on distributed locking. Build a Redis lock with <em>SET key token NX PX 30000</em> and a release that checks the token. Pause the holder past the expiry with <em>time.sleep</em> to get two holders at once, then add a fencing token that the storage side checks.",
+      "where": [
+        {
+          "name": "Martin Kleppmann: How to do distributed locking",
+          "url": "https://martin.kleppmann.com/2016/02/08/how-to-do-distributed-locking.html"
+        },
+        {
+          "name": "Redis: SET command (NX, PX)",
+          "url": "https://redis.io/docs/latest/commands/set/"
+        }
+      ],
+      "done": "You can reproduce the double-holder bug with a paused process and explain how a fencing token rejects the stale write."
+    },
+    "p15.s0.7": {
+      "how": "Read the twelve-factor page on processes. Take a small web app that keeps sessions or uploads in memory or on local disk, move that state to Redis or object storage, and run three copies behind nginx with <em>docker compose up --scale web=3</em>.",
+      "where": [
+        {
+          "name": "The Twelve-Factor App: Processes",
+          "url": "https://12factor.net/processes"
+        },
+        {
+          "name": "Docker: docker compose up",
+          "url": "https://docs.docker.com/reference/cli/docker/compose/up/"
+        }
+      ],
+      "done": "Any request can hit any copy with the same result, and stopping one copy loses no user state."
+    },
+    "p15.s0.8": {
+      "how": "Read the replication and consistency chapters of Designing Data-Intensive Applications and the Jepsen consistency map. For a primary with one asynchronous replica, write out what a client sees if it writes then reads from the replica, and if the primary dies before replicating.",
+      "where": [
+        {
+          "name": "Jepsen: Consistency models",
+          "url": "https://jepsen.io/consistency"
+        },
+        {
+          "name": "Designing Data-Intensive Applications",
+          "url": "https://dataintensive.net/"
+        }
+      ],
+      "done": "You can give an example of read-your-writes, eventual consistency and linearisability, and say which one your system provides."
+    },
+    "p15.s0.9": {
+      "how": "Add JSON structured logs to a service with a request ID on every line, carried with <em>contextvars</em>. Expose a request counter and a latency histogram, and create a span per request with the OpenTelemetry Python SDK exporting to the console.",
+      "where": [
+        {
+          "name": "OpenTelemetry: Python",
+          "url": "https://opentelemetry.io/docs/languages/python/"
+        },
+        {
+          "name": "OpenTelemetry: Signals",
+          "url": "https://opentelemetry.io/docs/concepts/signals/"
+        }
+      ],
+      "done": "Given one request ID you can find its log lines, its trace and its effect on the metrics."
+    },
+    "p15.s0.10": {
+      "how": "Read Brendan Gregg's USE method. Under load, measure utilisation, saturation and errors for CPU, memory, disk, network and the database connection pool of one service. Use Little's law (concurrency = throughput x latency) to predict the throughput limit.",
+      "where": [
+        {
+          "name": "Brendan Gregg: The USE method",
+          "url": "https://www.brendangregg.com/usemethod.html"
+        }
+      ],
+      "done": "You can name the saturated resource from measurements and predict the throughput ceiling to within about 20 per cent."
+    },
+    "p15.s0.11": {
+      "how": "Read Temporal's page on workflow execution. Run a three-step workflow with the Temporal Python SDK where step 2 is slow, kill the worker during step 2, restart it, and confirm step 1 is not run again.",
+      "where": [
+        {
+          "name": "Temporal: Workflow execution",
+          "url": "https://docs.temporal.io/workflow-execution"
+        },
+        {
+          "name": "Temporal: Python SDK developer guide",
+          "url": "https://docs.temporal.io/develop/python"
+        }
+      ],
+      "done": "The killed workflow completes, and you can explain event-history replay and why workflow code must be deterministic."
+    },
+    "p15.s1.0": {
+      "how": "Write a <em>compose.yaml</em> with a FastAPI service, a broker, a Celery worker, Postgres and a Redis cache, each with a health check. Start with one endpoint that enqueues a job and one that reads the result through the cache.",
+      "where": [
+        {
+          "name": "Docker Compose: Quickstart",
+          "url": "https://docs.docker.com/compose/gettingstarted/"
+        },
+        {
+          "name": "Celery: First steps with Celery",
+          "url": "https://docs.celeryq.dev/en/stable/getting-started/first-steps-with-celery.html"
+        }
+      ],
+      "done": "<em>docker compose up</em> on a clean clone brings every service to healthy, and a submitted job's result comes back through the API."
+    },
+    "p15.s1.1": {
+      "how": "Make each task idempotent: a unique job ID, an upsert or unique constraint on the result, and no external side effect before the commit. Run <em>docker compose up --scale worker=3</em>, submit 1,000 jobs including deliberate duplicates, and kill a worker mid-run.",
+      "where": [
+        {
+          "name": "Celery: Tasks",
+          "url": "https://docs.celeryq.dev/en/stable/userguide/tasks.html"
+        },
+        {
+          "name": "Docker: docker compose up",
+          "url": "https://docs.docker.com/reference/cli/docker/compose/up/"
+        }
+      ],
+      "done": "A SQL count afterwards shows exactly one result per job ID and no missing jobs."
+    },
+    "p15.s1.2": {
+      "how": "Model a multi-step job (fetch, process, store) as a Temporal workflow, or as a state table updated after each step that a worker resumes from. Kill the worker during the middle step, restart it, and check the step log.",
+      "where": [
+        {
+          "name": "Temporal: Python SDK developer guide",
+          "url": "https://docs.temporal.io/develop/python"
+        },
+        {
+          "name": "LangGraph: Persistence",
+          "url": "https://docs.langchain.com/oss/python/langgraph/persistence"
+        }
+      ],
+      "done": "The job finishes after the restart, earlier steps are not repeated, and the log shows where it resumed."
+    },
+    "p15.s1.3": {
+      "how": "Send tasks that fail after their final retry to a dead-letter queue or a <em>failed_jobs</em> table holding the payload and the error. Write a <em>replay</em> command that re-enqueues selected entries once the cause is fixed.",
+      "where": [
+        {
+          "name": "RabbitMQ: Dead letter exchanges",
+          "url": "https://www.rabbitmq.com/docs/dlx"
+        },
+        {
+          "name": "Celery: Tasks (retrying)",
+          "url": "https://docs.celeryq.dev/en/stable/userguide/tasks.html"
+        }
+      ],
+      "done": "A forced failure lands in the dead-letter store, and after the fix the replay command completes it exactly once."
+    },
+    "p15.s1.4": {
+      "how": "Add the OpenTelemetry instrumentation packages for FastAPI and Celery, check that the trace context travels in the task headers, and export spans over OTLP to a Jaeger container in the compose file.",
+      "where": [
+        {
+          "name": "OpenTelemetry: Context propagation",
+          "url": "https://opentelemetry.io/docs/concepts/context-propagation/"
+        },
+        {
+          "name": "OpenTelemetry Celery instrumentation",
+          "url": "https://opentelemetry-python-contrib.readthedocs.io/en/latest/instrumentation/celery/celery.html"
+        }
+      ],
+      "done": "In Jaeger, one trace shows the API request, the enqueue and the worker execution as connected spans."
+    },
+    "p15.s1.5": {
+      "how": "Expose <em>/metrics</em> with <em>prometheus_client</em>: queue depth, jobs processed and failed, a task duration histogram and a per-worker heartbeat timestamp. Scrape it with Prometheus or poll it with <em>curl</em> during a run.",
+      "where": [
+        {
+          "name": "Prometheus Python client",
+          "url": "https://prometheus.github.io/client_python/"
+        },
+        {
+          "name": "Celery: Monitoring and management guide",
+          "url": "https://docs.celeryq.dev/en/stable/userguide/monitoring.html"
+        }
+      ],
+      "done": "Stopping all workers makes queue depth rise and the health metric go stale within one scrape interval."
+    },
+    "p15.s1.6": {
+      "how": "Write a Locust file that submits jobs at stepped rates. At each step record throughput, p95 latency and queue depth, and watch CPU, database connections and worker utilisation. Change one thing at a time and rerun.",
+      "where": [
+        {
+          "name": "Locust: Quickstart",
+          "url": "https://docs.locust.io/en/stable/quickstart.html"
+        },
+        {
+          "name": "Brendan Gregg: The USE method",
+          "url": "https://www.brendangregg.com/usemethod.html"
+        }
+      ],
+      "done": "You can name the resource that saturates first, with a measurement, and show the throughput gain after fixing it."
+    },
+    "p15.s2.0": {
+      "how": "Write the expected requests per second, job size and peak factor. Predict the first bottleneck with Little's law and your notes from s0.10, then put the load-test result from s1.6 next to the prediction.",
+      "where": [
+        {
+          "name": "Michael Nygard: Documenting architecture decisions",
+          "url": "https://cognitect.com/blog/2011/11/15/documenting-architecture-decisions"
+        },
+        {
+          "name": "Architectural Decision Records",
+          "url": "https://adr.github.io/"
+        }
+      ],
+      "done": "The record gives a number for expected load and compares the predicted bottleneck with the measured one."
+    },
+    "p15.s2.1": {
+      "how": "For each component (API, broker, worker, database, cache), write what happens when it is down, slow or returning errors: what the user sees, what is retried, and what can be lost or duplicated. Confirm at least two rows by stopping that container.",
+      "where": [
+        {
+          "name": "Michael Nygard: Documenting architecture decisions",
+          "url": "https://cognitect.com/blog/2011/11/15/documenting-architecture-decisions"
+        },
+        {
+          "name": "Designing Data-Intensive Applications",
+          "url": "https://dataintensive.net/"
+        }
+      ],
+      "done": "Every component has a failure row, and at least two rows are backed by a test you ran."
+    },
+    "p15.s2.2": {
+      "how": "For the database, broker and cache, write the requirement each meets (durability, ordering, latency, operational cost), the alternative you considered, and the measurement or constraint that decided it.",
+      "where": [
+        {
+          "name": "Architectural Decision Records",
+          "url": "https://adr.github.io/"
+        },
+        {
+          "name": "Designing Data-Intensive Applications",
+          "url": "https://dataintensive.net/"
+        }
+      ],
+      "done": "Each choice cites a requirement and a trade-off rather than a preference."
+    },
+    "p15.s2.3": {
+      "how": "Write the retry policy for each task (attempts, backoff, jitter, which errors retry), the idempotency key for each side effect, and what happens after the final retry. Link each rule to the code that implements it.",
+      "where": [
+        {
+          "name": "AWS Builders' Library: Timeouts, retries and backoff with jitter",
+          "url": "https://aws.amazon.com/builders-library/timeouts-retries-and-backoff-with-jitter/"
+        },
+        {
+          "name": "Stripe: Designing robust APIs with idempotency",
+          "url": "https://stripe.com/blog/idempotency"
+        }
+      ],
+      "done": "A reader can predict from the record alone what happens to a duplicated job and to a permanently failing one."
+    },
+    "p15.s2.4": {
+      "how": "For each major choice, name the rejected alternative (for example Kafka instead of RabbitMQ, Temporal instead of a state table, several services instead of one) and the specific reason, including the load or requirement at which you would revisit it.",
+      "where": [
+        {
+          "name": "Michael Nygard: Documenting architecture decisions",
+          "url": "https://cognitect.com/blog/2011/11/15/documenting-architecture-decisions"
+        },
+        {
+          "name": "Architectural Decision Records",
+          "url": "https://adr.github.io/"
+        }
+      ],
+      "done": "The record has a rejected-options section with at least three entries, each with the condition that would reverse it."
+    }
+  }
+}

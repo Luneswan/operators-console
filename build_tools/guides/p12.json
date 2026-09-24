@@ -1,0 +1,98 @@
+{
+  "sections": {
+    "p12.s0": "The container and CI basics you need before shipping the stack. Work through items 0 to 8 with one small FastAPI app, rebuilding and running it after each change, then set up CI and releases on the same repository. Most items take an evening; Compose and CI take longer.",
+    "p12.s1": "Your API, database, cache and worker running from one command, tested in CI, and reachable online. Build in order: Compose file, slim Dockerfile, health checks, migrations, CI, the one command, then the deploy. Check each step from a clean state with <em>docker compose down -v</em> before moving on."
+  },
+  "items": {
+    "p12.s0.0": {
+      "how": "Pull <em>python:3.12-slim</em>, start two containers from it, write a file in one, and confirm the other cannot see it. Then create a named volume, mount it in both, and repeat. Use <em>docker ps -a</em>, <em>docker images</em> and <em>docker volume ls</em> as you go.",
+      "where": [{"name": "What is an image?", "url": "https://docs.docker.com/get-started/docker-concepts/the-basics/what-is-an-image/"}, {"name": "Docker volumes", "url": "https://docs.docker.com/engine/storage/volumes/"}],
+      "done": "You can explain in one sentence each what an image, a container and a volume are, and which one survives <em>docker rm</em>."
+    },
+    "p12.s0.1": {
+      "how": "Write a Dockerfile for a small FastAPI app that copies the whole project, then build it twice after editing one source file. Reorder it to copy and install <em>requirements.txt</em> before the source, add a <em>.dockerignore</em>, and rebuild after the same edit.",
+      "where": [{"name": "Docker build cache", "url": "https://docs.docker.com/build/cache/"}, {"name": "Dockerfile best practices", "url": "https://docs.docker.com/build/building/best-practices/"}],
+      "done": "After a source-only edit the rebuild shows the dependency layer as <em>CACHED</em> and finishes in seconds."
+    },
+    "p12.s0.2": {
+      "how": "Split the Dockerfile into a builder stage that installs dependencies into a virtual environment and a final <em>python:3.12-slim</em> stage that copies only that environment and your code. Compare sizes with <em>docker images</em>.",
+      "where": [{"name": "Multi-stage builds", "url": "https://docs.docker.com/build/building/multi-stage/"}],
+      "done": "The final image is noticeably smaller than the single-stage one and contains no compilers or build tools."
+    },
+    "p12.s0.3": {
+      "how": "Add a user with <em>useradd</em> in the Dockerfile, <em>chown</em> the app directory, and switch with <em>USER</em>. Run <em>whoami</em> through <em>docker exec</em> and try to write to a root-owned path to see it refused.",
+      "where": [{"name": "Dockerfile reference", "url": "https://docs.docker.com/reference/dockerfile/"}, {"name": "OWASP Docker security", "url": "https://cheatsheetseries.owasp.org/cheatsheets/Docker_Security_Cheat_Sheet.html"}],
+      "done": "<em>whoami</em> inside the container prints your app user, not root, and the app still starts."
+    },
+    "p12.s0.4": {
+      "how": "Run PostgreSQL with a named volume for its data directory, remove and recreate the container, and confirm the data is still there. Then run your app with a bind mount of the source folder and <em>uvicorn --reload</em>, and edit a file on the host.",
+      "where": [{"name": "Docker volumes", "url": "https://docs.docker.com/engine/storage/volumes/"}, {"name": "Bind mounts", "url": "https://docs.docker.com/engine/storage/bind-mounts/"}],
+      "done": "Database data survives container removal, and host edits reload the app without a rebuild."
+    },
+    "p12.s0.5": {
+      "how": "Create a user-defined network with <em>docker network create</em>, start PostgreSQL and your app on it, and connect from the app using the container name as host. Then try the same on the default bridge network and note the difference.",
+      "where": [{"name": "Docker networking", "url": "https://docs.docker.com/engine/network/"}],
+      "done": "Your app reaches the database by name, and you can explain why <em>localhost</em> inside a container does not mean the host."
+    },
+    "p12.s0.6": {
+      "how": "Write a <em>compose.yaml</em> for your app and PostgreSQL with a named volume, then run <em>docker compose up</em>, <em>logs</em>, <em>ps</em> and <em>down</em>. Add <em>depends_on</em> with <em>condition: service_healthy</em>.",
+      "where": [{"name": "Docker Compose", "url": "https://docs.docker.com/compose/"}, {"name": "Compose startup order", "url": "https://docs.docker.com/compose/how-tos/startup-order/"}],
+      "done": "<em>docker compose up</em> starts both services with the app waiting for a healthy database, and <em>down</em> removes them cleanly."
+    },
+    "p12.s0.7": {
+      "how": "Move all settings to environment variables read by your app, and supply them from a <em>.env</em> file listed in <em>.gitignore</em> and <em>.dockerignore</em>. Run <em>docker history</em> on your image to confirm no secret appears in any layer.",
+      "where": [{"name": "Compose environment variables", "url": "https://docs.docker.com/compose/how-tos/environment-variables/"}, {"name": "Build secrets", "url": "https://docs.docker.com/build/building/secrets/"}],
+      "done": "The image contains no keys or passwords, and you can say why <em>ENV</em> or <em>ARG</em> with a secret leaks it."
+    },
+    "p12.s0.8": {
+      "how": "Add a <em>/health</em> endpoint and a <em>healthcheck</em> in Compose that calls it, plus <em>restart: unless-stopped</em>. Make the endpoint fail on purpose and watch <em>docker compose ps</em> report the service as unhealthy.",
+      "where": [{"name": "Dockerfile HEALTHCHECK", "url": "https://docs.docker.com/reference/dockerfile/#healthcheck"}, {"name": "Restart policies", "url": "https://docs.docker.com/engine/containers/start-containers-automatically/"}],
+      "done": "You can make the service show healthy and unhealthy on demand, and it restarts after you kill its process."
+    },
+    "p12.s0.9": {
+      "how": "Add <em>.github/workflows/ci.yml</em> that runs on push and pull request: set up Python, install dependencies, then run <em>pytest</em>, <em>ruff check</em> and <em>mypy</em>. Push a commit that breaks a test to see the run fail.",
+      "where": [{"name": "GitHub Actions: Python", "url": "https://docs.github.com/en/actions/tutorials/build-and-test-code/python"}, {"name": "GitHub Actions", "url": "https://docs.github.com/en/actions"}],
+      "done": "Every push shows a green or red check on GitHub, and the broken commit turns it red."
+    },
+    "p12.s0.10": {
+      "how": "Add a workflow triggered by pushing a tag such as <em>v0.1.0</em> that builds the image, tags it with the version, and pushes it to GitHub Container Registry. Write down the deploy step as a single command that pulls a given tag.",
+      "where": [{"name": "Docker: GitHub Actions", "url": "https://docs.docker.com/build/ci/github-actions/"}, {"name": "About releases", "url": "https://docs.github.com/en/repositories/releasing-projects-on-github/about-releases"}],
+      "done": "Pushing a new tag produces an image with that tag in the registry, and deploying an older tag rolls back."
+    },
+    "p12.s1.0": {
+      "how": "Write <em>compose.yaml</em> with four services: <em>api</em> (FastAPI), <em>db</em> (postgres with a named volume), <em>redis</em>, and <em>worker</em> built from the same image with a different command. Wire them with environment variables and bring it up.",
+      "where": [{"name": "Docker Compose", "url": "https://docs.docker.com/compose/"}, {"name": "postgres image", "url": "https://hub.docker.com/_/postgres"}],
+      "done": "<em>docker compose ps</em> shows all four running, and a request to the API that queues a job gets processed by the worker."
+    },
+    "p12.s1.1": {
+      "how": "Use a multi-stage build on <em>python:3.12-slim</em>, install only runtime dependencies in the final stage, add a <em>.dockerignore</em>, and set a non-root <em>USER</em>. Check size with <em>docker images</em> and remove what you do not need until it fits.",
+      "where": [{"name": "Multi-stage builds", "url": "https://docs.docker.com/build/building/multi-stage/"}, {"name": "FastAPI in containers", "url": "https://fastapi.tiangolo.com/deployment/docker/"}],
+      "done": "<em>docker images</em> reports under 200MB and <em>docker compose exec api whoami</em> prints a non-root user."
+    },
+    "p12.s1.2": {
+      "how": "Add a <em>healthcheck</em> to each service: <em>pg_isready</em> for PostgreSQL, <em>redis-cli ping</em> for Redis, an HTTP call to <em>/health</em> for the API, and a heartbeat check for the worker. Use <em>condition: service_healthy</em> in <em>depends_on</em>.",
+      "where": [{"name": "Compose services reference", "url": "https://docs.docker.com/reference/compose-file/services/"}, {"name": "Compose startup order", "url": "https://docs.docker.com/compose/how-tos/startup-order/"}],
+      "done": "<em>docker compose ps</em> shows every service as healthy, and stopping the database turns the API unhealthy."
+    },
+    "p12.s1.3": {
+      "how": "Manage schema with Alembic and run <em>alembic upgrade head</em> in a one-off <em>migrate</em> service that the API waits for with <em>service_completed_successfully</em>. Keep migrations backward-compatible so an old API still works against the new schema.",
+      "where": [{"name": "Alembic tutorial", "url": "https://alembic.sqlalchemy.org/en/latest/tutorial.html"}, {"name": "Compose startup order", "url": "https://docs.docker.com/compose/how-tos/startup-order/"}],
+      "done": "Starting the stack twice in a row runs migrations once and succeeds both times, and scaling the API to two replicas does not run them twice."
+    },
+    "p12.s1.4": {
+      "how": "Extend the CI workflow: run <em>ruff</em>, <em>mypy</em> and <em>pytest</em> with a PostgreSQL service container, then build the image with <em>docker/build-push-action</em>. Make the build job depend on the test job with <em>needs</em>.",
+      "where": [{"name": "GitHub Actions: service containers", "url": "https://docs.github.com/en/actions/tutorials/use-containerized-services/create-postgresql-service-containers"}, {"name": "Docker: GitHub Actions", "url": "https://docs.docker.com/build/ci/github-actions/"}],
+      "done": "A push runs lint, types, tests and the image build, and a failing test stops the build job."
+    },
+    "p12.s1.5": {
+      "how": "Write a <em>README</em> section and a script or <em>Makefile</em> target that copies <em>.env.example</em> if needed and runs <em>docker compose up --build -d</em>. Test it from a fresh clone after <em>docker compose down -v</em> and <em>docker system prune</em>.",
+      "where": [{"name": "docker compose up", "url": "https://docs.docker.com/reference/cli/docker/compose/up/"}, {"name": "Docker Python guide", "url": "https://docs.docker.com/guides/python/"}],
+      "done": "On a fresh clone the one command brings the stack to all-healthy with no manual steps."
+    },
+    "p12.s1.6": {
+      "how": "Rent a small VPS or use a container host such as Fly.io or Render. Pull your tagged image, set secrets through the host's secret store, put HTTPS in front, and expose only the API port. Keep the database off the public internet.",
+      "where": [{"name": "Fly.io docs", "url": "https://fly.io/docs/"}, {"name": "Render docs", "url": "https://render.com/docs"}],
+      "done": "<em>curl https://your-domain/health</em> from another network returns 200, and the database port is not reachable from outside."
+    }
+  }
+}

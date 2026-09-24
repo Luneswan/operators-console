@@ -369,8 +369,8 @@ def test_the_menu_key_and_shift_f10_open_the_row_menu(qt_app, window, key,
     pump(qt_app, 2)
     menus = [m for m in row.findChildren(QMenu) if m.isVisible()]
     assert menus, "no menu opened"
-    assert [a.text() for a in menus[0].actions()] == ["Add to review deck",
-                                                      "Copy text"]
+    assert [a.text() for a in menus[0].actions()] == [
+        "Add to review deck", "Copy text", "Show or hide how to do this"]
     menus[0].close()
     pump(qt_app)
 

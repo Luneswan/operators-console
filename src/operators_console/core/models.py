@@ -27,6 +27,11 @@ class Resource:
 class Item:
     id: str
     text: str
+    # The study guide for a checklist line: what to do, where to learn it,
+    # and how to tell it is done. Empty for gate checks and old bundles.
+    how: str = ""
+    where: tuple["Link", ...] = ()
+    done: str = ""
 
 
 @dataclass(frozen=True, slots=True)
@@ -36,6 +41,7 @@ class Section:
     items: tuple[Item, ...]
     # Stretch work: folded on the page and left out of progress.
     optional: bool = False
+    guide: str = ""                 # how to work through the section
 
 
 @dataclass(frozen=True, slots=True)

@@ -1,0 +1,118 @@
+{
+  "sections": {
+    "s03.s0": "How a command-line tool behaves so that people and scripts can rely on it. Work items 1 to 4 in order on one small tool, rewriting it as you go; they cover most of what users notice. Items 5 to 9 are about configuration, output, installation and documentation, and each takes about an hour.",
+    "s03.s1": "A real CLI published to TestPyPI or PyPI. Write the subcommands and their tests first, add the --json output and exit-code tests, then package and install with pipx, and build the docs site last. Test the install on a clean machine or venv before calling it done."
+  },
+  "items": {
+    "s03.s0.0": {
+      "how": "Write a <em>wordcount.py</em> with <em>argparse</em>: one positional file argument, a <em>--lines</em> flag, and two subcommands via <em>add_subparsers</em>. Give every argument a <em>help=</em> string and read the output of <em>-h</em> for each subcommand.",
+      "where": [
+        {"name": "argparse tutorial", "url": "https://docs.python.org/3/howto/argparse.html"},
+        {"name": "argparse reference", "url": "https://docs.python.org/3/library/argparse.html"}
+      ],
+      "done": "Running the tool with <em>-h</em> and with each subcommand's <em>-h</em> prints accurate, complete help."
+    },
+    "s03.s0.1": {
+      "how": "Rewrite the same tool with Typer using type hints, then with Click using decorators, and compare line counts and help output with the argparse version. Note what each framework adds: type conversion, testing helpers, completion.",
+      "where": [
+        {"name": "Typer tutorial", "url": "https://typer.tiangolo.com/tutorial/"},
+        {"name": "Click documentation", "url": "https://click.palletsprojects.com/en/stable/"}
+      ],
+      "done": "You have the same interface in three versions and can say when a framework is worth the extra dependency."
+    },
+    "s03.s0.2": {
+      "how": "Make the tool return 0 on success, 1 on a failed check and 2 on bad usage via <em>sys.exit</em>. Send errors and progress to <em>sys.stderr</em> and results only to stdout, then run <em>tool args 2>/dev/null</em> and check that stdout still holds only results.",
+      "where": [
+        {"name": "Python: sys", "url": "https://docs.python.org/3/library/sys.html"}
+      ],
+      "done": "Redirecting stderr leaves only machine-usable output, and <em>echo $?</em> shows the documented code in each case."
+    },
+    "s03.s0.3": {
+      "how": "Accept <em>-</em> as a file name meaning stdin, and read with <em>sys.stdin</em> or <em>fileinput</em> when no file is given. Test it in a pipeline such as <em>cat log.txt | tool count | sort</em>, and handle a closed pipe by catching <em>BrokenPipeError</em>.",
+      "where": [
+        {"name": "Python: fileinput", "url": "https://docs.python.org/3/library/fileinput.html"},
+        {"name": "Python: sys (stdin, stdout)", "url": "https://docs.python.org/3/library/sys.html"}
+      ],
+      "done": "The tool works as a middle stage of a pipe and exits quietly when piped into <em>head</em>."
+    },
+    "s03.s0.4": {
+      "how": "Load settings in this order, each overriding the last: built-in defaults, a TOML file read with <em>tomllib</em>, environment variables from <em>os.environ</em>, then command-line flags. Write a test that sets all four and checks the flag wins.",
+      "where": [
+        {"name": "Python: tomllib", "url": "https://docs.python.org/3/library/tomllib.html"},
+        {"name": "Python: os (environ)", "url": "https://docs.python.org/3/library/os.html"}
+      ],
+      "done": "A test shows flags beat environment variables, which beat the file, which beats defaults; <em>--help</em> states the order."
+    },
+    "s03.s0.5": {
+      "how": "Add a Rich <em>Progress</em> bar to a slow loop and print results as a Rich <em>Table</em>. Check <em>Console.is_terminal</em>, or <em>sys.stdout.isatty()</em>, and print plain lines when output is redirected to a file or pipe.",
+      "where": [
+        {"name": "Rich: progress display", "url": "https://rich.readthedocs.io/en/stable/progress.html"},
+        {"name": "Rich: console API", "url": "https://rich.readthedocs.io/en/stable/console.html"}
+      ],
+      "done": "<em>tool args > out.txt</em> produces a file with no colour codes or progress-bar characters."
+    },
+    "s03.s0.6": {
+      "how": "Add a <em>[project.scripts]</em> table to <em>pyproject.toml</em> pointing a command name at your <em>main</em> function, build with <em>python -m build</em>, and install the wheel with <em>pipx install dist/*.whl</em>. Run the command from a new terminal.",
+      "where": [
+        {"name": "Writing your pyproject.toml", "url": "https://packaging.python.org/en/latest/guides/writing-pyproject-toml/"},
+        {"name": "pipx", "url": "https://pipx.pypa.io/stable/"}
+      ],
+      "done": "The command runs from any directory in a new shell, and <em>pipx uninstall</em> removes it cleanly."
+    },
+    "s03.s0.7": {
+      "how": "Install completion for your Typer or Click tool with its <em>--install-completion</em> option or the documented shell snippet, and check that subcommands and options complete. Add a long description and usage examples to the top-level help.",
+      "where": [
+        {"name": "Click: shell completion", "url": "https://click.palletsprojects.com/en/stable/shell-completion/"},
+        {"name": "Typer: CLI option autocompletion", "url": "https://typer.tiangolo.com/tutorial/options-autocompletion/"}
+      ],
+      "done": "Pressing Tab after the command name lists your subcommands in at least one shell."
+    },
+    "s03.s0.8": {
+      "how": "Create a docs folder with <em>mkdocs new</em>, write a usage page for each subcommand, preview with <em>mkdocs serve</em>, then add a CI job that runs <em>mkdocs gh-deploy</em> or uploads the built site on each push to the main branch.",
+      "where": [
+        {"name": "MkDocs: getting started", "url": "https://www.mkdocs.org/getting-started/"},
+        {"name": "MkDocs: deploying your docs", "url": "https://www.mkdocs.org/user-guide/deploying-your-docs/"}
+      ],
+      "done": "A push to the main branch updates the public docs site without any manual step."
+    },
+    "s03.s1.0": {
+      "how": "Pick a task you currently do by hand in a terminal, list the subcommands it needs, and write the core functions with tests before adding the CLI layer. Keep argument parsing in one module and the work in another.",
+      "where": [
+        {"name": "Typer: commands", "url": "https://typer.tiangolo.com/tutorial/commands/"},
+        {"name": "argparse reference", "url": "https://docs.python.org/3/library/argparse.html"}
+      ],
+      "done": "You use the tool yourself for the task, and each subcommand has at least one passing test."
+    },
+    "s03.s1.1": {
+      "how": "Add a <em>--json</em> flag that builds a list or dict and prints it with <em>json.dumps</em>, with no other text on stdout. Pipe the output into <em>python -m json.tool</em> or <em>jq</em> to confirm it parses.",
+      "where": [
+        {"name": "Python: json", "url": "https://docs.python.org/3/library/json.html"}
+      ],
+      "done": "Every subcommand's <em>--json</em> output parses as valid JSON, checked by a test that calls <em>json.loads</em> on it."
+    },
+    "s03.s1.2": {
+      "how": "Write a table of cases (success, failed check, bad arguments, missing file) with the expected exit code, and test each with Typer's or Click's <em>CliRunner</em>, or with <em>subprocess.run</em> and <em>returncode</em>.",
+      "where": [
+        {"name": "Typer: testing", "url": "https://typer.tiangolo.com/tutorial/testing/"},
+        {"name": "Click: testing", "url": "https://click.palletsprojects.com/en/stable/testing/"}
+      ],
+      "done": "Every documented exit code has a test that asserts it, and the suite passes."
+    },
+    "s03.s1.3": {
+      "how": "Build an sdist and wheel with <em>python -m build</em>, upload to TestPyPI with <em>twine upload --repository testpypi dist/*</em>, then install with pipx on a clean machine or venv using the TestPyPI index.",
+      "where": [
+        {"name": "Packaging Python projects", "url": "https://packaging.python.org/en/latest/tutorials/packaging-projects/"},
+        {"name": "Using TestPyPI", "url": "https://packaging.python.org/en/latest/guides/using-testpypi/"}
+      ],
+      "done": "A pipx install from the package index on a clean environment gives a working command."
+    },
+    "s03.s1.4": {
+      "how": "Write <em>mkdocs.yml</em> and a docs folder in the repository with install, quick start and one page per subcommand. Build it in CI and deploy it with <em>mkdocs gh-deploy</em> or your host's build step.",
+      "where": [
+        {"name": "MkDocs: writing your docs", "url": "https://www.mkdocs.org/user-guide/writing-your-docs/"},
+        {"name": "MkDocs: deploying your docs", "url": "https://www.mkdocs.org/user-guide/deploying-your-docs/"}
+      ],
+      "done": "The docs site is live, is rebuilt from the repository by CI, and every subcommand has a page."
+    }
+  }
+}

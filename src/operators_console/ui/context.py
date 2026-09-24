@@ -10,10 +10,12 @@ from PySide6.QtCore import QObject, Signal
 
 from ..core.adaptive import Planner
 from ..core.curriculum import Curriculum, load
+from ..core.estimate import Estimator
 from ..core.history import History
 from ..core.progress import Progress
 from ..core.review import ReviewQueue
 from ..core.search import SearchIndex
+from ..core.session import StudyTimer
 from ..core.storage import Store
 from ..core.today import TodayPlan
 from .theme import Palette, resolve
@@ -44,6 +46,8 @@ class AppContext(QObject):
         # the log entries this learner wrote, not only what shipped.
         self.index = SearchIndex(self.curriculum, self.store)
         self.history = History(store=self.store)
+        self.estimator = Estimator(self.curriculum, self.store, self.progress)
+        self.timer = StudyTimer(self.store)
         self._palette = resolve(self.store.setting("theme", "system"), False)
         self._dark_hint = False
 

@@ -1,0 +1,220 @@
+{
+  "sections": {
+    "p06.s0": "The command-line and OS basics the rest of the course assumes. Work top to bottom on a real Linux shell (WSL or a VM is fine), spending about two thirds of the time typing commands and one third reading. Play OverTheWire Bandit alongside items 3 to 5.",
+    "p06.s1": "A Python CLI that applies what you learned about processes, signals and streams. Build the items in order, since stopping and logging depend on starting. Spend most of the time on items 1, 2 and 5; the listing and report steps are short."
+  },
+  "items": {
+    "p06.s0.0": {
+      "how": "Run <em>ls -l</em>, <em>stat</em> and <em>id</em> on files in /etc, /tmp and your home directory. Create a file, set <em>chmod 640</em>, then try to read it as another user and explain the error. Read <em>man hier</em> to learn what lives in /usr, /var and /proc.",
+      "where": [
+        {
+          "name": "hier(7) man page",
+          "url": "https://man7.org/linux/man-pages/man7/hier.7.html"
+        },
+        {
+          "name": "chmod(1) man page",
+          "url": "https://man7.org/linux/man-pages/man1/chmod.1.html"
+        }
+      ],
+      "done": "You can read a mode string such as drwxr-x--- and say who can list, enter and write that directory."
+    },
+    "p06.s0.1": {
+      "how": "Set a variable with and without <em>export</em> and check which one <em>bash -c 'echo $X'</em> sees. Add a directory to PATH in ~/.bashrc, open a login and a non-login shell, and note which startup files ran. Read the same value from Python with <em>os.environ</em>.",
+      "where": [
+        {
+          "name": "bash(1) manual",
+          "url": "https://man7.org/linux/man-pages/man1/bash.1.html"
+        },
+        {
+          "name": "environ(7) man page",
+          "url": "https://man7.org/linux/man-pages/man7/environ.7.html"
+        }
+      ],
+      "done": "You can explain why a variable set in ~/.bashrc is missing inside a cron job or a systemd service."
+    },
+    "p06.s0.2": {
+      "how": "Start <em>sleep 300 &</em>, find its PID with <em>ps</em>, then send SIGINT, SIGTERM and SIGKILL with <em>kill</em> and read <em>$?</em> after <em>wait</em>. In Python, register a handler with <em>signal.signal</em> and confirm it runs for SIGTERM but not for SIGKILL.",
+      "where": [
+        {
+          "name": "signal(7) man page",
+          "url": "https://man7.org/linux/man-pages/man7/signal.7.html"
+        },
+        {
+          "name": "Python signal module",
+          "url": "https://docs.python.org/3/library/signal.html"
+        }
+      ],
+      "done": "You can say why SIGKILL cannot be caught and why a shell reports exit status 143 after SIGTERM."
+    },
+    "p06.s0.3": {
+      "how": "Write a script that prints one line to <em>sys.stdout</em> and one to <em>sys.stderr</em>. Run it with <em>> out.txt</em>, <em>2> err.txt</em>, <em>> all.txt 2>&1</em> and <em>2>&1 > all.txt</em>, and work out why the last two give different results.",
+      "where": [
+        {
+          "name": "bash(1) manual",
+          "url": "https://man7.org/linux/man-pages/man1/bash.1.html"
+        },
+        {
+          "name": "Python sys module",
+          "url": "https://docs.python.org/3/library/sys.html"
+        }
+      ],
+      "done": "You can send stdout and stderr to separate files, or merge them, without checking notes."
+    },
+    "p06.s0.4": {
+      "how": "Answer a question about a log file with a pipeline: <em>cut</em> a field, <em>sort</em>, <em>uniq -c</em>, <em>sort -rn</em>, <em>head</em>. Then write a Python filter that reads <em>sys.stdin</em> line by line and put it mid-pipeline. Add <em>set -o pipefail</em> and see how a failing stage changes <em>$?</em>.",
+      "where": [
+        {
+          "name": "Missing Semester: Data Wrangling",
+          "url": "https://missing.csail.mit.edu/2020/data-wrangling/"
+        },
+        {
+          "name": "pipe(7) man page",
+          "url": "https://man7.org/linux/man-pages/man7/pipe.7.html"
+        }
+      ],
+      "done": "You can build a one-line pipeline that answers a log question, such as the ten most frequent IP addresses."
+    },
+    "p06.s0.5": {
+      "how": "Play OverTheWire Bandit levels 0 to 15, which mostly need <em>find</em>, <em>grep</em> and pipes. Then on a source tree run <em>find . -name '*.py' -print0 | xargs -0 grep -l TODO</em>, rename a word with <em>sed -i</em>, and total a column with <em>awk</em>.",
+      "where": [
+        {
+          "name": "OverTheWire Bandit",
+          "url": "https://overthewire.org/wargames/bandit/"
+        },
+        {
+          "name": "Missing Semester: Data Wrangling",
+          "url": "https://missing.csail.mit.edu/2020/data-wrangling/"
+        }
+      ],
+      "done": "You can find files by name, size or age and edit text in place across many files without opening an editor."
+    },
+    "p06.s0.6": {
+      "how": "Generate a key with <em>ssh-keygen -t ed25519</em>, install it on a VM or WSL host running sshd with <em>ssh-copy-id</em>, and log in without a password. Add a Host block to ~/.ssh/config, then forward a remote port with <em>ssh -L 8080:localhost:80</em> and open it locally.",
+      "where": [
+        {
+          "name": "ssh(1) man page",
+          "url": "https://man7.org/linux/man-pages/man1/ssh.1.html"
+        },
+        {
+          "name": "Missing Semester: Command-line Environment",
+          "url": "https://missing.csail.mit.edu/2020/command-line/"
+        }
+      ],
+      "done": "You can log in with a key only and say which end listens in an -L forward and which in an -R forward."
+    },
+    "p06.s0.7": {
+      "how": "Write a small systemd unit that runs a Python script, start it with <em>systemctl start</em>, and follow it with <em>journalctl -u name -f</em>. Make the script crash, then find the traceback with <em>systemctl status</em> and <em>journalctl -u name --since '10 min ago'</em>.",
+      "where": [
+        {
+          "name": "journalctl(1) man page",
+          "url": "https://man7.org/linux/man-pages/man1/journalctl.1.html"
+        },
+        {
+          "name": "systemd.service(5) man page",
+          "url": "https://man7.org/linux/man-pages/man5/systemd.service.5.html"
+        }
+      ],
+      "done": "You can find why a service stopped, with its timestamp and error line, in under two minutes."
+    },
+    "p06.s0.8": {
+      "how": "Add a <em>crontab -e</em> entry that runs a Python script every five minutes and appends to a log. Use absolute paths, redirect stderr too, and confirm it ran. Then make it rely on your PATH, watch it fail, and read the failure in the log.",
+      "where": [
+        {
+          "name": "crontab(5) man page",
+          "url": "https://man7.org/linux/man-pages/man5/crontab.5.html"
+        }
+      ],
+      "done": "You can write a cron line for a given schedule and name the usual reasons a job works in a terminal but fails under cron."
+    },
+    "p06.s0.9": {
+      "how": "Write a backup script that takes a directory argument, checks it exists, loops over its files and exits non-zero on failure. Start it with <em>set -euo pipefail</em>, quote every variable, and run it through ShellCheck until it reports nothing.",
+      "where": [
+        {
+          "name": "bash(1) manual",
+          "url": "https://man7.org/linux/man-pages/man1/bash.1.html"
+        },
+        {
+          "name": "ShellCheck",
+          "url": "https://www.shellcheck.net/"
+        }
+      ],
+      "done": "Your script passes ShellCheck and stops at the first failing command, including one inside a pipeline."
+    },
+    "p06.s1.0": {
+      "how": "Use <em>psutil.process_iter</em> to read pid, name, CPU and memory. Call <em>cpu_percent</em> once, sleep briefly, then read it again, since the first call returns 0.0. Catch <em>psutil.NoSuchProcess</em> and <em>psutil.AccessDenied</em> for processes that exit or are protected.",
+      "where": [
+        {
+          "name": "psutil documentation",
+          "url": "https://psutil.readthedocs.io/en/latest/"
+        }
+      ],
+      "done": "Your list matches top or Task Manager within a few percent and never crashes when a process exits mid-scan."
+    },
+    "p06.s1.1": {
+      "how": "Run commands with <em>subprocess.run</em> using a list of arguments rather than <em>shell=True</em>, with <em>capture_output=True</em>, <em>text=True</em> and a <em>timeout</em>. Return stdout, stderr and the return code separately, and test with a failing command and a missing one.",
+      "where": [
+        {
+          "name": "Python subprocess module",
+          "url": "https://docs.python.org/3/library/subprocess.html"
+        }
+      ],
+      "done": "A failing command, a missing command and a timeout each produce a distinct, clear result instead of a traceback."
+    },
+    "p06.s1.2": {
+      "how": "Start the child with <em>subprocess.Popen</em>, call <em>terminate()</em>, then <em>wait(timeout=5)</em>, and on <em>TimeoutExpired</em> call <em>kill()</em>. Test with a child that ignores SIGTERM. On Linux pass <em>start_new_session=True</em> and signal the group so grandchildren stop too.",
+      "where": [
+        {
+          "name": "Python subprocess module",
+          "url": "https://docs.python.org/3/library/subprocess.html"
+        },
+        {
+          "name": "signal(7) man page",
+          "url": "https://man7.org/linux/man-pages/man7/signal.7.html"
+        }
+      ],
+      "done": "A child that ignores SIGTERM is killed after the grace period, and your tool reports which path it took."
+    },
+    "p06.s1.3": {
+      "how": "Configure <em>logging.handlers.RotatingFileHandler</em> with <em>maxBytes</em> and <em>backupCount</em>, and log each start, stop and exit code with a timestamp. Set <em>maxBytes</em> to a few kilobytes and run a loop to watch the files rotate.",
+      "where": [
+        {
+          "name": "Python logging.handlers",
+          "url": "https://docs.python.org/3/library/logging.handlers.html"
+        },
+        {
+          "name": "Logging Cookbook",
+          "url": "https://docs.python.org/3/howto/logging-cookbook.html"
+        }
+      ],
+      "done": "The log directory never holds more than backupCount + 1 files and the newest entries are in the unsuffixed file."
+    },
+    "p06.s1.4": {
+      "how": "Collect results as a list of dicts, write them with <em>json.dumps(indent=2)</em>, and render the same data as an aligned text table using format specs such as <em>{:>8}</em>. Add a <em>--format</em> option with <em>argparse</em> that picks json or table.",
+      "where": [
+        {
+          "name": "Python json module",
+          "url": "https://docs.python.org/3/library/json.html"
+        },
+        {
+          "name": "Python argparse module",
+          "url": "https://docs.python.org/3/library/argparse.html"
+        }
+      ],
+      "done": "The JSON output loads back with json.loads and the table columns line up for names of any length."
+    },
+    "p06.s1.5": {
+      "how": "Run a script that prints without end under <em>capture_output=True</em> and a timeout, and watch memory climb. Replace it with <em>Popen(stdout=PIPE)</em> read in fixed-size chunks, keeping only a tail in a <em>collections.deque</em>, or send stdout straight to a file.",
+      "where": [
+        {
+          "name": "Python subprocess module",
+          "url": "https://docs.python.org/3/library/subprocess.html"
+        },
+        {
+          "name": "Python collections module",
+          "url": "https://docs.python.org/3/library/collections.html"
+        }
+      ],
+      "done": "Your tool's memory stays flat, measured with psutil, while the child writes several gigabytes."
+    }
+  }
+}

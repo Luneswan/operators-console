@@ -69,14 +69,40 @@ you submit it from your account, or copy the text instead. The app sends
 nothing itself, and system details (version, operating system) are included
 only if you leave that box ticked.
 
-**Today.** The next actions: due reviews, the next exercise, gate checks left,
-weak quizzes, and older phases to revisit.
+**Study timer.** **Start studying** in the top bar (or `Ctrl+T`) times a
+session on any page; `Ctrl+Shift+T` pauses it. A running timer survives
+closing the app. **Stop** shows what you finished while it ran (lines
+ticked, exercises passed, quizzes, reviews, projects), the minutes to record,
+and the estimate before and after. Saving writes a Log entry.
 
-**Roadmap.** Your plan as a timeline, ordered by the track and goals you choose
-at setup. No phase is locked.
+**Time left.** Each phase's estimated hours are split over its study steps,
+gate checks, exercises (weighted by difficulty), quiz and project; what is
+left is the sum of what is not done. Your pace is measured: the minutes of
+your timed sessions, less about 20 s per review card, divided by the
+estimated minutes of what you finished in them, blended with ten hours at
+the course estimate and capped at three times a session's length, so a
+single session or ticking off old work cannot swing it. The finish date
+divides what is left by your study hours a week, less review time: the last
+four weeks once you have two weeks of history, your planned hours before
+that. Shown on Today, the Roadmap, Progress (with the working and every
+timed session), each phase page and Settings.
+
+**Today.** The next actions: due reviews, the next exercise, gate checks left,
+weak quizzes, and older phases to revisit, plus your level, time left, and
+what the running session has produced.
+
+**Roadmap.** Your plan as a timeline, ordered by what each phase needs first.
+An overview gives time left, the finish date, phases proven and your pace.
+Each phase shows its dated window, hours left, what is left by kind (steps,
+gate checks, exercises, quiz, project) and the career level that proving it
+reaches. No phase is locked.
 
 **Phases.** Each phase has a checklist, optional stretch sections, a gate, a
-reading list and notes. A phase counts as **proven** when its gate is ticked,
+reading list and notes. Every checklist line has a study guide, opened with
+**How**: what to do, one or two links to where to learn it, and how to tell
+it is done, with its time at your pace. The next unticked line opens with
+its guide; **Show all guides** opens every one. Each section says how to
+work through it and how long it has left. A phase counts as **proven** when its gate is ticked,
 its quiz is passed at 85% or better, at least 60% of its exercises pass, and
 its project is shipped where it has one.
 
@@ -237,6 +263,8 @@ Contents:
 * `workspace/`: scratch directory for the exercise runner
 * `profiles/<name>/`: each other profile, with its own `progress.db`,
   `backups/` and `workspace/`
+* The study timer while it runs, and the timed sessions, are part of each
+  profile's `progress.db` (a `sessions` table)
 * `profiles.json`: the list of profiles and which one is open
 * `removed-profiles/`: profiles you removed, kept for manual recovery
 * `updates/`: downloads during an update; emptied afterwards
@@ -254,6 +282,8 @@ and the latest snapshot to a second folder, such as another drive.
 | `Ctrl+0` / `Ctrl+L` | Library |
 | `Ctrl+,` | Settings |
 | `Ctrl+K` | Search |
+| `Ctrl+T` | Start or stop the study timer |
+| `Ctrl+Shift+T` | Pause or resume the study timer |
 | `Ctrl+Z` | Undo |
 | `Ctrl+Shift+Z` / `Ctrl+Y` | Redo |
 | `F1` | List all shortcuts |
@@ -322,6 +352,8 @@ src/operators_console/
     today.py         the daily action list
     profiles.py      several users, each with their own data folder
     feedback.py      the text and link for a GitHub issue
+    estimate.py      time left, the measured pace, finish dates
+    session.py       the study timer
     review.py        review deck contents and scheduling
     quiz_session.py  quiz timers, layouts and the study plan
     runner.py        grades a submission in a child process
@@ -361,6 +393,8 @@ python verify_exercises.py           # every solution passes; no starter passes
 |---|---|
 | `raw_curriculum.json` | core phases, checklists, gates, quizzes, library |
 | `specializations.json`, `spec_quizzes.json` | the 14 specialization phases and their quizzes |
+| `guides/<phase>.json` | the study guide for every checklist line and section; the build fails on a missing or stale one |
+| `check_links.py` | checks every guide link over the network (not part of the tests) |
 | `resource_picks.json` | the recommended resource in each optional group |
 | `quiz_teaches.json` | the checklist line each quiz question tests |
 | `ex_*.py` | exercises: prompt, starter, checks, hints, solution (`ex_spec.py` for specializations) |

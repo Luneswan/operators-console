@@ -501,11 +501,25 @@ class SettingsView(View):
         self.mirror_path.setText(folder or "No second copy yet.")
 
     def _update_pace_note(self) -> None:
-        days = self.ctx.progress.estimated_days_left()
+        from ...core.estimate import (
+            finish_date, format_day, format_hours, new_hours,
+        )
+        from datetime import date
+        estimate = self.ctx.estimator.estimate()
+        if estimate.left_minutes <= 0:
+            self.pace_note.setText(
+                "You have finished everything in the current plan.")
+            return
+        # This page sets the planned hours, so the note answers "what if I
+        # study this much": the planned rate, not the recent one.
+        week = self.ctx.estimator.plan_week_hours()
+        finish = finish_date(estimate.left_personal,
+                             new_hours(week, estimate.review_week_hours),
+                             date.today())
         self.pace_note.setText(
-            "At this pace the remaining plan takes about %d weeks."
-            % max(1, round(days / 7)) if days > 0
-            else "You have finished everything in the current plan.")
+            "%.1f h a week: %s of new material left at your pace, done "
+            "around %s." % (week, format_hours(estimate.left_personal),
+                            format_day(finish)))
 
     # -- handlers ----------------------------------------------------------
 

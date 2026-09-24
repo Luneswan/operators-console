@@ -1,0 +1,126 @@
+{
+  "sections": {
+    "s09.s0": "Read the test-pyramid material first so each later tool has a place in it. Then pytest and test doubles (s0.1, s0.2), Hypothesis and mutation testing (s0.3, s0.4), the slower levels (s0.5 to s0.8), and finally flaky tests and CI speed. Write a working test for every item rather than only reading.",
+    "s09.s1": "Choose a project with real users or real data, not one written for this phase. Write the risk list first; every test you add afterwards should point to a risk on it. Set up CI last, once you know which tests are fast and which are slow."
+  },
+  "items": {
+    "s09.s0.0": {
+      "how": "Read Martin Fowler's practical test pyramid article. For one of your projects, list three bugs you have had and say which level (unit, integration or end-to-end) would have caught each first, and how long that test would take to run.",
+      "where": [
+        {"name": "The Practical Test Pyramid", "url": "https://martinfowler.com/articles/practical-test-pyramid.html"}
+      ],
+      "done": "You can give one bug that only an integration test would catch and one that only an end-to-end test would catch."
+    },
+    "s09.s0.1": {
+      "how": "Write a fixture that uses <em>yield</em> for set-up and tear-down, give it <em>scope='module'</em> and move it into <em>conftest.py</em>. Add <em>@pytest.mark.parametrize</em> with five cases, register a <em>slow</em> marker in your config, and run <em>pytest -m 'not slow'</em>.",
+      "where": [
+        {"name": "pytest how to use fixtures", "url": "https://docs.pytest.org/en/stable/how-to/fixtures.html"},
+        {"name": "pytest how to mark test functions", "url": "https://docs.pytest.org/en/stable/how-to/mark.html"}
+      ],
+      "done": "You can explain fixture scopes and how pytest finds conftest.py, and <em>pytest -m 'not slow'</em> skips the marked tests."
+    },
+    "s09.s0.2": {
+      "how": "Write a function that calls an HTTP API and stores the results. Test it with a stub that returns fixed data, a fake in-memory repository, and <em>unittest.mock.patch</em> with <em>assert_called_once_with</em>. Then pass the HTTP client in as a parameter and drop the patch.",
+      "where": [
+        {"name": "unittest.mock", "url": "https://docs.python.org/3/library/unittest.mock.html"},
+        {"name": "pytest monkeypatch", "url": "https://docs.pytest.org/en/stable/how-to/monkeypatch.html"}
+      ],
+      "done": "Your doubles replace only the network and storage, and renaming an internal helper breaks no test."
+    },
+    "s09.s0.3": {
+      "how": "Write a <em>@given</em> test for an encode and decode pair: for any input, <em>decode(encode(x)) == x</em>. Add a sort or dedupe function and test properties such as idempotence and preserved contents. Let Hypothesis shrink a failing case, then fix the code.",
+      "where": [
+        {"name": "Hypothesis tutorial", "url": "https://hypothesis.readthedocs.io/en/latest/tutorial/index.html"},
+        {"name": "Hypothesis strategies reference", "url": "https://hypothesis.readthedocs.io/en/latest/reference/strategies.html"}
+      ],
+      "done": "You can name three kinds of property (round-trip, idempotence, invariant), and your tests pass the default 100 examples."
+    },
+    "s09.s0.4": {
+      "how": "Run <em>coverage run --branch -m pytest</em> on a small module and read <em>coverage report -m</em>. Then run <em>mutmut run</em> on the same module, find a surviving mutant on a line coverage marks as covered, and add the assertion that kills it.",
+      "where": [
+        {"name": "Coverage.py", "url": "https://coverage.readthedocs.io/en/latest/"},
+        {"name": "mutmut", "url": "https://mutmut.readthedocs.io/en/latest/"}
+      ],
+      "done": "You can explain why 100% line coverage can still leave surviving mutants, with an example from your own code."
+    },
+    "s09.s0.5": {
+      "how": "Start PostgreSQL with <em>PostgresContainer</em> from testcontainers in a session-scoped fixture, run your migrations, and roll back a transaction after each test. Write one test that would pass on SQLite but checks PostgreSQL behaviour, such as a JSONB query or a constraint.",
+      "where": [
+        {"name": "testcontainers-python PostgreSQL module", "url": "https://testcontainers-python.readthedocs.io/en/latest/modules/postgres/README.html"},
+        {"name": "pytest how to use fixtures", "url": "https://docs.pytest.org/en/stable/how-to/fixtures.html"}
+      ],
+      "done": "Your integration tests run against a real PostgreSQL container and leave no data behind between tests."
+    },
+    "s09.s0.6": {
+      "how": "Install <em>pytest-playwright</em>, write a test that logs in and checks a page, and find elements with <em>get_by_role</em> locators. Replace every <em>time.sleep</em> and fixed timeout with <em>expect(...)</em> assertions, which retry until the condition holds.",
+      "where": [
+        {"name": "Playwright for Python locators", "url": "https://playwright.dev/python/docs/locators"},
+        {"name": "Playwright for Python assertions", "url": "https://playwright.dev/python/docs/test-assertions"}
+      ],
+      "done": "Your browser tests contain no sleeps and pass 20 runs in a row in a shell loop."
+    },
+    "s09.s0.7": {
+      "how": "Read how Pact works, then write a consumer test with <em>pact-python</em> that records the requests a client makes to a provider. Verify the provider against the recorded contract, rename a field in the provider, and watch verification fail.",
+      "where": [
+        {"name": "How Pact works", "url": "https://docs.pact.io/getting_started/how_pact_works"},
+        {"name": "Pact Python guide", "url": "https://docs.pact.io/implementation_guides/python"}
+      ],
+      "done": "Verification fails on a breaking provider change, and you can say what a contract test checks that a mocked unit test does not."
+    },
+    "s09.s0.8": {
+      "how": "Write a <em>locustfile.py</em> with an <em>HttpUser</em> and two weighted tasks against a local app. Run it headless with <em>--users</em>, <em>--spawn-rate</em> and <em>--run-time</em>, read the median, 95th percentile and failure rate, and find the user count where latency climbs.",
+      "where": [
+        {"name": "Locust writing a locustfile", "url": "https://docs.locust.io/en/stable/writing-a-locustfile.html"},
+        {"name": "Locust running without the web UI", "url": "https://docs.locust.io/en/stable/running-without-web-ui.html"}
+      ],
+      "done": "You can state the request rate and p95 latency your app sustains and the load at which errors start."
+    },
+    "s09.s0.9": {
+      "how": "Run the suite in random order with <em>pytest-randomly</em> to expose tests that depend on each other, and fix the shared state. Find the slowest tests with <em>pytest --durations=10</em>, then run in parallel with <em>pytest -n auto</em> from <em>pytest-xdist</em>.",
+      "where": [
+        {"name": "pytest flaky tests", "url": "https://docs.pytest.org/en/stable/explanation/flaky.html"},
+        {"name": "pytest-xdist", "url": "https://pytest-xdist.readthedocs.io/en/stable/"}
+      ],
+      "done": "Your suite passes in random order, and you have wall-clock timings before and after the speed changes."
+    },
+    "s09.s1.0": {
+      "how": "Read the project's code, issue tracker and commit history, and list its risks: what breaks most often, what costs most when it breaks, and what is hardest to check by hand. Rate each by likelihood and impact and sort the list.",
+      "where": [
+        {"name": "The Practical Test Pyramid", "url": "https://martinfowler.com/articles/practical-test-pyramid.html"},
+        {"name": "Obey the Testing Goat", "url": "https://www.obeythetestinggoat.com/"}
+      ],
+      "done": "You have a ranked list of at least 8 risks, each tied to a file, feature or past bug."
+    },
+    "s09.s1.1": {
+      "how": "For each high-ranked risk pick the cheapest level that catches it: unit for logic, integration for the database and external services, end-to-end for the main user flows. Write them in that order and note the risk each test covers.",
+      "where": [
+        {"name": "pytest good integration practices", "url": "https://docs.pytest.org/en/stable/explanation/goodpractices.html"},
+        {"name": "The Practical Test Pyramid", "url": "https://martinfowler.com/articles/practical-test-pyramid.html"}
+      ],
+      "done": "Every high-ranked risk has at least one test, and a table shows which test covers which risk."
+    },
+    "s09.s1.2": {
+      "how": "Pick a function with a clear invariant, such as parsing, serialisation, date handling or money arithmetic. Write the property, raise the example count with <em>@settings(max_examples=1000)</em>, and after fixing the bug keep the shrunk failing input as a plain regression test.",
+      "where": [
+        {"name": "Hypothesis tutorial", "url": "https://hypothesis.readthedocs.io/en/latest/tutorial/index.html"},
+        {"name": "Hypothesis strategies reference", "url": "https://hypothesis.readthedocs.io/en/latest/reference/strategies.html"}
+      ],
+      "done": "You have a commit that fixes a bug the property test found, with the shrunk example saved as its own test."
+    },
+    "s09.s1.3": {
+      "how": "Run <em>mutmut</em> on the highest-risk modules rather than the whole project. Go through the surviving mutants, write tests for the ones that matter, note the equivalent ones, and record the mutation score before and after.",
+      "where": [
+        {"name": "mutmut", "url": "https://mutmut.readthedocs.io/en/latest/"}
+      ],
+      "done": "You have before and after mutation scores and a list of the tests the survivors made you write."
+    },
+    "s09.s1.4": {
+      "how": "Write a GitHub Actions workflow that runs the fast tests on <em>push</em>, and a second job triggered by <em>schedule</em> with a cron line for integration, browser and mutation tests. Use your pytest markers to split them and cache dependencies.",
+      "where": [
+        {"name": "GitHub Actions: building and testing Python", "url": "https://docs.github.com/en/actions/tutorials/build-and-test-code/python"},
+        {"name": "GitHub Actions: events that trigger workflows", "url": "https://docs.github.com/en/actions/reference/workflows-and-actions/events-that-trigger-workflows"}
+      ],
+      "done": "The push job finishes in under five minutes, and the scheduled job has run at least once with results you can open."
+    }
+  }
+}

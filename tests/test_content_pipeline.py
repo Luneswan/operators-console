@@ -39,6 +39,7 @@ def _run_pipeline(into: Path) -> Path:
     tools.mkdir(parents=True)
     for source in list(TOOLS.glob("*.py")) + list(TOOLS.glob("*.json")):
         shutil.copy2(source, tools / source.name)
+    shutil.copytree(TOOLS / "guides", tools / "guides")
     (into / "src" / "operators_console" / "data").mkdir(parents=True)
 
     for name in BUILDERS:

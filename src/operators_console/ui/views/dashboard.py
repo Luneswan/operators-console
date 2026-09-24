@@ -13,6 +13,8 @@ from PySide6.QtWidgets import QFrame, QHBoxLayout, QVBoxLayout, QWidget
 
 from ...core import today as plan_kinds
 from ..widgets.career import CareerCard
+from ..widgets.time_left import TimeLeftCard
+from ...core.estimate import format_day, format_hours
 from ...core.progress import _number as _setting_number
 from ...core.progress import proof_line
 from ..widgets.common import (
@@ -99,6 +101,10 @@ class DashboardView(View):
         # plan's progress said as a career, not as a percentage.
         self.career = CareerCard()
         self.scroller.add(self.career)
+        # New material left at the measured pace, the finish date, and what
+        # the running session has produced so far.
+        self.time_left = TimeLeftCard()
+        self.scroller.add(self.time_left)
         self.overall_meter = meter(0)
         self.overall_meter.setVisible(False)    # the ring shows it
         self.scroller.add(self.overall_meter)
@@ -140,14 +146,12 @@ class DashboardView(View):
         self.greeting.setText(_greeting(name))
 
         track = self.ctx.curriculum.track(store.setting("track", "generalist"))
-        days = self.ctx.progress.estimated_days_left()
         # Settings are JSON and a restored profile can hold anything; the
         # first screen of the app must not open on a traceback over it.
-        pace = "%.1f h/day, %d days a week" % (
-            _setting_number(store.setting("hours_per_day", 3.0), 3.0),
-            int(_setting_number(store.setting("days_per_week", 5), 5.0)))
-        finish = ("about %d weeks left at %s" % (max(1, round(days / 7)), pace)
-                  if days > 0 else "the plan is complete")
+        estimate = self.ctx.estimator.estimate()
+        finish = ("%s left, done around %s" % (
+            format_hours(estimate.left_personal), format_day(estimate.finish))
+            if estimate.left_minutes > 0 else "the plan is complete")
         self.subtitle.setText("%s - %s." % (
             track.name if track else "Custom plan", finish))
 
@@ -159,6 +163,7 @@ class DashboardView(View):
                                              overview.phases_total))
 
         self.career.show_career(self.ctx.progress.career())
+        self.time_left.show_estimate(self.ctx)
         self.overall_meter.setValue(overview.percent)
         self.overall_caption.setText(
             "%d of %d checks - %d of %d phases proven - %d of %d exercises "

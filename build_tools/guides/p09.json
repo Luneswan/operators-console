@@ -1,0 +1,302 @@
+{
+  "sections": {
+    "p09.s0": "The parts of a web service, taught through FastAPI. Items 0 to 2 set up the framework, 3 to 5 cover security, and 6 to 11 cover running and testing a service. Build one small practice app and extend it with each item; spend about two thirds of the time coding.",
+    "p09.s1": "Nexus API: a service with users, roles, files and search. Build in the listed order, since permissions need users and search needs persistence. Write tests for each feature as you add it, so item 7 fills gaps rather than starting from nothing."
+  },
+  "items": {
+    "p09.s0.0": {
+      "how": "Work through the FastAPI pages on path and query parameters. Build a small items API with typed path parameters, optional query parameters with defaults, and the fitting method for each action. Return 201 from creates and 404 when an item does not exist.",
+      "where": [
+        {
+          "name": "FastAPI: Path Parameters",
+          "url": "https://fastapi.tiangolo.com/tutorial/path-params/"
+        },
+        {
+          "name": "FastAPI: Query Parameters",
+          "url": "https://fastapi.tiangolo.com/tutorial/query-params/"
+        }
+      ],
+      "done": "Wrong parameter types get a 422 without extra code, and each route uses the method and status code that fits."
+    },
+    "p09.s0.1": {
+      "how": "Define separate models for input and output, such as <em>UserCreate</em> with a password and <em>UserOut</em> without. Set <em>response_model</em> on the route, add a <em>field_validator</em>, and send bad payloads to read the 422 error body.",
+      "where": [
+        {
+          "name": "FastAPI: Response Model",
+          "url": "https://fastapi.tiangolo.com/tutorial/response-model/"
+        },
+        {
+          "name": "Pydantic: Validators",
+          "url": "https://docs.pydantic.dev/latest/concepts/validators/"
+        }
+      ],
+      "done": "The password never appears in a response, and you can read a 422 body and say which field failed and why."
+    },
+    "p09.s0.2": {
+      "how": "Write a <em>get_db</em> dependency and a <em>get_current_user</em> dependency and use both with <em>Depends</em>. In a test, replace each through <em>app.dependency_overrides</em> and call the route with <em>TestClient</em>.",
+      "where": [
+        {
+          "name": "FastAPI: Dependencies",
+          "url": "https://fastapi.tiangolo.com/tutorial/dependencies/"
+        },
+        {
+          "name": "FastAPI: Testing Dependencies with Overrides",
+          "url": "https://fastapi.tiangolo.com/advanced/testing-dependencies/"
+        }
+      ],
+      "done": "A test calls a protected route with a fake user and no real database, only by overriding dependencies."
+    },
+    "p09.s0.3": {
+      "how": "Read the OWASP authentication and authorization cheat sheets. For your practice API, list which routes need a logged-in user (401 if not) and which need a role or ownership (403 if not). Implement one of each.",
+      "where": [
+        {
+          "name": "OWASP: Authentication Cheat Sheet",
+          "url": "https://cheatsheetseries.owasp.org/cheatsheets/Authentication_Cheat_Sheet.html"
+        },
+        {
+          "name": "OWASP: Authorization Cheat Sheet",
+          "url": "https://cheatsheetseries.owasp.org/cheatsheets/Authorization_Cheat_Sheet.html"
+        }
+      ],
+      "done": "You can say when to return 401 and when 403, with an example of each from your own routes."
+    },
+    "p09.s0.4": {
+      "how": "Implement login twice: once with a server-side session ID in a cookie, once with a short-lived JWT access token and a refresh token. For each, work out how to log a user out on every device and what that costs.",
+      "where": [
+        {
+          "name": "OWASP: Session Management Cheat Sheet",
+          "url": "https://cheatsheetseries.owasp.org/cheatsheets/Session_Management_Cheat_Sheet.html"
+        },
+        {
+          "name": "FastAPI: OAuth2 with JWT",
+          "url": "https://fastapi.tiangolo.com/tutorial/security/oauth2-jwt/"
+        }
+      ],
+      "done": "You can explain why a JWT cannot be revoked before expiry without server-side state, and how refresh tokens limit the damage."
+    },
+    "p09.s0.5": {
+      "how": "Write a dependency factory such as <em>require_role('admin')</em> that raises 403, and attach it with <em>dependencies=[Depends(...)]</em> on a route or a whole router. Remove every inline role check from handler bodies and add a test for each protected route.",
+      "where": [
+        {
+          "name": "FastAPI: Dependencies in path operation decorators",
+          "url": "https://fastapi.tiangolo.com/tutorial/dependencies/dependencies-in-path-operation-decorators/"
+        },
+        {
+          "name": "OWASP Top 10",
+          "url": "https://owasp.org/www-project-top-ten/"
+        }
+      ],
+      "done": "A search for role checks finds them only in dependencies, and each protected route has a test that expects 403."
+    },
+    "p09.s0.6": {
+      "how": "Write an <em>@app.middleware('http')</em> function that assigns a request ID, stores it in a <em>contextvars.ContextVar</em>, adds it to the response headers and logs method, path, status and duration. Add an exception handler that returns JSON with the request ID instead of a traceback.",
+      "where": [
+        {
+          "name": "FastAPI: Middleware",
+          "url": "https://fastapi.tiangolo.com/tutorial/middleware/"
+        },
+        {
+          "name": "FastAPI: Handling Errors",
+          "url": "https://fastapi.tiangolo.com/tutorial/handling-errors/"
+        }
+      ],
+      "done": "Every response carries an X-Request-ID header, and an unhandled error returns JSON with that ID and is logged once."
+    },
+    "p09.s0.7": {
+      "how": "Run a slow task, such as sending an email, with FastAPI <em>BackgroundTasks</em> and note that it runs in the same process after the response. List what is lost if the process restarts mid-task, then compare a queue such as Celery or RQ that stores jobs and retries them.",
+      "where": [
+        {
+          "name": "FastAPI: Background Tasks",
+          "url": "https://fastapi.tiangolo.com/tutorial/background-tasks/"
+        },
+        {
+          "name": "Celery: First Steps",
+          "url": "https://docs.celeryq.dev/en/stable/getting-started/first-steps-with-celery.html"
+        }
+      ],
+      "done": "You can say when BackgroundTasks is enough and name two needs, such as retries or surviving restarts, that call for a queue."
+    },
+    "p09.s0.8": {
+      "how": "Load a million rows and compare <em>OFFSET 900000 LIMIT 20</em> with a keyset query that filters on the last seen (created_at, id), using EXPLAIN ANALYZE on both. Allow filters and sorting only on an allow-list of indexed columns.",
+      "where": [
+        {
+          "name": "Use The Index, Luke: No Offset",
+          "url": "https://use-the-index-luke.com/no-offset"
+        },
+        {
+          "name": "PostgreSQL: LIMIT and OFFSET",
+          "url": "https://www.postgresql.org/docs/current/queries-limit.html"
+        }
+      ],
+      "done": "A deep page loads as fast as page one, and an unknown sort field returns 422 instead of running a slow query."
+    },
+    "p09.s0.9": {
+      "how": "Run <em>alembic init</em>, point env.py at your models' metadata, and create a migration with <em>alembic revision --autogenerate</em>. Read and correct the generated file before <em>alembic upgrade head</em>, then test <em>alembic downgrade -1</em>.",
+      "where": [
+        {
+          "name": "Alembic: Tutorial",
+          "url": "https://alembic.sqlalchemy.org/en/latest/tutorial.html"
+        },
+        {
+          "name": "Alembic: Auto Generating Migrations",
+          "url": "https://alembic.sqlalchemy.org/en/latest/autogenerate.html"
+        }
+      ],
+      "done": "A fresh database reaches the current schema with upgrade head, and the latest migration downgrades cleanly."
+    },
+    "p09.s0.10": {
+      "how": "Move every setting into a <em>pydantic-settings</em> <em>BaseSettings</em> class read from environment variables, with a .env file for local use listed in .gitignore. Commit a .env.example with dummy values, and search the history with <em>git log -p</em> for any secret already committed.",
+      "where": [
+        {
+          "name": "FastAPI: Settings and Environment Variables",
+          "url": "https://fastapi.tiangolo.com/advanced/settings/"
+        },
+        {
+          "name": "The Twelve-Factor App: Config",
+          "url": "https://12factor.net/config"
+        }
+      ],
+      "done": "The app starts from environment variables alone, and no real secret appears anywhere in the repository history."
+    },
+    "p09.s0.11": {
+      "how": "Write pytest fixtures for a test database, a <em>TestClient</em> and a logged-in user. Wrap each test in a transaction that rolls back, or recreate tables per test, and run the suite in shuffled order with pytest-randomly to prove tests do not depend on each other.",
+      "where": [
+        {
+          "name": "FastAPI: Testing",
+          "url": "https://fastapi.tiangolo.com/tutorial/testing/"
+        },
+        {
+          "name": "pytest: How to use fixtures",
+          "url": "https://docs.pytest.org/en/stable/how-to/fixtures.html"
+        }
+      ],
+      "done": "Every test passes alone and in any order, and no test leaves rows behind."
+    },
+    "p09.s1.0": {
+      "how": "Add a users table, a register route that hashes passwords with Argon2 through <em>argon2-cffi</em> or <em>pwdlib</em>, and a login route that verifies and issues a token. Enforce a unique email in the database and return the same error for a wrong email or a wrong password.",
+      "where": [
+        {
+          "name": "OWASP: Password Storage Cheat Sheet",
+          "url": "https://cheatsheetseries.owasp.org/cheatsheets/Password_Storage_Cheat_Sheet.html"
+        },
+        {
+          "name": "argon2-cffi documentation",
+          "url": "https://argon2-cffi.readthedocs.io/en/stable/"
+        }
+      ],
+      "done": "Stored hashes start with $argon2id$, and a wrong email and a wrong password give identical responses."
+    },
+    "p09.s1.1": {
+      "how": "Store roles and permissions in tables, load them with the current user, and write <em>require_permission('items:write')</em> as a dependency. Apply it on routers, then test each protected route as an anonymous user, a normal user and an admin.",
+      "where": [
+        {
+          "name": "FastAPI: Dependencies",
+          "url": "https://fastapi.tiangolo.com/tutorial/dependencies/"
+        },
+        {
+          "name": "OWASP: Authorization Cheat Sheet",
+          "url": "https://cheatsheetseries.owasp.org/cheatsheets/Authorization_Cheat_Sheet.html"
+        }
+      ],
+      "done": "Permission tests pass with 401 for anonymous users, 403 for a missing permission and 2xx when allowed."
+    },
+    "p09.s1.2": {
+      "how": "Use SQLAlchemy 2.0 with a PostgreSQL driver such as psycopg, one session per request from a dependency, and Alembic for every schema change. Run PostgreSQL in Docker for development and tests, and keep <em>create_all</em> out of application code.",
+      "where": [
+        {
+          "name": "SQLAlchemy: Session Basics",
+          "url": "https://docs.sqlalchemy.org/en/20/orm/session_basics.html"
+        },
+        {
+          "name": "Alembic: Tutorial",
+          "url": "https://alembic.sqlalchemy.org/en/latest/tutorial.html"
+        }
+      ],
+      "done": "Dropping the database and running alembic upgrade head recreates the full schema, and the app works against it."
+    },
+    "p09.s1.3": {
+      "how": "Accept an <em>UploadFile</em>, read it in chunks and stop once the size limit is passed, and check the type from the file's first bytes, not the filename or Content-Type header. Store it under a generated name outside any served directory.",
+      "where": [
+        {
+          "name": "FastAPI: Request Files",
+          "url": "https://fastapi.tiangolo.com/tutorial/request-files/"
+        },
+        {
+          "name": "OWASP: File Upload Cheat Sheet",
+          "url": "https://cheatsheetseries.owasp.org/cheatsheets/File_Upload_Cheat_Sheet.html"
+        }
+      ],
+      "done": "Tests show an oversized file gets 413, a renamed executable gets 415, and a valid file is saved under a new name."
+    },
+    "p09.s1.4": {
+      "how": "Add query parameters for search text, filters and a sort field from an allow-list. Return one page plus an opaque <em>next_cursor</em> that encodes the last row's sort key and id, and back the common filter and sort with a composite index.",
+      "where": [
+        {
+          "name": "Use The Index, Luke: No Offset",
+          "url": "https://use-the-index-luke.com/no-offset"
+        },
+        {
+          "name": "FastAPI: Query Parameters",
+          "url": "https://fastapi.tiangolo.com/tutorial/query-params/"
+        }
+      ],
+      "done": "Paging through all results with cursors returns each row once, with no gaps, and page 1,000 is as fast as page 1."
+    },
+    "p09.s1.5": {
+      "how": "List every slow operation, such as thumbnails or emails. Move each to <em>BackgroundTasks</em> or a queue worker, return 202 with a job ID, and add a route that reports job status. Make each job idempotent so a retry does no harm.",
+      "where": [
+        {
+          "name": "FastAPI: Background Tasks",
+          "url": "https://fastapi.tiangolo.com/tutorial/background-tasks/"
+        },
+        {
+          "name": "Celery: First Steps",
+          "url": "https://docs.celeryq.dev/en/stable/getting-started/first-steps-with-celery.html"
+        }
+      ],
+      "done": "The triggering request returns quickly with 202, and the status route shows the job finish or fail."
+    },
+    "p09.s1.6": {
+      "how": "Configure <em>logging</em> or <em>structlog</em> to write one JSON object per line with timestamp, level, message and the request ID from your middleware's ContextVar. Log from handlers and helper functions without passing the ID by hand.",
+      "where": [
+        {
+          "name": "structlog documentation",
+          "url": "https://www.structlog.org/en/stable/"
+        },
+        {
+          "name": "Python contextvars module",
+          "url": "https://docs.python.org/3/library/contextvars.html"
+        }
+      ],
+      "done": "Every log line from one request, including from helper functions, parses as JSON and carries the same request_id."
+    },
+    "p09.s1.7": {
+      "how": "Write parametrised pytest cases for each protected route across anonymous, normal and admin users, and for each model's invalid inputs expecting 422. Add login failure cases, run with <em>pytest --cov</em>, and cover any branch in auth code that is still missed.",
+      "where": [
+        {
+          "name": "pytest: How to parametrize",
+          "url": "https://docs.pytest.org/en/stable/how-to/parametrize.html"
+        },
+        {
+          "name": "FastAPI: Testing",
+          "url": "https://fastapi.tiangolo.com/tutorial/testing/"
+        }
+      ],
+      "done": "The suite passes on a fresh database, and coverage of the auth and permission modules is close to 100%."
+    },
+    "p09.s1.8": {
+      "how": "Give every route a summary, tags, a response model and example payloads, and declare error responses with <em>responses=</em>. Check /docs, then generate a client from /openapi.json with a tool such as openapi-generator and call two endpoints with it.",
+      "where": [
+        {
+          "name": "FastAPI: Path Operation Configuration",
+          "url": "https://fastapi.tiangolo.com/tutorial/path-operation-configuration/"
+        },
+        {
+          "name": "FastAPI: Declare Request Example Data",
+          "url": "https://fastapi.tiangolo.com/tutorial/schema-extra-example/"
+        }
+      ],
+      "done": "A client generated from /openapi.json can register, log in and call a protected route without reading your code."
+    }
+  }
+}

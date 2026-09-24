@@ -73,6 +73,45 @@ class StatsView(View):
         ladder_card.add(self.ladder)
         self.scroller.add(ladder_card)
 
+        # The estimate with its working shown, and the sessions behind it.
+        time_card = Card()
+        time_card.add(heading("Time left"))
+        self.time_summary = label("", "Soft")
+        time_card.add(self.time_summary)
+        self.time_basis = muted("")
+        time_card.add(self.time_basis)
+        self.time_method = muted(
+            "How it works: each phase's hours are split over its study "
+            "steps, gate checks, exercises (by difficulty), quiz and "
+            "project. What is left is the sum of what is not done. Your "
+            "pace is the time of your timed sessions, minus about 20 s per "
+            "review card, divided by the estimated time of what you "
+            "finished in them, weighed against ten hours at the course "
+            "estimate so one session cannot swing it. The date divides "
+            "what is left by your study hours a week, less review time: "
+            "the last four weeks once you have two weeks of history, your "
+            "plan before that.")
+        time_card.add(self.time_method)
+        time_card.add(heading("Timed sessions"))
+        self.sessions_table = QTableWidget(0, 4)
+        self.sessions_table.setHorizontalHeaderLabels(
+            ["Day", "Time", "Finished", "Estimated work"])
+        self.sessions_table.verticalHeader().setVisible(False)
+        self.sessions_table.setEditTriggers(
+            QTableWidget.EditTrigger.NoEditTriggers)
+        self.sessions_table.setSelectionMode(
+            QTableWidget.SelectionMode.NoSelection)
+        self.sessions_table.setFocusPolicy(Qt.FocusPolicy.NoFocus)
+        header = self.sessions_table.horizontalHeader()
+        header.setSectionResizeMode(QHeaderView.ResizeMode.ResizeToContents)
+        header.setSectionResizeMode(2, QHeaderView.ResizeMode.Stretch)
+        time_card.add(self.sessions_table)
+        self.sessions_empty = muted(
+            "No timed sessions yet. Press Start studying (Ctrl+T) when you "
+            "sit down and Stop when you finish.")
+        time_card.add(self.sessions_empty)
+        self.scroller.add(time_card)
+
         activity_card = Card()
         activity_card.add(heading("Study activity"))
         self.activity = ActivityGrid(self.ctx.palette)
@@ -166,6 +205,7 @@ class StatsView(View):
     def _draw(self) -> None:
         overview = self.ctx.progress.overview()
         self.ladder.show_career(self.ctx.progress.career())
+        self._fill_time()
         correct, total = self.ctx.store.review_accuracy(30)
         self.tile_percent.set_value("%d%%" % overview.percent)
         self.tile_exercises.set_value(
@@ -192,6 +232,46 @@ class StatsView(View):
         self._fill_table()
         self._fill_skills()
         self._size_table()
+
+    def _fill_time(self) -> None:
+        from ...core.estimate import format_day, format_hours
+        from ...core.session import clock_text
+        from ..widgets.time_left import basis_text, other_date_text
+        estimate = self.ctx.estimator.estimate()
+        if estimate.left_minutes > 0:
+            self.time_summary.setText(
+                "%s of new material left at your pace (%s at the course "
+                "estimate, %s of the plan's %s done). Done around %s."
+                % (format_hours(estimate.left_personal),
+                   format_hours(estimate.left_minutes),
+                   "%d%%" % round(estimate.done_fraction * 100),
+                   format_hours(estimate.total_minutes),
+                   format_day(estimate.finish)))
+        else:
+            self.time_summary.setText("Nothing left in your plan.")
+        other = other_date_text(estimate)
+        self.time_basis.setText(basis_text(estimate)
+                                + (" " + other if other else ""))
+
+        rows = list(self.ctx.store.sessions(limit=12))
+        self.sessions_table.setRowCount(len(rows))
+        for index, row in enumerate(rows):
+            work = self.ctx.estimator.work(row["started_at"], row["ended_at"],
+                                           int(row["seconds"] or 0))
+            cells = (str(row["day"]), clock_text(int(row["seconds"] or 0)),
+                     ", ".join(work.lines()) or "nothing marked done",
+                     format_hours(work.credited_minutes)
+                     if work.credited_minutes else "-")
+            for column, text in enumerate(cells):
+                self.sessions_table.setItem(index, column,
+                                            QTableWidgetItem(text))
+        height = (self.sessions_table.horizontalHeader().height()
+                  + sum(self.sessions_table.rowHeight(i)
+                        for i in range(len(rows)))
+                  + 2 * self.sessions_table.frameWidth() + 2)
+        self.sessions_table.setFixedHeight(height)
+        self.sessions_table.setVisible(bool(rows))
+        self.sessions_empty.setVisible(not rows)
 
     def _fill_table(self) -> None:
         stats = self.ctx.progress.all_phases()

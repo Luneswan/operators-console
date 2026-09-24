@@ -1,0 +1,182 @@
+{
+  "sections": {
+    "s13.s0": "How chat bots and service integrations work. Pick one platform (Discord, Telegram or Slack) and do items 0 to 2 on it with a private test server or chat, then 3 to 7. Keep one toy bot and extend it with each item, so every item ends with a working change you can run.",
+    "s13.s1": "A bot that someone else relies on. Agree the task with the group first, then build the command, the scheduled job, the rate-limit tests and the deployment, in that order. The final week is spent running it and reading its logs, so deploy early rather than on the last day."
+  },
+  "items": {
+    "s13.s0.0": {
+      "how": "Create a bot in the Discord Developer Portal, Telegram's BotFather or a Slack app, and put the token in an environment variable. Enable only the intents or scopes the bot needs, then run a minimal bot that replies to one message in a private test server.",
+      "where": [
+        {
+          "name": "discord.py: intents",
+          "url": "https://discordpy.readthedocs.io/en/stable/intents.html"
+        },
+        {
+          "name": "Slack: permission scopes",
+          "url": "https://api.slack.com/scopes"
+        }
+      ],
+      "done": "The bot replies in your test space, and you can say which intents or scopes it has and why each is needed."
+    },
+    "s13.s0.1": {
+      "how": "Add a slash command that takes and validates an argument, a handler for an event such as a member joining, and a button that edits the original message when pressed. Use <em>app_commands</em> and <em>discord.ui.View</em>, or <em>CommandHandler</em> and <em>CallbackQueryHandler</em>.",
+      "where": [
+        {
+          "name": "discord.py: interactions API",
+          "url": "https://discordpy.readthedocs.io/en/stable/interactions/api.html"
+        },
+        {
+          "name": "python-telegram-bot",
+          "url": "https://docs.python-telegram-bot.org/en/stable/"
+        }
+      ],
+      "done": "Pressing the button edits the message instead of posting a new one, and a bad argument gets a clear error reply."
+    },
+    "s13.s0.2": {
+      "how": "Run your bot once with long polling and once with a webhook through a tunnel such as <em>ngrok</em>. For Slack, verify each request by computing an HMAC-SHA256 over the raw body, comparing with <em>hmac.compare_digest</em>, and rejecting timestamps older than five minutes.",
+      "where": [
+        {
+          "name": "Slack: verifying requests",
+          "url": "https://api.slack.com/authentication/verifying-requests-from-slack"
+        },
+        {
+          "name": "hmac module",
+          "url": "https://docs.python.org/3/library/hmac.html"
+        }
+      ],
+      "done": "A request with an altered body or an old timestamp is rejected, and a genuine one is processed."
+    },
+    "s13.s0.3": {
+      "how": "Implement the authorisation code flow for Slack or Discord: redirect the user with a random <em>state</em>, check it on the callback, exchange the code for a token on the server, and store the token encrypted. Request the smallest set of scopes.",
+      "where": [
+        {
+          "name": "Slack: installing with OAuth",
+          "url": "https://api.slack.com/authentication/oauth-v2"
+        },
+        {
+          "name": "RFC 6749: OAuth 2.0",
+          "url": "https://datatracker.ietf.org/doc/html/rfc6749"
+        }
+      ],
+      "done": "A second account can install the app, and a callback with a wrong <em>state</em> value is rejected."
+    },
+    "s13.s0.4": {
+      "how": "Read your platform's rate-limit page, then wrap raw HTTP calls so a 429 waits the seconds given in <em>Retry-After</em>, retries up to a fixed limit and logs each wait. Libraries like discord.py already do this; write it yourself once to see how.",
+      "where": [
+        {
+          "name": "Discord: rate limits",
+          "url": "https://discord.com/developers/docs/topics/rate-limits"
+        },
+        {
+          "name": "MDN: Retry-After",
+          "url": "https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Headers/Retry-After"
+        }
+      ],
+      "done": "You can explain per-route and global limits, and your wrapper waits the advertised time before retrying."
+    },
+    "s13.s0.5": {
+      "how": "Add a daily job with <em>APScheduler</em> or <em>discord.ext.tasks</em>. Give each run an id such as the date, record it in the database with a unique constraint, and skip the send when the id already exists, so a restart does not post twice.",
+      "where": [
+        {
+          "name": "APScheduler user guide",
+          "url": "https://apscheduler.readthedocs.io/en/3.x/userguide.html"
+        },
+        {
+          "name": "discord.ext.tasks",
+          "url": "https://discordpy.readthedocs.io/en/stable/ext/tasks/index.html"
+        }
+      ],
+      "done": "Restarting the bot straight after the job runs does not repeat the job's message."
+    },
+    "s13.s0.6": {
+      "how": "Store settings in SQLite keyed by guild id or chat id rather than in global variables. Write a <em>/settings</em> command that reads and changes them, then check that two test servers keep separate values across a restart.",
+      "where": [
+        {
+          "name": "sqlite3",
+          "url": "https://docs.python.org/3/library/sqlite3.html"
+        }
+      ],
+      "done": "Two test servers show different settings after the bot restarts."
+    },
+    "s13.s0.7": {
+      "how": "Run the bot as a <em>systemd</em> service with <em>Restart=on-failure</em>, or in Docker with <em>--restart unless-stopped</em>. Log to stdout so <em>journalctl</em> or <em>docker logs</em> keeps the output. Kill the process and watch it come back.",
+      "where": [
+        {
+          "name": "systemd.service",
+          "url": "https://man7.org/linux/man-pages/man5/systemd.service.5.html"
+        },
+        {
+          "name": "Docker: start containers automatically",
+          "url": "https://docs.docker.com/engine/containers/start-containers-automatically/"
+        }
+      ],
+      "done": "After <em>kill -9</em> on the bot process it is back online within a minute, and the restart shows in the logs."
+    },
+    "s13.s1.0": {
+      "how": "Ask the group which task they repeat by hand, such as reminders, a rota or collecting links. Write the task and the commands in one paragraph, get agreement on it, then build the smallest version that does the task.",
+      "where": [
+        {
+          "name": "discord.py: commands extension",
+          "url": "https://discordpy.readthedocs.io/en/stable/ext/commands/index.html"
+        },
+        {
+          "name": "python-telegram-bot",
+          "url": "https://docs.python-telegram-bot.org/en/stable/"
+        }
+      ],
+      "done": "At least two group members other than you have used the bot for its task."
+    },
+    "s13.s1.1": {
+      "how": "Write the command's logic as a plain function you can unit test, and call it from both the command handler and the scheduled job. Log each command call and each job run with the time and result.",
+      "where": [
+        {
+          "name": "APScheduler user guide",
+          "url": "https://apscheduler.readthedocs.io/en/3.x/userguide.html"
+        },
+        {
+          "name": "discord.ext.tasks",
+          "url": "https://discordpy.readthedocs.io/en/stable/ext/tasks/index.html"
+        }
+      ],
+      "done": "Unit tests cover the shared function, and the job's log lines appear at the scheduled times."
+    },
+    "s13.s1.2": {
+      "how": "Point your HTTP client at a local fake server, built with <em>pytest-httpserver</em> or <em>http.server</em>, that returns 429 with <em>Retry-After: 2</em> for the first requests and then 200. Assert the wait time, the retry count and that no message is lost.",
+      "where": [
+        {
+          "name": "pytest-httpserver",
+          "url": "https://pytest-httpserver.readthedocs.io/en/latest/"
+        },
+        {
+          "name": "http.server",
+          "url": "https://docs.python.org/3/library/http.server.html"
+        }
+      ],
+      "done": "The test passes, and it fails when you remove the retry logic."
+    },
+    "s13.s1.3": {
+      "how": "Read every token and id from <em>os.environ</em>, stop at start-up with a clear message if one is missing, and commit a <em>.env.example</em> with placeholders. Add <em>.env</em> to <em>.gitignore</em> and write setup steps in the README from bot creation to first run.",
+      "where": [
+        {
+          "name": "os.environ",
+          "url": "https://docs.python.org/3/library/os.html#os.environ"
+        }
+      ],
+      "done": "Someone else sets up a working copy from the README alone, and a secrets scan of the repository finds nothing."
+    },
+    "s13.s1.4": {
+      "how": "Deploy to a small VPS, a home server or a Raspberry Pi using the restart setup from item 7 of the Learn section. Log with levels and timestamps, rotate log files with <em>RotatingFileHandler</em> or journald, and read the logs daily for a week, fixing what you find.",
+      "where": [
+        {
+          "name": "logging.handlers",
+          "url": "https://docs.python.org/3/library/logging.handlers.html"
+        },
+        {
+          "name": "Logging HOWTO",
+          "url": "https://docs.python.org/3/howto/logging.html"
+        }
+      ],
+      "done": "Seven days of logs show the job ran each day, and you can explain every ERROR line in them."
+    }
+  }
+}

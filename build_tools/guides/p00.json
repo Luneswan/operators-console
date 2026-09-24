@@ -1,0 +1,245 @@
+{
+  "sections": {
+    "p00.s0": "One-time installation and configuration. Do the steps in order in one sitting (about 1 to 2 hours), and open a fresh terminal after each install so PATH changes take effect. Everything later in the course assumes these commands work.",
+    "p00.s1": "The Git model and commands you will use every day. Read each topic, then try it in a throwaway repository straight away. Spend most time on the index/HEAD model (s1.1) and on revert/reset/rebase (s1.5); the rest follows from those.",
+    "p00.s2": "A drill in one repository that exercises everything from Learn. Do the steps in order in the same git-training repo, running <em>git status</em> and <em>git log --oneline --graph --all</em> after each one. Repeat the whole drill from scratch until it takes under 30 minutes."
+  },
+  "items": {
+    "p00.s0.0": {
+      "how": "Install from python.org (on Windows tick 'Add python.exe to PATH', or use the <em>py</em> launcher). Close all terminals, open a new one and run <em>python --version</em> and <em>py -0</em> to list installed versions.",
+      "where": [
+        {
+          "name": "python.org downloads",
+          "url": "https://www.python.org/downloads/"
+        },
+        {
+          "name": "Using Python on Windows",
+          "url": "https://docs.python.org/3/using/windows.html"
+        }
+      ],
+      "done": "A new terminal prints Python 3.13 or later for <em>python --version</em>."
+    },
+    "p00.s0.1": {
+      "how": "Install uv with the standalone installer from its docs, open a new terminal, run the command, then list the <em>scratch</em> folder: note <em>pyproject.toml</em>, <em>main.py</em> and the <em>.venv</em> created by <em>uv run</em>.",
+      "where": [
+        {
+          "name": "uv: Installation",
+          "url": "https://docs.astral.sh/uv/getting-started/installation/"
+        },
+        {
+          "name": "uv: Working on projects",
+          "url": "https://docs.astral.sh/uv/guides/projects/"
+        }
+      ],
+      "done": "The command prints 1, and you can say what <em>pyproject.toml</em> and <em>.venv</em> are for."
+    },
+    "p00.s0.2": {
+      "how": "Install VS Code, add the Python extension (Pylance comes with it), open the <em>scratch</em> folder and choose its <em>.venv</em> interpreter with 'Python: Select Interpreter'. Run <em>main.py</em> with F5.",
+      "where": [
+        {
+          "name": "VS Code: Python tutorial",
+          "url": "https://code.visualstudio.com/docs/python/python-tutorial"
+        }
+      ],
+      "done": "The status bar shows the .venv interpreter and F5 runs the file with the debugger."
+    },
+    "p00.s0.3": {
+      "how": "Create the account, run <em>ssh-keygen -t ed25519 -C \"you@example.com\"</em>, add the public key (<em>.pub</em> file) in GitHub settings, then run <em>ssh -T git@github.com</em>.",
+      "where": [
+        {
+          "name": "GitHub: Generating a new SSH key",
+          "url": "https://docs.github.com/en/authentication/connecting-to-github-with-ssh/generating-a-new-ssh-key-and-adding-it-to-the-ssh-agent"
+        },
+        {
+          "name": "GitHub: Adding an SSH key",
+          "url": "https://docs.github.com/en/authentication/connecting-to-github-with-ssh/adding-a-new-ssh-key-to-your-github-account"
+        }
+      ],
+      "done": "<em>ssh -T git@github.com</em> greets you by your GitHub username."
+    },
+    "p00.s0.4": {
+      "how": "Set both values, using the email on your GitHub account (or GitHub's noreply address) so commits link to your profile. Check with <em>git config --global --list</em>.",
+      "where": [
+        {
+          "name": "Pro Git: First-time Git setup",
+          "url": "https://git-scm.com/book/en/v2/Getting-Started-First-Time-Git-Setup"
+        }
+      ],
+      "done": "<em>git config user.name</em> and <em>git config user.email</em> print the values you set."
+    },
+    "p00.s0.5": {
+      "how": "Run the command (needs Git 2.28 or later; check with <em>git --version</em>), then run <em>git init</em> in an empty folder and <em>git status</em>.",
+      "where": [
+        {
+          "name": "Pro Git: First-time Git setup",
+          "url": "https://git-scm.com/book/en/v2/Getting-Started-First-Time-Git-Setup"
+        }
+      ],
+      "done": "<em>git status</em> in a new repository reports 'On branch main'."
+    },
+    "p00.s1.0": {
+      "how": "Read how Git stores data, then in a test repo run <em>git cat-file -p HEAD</em> and follow the tree hash with <em>git cat-file -p</em> to see the full file listing stored in one commit.",
+      "where": [
+        {
+          "name": "Pro Git: What is Git?",
+          "url": "https://git-scm.com/book/en/v2/Getting-Started-What-is-Git%3F"
+        },
+        {
+          "name": "Pro Git: Git objects",
+          "url": "https://git-scm.com/book/en/v2/Git-Internals-Git-Objects"
+        }
+      ],
+      "done": "You can explain why <em>git diff</em> output is computed from two snapshots rather than stored."
+    },
+    "p00.s1.1": {
+      "how": "Read the three trees section. Edit a file, then compare <em>git diff</em>, <em>git diff --staged</em> and <em>git status</em> before and after <em>git add</em>. Run <em>git remote -v</em> in a cloned repo to see <em>origin</em>.",
+      "where": [
+        {
+          "name": "Pro Git: Reset demystified",
+          "url": "https://git-scm.com/book/en/v2/Git-Tools-Reset-Demystified"
+        },
+        {
+          "name": "Pro Git: Working with remotes",
+          "url": "https://git-scm.com/book/en/v2/Git-Basics-Working-with-Remotes"
+        }
+      ],
+      "done": "You can draw working tree, index, HEAD and origin and say which command moves changes between each pair."
+    },
+    "p00.s1.2": {
+      "how": "In a new repo run each command in the order listed, with <em>git status</em> between them. Make three commits, then read them with <em>git log --oneline</em> and <em>git log -p</em>.",
+      "where": [
+        {
+          "name": "Pro Git: Recording changes",
+          "url": "https://git-scm.com/book/en/v2/Git-Basics-Recording-Changes-to-the-Repository"
+        },
+        {
+          "name": "Pro Git: Viewing the commit history",
+          "url": "https://git-scm.com/book/en/v2/Git-Basics-Viewing-the-Commit-History"
+        }
+      ],
+      "done": "From memory you can create a repo, make a commit and show what changed in it."
+    },
+    "p00.s1.3": {
+      "how": "Create a branch with <em>git switch -c</em>, commit on it and on main to the same line of one file, then <em>git merge</em>. Edit out the conflict markers by hand, <em>git add</em> the file and commit.",
+      "where": [
+        {
+          "name": "Pro Git: Basic branching and merging",
+          "url": "https://git-scm.com/book/en/v2/Git-Branching-Basic-Branching-and-Merging"
+        },
+        {
+          "name": "Pro Git: Branches in a nutshell",
+          "url": "https://git-scm.com/book/en/v2/Git-Branching-Branches-in-a-Nutshell"
+        }
+      ],
+      "done": "You resolved a conflict without a GUI and <em>git log --graph</em> shows the merge commit."
+    },
+    "p00.s1.4": {
+      "how": "Push a repo to GitHub, edit a file on the GitHub website, then compare <em>git fetch</em> plus <em>git log origin/main</em> with <em>git pull</em>. Discard a local edit with <em>git restore</em> and park one with <em>git stash</em>.",
+      "where": [
+        {
+          "name": "Pro Git: Working with remotes",
+          "url": "https://git-scm.com/book/en/v2/Git-Basics-Working-with-Remotes"
+        },
+        {
+          "name": "Pro Git: Stashing and cleaning",
+          "url": "https://git-scm.com/book/en/v2/Git-Tools-Stashing-and-Cleaning"
+        }
+      ],
+      "done": "You can say the difference between fetch and pull, and between restore and stash."
+    },
+    "p00.s1.5": {
+      "how": "Read Reset Demystified and the Rebasing chapter, including 'The Perils of Rebasing'. In a test repo undo one commit with <em>git revert</em>, then with <em>git reset --soft HEAD~1</em>, and compare <em>git log</em>.",
+      "where": [
+        {
+          "name": "Pro Git: Reset demystified",
+          "url": "https://git-scm.com/book/en/v2/Git-Tools-Reset-Demystified"
+        },
+        {
+          "name": "Pro Git: Rebasing",
+          "url": "https://git-scm.com/book/en/v2/Git-Branching-Rebasing"
+        }
+      ],
+      "done": "You can explain why revert is safe on pushed commits and reset and rebase are not."
+    },
+    "p00.s1.6": {
+      "how": "Complete the Introduction to GitHub course. Then open a pull request against your own repo from a branch, leave line comments on the diff, and merge it.",
+      "where": [
+        {
+          "name": "GitHub: About pull requests",
+          "url": "https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/proposing-changes-to-your-work-with-pull-requests/about-pull-requests"
+        },
+        {
+          "name": "GitHub: About pull request reviews",
+          "url": "https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/reviewing-changes-in-pull-requests/about-pull-request-reviews"
+        }
+      ],
+      "done": "You have a merged pull request with at least one review comment on a changed line."
+    },
+    "p00.s2.0": {
+      "how": "Run <em>git init git-training</em>, write a short README.md and an app.py that prints a greeting, and commit them as two separate commits with clear messages.",
+      "where": [
+        {
+          "name": "Pro Git: Getting a Git repository",
+          "url": "https://git-scm.com/book/en/v2/Git-Basics-Getting-a-Git-Repository"
+        },
+        {
+          "name": "Pro Git: Recording changes",
+          "url": "https://git-scm.com/book/en/v2/Git-Basics-Recording-Changes-to-the-Repository"
+        }
+      ],
+      "done": "<em>git log --oneline</em> shows two commits and <em>git status</em> is clean."
+    },
+    "p00.s2.1": {
+      "how": "Run <em>git switch -c feature/calculator</em>, add an <em>add(a, b)</em> function to app.py, commit, then switch back to main and confirm the function is absent there.",
+      "where": [
+        {
+          "name": "Pro Git: Basic branching and merging",
+          "url": "https://git-scm.com/book/en/v2/Git-Branching-Basic-Branching-and-Merging"
+        },
+        {
+          "name": "git switch",
+          "url": "https://git-scm.com/docs/git-switch"
+        }
+      ],
+      "done": "<em>git log --oneline --all --graph</em> shows the feature branch one commit ahead of main."
+    },
+    "p00.s2.2": {
+      "how": "On main, edit the same lines of app.py differently and commit. Run <em>git merge feature/calculator</em>, resolve the markers by hand, run <em>python app.py</em>, then <em>git add</em> and commit.",
+      "where": [
+        {
+          "name": "Pro Git: Basic branching and merging",
+          "url": "https://git-scm.com/book/en/v2/Git-Branching-Basic-Branching-and-Merging"
+        },
+        {
+          "name": "git merge",
+          "url": "https://git-scm.com/docs/git-merge"
+        }
+      ],
+      "done": "The merge commit exists, app.py has no conflict markers, and the program runs."
+    },
+    "p00.s2.3": {
+      "how": "Edit app.py without committing, run <em>git stash</em>, switch to the other branch and back, then <em>git stash pop</em>. Check <em>git stash list</em> before and after.",
+      "where": [
+        {
+          "name": "Pro Git: Stashing and cleaning",
+          "url": "https://git-scm.com/book/en/v2/Git-Tools-Stashing-and-Cleaning"
+        }
+      ],
+      "done": "Your uncommitted edit reappears after pop and <em>git stash list</em> is empty."
+    },
+    "p00.s2.4": {
+      "how": "On the feature branch run <em>git reset --hard HEAD~1</em>, or delete the branch with <em>git branch -D</em>. Find the lost commit in <em>git reflog</em> and restore it with <em>git reset --hard</em> or <em>git branch</em> and its hash.",
+      "where": [
+        {
+          "name": "git reflog",
+          "url": "https://git-scm.com/docs/git-reflog"
+        },
+        {
+          "name": "Pro Git: Data recovery",
+          "url": "https://git-scm.com/book/en/v2/Git-Internals-Maintenance-and-Data-Recovery"
+        }
+      ],
+      "done": "The branch points at the lost commit again and you can do the recovery without notes."
+    }
+  }
+}

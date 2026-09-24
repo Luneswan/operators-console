@@ -1,0 +1,119 @@
+{
+  "sections": {
+    "p11.s0": "The concepts behind every concurrency choice. Do items 0 to 4 as one asyncio block, then 5 and 6 on threads and processes, then races, timeouts and profiling. Write a short script for every item and keep them; the benchmark exercise reuses most of them.",
+    "p11.s1": "A crawler that exercises everything from the Learn section. Start with the queue and worker pool against a local test server, then add rate limiting, retries, normalisation, caching and persistence in order. Leave logs, metrics and shutdown for last, and test each feature before moving on.",
+    "p11.s2": "The measured comparison that justifies your concurrency choice. Build one harness first, run the I/O-bound workload three ways, then the CPU-bound one, and write up the numbers. Plan about a third of the time for the harness, a third for runs, a third for the write-up."
+  },
+  "items": {
+    "p11.s0.0": {
+      "how": "Read the Real Python concurrency article, then write two functions: one that sleeps 1 second (I/O-like) and one that sums squares to 10 million (CPU-bound). Run four of each with threads and with processes and time every run.",
+      "where": [{"name": "Real Python: Speed up your program with concurrency", "url": "https://realpython.com/python-concurrency/"}, {"name": "concurrent.futures", "url": "https://docs.python.org/3/library/concurrent.futures.html"}],
+      "done": "You can explain, using your own timings, why threads speed up the sleeps but not the sums on the default build."
+    },
+    "p11.s0.1": {
+      "how": "Write three coroutines that print, <em>await asyncio.sleep</em>, and print again, and run them with <em>asyncio.run</em>. Then replace one sleep with <em>time.sleep</em> and observe that it blocks all three. Turn on debug mode to see the slow-callback warning.",
+      "where": [{"name": "Coroutines and tasks", "url": "https://docs.python.org/3/library/asyncio-task.html"}, {"name": "Developing with asyncio", "url": "https://docs.python.org/3/library/asyncio-dev.html"}],
+      "done": "You can say what the event loop does at each <em>await</em>, and why a blocking call stalls every coroutine."
+    },
+    "p11.s0.2": {
+      "how": "Fetch ten URLs from a local server three ways: <em>asyncio.create_task</em> plus awaits, <em>asyncio.gather</em>, and <em>asyncio.TaskGroup</em>. Make one fetch raise and compare what happens to the others in each version.",
+      "where": [{"name": "Coroutines and tasks", "url": "https://docs.python.org/3/library/asyncio-task.html"}],
+      "done": "You can say what happens to sibling tasks when one fails under <em>gather</em> and under <em>TaskGroup</em>."
+    },
+    "p11.s0.3": {
+      "how": "Write a task that holds a resource (an open file or a client) and cancel it with <em>task.cancel()</em>. Release the resource in <em>try/finally</em> or <em>async with</em>, and confirm <em>CancelledError</em> is re-raised, not swallowed.",
+      "where": [{"name": "Task cancellation", "url": "https://docs.python.org/3/library/asyncio-task.html#task-cancellation"}],
+      "done": "Cancelling the task always closes the resource, and a test shows the task ends in the cancelled state."
+    },
+    "p11.s0.4": {
+      "how": "Limit 100 fetches to 10 at once with <em>asyncio.Semaphore</em>, then rebuild the same thing as a producer, an <em>asyncio.Queue(maxsize=20)</em>, and 10 workers. Print the number in flight each second to confirm the cap.",
+      "where": [{"name": "asyncio synchronisation primitives", "url": "https://docs.python.org/3/library/asyncio-sync.html"}, {"name": "asyncio queues", "url": "https://docs.python.org/3/library/asyncio-queue.html"}],
+      "done": "The in-flight count never exceeds 10, and you can say when a queue fits better than a semaphore."
+    },
+    "p11.s0.5": {
+      "how": "Run 50 blocking HTTP requests through a <em>ThreadPoolExecutor</em> and time it against a plain loop. Then run a pure-Python CPU loop on four threads. Read the free-threading HOWTO and, if you can install a <em>3.13t</em> or later build, repeat the CPU run on it.",
+      "where": [{"name": "threading", "url": "https://docs.python.org/3/library/threading.html"}, {"name": "Free-threading HOWTO", "url": "https://docs.python.org/3/howto/free-threading-python.html"}],
+      "done": "You can say which operations release the GIL, and show that threads speed up I/O but not pure-Python CPU work on the default build."
+    },
+    "p11.s0.6": {
+      "how": "Run a CPU-bound function over 8 inputs with <em>ProcessPoolExecutor</em>. Then pass a large list as an argument and time the pickling overhead. Compare with a NumPy version, which releases the GIL inside its native code.",
+      "where": [{"name": "multiprocessing", "url": "https://docs.python.org/3/library/multiprocessing.html"}, {"name": "concurrent.futures", "url": "https://docs.python.org/3/library/concurrent.futures.html"}],
+      "done": "You have timings showing the process speed-up and the point where pickling cost cancels it out."
+    },
+    "p11.s0.7": {
+      "how": "Write a counter incremented by 8 threads with no lock and show a wrong total (add a <em>time.sleep(0)</em> between read and write if needed). Fix it with <em>threading.Lock</em>. Then create a deadlock with two locks taken in opposite orders, and fix it with a fixed lock order.",
+      "where": [{"name": "threading: Lock objects", "url": "https://docs.python.org/3/library/threading.html#lock-objects"}],
+      "done": "You can reproduce the race and the deadlock on demand and explain the fix for each."
+    },
+    "p11.s0.8": {
+      "how": "Set explicit timeouts on every layer of one request path: <em>httpx.Timeout</em> for connect and read, <em>asyncio.timeout</em> around the whole operation, and a timeout on any queue <em>get</em>. Point it at a local server that never responds.",
+      "where": [{"name": "HTTPX timeouts", "url": "https://www.python-httpx.org/advanced/timeouts/"}, {"name": "asyncio timeouts", "url": "https://docs.python.org/3/library/asyncio-task.html#timeouts"}],
+      "done": "Against a server that hangs, your program fails with a timeout error within the limit you set."
+    },
+    "p11.s0.9": {
+      "how": "Profile one of your scripts with <em>python -m cProfile -s cumtime</em>, and track memory with <em>tracemalloc</em> snapshots. Benchmark a function with <em>timeit</em>, repeating runs and reporting the median, after a warm-up, with other programs closed.",
+      "where": [{"name": "The Python profilers", "url": "https://docs.python.org/3/library/profile.html"}, {"name": "tracemalloc", "url": "https://docs.python.org/3/library/tracemalloc.html"}],
+      "done": "You can name the top three functions by cumulative time and the line that allocates the most memory."
+    },
+    "p11.s1.0": {
+      "how": "Start with an <em>asyncio.Queue</em> of seed URLs, N worker tasks sharing one <em>httpx.AsyncClient</em>, and a local test site of a few hundred linked pages. Workers parse links and enqueue new ones; stop when the queue is empty and all workers are idle.",
+      "where": [{"name": "asyncio queues", "url": "https://docs.python.org/3/library/asyncio-queue.html"}, {"name": "HTTPX async support", "url": "https://www.python-httpx.org/async/"}],
+      "done": "The crawler visits every page of the test site and exits by itself with no hanging tasks."
+    },
+    "p11.s1.1": {
+      "how": "Keep a dictionary of per-host limiters (a semaphore plus a minimum delay, or a token bucket) keyed by <em>urlparse(url).netloc</em>. Have each worker acquire the host's limiter before fetching.",
+      "where": [{"name": "asyncio synchronisation primitives", "url": "https://docs.python.org/3/library/asyncio-sync.html"}, {"name": "urllib.parse", "url": "https://docs.python.org/3/library/urllib.parse.html"}],
+      "done": "Request timestamps in your log show no host receives more than your configured rate."
+    },
+    "p11.s1.2": {
+      "how": "Classify failures: timeouts, connection errors and 5xx are retried with backoff up to a limit; 4xx and exhausted retries go to a dead-letter table with the URL, status and last error. Test with a local server that returns each case.",
+      "where": [{"name": "HTTPX exceptions", "url": "https://www.python-httpx.org/exceptions/"}, {"name": "Tenacity", "url": "https://tenacity.readthedocs.io/en/latest/"}],
+      "done": "Every URL ends either fetched or in the dead-letter table, and a 404 is never retried."
+    },
+    "p11.s1.3": {
+      "how": "Write a <em>normalise(url)</em> function: lower-case scheme and host, drop default ports and fragments, resolve relative links with <em>urljoin</em>, and sort query parameters. Store seen URLs in a set and unit-test ten tricky cases.",
+      "where": [{"name": "urllib.parse", "url": "https://docs.python.org/3/library/urllib.parse.html"}],
+      "done": "Your tests show URLs that differ only in case, fragment or parameter order map to one key, and no page is fetched twice."
+    },
+    "p11.s1.4": {
+      "how": "Cache responses on disk or in SQLite keyed by normalised URL, storing body, <em>ETag</em> and <em>Last-Modified</em>. On a repeat crawl send <em>If-None-Match</em> or <em>If-Modified-Since</em> and treat a 304 as a cache hit.",
+      "where": [{"name": "MDN: HTTP caching", "url": "https://developer.mozilla.org/en-US/docs/Web/HTTP/Caching"}],
+      "done": "A second crawl of the unchanged test site makes mostly 304 or no requests, and your metrics show the hit rate."
+    },
+    "p11.s1.5": {
+      "how": "Have workers put results on a queue, and let one writer task collect them into batches of 100 or every 2 seconds and insert them with <em>executemany</em> in one transaction. Compare total time against one insert per page.",
+      "where": [{"name": "sqlite3", "url": "https://docs.python.org/3/library/sqlite3.html"}, {"name": "asyncpg", "url": "https://magicstack.github.io/asyncpg/current/"}],
+      "done": "Batched writes are measurably faster than single inserts, and no result is lost when the crawl ends mid-batch."
+    },
+    "p11.s1.6": {
+      "how": "Log one JSON object per event with URL, status, duration and worker id. Keep counters for pages fetched, errors, queue size and in-flight requests, and print them every few seconds or expose them with <em>prometheus_client</em>.",
+      "where": [{"name": "Logging cookbook", "url": "https://docs.python.org/3/howto/logging-cookbook.html"}, {"name": "Prometheus Python client", "url": "https://prometheus.github.io/client_python/"}],
+      "done": "While the crawl runs you can read pages per second and error count live, and filter the log by URL."
+    },
+    "p11.s1.7": {
+      "how": "Catch Ctrl+C: <em>asyncio.run</em> turns SIGINT into cancellation of the main task (use <em>loop.add_signal_handler</em> on Unix if you want your own handler). Stop taking new URLs, let in-flight fetches finish with a time limit, flush the final batch, then exit.",
+      "where": [{"name": "asyncio runners and SIGINT", "url": "https://docs.python.org/3/library/asyncio-runner.html"}, {"name": "signal", "url": "https://docs.python.org/3/library/signal.html"}],
+      "done": "Pressing Ctrl+C mid-crawl exits within your time limit, and every page reported fetched is in the database."
+    },
+    "p11.s2.0": {
+      "how": "Write one harness that takes a workload function and a runner (loop, <em>ThreadPoolExecutor</em>, <em>asyncio.gather</em> with a semaphore). Use the same URL list against a local server with fixed latency so network noise does not dominate.",
+      "where": [{"name": "concurrent.futures", "url": "https://docs.python.org/3/library/concurrent.futures.html"}, {"name": "asyncio", "url": "https://docs.python.org/3/library/asyncio.html"}],
+      "done": "All three runners complete the same workload and produce the same set of results."
+    },
+    "p11.s2.1": {
+      "how": "Record per-request durations with <em>time.perf_counter</em> and compute p50 and p95 with <em>statistics.quantiles</em>. Sample CPU and memory with <em>psutil</em>. Inject failures at a set rate on the server and record how each runner copes.",
+      "where": [{"name": "statistics", "url": "https://docs.python.org/3/library/statistics.html"}, {"name": "psutil", "url": "https://psutil.readthedocs.io/en/latest/"}],
+      "done": "You have a table with throughput, p50, p95, peak CPU, peak memory and error handling for each runner, averaged over at least three runs."
+    },
+    "p11.s2.2": {
+      "how": "Swap in a CPU-bound workload such as hashing or prime counting and run it sequentially, with threads, and with <em>ProcessPoolExecutor</em>. Vary worker count from 1 to your core count and record the speed-up.",
+      "where": [{"name": "multiprocessing", "url": "https://docs.python.org/3/library/multiprocessing.html"}, {"name": "concurrent.futures", "url": "https://docs.python.org/3/library/concurrent.futures.html"}],
+      "done": "Your numbers show processes scaling with cores while threads stay near sequential speed on the default build."
+    },
+    "p11.s2.3": {
+      "how": "Write one page: the workloads, the machine and Python version, the method, a results table, and a recommendation for which model to use for each workload type. State the limits of your test.",
+      "where": [{"name": "Real Python: Speed up your program with concurrency", "url": "https://realpython.com/python-concurrency/"}],
+      "done": "Someone else could rerun your benchmark from the page and reach the same recommendation."
+    }
+  }
+}

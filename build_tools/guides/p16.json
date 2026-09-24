@@ -1,0 +1,210 @@
+{
+  "sections": {
+    "p16.s0": "The layers under Python. Items 0 to 4 cover C and the machine: write, compile and run a small C program for each, on Linux or WSL. Items 5 to 9 cover how CPython runs your code: test each idea in the REPL. Spend about 60 per cent of the phase here.",
+    "p16.s1": "Five hands-on exercises that apply the Learn section. Do them in order, since items 1 and 2 use the same hot function. Record every prediction and measurement in one notes file so you can compare them later."
+  },
+  "items": {
+    "p16.s0.0": {
+      "how": "Work through CS50 week 1 or the first chapters of Beej's Guide to C, typing and compiling each example. Then open a short CPython file such as <em>Objects/boolobject.c</em> and annotate every declaration, type, loop and function call.",
+      "where": [
+        {
+          "name": "CS50x: Week 1, C",
+          "url": "https://cs50.harvard.edu/x/weeks/1/"
+        },
+        {
+          "name": "Beej's Guide to C Programming",
+          "url": "https://beej.us/guide/bgc/"
+        }
+      ],
+      "done": "You can read a 100-line C function and describe what it does, including its types, control flow and return values."
+    },
+    "p16.s0.1": {
+      "how": "Write C programs that swap two ints through pointers, walk an array with pointer arithmetic, and print element addresses with <em>%p</em>. Compile with <em>gcc -Wall -g -fsanitize=address</em>, add an out-of-bounds write, and read the sanitiser report.",
+      "where": [
+        {
+          "name": "CS50x: Week 4, Memory",
+          "url": "https://cs50.harvard.edu/x/weeks/4/"
+        },
+        {
+          "name": "Beej's Guide to C Programming",
+          "url": "https://beej.us/guide/bgc/"
+        }
+      ],
+      "done": "You can explain why <em>a[i]</em> is <em>*(a + i)</em> and predict the address step between elements of an <em>int</em> and a <em>double</em> array."
+    },
+    "p16.s0.2": {
+      "how": "Write a function that returns a pointer to a local array and observe the bug, then fix it with <em>malloc</em> and <em>free</em>. Add a leak and a double free on purpose, and run each version under Valgrind or AddressSanitizer.",
+      "where": [
+        {
+          "name": "Valgrind: Quick start guide",
+          "url": "https://valgrind.org/docs/manual/quick-start.html"
+        },
+        {
+          "name": "CS50x: Week 4, Memory",
+          "url": "https://cs50.harvard.edu/x/weeks/4/"
+        }
+      ],
+      "done": "You can say which values live on the stack and which on the heap in a given function, and your fixed program runs clean under Valgrind."
+    },
+    "p16.s0.3": {
+      "how": "On Linux or WSL, run <em>strace -f python3 -c \"open('x.txt', 'w').write('hi')\"</em> and find the <em>openat</em>, <em>write</em> and <em>close</em> calls. Run it again with <em>strace -c</em> for a summary, then repeat using <em>os.open</em> and <em>os.write</em>.",
+      "where": [
+        {
+          "name": "syscalls(2) man page",
+          "url": "https://man7.org/linux/man-pages/man2/syscalls.2.html"
+        },
+        {
+          "name": "strace(1) man page",
+          "url": "https://man7.org/linux/man-pages/man1/strace.1.html"
+        }
+      ],
+      "done": "You can name the system calls behind a Python file write and explain what the kernel does that user code cannot."
+    },
+    "p16.s0.4": {
+      "how": "Compile a two-file C program in stages: <em>gcc -E</em>, <em>gcc -S</em>, <em>gcc -c</em>, then link. Inspect the object files with <em>nm</em> and <em>objdump -d</em>, remove one function definition, and read the undefined-reference error from the linker.",
+      "where": [
+        {
+          "name": "GCC: Options controlling the kind of output",
+          "url": "https://gcc.gnu.org/onlinedocs/gcc/Overall-Options.html"
+        },
+        {
+          "name": "objdump(1) man page",
+          "url": "https://man7.org/linux/man-pages/man1/objdump.1.html"
+        }
+      ],
+      "done": "You can explain preprocessing, compiling, assembling and linking, and fix an undefined-reference error without searching."
+    },
+    "p16.s0.5": {
+      "how": "Run <em>dis.dis</em> on five of your own functions: a loop, a list comprehension, a closure, a <em>try</em>/<em>except</em> and an f-string. Look up each unfamiliar opcode in the <em>dis</em> documentation and note what it does to the value stack.",
+      "where": [
+        {
+          "name": "Python: dis, disassembler for Python bytecode",
+          "url": "https://docs.python.org/3/library/dis.html"
+        }
+      ],
+      "done": "You can read a short disassembly aloud and explain what <em>LOAD_FAST</em>, <em>BINARY_OP</em> and <em>CALL</em> do to the stack."
+    },
+    "p16.s0.6": {
+      "how": "Read the <em>PyObject</em> and <em>PyVarObject</em> sections of the C API object structures page, then <em>Include/object.h</em> in the CPython source. In the REPL, compare <em>sys.getsizeof</em> for an int, an empty list, a list of ten items and a class instance, and explain each size.",
+      "where": [
+        {
+          "name": "Python C API: Common object structures",
+          "url": "https://docs.python.org/3/c-api/structures.html"
+        },
+        {
+          "name": "CPython source",
+          "url": "https://github.com/python/cpython"
+        }
+      ],
+      "done": "You can name the two header fields of every <em>PyObject</em> in the default build (reference count and type pointer) and how <em>type(x)</em> is found."
+    },
+    "p16.s0.7": {
+      "how": "Watch <em>sys.getrefcount</em> change as you bind and delete names for a list. Then build a two-object cycle, delete the names, and use a <em>weakref.finalize</em> callback to show it is freed only by <em>gc.collect()</em>. Read the <em>gc</em> docs for your exact 3.14 point release.",
+      "where": [
+        {
+          "name": "Python: gc, garbage collector interface",
+          "url": "https://docs.python.org/3/library/gc.html"
+        },
+        {
+          "name": "CPython InternalDocs: Garbage collector design",
+          "url": "https://github.com/python/cpython/blob/main/InternalDocs/garbage_collector.md"
+        }
+      ],
+      "done": "You can explain why reference counting alone cannot free a cycle and how the generations decide what the collector scans."
+    },
+    "p16.s0.8": {
+      "how": "Read NumPy's 'What is NumPy?' page and the first section of Extending Python with C. Time a Python loop that sums a million floats against built-in <em>sum</em> on a list and <em>np.sum</em> on an array, and account for the gap.",
+      "where": [
+        {
+          "name": "NumPy: What is NumPy?",
+          "url": "https://numpy.org/doc/stable/user/whatisnumpy.html"
+        },
+        {
+          "name": "Python: Extending Python with C or C++",
+          "url": "https://docs.python.org/3/extending/extending.html"
+        }
+      ],
+      "done": "Using your timings, you can explain the gap in terms of boxed objects, per-element interpreter dispatch and contiguous memory."
+    },
+    "p16.s0.9": {
+      "how": "Read the free-threading HOWTO and PEP 779. Install the free-threaded 3.14 build (<em>python3.14t</em>), check <em>sys._is_gil_enabled()</em>, and run a CPU-bound function on 1 and 4 threads on both builds. Record wall time for each.",
+      "where": [
+        {
+          "name": "Python: Python support for free threading",
+          "url": "https://docs.python.org/3/howto/free-threading-python.html"
+        },
+        {
+          "name": "PEP 779",
+          "url": "https://peps.python.org/pep-0779/"
+        }
+      ],
+      "done": "You can state your measured thread speed-up and single-thread slowdown, and why an extension not marked safe re-enables the GIL."
+    },
+    "p16.s1.0": {
+      "how": "Write three functions, for example a nested loop, a <em>with</em> block and a generator. Write down the opcodes you expect for each, then run <em>dis.dis</em> and mark every difference with its reason.",
+      "where": [
+        {
+          "name": "Python: dis, disassembler for Python bytecode",
+          "url": "https://docs.python.org/3/library/dis.html"
+        }
+      ],
+      "done": "At least one prediction matches the real opcode sequence in full, and every miss has a written reason."
+    },
+    "p16.s1.1": {
+      "how": "Profile one of your projects with <em>cProfile</em> and pick a hot, numeric, pure-Python function. Rewrite it as a Cython module with typed variables, or as a C extension using <em>PyArg_ParseTuple</em>, build it, and keep the Python version beside it.",
+      "where": [
+        {
+          "name": "Cython: Basic tutorial",
+          "url": "https://cython.readthedocs.io/en/latest/src/tutorial/cython_tutorial.html"
+        },
+        {
+          "name": "Python: Extending Python with C or C++",
+          "url": "https://docs.python.org/3/extending/extending.html"
+        }
+      ],
+      "done": "The compiled module imports, and a test shows it returns identical results to the Python version on the same inputs."
+    },
+    "p16.s1.2": {
+      "how": "Benchmark both versions with <em>pyperf</em>, or <em>timeit</em> with several repeats, on the same inputs at three or more sizes including a tiny one. Report the median and spread, and note the machine, Python version and build flags.",
+      "where": [
+        {
+          "name": "pyperf documentation",
+          "url": "https://pyperf.readthedocs.io/en/latest/"
+        },
+        {
+          "name": "Python: timeit",
+          "url": "https://docs.python.org/3/library/timeit.html"
+        }
+      ],
+      "done": "A table shows median and spread per input size, and you can say where call overhead cancels the speed-up."
+    },
+    "p16.s1.3": {
+      "how": "Create a list and print <em>sys.getrefcount</em> after binding it to a second name, storing it in a dict, appending it to another list, and deleting each of those references in turn. Write your predicted count before each line runs.",
+      "where": [
+        {
+          "name": "Python: sys.getrefcount",
+          "url": "https://docs.python.org/3/library/sys.html"
+        },
+        {
+          "name": "Python C API: Reference counting",
+          "url": "https://docs.python.org/3/c-api/refcounting.html"
+        }
+      ],
+      "done": "Your predicted change matches every step, and you can explain the extra reference held by the <em>getrefcount</em> argument."
+    },
+    "p16.s1.4": {
+      "how": "Build parent-child trees where each child holds a strong reference to its parent. With <em>gc.disable()</em>, create and drop many trees while taking <em>tracemalloc</em> snapshots. Confirm the cycle with <em>gc.get_referrers</em>, then store the parent as a <em>weakref.ref</em>.",
+      "where": [
+        {
+          "name": "Python: gc, garbage collector interface",
+          "url": "https://docs.python.org/3/library/gc.html"
+        },
+        {
+          "name": "Python: tracemalloc",
+          "url": "https://docs.python.org/3/library/tracemalloc.html"
+        }
+      ],
+      "done": "Before the fix memory grows with each batch; after it, <em>tracemalloc</em> shows memory flat across 100,000 trees with the collector disabled."
+    }
+  }
+}

@@ -33,6 +33,7 @@ from .views.stats import StatsView
 from .focus import install as install_focus
 from .views.base import store_key
 from .widgets.common import Card, ElidedLabel, divider, label, muted, pill
+from .widgets.study_timer import StudyTimerBar
 
 NAV = (
     ("today", "Today", DashboardView),
@@ -352,6 +353,11 @@ class MainWindow(QMainWindow):
         row.addWidget(self.search, 2)
         row.addStretch(1)
 
+        self.study_bar = StudyTimerBar(self.ctx, self.start_study,
+                                       self.stop_study)
+        row.addWidget(self.study_bar)
+        row.addSpacing(10)
+
         self.undo_button = QPushButton("Undo")
         self.undo_button.setProperty("kind", "quiet")
         self.undo_button.setCursor(Qt.CursorShape.PointingHandCursor)
@@ -434,6 +440,16 @@ class MainWindow(QMainWindow):
         find.setShortcut(QKeySequence("Ctrl+K"))
         find.triggered.connect(self._focus_search)
         go_menu.addAction(find)
+
+        study_menu = menu.addMenu("&Study")
+        self.study_action = QAction("Start or stop studying", self)
+        self.study_action.setShortcut(QKeySequence("Ctrl+T"))
+        self.study_action.triggered.connect(self.toggle_study)
+        study_menu.addAction(self.study_action)
+        pause = QAction("Pause or resume studying", self)
+        pause.setShortcut(QKeySequence("Ctrl+Shift+T"))
+        pause.triggered.connect(self.pause_study)
+        study_menu.addAction(pause)
 
         help_menu = menu.addMenu("&Help")
         guide = QAction("How this app works", self)
@@ -580,6 +596,55 @@ class MainWindow(QMainWindow):
             QMessageBox.warning(self, "New profile", str(exc))
             return
         self.switch_profile(profile.id)
+
+    # -- the study timer ------------------------------------------------------
+
+    def toggle_study(self) -> None:
+        if self.ctx.timer.active:
+            self.stop_study()
+        else:
+            self.start_study()
+
+    def start_study(self) -> None:
+        if self.ctx.timer.active:
+            return
+        phase = self.ctx.curriculum.phase(self.ctx.progress.current_phase_id())
+        focus = "Phase %s: %s" % (phase.num, phase.name) if phase else ""
+        left = self.ctx.estimator.estimate().left_personal
+        self.ctx.timer.start(focus=focus, left_minutes=left)
+        self.study_bar.sync()
+        self.ctx.changed()
+        self.toast("Timer started. Press Stop when you finish.")
+
+    def pause_study(self) -> None:
+        if not self.ctx.timer.active:
+            return
+        self.study_bar.toggle_pause()
+        self.ctx.changed()
+
+    def stop_study(self) -> None:
+        from .session_dialog import SessionDialog, too_short
+        if not self.ctx.timer.active:
+            return
+        if too_short(self.ctx):
+            self.ctx.timer.discard()
+            self.study_bar.sync()
+            self.ctx.changed()
+            self.toast("Under a minute. Nothing was saved.")
+            return
+        dialog = SessionDialog(self.ctx, self)
+        result = dialog.exec()
+        self.study_bar.sync()
+        self.ctx.changed()
+        if result == QDialog.DialogCode.Accepted:
+            from ..core.estimate import format_day, format_hours
+            estimate = self.ctx.estimator.estimate()
+            if estimate.left_minutes > 0:
+                self.toast("Saved. %s of new material left, done around %s."
+                           % (format_hours(estimate.left_personal),
+                              format_day(estimate.finish)))
+            else:
+                self.toast("Saved to your log.")
 
     def open_feedback(self, kind: str = "bug") -> None:
         from .feedback import FeedbackDialog

@@ -1,0 +1,219 @@
+{
+  "sections": {
+    "p02.s0": "Work in order: iterators, then generators, lazy pipelines and itertools, then the object-model traps (identity, hashing, default arguments). Spend about three days on the reading and REPL exercises and two on the multi-GB file build, which uses everything before it.",
+    "p02.s1": "Do decorators and context managers first (about two days), then type hints and a full type-checker run (two days), and finish with the module refactor. The refactored project is a good base for the engineering challenge that follows.",
+    "p02.s2": "One refactor of File Organizer, done in this order: split the four layers, share one code path for dry-run and execute, then write the disk-free tests, which prove the redesign worked. Plan about a week; most of it goes on the split."
+  },
+  "items": {
+    "p02.s0.0": {
+      "how": "Write a class <em>Countdown</em> whose <em>__iter__</em> returns self and whose <em>__next__</em> counts n down to 1, then raises <em>StopIteration</em>. Drive it by hand with <em>iter()</em> and <em>next()</em>, then with a for loop. Then write an iterable whose <em>__iter__</em> returns a new iterator each time.",
+      "where": [
+        {
+          "name": "Iterator types",
+          "url": "https://docs.python.org/3/builtins/stdtypes.html#iterator-types"
+        },
+        {
+          "name": "Tutorial: iterators",
+          "url": "https://docs.python.org/3/tutorial/classes.html#iterators"
+        }
+      ],
+      "done": "You can explain the difference between an iterable and an iterator, and why a second for loop over the same iterator prints nothing."
+    },
+    "p02.s0.1": {
+      "how": "Rewrite <em>Countdown</em> as a generator function and compare the line count. Write the same thing as a generator expression, then a generator that delegates to two sub-generators with <em>yield from</em>. Put a print before each <em>yield</em> to see when the body actually runs.",
+      "where": [
+        {
+          "name": "Tutorial: generators",
+          "url": "https://docs.python.org/3/tutorial/classes.html#generators"
+        },
+        {
+          "name": "Functional programming HOWTO",
+          "url": "https://docs.python.org/3/howto/functional.html"
+        }
+      ],
+      "done": "You can say why a generator object can only be iterated once and at what moment its body code runs."
+    },
+    "p02.s0.2": {
+      "how": "Build a chain of generator functions, <em>read_lines</em> then <em>parse</em> then <em>keep_errors</em> then <em>count_by_key</em>, each taking an iterable and yielding. Run it on a large log file, then write a version that builds a list at every stage and compare peak memory.",
+      "where": [
+        {
+          "name": "Functional programming HOWTO",
+          "url": "https://docs.python.org/3/howto/functional.html"
+        },
+        {
+          "name": "Real Python: generators",
+          "url": "https://realpython.com/introduction-to-python-generators/"
+        }
+      ],
+      "done": "Each stage can be tested alone on a three-item list, and the full pipeline holds about one line in memory at a time."
+    },
+    "p02.s0.3": {
+      "how": "Try <em>islice</em>, <em>chain</em>, <em>groupby</em> and <em>tee</em> in the REPL on small lists. Run <em>groupby</em> on unsorted input to see it only groups consecutive keys, then sort first. Take the first 10 lines of a file with <em>islice</em> instead of reading it into a list.",
+      "where": [
+        {
+          "name": "itertools",
+          "url": "https://docs.python.org/3/library/itertools.html"
+        }
+      ],
+      "done": "You can predict the output of <em>groupby</em> on unsorted data and explain why <em>tee</em> can use a lot of memory."
+    },
+    "p02.s0.4": {
+      "how": "In the REPL compare <em>is</em> and <em>==</em> on lists, small ints and strings, and check <em>id()</em>. Write a class with <em>__eq__</em> but no <em>__hash__</em> and try to add it to a set. Then use a tuple that contains a list as a dict key and read the error.",
+      "where": [
+        {
+          "name": "Data model: __hash__",
+          "url": "https://docs.python.org/3/reference/datamodel.html#object.__hash__"
+        },
+        {
+          "name": "Glossary: hashable",
+          "url": "https://docs.python.org/3/glossary.html#term-hashable"
+        }
+      ],
+      "done": "You can explain why a key that changes after insertion breaks dict lookup, and why defining <em>__eq__</em> sets <em>__hash__</em> to None."
+    },
+    "p02.s0.5": {
+      "how": "Write <em>def add(item, bucket=[])</em>, call it three times and print the result. Fix it with a <em>None</em> sentinel. Then reproduce two more shared-state traps: a list as a class attribute shared by all instances, and a grid built with <em>[[0] * 3] * 3</em>.",
+      "where": [
+        {
+          "name": "Tutorial: default argument values",
+          "url": "https://docs.python.org/3/tutorial/controlflow.html#default-argument-values"
+        },
+        {
+          "name": "Programming FAQ",
+          "url": "https://docs.python.org/3/faq/programming.html"
+        }
+      ],
+      "done": "You can explain that default values are evaluated once, when <em>def</em> runs, and spot the bug in someone else's code."
+    },
+    "p02.s0.6": {
+      "how": "Generate a test file of several GB. Write a one-pass generator pipeline that aggregates it. Measure peak memory with <em>tracemalloc.get_traced_memory()</em> (or the process peak in Task Manager) on a 100 MB and a multi-GB input, then write the list-based version and measure it too.",
+      "where": [
+        {
+          "name": "tracemalloc",
+          "url": "https://docs.python.org/3/library/tracemalloc.html"
+        }
+      ],
+      "done": "Peak memory is about the same for the 100 MB and multi-GB inputs, and both numbers are written down next to the list version's."
+    },
+    "p02.s1.0": {
+      "how": "Write each decorator as a function returning a wrapper: <em>timer</em> using <em>time.perf_counter</em>, <em>retry</em> that re-calls on an exception with doubling sleeps, <em>logger</em> that logs arguments and return value, <em>cache</em> that stores results in a dict keyed on the arguments. Test each one.",
+      "where": [
+        {
+          "name": "Real Python: decorators",
+          "url": "https://realpython.com/primer-on-python-decorators/"
+        },
+        {
+          "name": "Function definitions",
+          "url": "https://docs.python.org/3/reference/compound_stmts.html#function-definitions"
+        }
+      ],
+      "done": "You can write <em>timer</em> from a blank file and explain that <em>@timer</em> means <em>f = timer(f)</em>."
+    },
+    "p02.s1.1": {
+      "how": "Print <em>__name__</em> and <em>__doc__</em> of a decorated function with and without <em>@functools.wraps</em>. Then turn <em>retry</em> into <em>retry(times=3, delay=0.5)</em>, which needs three nested functions: the factory, the decorator and the wrapper.",
+      "where": [
+        {
+          "name": "functools.wraps",
+          "url": "https://docs.python.org/3/library/functools.html#functools.wraps"
+        }
+      ],
+      "done": "You can explain why a decorator that takes arguments needs one more level of nesting than one that does not."
+    },
+    "p02.s1.2": {
+      "how": "Write a <em>Timer</em> class with <em>__enter__</em> and <em>__exit__</em> that records elapsed time, then the same with <em>@contextlib.contextmanager</em> using try/finally around <em>yield</em>. Raise an exception inside the with block and check that cleanup still runs in both.",
+      "where": [
+        {
+          "name": "contextlib",
+          "url": "https://docs.python.org/3/library/contextlib.html"
+        },
+        {
+          "name": "With statement context managers",
+          "url": "https://docs.python.org/3/reference/datamodel.html#context-managers"
+        }
+      ],
+      "done": "Cleanup runs when the body raises, and you can say what returning True from <em>__exit__</em> does to the exception."
+    },
+    "p02.s1.3": {
+      "how": "Annotate one small module using each feature at least once: <em>X | None</em> returns, a <em>Protocol</em> argument, <em>Self</em> on a builder method, <em>@override</em> in a subclass, a <em>TypedDict</em> record, a PEP 695 generic function and a <em>type</em> alias. Run a type checker on it.",
+      "where": [
+        {
+          "name": "typing",
+          "url": "https://docs.python.org/3/library/typing.html"
+        },
+        {
+          "name": "PEP 695",
+          "url": "https://peps.python.org/pep-0695/"
+        }
+      ],
+      "done": "The module type-checks clean, and a deliberately wrong call against each annotation is reported by the checker."
+    },
+    "p02.s1.4": {
+      "how": "Install <em>mypy</em> and run it on a project from an earlier phase. Start with default settings, fix errors one file at a time, then turn on <em>--strict</em> for one module. Keep a list of real bugs found versus missing-annotation noise.",
+      "where": [
+        {
+          "name": "mypy: existing codebase",
+          "url": "https://mypy.readthedocs.io/en/stable/existing_code.html"
+        },
+        {
+          "name": "mypy: getting started",
+          "url": "https://mypy.readthedocs.io/en/stable/getting_started.html"
+        }
+      ],
+      "done": "The checker exits with zero errors on the project, and you can name at least one real bug it caught."
+    },
+    "p02.s1.5": {
+      "how": "Pick an earlier project and draw its modules and which imports which. Move code so that I/O, core logic and the CLI sit in separate modules and the core imports neither of the others. Import each module on its own to check for cycles.",
+      "where": [
+        {
+          "name": "Tutorial: modules",
+          "url": "https://docs.python.org/3/tutorial/modules.html"
+        }
+      ],
+      "done": "Each module has one stated job, nothing has an import cycle, and the core module imports nothing from the CLI or I/O code."
+    },
+    "p02.s2.0": {
+      "how": "Write <em>classify()</em> as a pure function that takes plain data (name, suffix, size, modified time) and returns a destination, with no <em>os</em>, <em>shutil</em> or <em>Path</em> I/O calls. The scanner builds that data and a separate mover acts on the result.",
+      "where": [
+        {
+          "name": "pathlib (pure paths)",
+          "url": "https://docs.python.org/3/library/pathlib.html"
+        }
+      ],
+      "done": "You can call <em>classify()</em> in the REPL with hand-made inputs while no test directory exists anywhere."
+    },
+    "p02.s2.1": {
+      "how": "Make four modules: <em>rules.py</em> (pure decisions), <em>fs.py</em> (scan, move, mkdir), <em>config.py</em> (load and validate settings into a dataclass) and <em>cli.py</em>, which wires them together. Only <em>cli.py</em> configures logging; the others call <em>logging.getLogger(__name__)</em>.",
+      "where": [
+        {
+          "name": "Logging HOWTO",
+          "url": "https://docs.python.org/3/howto/logging.html"
+        },
+        {
+          "name": "dataclasses",
+          "url": "https://docs.python.org/3/library/dataclasses.html"
+        }
+      ],
+      "done": "<em>rules.py</em> imports nothing from the other three modules and contains no <em>open(</em>, <em>shutil</em> or <em>os</em> calls."
+    },
+    "p02.s2.2": {
+      "how": "Make the planner return a list of planned moves (source, destination). Execute mode hands that list to an executor that moves files; dry-run hands it to one that only logs. Add a <em>--dry-run</em> flag with <em>argparse</em>.",
+      "where": [
+        {
+          "name": "argparse",
+          "url": "https://docs.python.org/3/library/argparse.html"
+        }
+      ],
+      "done": "Dry-run and execute log the same plan for the same folder, and after a dry-run the folder is unchanged."
+    },
+    "p02.s2.3": {
+      "how": "Write pytest tests that feed the planner lists of fake file records and assert on the returned moves: name clashes, unknown suffixes, duplicates, empty input. Add a fixture that uses <em>monkeypatch</em> to make <em>shutil.move</em> and <em>Path.iterdir</em> raise, so any disk access fails the test.",
+      "where": [
+        {
+          "name": "pytest: monkeypatch",
+          "url": "https://docs.pytest.org/en/stable/how-to/monkeypatch.html"
+        }
+      ],
+      "done": "The decision tests pass with the disk-access guard active and the whole file runs in under a second."
+    }
+  }
+}

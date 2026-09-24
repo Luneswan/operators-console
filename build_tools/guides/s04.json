@@ -1,0 +1,117 @@
+{
+  "sections": {
+    "s04.s0": "The structure every real-time game shares, then media processing. Work items 1 to 5 in order in one small pygame sketch that you keep extending. Add items 6 to 8 to the same sketch once it has enough objects to be worth measuring. Do item 9, Pillow and ffmpeg, as a separate script.",
+    "s04.s1": "One small, complete game rather than a large unfinished one. Build the playable core with delta-time movement first, then the start, pause and game-over states, then levels and difficulty, then settings, and package last. Stop adding features once the core loop is fun."
+  },
+  "items": {
+    "s04.s0.0": {
+      "how": "Write a pygame window whose <em>while</em> loop has three clearly separated functions: handle events from <em>pygame.event.get</em>, update positions, then draw and call <em>pygame.display.flip</em>. Read the fixed versus variable timestep sections of the game loop chapter.",
+      "where": [
+        {"name": "Game Programming Patterns: Game Loop", "url": "https://gameprogrammingpatterns.com/game-loop.html"},
+        {"name": "pygame.event", "url": "https://www.pygame.org/docs/ref/event.html"}
+      ],
+      "done": "You can draw the loop from memory and say what goes wrong when drawing and updating are mixed together."
+    },
+    "s04.s0.1": {
+      "how": "Get <em>dt = clock.tick(fps) / 1000</em> from <em>pygame.time.Clock</em> and move a sprite by <em>speed * dt</em>. Run it at 30 and 144 FPS and time how long the sprite takes to cross the screen in each case.",
+      "where": [
+        {"name": "pygame.time", "url": "https://www.pygame.org/docs/ref/time.html"},
+        {"name": "Game Programming Patterns: Game Loop", "url": "https://gameprogrammingpatterns.com/game-loop.html"}
+      ],
+      "done": "The crossing time is the same, within a frame, at 30 and 144 FPS."
+    },
+    "s04.s0.2": {
+      "how": "Load a sprite sheet once with <em>pygame.image.load(...).convert_alpha()</em>, cut frames with <em>Surface.subsurface</em>, and advance the frame index on a timer in a <em>pygame.sprite.Sprite</em> subclass. Draw a group of them with <em>Group.draw</em>.",
+      "where": [
+        {"name": "pygame.sprite", "url": "https://www.pygame.org/docs/ref/sprite.html"},
+        {"name": "pygame.Surface", "url": "https://www.pygame.org/docs/ref/surface.html"}
+      ],
+      "done": "An animated character plays at a set frame rate that does not change when the game FPS changes."
+    },
+    "s04.s0.3": {
+      "how": "Detect hits with <em>Rect.colliderect</em>, then with a circle distance check, and use <em>pygame.sprite.spritecollide</em> for groups. Spawn 2,000 objects, time the all-pairs check, then add a uniform grid and time it again.",
+      "where": [
+        {"name": "pygame.Rect", "url": "https://www.pygame.org/docs/ref/rect.html"},
+        {"name": "Game Programming Patterns: Spatial Partition", "url": "https://gameprogrammingpatterns.com/spatial-partition.html"}
+      ],
+      "done": "You have before and after timings showing the grid cuts collision time with 2,000 objects."
+    },
+    "s04.s0.4": {
+      "how": "Define the states MENU, PLAYING, PAUSED and GAME_OVER with <em>enum.Enum</em>, give each its own handle, update and draw functions, and switch between them in one place. Add pause on Escape and check the game does not advance while paused.",
+      "where": [
+        {"name": "Game Programming Patterns: State", "url": "https://gameprogrammingpatterns.com/state.html"},
+        {"name": "Python: enum", "url": "https://docs.python.org/3/library/enum.html"}
+      ],
+      "done": "The main loop has no <em>if</em> chains about state beyond one dispatch, and pausing freezes all movement."
+    },
+    "s04.s0.5": {
+      "how": "Read the Component chapter, then write the same enemy two ways: one class with position, health and render code, and an entity holding separate component objects. Note how many lines each needs for a second enemy type.",
+      "where": [
+        {"name": "Game Programming Patterns: Component", "url": "https://gameprogrammingpatterns.com/component.html"}
+      ],
+      "done": "You can say for your own game whether plain classes are enough, with a reason based on how many entity types it has."
+    },
+    "s04.s0.6": {
+      "how": "Load every <em>pygame.mixer.Sound</em> and image once at start-up into a dict keyed by name, and play background music with <em>pygame.mixer.music</em>. Add a print in the loader to confirm no file is loaded twice during play.",
+      "where": [
+        {"name": "pygame.mixer", "url": "https://www.pygame.org/docs/ref/mixer.html"},
+        {"name": "pygame.mixer.music", "url": "https://www.pygame.org/docs/ref/music.html"}
+      ],
+      "done": "Sounds play without a stall on first use, and the loader runs once per asset."
+    },
+    "s04.s0.7": {
+      "how": "Run the game under <em>python -m cProfile -s cumtime</em> for 30 seconds and find the top three functions. Also time update and draw each frame with <em>time.perf_counter</em>, print the worst frame, and fix the largest cost.",
+      "where": [
+        {"name": "Python: the Python profilers", "url": "https://docs.python.org/3/library/profile.html"},
+        {"name": "pygame.time", "url": "https://www.pygame.org/docs/ref/time.html"}
+      ],
+      "done": "You have a measured worst-case frame time below 16 ms under normal play, with before and after numbers."
+    },
+    "s04.s0.8": {
+      "how": "With Pillow, open an image, resize it, crop it and save it as a thumbnail. Then call <em>ffmpeg</em> through <em>subprocess.run</em> with an argument list to extract audio from a video file, and check the return code.",
+      "where": [
+        {"name": "Pillow tutorial", "url": "https://pillow.readthedocs.io/en/stable/handbook/tutorial.html"},
+        {"name": "Python: subprocess", "url": "https://docs.python.org/3/library/subprocess.html"}
+      ],
+      "done": "One script creates thumbnails for a folder of images and another extracts an audio track, both raising on failure."
+    },
+    "s04.s1.0": {
+      "how": "Choose a small genre such as a shooter, a platformer or a puzzle game, write its rules on one page, and build the core loop first. Add the start screen, score display and game-over screen using the state machine from the Learn section.",
+      "where": [
+        {"name": "Real Python: PyGame primer", "url": "https://realpython.com/pygame-a-primer/"},
+        {"name": "Game Programming Patterns: State", "url": "https://gameprogrammingpatterns.com/state.html"}
+      ],
+      "done": "Someone else can start the game, play, lose, see their score and start again without help."
+    },
+    "s04.s1.1": {
+      "how": "Pass <em>dt</em> in seconds from <em>Clock.tick</em> into every update function, and express all speeds and timers in units per second. Cap <em>dt</em> at a maximum so a stall does not move objects through walls.",
+      "where": [
+        {"name": "pygame.time", "url": "https://www.pygame.org/docs/ref/time.html"}
+      ],
+      "done": "The game plays the same with the frame rate capped at 30 and at 120 FPS."
+    },
+    "s04.s1.2": {
+      "how": "Store level layouts or difficulty parameters (spawn rate, enemy speed) in data such as a JSON file, not in code. Increase difficulty with score or time, then play from the start and record the point where you lose.",
+      "where": [
+        {"name": "Python: json", "url": "https://docs.python.org/3/library/json.html"}
+      ],
+      "done": "Difficulty changes during play, and adding a new level means editing data rather than code."
+    },
+    "s04.s1.3": {
+      "how": "Add a settings screen that changes music and effect volume with <em>set_volume</em> and rebinds the movement keys. Save the choices to a JSON file and load it on start-up.",
+      "where": [
+        {"name": "pygame.mixer", "url": "https://www.pygame.org/docs/ref/mixer.html"},
+        {"name": "pygame.key", "url": "https://www.pygame.org/docs/ref/key.html"}
+      ],
+      "done": "Changed volume and key bindings take effect immediately and are still set after a restart."
+    },
+    "s04.s1.4": {
+      "how": "Load all assets through a path helper that handles <em>sys._MEIPASS</em>, build with PyInstaller including the assets folder, then run the result on a machine or VM that has no Python installed.",
+      "where": [
+        {"name": "PyInstaller: run-time information", "url": "https://pyinstaller.org/en/stable/runtime-information.html"},
+        {"name": "PyInstaller: using PyInstaller", "url": "https://pyinstaller.org/en/stable/usage.html"}
+      ],
+      "done": "The packaged game starts with sound and images on a clean machine without Python."
+    }
+  }
+}

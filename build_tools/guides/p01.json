@@ -1,0 +1,419 @@
+{
+  "sections": {
+    "p01.s0": "Seven small programs, one per day, each built around one language feature. Spend the first hour on the feature in the tutorial, the rest writing the program from a blank file. Commit each day's program to Git; Day 7 has no tutorial open at all.",
+    "p01.s1": "The standard-library modules every real script uses. Study one module per day (s1.0 to s1.5) with a short script for each, then spend the last two days on the File Organizer, which uses all of them together.",
+    "p01.s2": "Automated testing with pytest. Learn the tool (s2.0 to s2.3) in the first half of the week on small examples, then spend the second half retrofitting tests onto your own projects and proving they catch bugs.",
+    "p01.s3": "Classes and the data model. Take the concepts in order (s3.0 to s3.4), about a day each with small examples, then build the Inventory Engine with tests and refactor it once it works.",
+    "p01.s4": "A checklist applied to every project from here on, not a week of work. Check each project against all five items before you call it finished, and fix any that fail."
+  },
+  "items": {
+    "p01.s0.0": {
+      "how": "Write one function per operation and a loop that reads 'number operator number'. Catch <em>ValueError</em> for bad numbers and <em>ZeroDivisionError</em> separately. Keep past results in a list and add a <em>history</em> command.",
+      "where": [
+        {
+          "name": "Tutorial: More control flow tools",
+          "url": "https://docs.python.org/3/tutorial/controlflow.html"
+        },
+        {
+          "name": "Tutorial: Errors and exceptions",
+          "url": "https://docs.python.org/3/tutorial/errors.html"
+        }
+      ],
+      "done": "Typing 'abc', '5 / 0' and 'history' each gives a clear message and the program keeps running."
+    },
+    "p01.s0.1": {
+      "how": "Use <em>random.randint</em> for the secret number and <em>if/elif/else</em> for too high, too low and correct. Difficulty sets the range and attempt limit; score depends on attempts left; ask to replay at the end.",
+      "where": [
+        {
+          "name": "Tutorial: More control flow tools",
+          "url": "https://docs.python.org/3/tutorial/controlflow.html"
+        },
+        {
+          "name": "random",
+          "url": "https://docs.python.org/3/library/random.html"
+        }
+      ],
+      "done": "You can play three rounds on different difficulties without restarting, and invalid guesses do not crash it."
+    },
+    "p01.s0.2": {
+      "how": "Build the character pool from <em>string.ascii_letters</em>, <em>digits</em> and <em>punctuation</em> as chosen, and pick with <em>secrets.choice</em> in a loop. Score strength from length and the number of character classes used.",
+      "where": [
+        {
+          "name": "secrets",
+          "url": "https://docs.python.org/3/library/secrets.html"
+        },
+        {
+          "name": "string",
+          "url": "https://docs.python.org/3/library/string.html"
+        }
+      ],
+      "done": "You can explain why <em>secrets</em> and not <em>random</em> is used for passwords."
+    },
+    "p01.s0.3": {
+      "how": "Read a text file, split words with <em>str.split</em> after lower-casing and stripping punctuation, split sentences on full stops, question marks and exclamation marks, and count words with <em>collections.Counter</em>. Print the top 10 and the average word and sentence length.",
+      "where": [
+        {
+          "name": "Built-in types: string methods",
+          "url": "https://docs.python.org/3/library/stdtypes.html"
+        },
+        {
+          "name": "collections",
+          "url": "https://docs.python.org/3/library/collections.html"
+        }
+      ],
+      "done": "Word counts on a short paragraph match a count you did by hand."
+    },
+    "p01.s0.4": {
+      "how": "Store each task as a tuple <em>(title, done)</em> in a list, and replace the tuple to mark it complete, since tuples are immutable. Implement add, remove by number, complete and list as commands in a loop.",
+      "where": [
+        {
+          "name": "Tutorial: Data structures",
+          "url": "https://docs.python.org/3/tutorial/datastructures.html"
+        }
+      ],
+      "done": "You can explain why marking a task complete replaces the tuple instead of changing it."
+    },
+    "p01.s0.5": {
+      "how": "Store contacts in a dict keyed by name, each with a phone, an email and a <em>set</em> of tags. Search by partial name, and find contacts sharing tags with set intersection (<em>&</em>).",
+      "where": [
+        {
+          "name": "Tutorial: Data structures",
+          "url": "https://docs.python.org/3/tutorial/datastructures.html"
+        },
+        {
+          "name": "Built-in types: dict and set",
+          "url": "https://docs.python.org/3/library/stdtypes.html"
+        }
+      ],
+      "done": "Adding a duplicate tag has no effect, and a tag search returns exactly the contacts you expect."
+    },
+    "p01.s0.6": {
+      "how": "Choose a small app you have not built (unit converter, quiz, expense log). Write the requirements in five lines first, then build it with only the Python docs open.",
+      "where": [
+        {
+          "name": "Python tutorial",
+          "url": "https://docs.python.org/3/tutorial/"
+        },
+        {
+          "name": "CS50P problem sets",
+          "url": "https://cs50.harvard.edu/python/psets/"
+        }
+      ],
+      "done": "The app meets all five written requirements and no tutorial was open while you built it."
+    },
+    "p01.s1.0": {
+      "how": "Split a script into two modules and import one from the other. Print <em>__name__</em> in both, add an <em>if __name__ == \"__main__\":</em> block, and print <em>sys.path</em> to see where imports are searched.",
+      "where": [
+        {
+          "name": "Tutorial: Modules",
+          "url": "https://docs.python.org/3/tutorial/modules.html"
+        },
+        {
+          "name": "__main__",
+          "url": "https://docs.python.org/3/library/__main__.html"
+        }
+      ],
+      "done": "You can say what <em>__name__</em> is when a file is run directly and when it is imported."
+    },
+    "p01.s1.1": {
+      "how": "Define <em>class ValidationError(Exception)</em>, raise it with a message from a validation function, and catch only that type at the call site. Use <em>raise ... from err</em> when re-raising.",
+      "where": [
+        {
+          "name": "Tutorial: Errors and exceptions",
+          "url": "https://docs.python.org/3/tutorial/errors.html"
+        },
+        {
+          "name": "Built-in exceptions",
+          "url": "https://docs.python.org/3/library/exceptions.html"
+        }
+      ],
+      "done": "You can explain why <em>except Exception</em> around a whole function hides bugs."
+    },
+    "p01.s1.2": {
+      "how": "Rewrite a script that uses string paths with <em>Path</em>: build paths with <em>/</em>, list files with <em>iterdir</em> and <em>glob</em>, read with <em>read_text</em>, and create folders with <em>mkdir(parents=True, exist_ok=True)</em>.",
+      "where": [
+        {
+          "name": "pathlib",
+          "url": "https://docs.python.org/3/library/pathlib.html"
+        }
+      ],
+      "done": "The script has no <em>os.path.join</em> or string concatenation for paths and runs on your machine."
+    },
+    "p01.s1.3": {
+      "how": "Save your contact manager to JSON with <em>json.dump</em> and load it back; convert sets to lists first. Export the same data with <em>csv.DictWriter</em>, opening the file with <em>newline=\"\"</em>, and read it back.",
+      "where": [
+        {
+          "name": "json",
+          "url": "https://docs.python.org/3/library/json.html"
+        },
+        {
+          "name": "csv",
+          "url": "https://docs.python.org/3/library/csv.html"
+        }
+      ],
+      "done": "Saving and reloading gives data equal to the original, checked with <em>==</em>."
+    },
+    "p01.s1.4": {
+      "how": "Work through the argparse HOWTO, then give one of your programs positional arguments, a <em>--dry-run</em> flag with <em>action=\"store_true\"</em>, and typed options. Run it with <em>--help</em>.",
+      "where": [
+        {
+          "name": "Argparse tutorial",
+          "url": "https://docs.python.org/3/howto/argparse.html"
+        },
+        {
+          "name": "argparse",
+          "url": "https://docs.python.org/3/library/argparse.html"
+        }
+      ],
+      "done": "<em>--help</em> prints usage for every option and bad arguments give an error, not a traceback."
+    },
+    "p01.s1.5": {
+      "how": "Replace the prints in a script with <em>logger = logging.getLogger(__name__)</em> calls at the right levels. Configure <em>basicConfig</em> once in main to write to a file with timestamps, and log errors with <em>logger.exception</em>.",
+      "where": [
+        {
+          "name": "Logging HOWTO",
+          "url": "https://docs.python.org/3/howto/logging.html"
+        },
+        {
+          "name": "logging",
+          "url": "https://docs.python.org/3/library/logging.html"
+        }
+      ],
+      "done": "The log file shows timestamp, level and message for each run, including a traceback for a forced error."
+    },
+    "p01.s1.6": {
+      "how": "Order: plan moves by extension, apply them with <em>shutil.move</em> and record each in a JSON journal, add <em>--dry-run</em> to print the plan only, <em>--undo</em> to replay the journal backwards, and SHA-256 hashing for duplicates.",
+      "where": [
+        {
+          "name": "shutil",
+          "url": "https://docs.python.org/3/library/shutil.html"
+        },
+        {
+          "name": "hashlib",
+          "url": "https://docs.python.org/3/library/hashlib.html"
+        }
+      ],
+      "done": "On a test folder, organise then undo returns every file to its original path, and dry-run changes nothing."
+    },
+    "p01.s2.0": {
+      "how": "Install with <em>uv add --dev pytest</em>. Write <em>test_*.py</em> files with <em>test_*</em> functions using plain <em>assert</em>, run <em>uv run pytest -q</em>, then try <em>-k</em> to select tests and <em>-x</em> to stop at the first failure.",
+      "where": [
+        {
+          "name": "pytest: Get started",
+          "url": "https://docs.pytest.org/en/stable/getting-started.html"
+        },
+        {
+          "name": "pytest: Assertions",
+          "url": "https://docs.pytest.org/en/stable/how-to/assert.html"
+        }
+      ],
+      "done": "You can say which files and functions pytest collects and read a failing assertion's output."
+    },
+    "p01.s2.1": {
+      "how": "Rewrite three tests so each has three blocks separated by blank lines: arrange the inputs, act with one call, assert on the result. Split any test that checks two behaviours into two tests.",
+      "where": [
+        {
+          "name": "pytest: Anatomy of a test",
+          "url": "https://docs.pytest.org/en/stable/explanation/anatomy.html"
+        }
+      ],
+      "done": "Each test name describes one behaviour, and when a test fails the name tells you what broke."
+    },
+    "p01.s2.2": {
+      "how": "For one function, list inputs for each category and turn them into <em>pytest.mark.parametrize</em> cases. Use <em>pytest.raises</em> for expected errors, and <em>monkeypatch</em> to raise <em>PermissionError</em>, since Windows file permissions are hard to fake.",
+      "where": [
+        {
+          "name": "pytest: Parametrizing tests",
+          "url": "https://docs.pytest.org/en/stable/how-to/parametrize.html"
+        },
+        {
+          "name": "pytest: monkeypatch",
+          "url": "https://docs.pytest.org/en/stable/how-to/monkeypatch.html"
+        }
+      ],
+      "done": "Your tests cover all five categories and each one passes or led to a fix."
+    },
+    "p01.s2.3": {
+      "how": "Write a fixture that builds a small folder tree inside <em>tmp_path</em>, then use it in tests of your file code. Never touch real folders in tests; <em>tmp_path</em> gives each test its own new directory.",
+      "where": [
+        {
+          "name": "pytest: How to use fixtures",
+          "url": "https://docs.pytest.org/en/stable/how-to/fixtures.html"
+        },
+        {
+          "name": "pytest: Temporary directories and files",
+          "url": "https://docs.pytest.org/en/stable/how-to/tmp_path.html"
+        }
+      ],
+      "done": "Your filesystem tests pass in any order and leave nothing behind in your project folder."
+    },
+    "p01.s2.4": {
+      "how": "Start with the pure functions (calculator operations, move planning), then the file-touching parts using <em>tmp_path</em>, then dry-run and undo. Commit after each group passes.",
+      "where": [
+        {
+          "name": "pytest: Get started",
+          "url": "https://docs.pytest.org/en/stable/getting-started.html"
+        },
+        {
+          "name": "pytest: Temporary directories and files",
+          "url": "https://docs.pytest.org/en/stable/how-to/tmp_path.html"
+        }
+      ],
+      "done": "Both projects have a test suite that passes with <em>pytest</em>, including a dry-run test and an undo test."
+    },
+    "p01.s2.5": {
+      "how": "Introduce one bug at a time (off-by-one, wrong comparison operator, a swallowed exception), run the suite, then <em>git restore</em> the file. Write a new test for any bug that got through.",
+      "where": [
+        {
+          "name": "pytest: How to invoke pytest",
+          "url": "https://docs.pytest.org/en/stable/how-to/usage.html"
+        },
+        {
+          "name": "pytest: Assertions",
+          "url": "https://docs.pytest.org/en/stable/how-to/assert.html"
+        }
+      ],
+      "done": "Each of the three bugs makes at least one test fail, and the suite passes again after restoring."
+    },
+    "p01.s3.0": {
+      "how": "Write a small class with a class attribute and instance attributes set in <em>__init__</em>. Inspect <em>vars(obj)</em> and <em>type(obj).__dict__</em>, then shadow the class attribute on one instance and see which value each instance reads.",
+      "where": [
+        {
+          "name": "Tutorial: Classes",
+          "url": "https://docs.python.org/3/tutorial/classes.html"
+        }
+      ],
+      "done": "You can say the lookup order: instance, then class, then base classes."
+    },
+    "p01.s3.1": {
+      "how": "Model a Warehouse twice: once inheriting from <em>list</em>, once holding a list as an attribute. Note which list methods the first version exposes that a warehouse should not have.",
+      "where": [
+        {
+          "name": "Tutorial: Classes",
+          "url": "https://docs.python.org/3/tutorial/classes.html"
+        }
+      ],
+      "done": "For any two of your classes you can say whether the relation is is-a or has-a, and justify it."
+    },
+    "p01.s3.2": {
+      "how": "Add a <em>@property</em> with a setter that rejects negative prices, a <em>@classmethod</em> <em>from_dict</em> as an alternative constructor, and a <em>@staticmethod</em> helper that uses neither the class nor an instance.",
+      "where": [
+        {
+          "name": "Built-in functions",
+          "url": "https://docs.python.org/3/library/functions.html"
+        },
+        {
+          "name": "Descriptor HowTo Guide",
+          "url": "https://docs.python.org/3/howto/descriptor.html"
+        }
+      ],
+      "done": "Setting a negative price raises <em>ValueError</em>, and you can say when to use each of the three decorators."
+    },
+    "p01.s3.3": {
+      "how": "Rewrite a plain class as <em>@dataclass</em> and compare the generated <em>__repr__</em> and <em>__eq__</em>. Try <em>frozen=True</em>, and use <em>field(default_factory=list)</em> for a mutable default.",
+      "where": [
+        {
+          "name": "dataclasses",
+          "url": "https://docs.python.org/3/library/dataclasses.html"
+        }
+      ],
+      "done": "You can explain why a mutable default like <em>items: list = []</em> is rejected by dataclasses."
+    },
+    "p01.s3.4": {
+      "how": "Give a <em>Category</em> class <em>__repr__</em>, <em>__eq__</em> that returns <em>NotImplemented</em> for other types, <em>__len__</em> and <em>__iter__</em>. Then test <em>len()</em>, <em>==</em>, a for loop, and whether instances still work in a set.",
+      "where": [
+        {
+          "name": "Data model",
+          "url": "https://docs.python.org/3/reference/datamodel.html"
+        }
+      ],
+      "done": "You can explain why defining <em>__eq__</em> alone makes instances unhashable."
+    },
+    "p01.s3.5": {
+      "how": "Order: Product and Category as dataclasses, Warehouse holding stock counts, Customer, then Order with lines that reserves stock and fails cleanly when stock runs out. Write tests for each class as you go.",
+      "where": [
+        {
+          "name": "dataclasses",
+          "url": "https://docs.python.org/3/library/dataclasses.html"
+        },
+        {
+          "name": "Tutorial: Classes",
+          "url": "https://docs.python.org/3/tutorial/classes.html"
+        }
+      ],
+      "done": "Tests pass for placing an order, rejecting one that exceeds stock, and stock totals after both."
+    },
+    "p01.s3.6": {
+      "how": "With the tests passing, list the three worst parts (long methods, duplicated logic, unclear names) and fix one at a time, running the tests and committing after each change.",
+      "where": [
+        {
+          "name": "pytest: Get started",
+          "url": "https://docs.pytest.org/en/stable/getting-started.html"
+        }
+      ],
+      "done": "The tests pass unchanged after the refactor, and <em>git log</em> shows separate commits for each change."
+    },
+    "p01.s4.0": {
+      "how": "Search each project for <em>except:</em> and <em>pass</em> inside except blocks. Replace each with the specific exception type and a real action: log it, re-raise it, or return an error value.",
+      "where": [
+        {
+          "name": "Tutorial: Errors and exceptions",
+          "url": "https://docs.python.org/3/tutorial/errors.html"
+        }
+      ],
+      "done": "No search hits remain, and every except block names an exception type and does something with it."
+    },
+    "p01.s4.1": {
+      "how": "Move paths, limits and other settings into a <em>config.toml</em> read once with <em>tomllib</em> at startup, or into environment variables via <em>os.environ</em>. Pass the values into functions as arguments.",
+      "where": [
+        {
+          "name": "tomllib",
+          "url": "https://docs.python.org/3/library/tomllib.html"
+        },
+        {
+          "name": "os",
+          "url": "https://docs.python.org/3/library/os.html"
+        }
+      ],
+      "done": "You can change a setting without editing any file that contains business logic."
+    },
+    "p01.s4.2": {
+      "how": "Log the start and end of each operation with its inputs and IDs, log decisions at <em>INFO</em>, and use <em>logger.exception</em> in except blocks. Then break an input and diagnose it from the log alone.",
+      "where": [
+        {
+          "name": "Logging HOWTO",
+          "url": "https://docs.python.org/3/howto/logging.html"
+        },
+        {
+          "name": "Logging Cookbook",
+          "url": "https://docs.python.org/3/howto/logging-cookbook.html"
+        }
+      ],
+      "done": "Someone reading only the log file can say what the program was doing when it failed and with which input."
+    },
+    "p01.s4.3": {
+      "how": "Write four headed sections: install (exact commands), usage (example commands and output), design decisions (why, not what), and limitations (what it does not handle). Follow the install steps in a fresh clone.",
+      "where": [
+        {
+          "name": "Make a README",
+          "url": "https://www.makeareadme.com/"
+        }
+      ],
+      "done": "A fresh clone installs and runs using only the README's commands."
+    },
+    "p01.s4.4": {
+      "how": "Commit after each working change. Write the subject in the imperative, under about 50 characters ('Add undo to organiser'), and a body for the why when it is not obvious. Stage related changes together with <em>git add -p</em>.",
+      "where": [
+        {
+          "name": "How to write a Git commit message",
+          "url": "https://cbea.ms/git-commit/"
+        },
+        {
+          "name": "Pro Git: Contributing to a project",
+          "url": "https://git-scm.com/book/en/v2/Distributed-Git-Contributing-to-a-Project"
+        }
+      ],
+      "done": "Reading <em>git log --oneline</em> alone tells you how the project was built, step by step."
+    }
+  }
+}

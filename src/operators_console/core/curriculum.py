@@ -136,6 +136,14 @@ class Curriculum:
         return None
 
 
+def _item(i: dict) -> Item:
+    where = tuple(Link(str(w.get("name", "")), str(w.get("url", "")))
+                  for w in (i.get("where") or ())
+                  if isinstance(w, dict) and w.get("url"))
+    return Item(i["id"], i["text"], str(i.get("how", "") or ""), where,
+                str(i.get("done", "") or ""))
+
+
 def _phase(p: dict) -> Phase:
     gate = None
     if p.get("gate"):
@@ -152,8 +160,9 @@ def _phase(p: dict) -> Phase:
                         for r in p["resources"]),
         sections=tuple(
             Section(s["id"], s["title"],
-                    tuple(Item(i["id"], i["text"]) for i in s["items"]),
-                    bool(s.get("optional", False)))
+                    tuple(_item(i) for i in s["items"]),
+                    bool(s.get("optional", False)),
+                    str(s.get("guide", "") or ""))
             for s in p["sections"]
         ),
         snippet=p["snippet"], gate=gate,

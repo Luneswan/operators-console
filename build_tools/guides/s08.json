@@ -1,0 +1,117 @@
+{
+  "sections": {
+    "s08.s0": "Start with text handling (s0.0 to s0.2), then the TF-IDF baseline and spaCy (s0.3, s0.4), then embeddings and transformers (s0.5, s0.6), and finish with evaluation and search (s0.7, s0.8). Give evaluation as much time as the models; most wrong conclusions in NLP come from bad metrics.",
+    "s08.s1": "Write the labelling guide and label the data before training anything. Build the TF-IDF baseline, then the transformer, on one frozen test set. Do the error analysis before the command or API, and write the limits note last, from what the error analysis showed."
+  },
+  "items": {
+    "s08.s0.0": {
+      "how": "Write 'café' once with a precomposed é and once with e plus a combining accent, and compare <em>len</em>, <em>==</em> and <em>unicodedata.normalize('NFC', s)</em>. Then write a cleaner that normalises, fixes whitespace and applies <em>casefold()</em>, and list what it must keep, such as accents in names.",
+      "where": [
+        {"name": "Python Unicode HOWTO", "url": "https://docs.python.org/3/howto/unicode.html"},
+        {"name": "unicodedata module", "url": "https://docs.python.org/3/library/unicodedata.html"}
+      ],
+      "done": "Your cleaner makes both forms of 'café' equal, and you can say when NFKC normalisation loses meaning."
+    },
+    "s08.s0.1": {
+      "how": "Tokenise the same sentences with <em>str.split</em>, spaCy and a Hugging Face <em>AutoTokenizer</em>. Pass a rare word and a misspelling through the subword tokenizer and look at the pieces. Read how BPE builds its vocabulary by merging frequent pairs.",
+      "where": [
+        {"name": "Hugging Face LLM course: tokenizers", "url": "https://huggingface.co/learn/llm-course/chapter2/4"},
+        {"name": "Hugging Face LLM course: BPE tokenization", "url": "https://huggingface.co/learn/llm-course/chapter6/5"}
+      ],
+      "done": "You can explain how a subword tokenizer handles a word it has never seen, and why that avoids an unknown-word token."
+    },
+    "s08.s0.2": {
+      "how": "Write patterns with <em>re.findall</em> and named groups that extract dates, prices and email addresses from 50 real lines of text. Keep the lines where they fail, such as mixed formats, nested structure or text that looks like a match but is not.",
+      "where": [
+        {"name": "Regular expression HOWTO", "url": "https://docs.python.org/3/howto/regex.html"},
+        {"name": "re module", "url": "https://docs.python.org/3/library/re.html"}
+      ],
+      "done": "Your patterns pass a test file of positive and negative examples, and you can name a task where regex is the wrong tool."
+    },
+    "s08.s0.3": {
+      "how": "Build a <em>Pipeline</em> of <em>TfidfVectorizer</em> and <em>LogisticRegression</em> on a labelled set such as 20 Newsgroups. Try word and character n-grams and different <em>min_df</em> values, then print the highest-weighted terms for each class.",
+      "where": [
+        {"name": "scikit-learn text classification example", "url": "https://scikit-learn.org/stable/auto_examples/text/plot_document_classification_20newsgroups.html"},
+        {"name": "scikit-learn TfidfVectorizer", "url": "https://scikit-learn.org/stable/modules/generated/sklearn.feature_extraction.text.TfidfVectorizer.html"}
+      ],
+      "done": "You have a baseline macro F1 and can explain the top features for two classes."
+    },
+    "s08.s0.4": {
+      "how": "Work through chapter 1 of the spaCy course, then run <em>spacy.load('en_core_web_sm')</em> on a news article. Print each token's <em>pos_</em>, <em>dep_</em> and <em>head</em>, list <em>doc.ents</em>, and view the parse with <em>displacy</em>.",
+      "where": [
+        {"name": "Advanced NLP with spaCy, chapter 1", "url": "https://course.spacy.io/en/chapter1"},
+        {"name": "spaCy linguistic features", "url": "https://spacy.io/usage/linguistic-features"}
+      ],
+      "done": "You can pull every organisation and date out of an article in a few lines and point to one entity the model got wrong."
+    },
+    "s08.s0.5": {
+      "how": "Encode 20 sentences with a Sentence Transformers model and compute the cosine similarity matrix. Include paraphrases, a negated sentence, and pairs that share words but not meaning, then check which pairs score highest.",
+      "where": [
+        {"name": "Sentence Transformers quickstart", "url": "https://www.sbert.net/docs/quickstart.html"}
+      ],
+      "done": "You can show a pair with high word overlap but low similarity, and a paraphrase pair that scores high."
+    },
+    "s08.s0.6": {
+      "how": "Follow the Hugging Face text classification guide: tokenise a dataset, load <em>AutoModelForSequenceClassification</em>, and train a small model with <em>Trainer</em> for one or two epochs. Evaluate on the held-out split with the same metric as your TF-IDF baseline.",
+      "where": [
+        {"name": "Transformers text classification guide", "url": "https://huggingface.co/docs/transformers/tasks/sequence_classification"},
+        {"name": "Hugging Face LLM course: fine-tuning with Trainer", "url": "https://huggingface.co/learn/llm-course/chapter3/3"}
+      ],
+      "done": "You have a fine-tuned model saved to disk and a test score next to the baseline's."
+    },
+    "s08.s0.7": {
+      "how": "Build a test set that is 95% one class and show that always predicting the majority scores 95% accuracy and zero minority recall. Compute per-class precision, recall and F1 with <em>classification_report</em>, then try <em>class_weight='balanced'</em> and a different decision threshold.",
+      "where": [
+        {"name": "scikit-learn model evaluation guide", "url": "https://scikit-learn.org/stable/modules/model_evaluation.html"},
+        {"name": "scikit-learn precision_recall_curve", "url": "https://scikit-learn.org/stable/modules/generated/sklearn.metrics.precision_recall_curve.html"}
+      ],
+      "done": "You can explain macro versus weighted F1 and choose a threshold from a precision-recall curve for a stated goal."
+    },
+    "s08.s0.8": {
+      "how": "Index a few thousand documents three ways: BM25 with <em>rank_bm25</em>, embeddings with Sentence Transformers, and a hybrid that merges both rankings with reciprocal rank fusion. Write 20 queries with known relevant documents and compare recall at 10.",
+      "where": [
+        {"name": "Sentence Transformers semantic search", "url": "https://www.sbert.net/examples/sentence_transformer/applications/semantic-search/README.html"},
+        {"name": "rank-bm25 on PyPI", "url": "https://pypi.org/project/rank-bm25/"}
+      ],
+      "done": "You have recall@10 for each method on your 20 queries and can say which query types each one handles best."
+    },
+    "s08.s1.0": {
+      "how": "Write a labelling guide with a definition and two examples per label, plus rules for edge cases. Label at least 500 examples, have a second person or a second pass relabel 100 of them, and measure agreement with <em>cohen_kappa_score</em>.",
+      "where": [
+        {"name": "scikit-learn cohen_kappa_score", "url": "https://scikit-learn.org/stable/modules/generated/sklearn.metrics.cohen_kappa_score.html"},
+        {"name": "Hugging Face dataset cards", "url": "https://huggingface.co/docs/hub/datasets-cards"}
+      ],
+      "done": "You have the guide, the labelled file and a kappa score, and you revised the guide where the labellers disagreed."
+    },
+    "s08.s1.1": {
+      "how": "Freeze one test split first. Train the TF-IDF and <em>LogisticRegression</em> baseline, then fine-tune a small transformer, and score both with the same evaluation script. Record training time and inference time per 1,000 texts as well.",
+      "where": [
+        {"name": "scikit-learn text feature extraction", "url": "https://scikit-learn.org/stable/modules/feature_extraction.html"},
+        {"name": "Transformers text classification guide", "url": "https://huggingface.co/docs/transformers/tasks/sequence_classification"}
+      ],
+      "done": "One table shows both models' macro F1, training time and inference speed on the same test set."
+    },
+    "s08.s1.2": {
+      "how": "Export every test error with text, true label, predicted label and confidence. Read them and tag each with a type, such as label noise, negation, sarcasm, very short text, domain terms or an unclear class boundary, then count the tags for each model.",
+      "where": [
+        {"name": "scikit-learn confusion_matrix", "url": "https://scikit-learn.org/stable/modules/generated/sklearn.metrics.confusion_matrix.html"}
+      ],
+      "done": "You have error counts by type for both models and can say which types the transformer fixed and which it did not."
+    },
+    "s08.s1.3": {
+      "how": "Wrap the better model in a command that reads text from an argument or stdin, or a FastAPI endpoint that takes JSON. Return the label and its probability, load the model once at start-up, and write a test that calls it.",
+      "where": [
+        {"name": "FastAPI first steps", "url": "https://fastapi.tiangolo.com/tutorial/first-steps/"},
+        {"name": "argparse module", "url": "https://docs.python.org/3/library/argparse.html"}
+      ],
+      "done": "A call on sample text returns a label and a probability between 0 and 1, and the test passes."
+    },
+    "s08.s1.4": {
+      "how": "Using the error analysis and the training data, write a short note in model card format: training languages and sources, text types it was not tested on, known failure types, and the shortest text length it handles well.",
+      "where": [
+        {"name": "Hugging Face model cards", "url": "https://huggingface.co/docs/hub/model-cards"}
+      ],
+      "done": "The note names specific languages, domains and text types to avoid, each backed by data or an error example."
+    }
+  }
+}

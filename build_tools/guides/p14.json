@@ -1,0 +1,400 @@
+{
+  "sections": {
+    "p14.s0": "The numerical groundwork for everything after it. Work top to bottom: NumPy, pandas, then splits, metrics and a full scikit-learn pipeline. Give it about a quarter of the phase and move on once you can build a leak-free, cross-validated pipeline without looking things up.",
+    "p14.s1": "The core of the phase: build a neural network stack from a blank file so nothing later is a black box. Follow Karpathy's Zero to Hero in order, writing each piece yourself before you watch the solution. Expect this to take the largest share, about 40 per cent of the phase.",
+    "p14.s2": "Concepts for building reliable systems on models you did not train. Items 0 to 3 build on each other, so take them in order; 4 to 8 can go in any order. For each one write a small script that demonstrates it and keep it, since the build section reuses them. About 15 per cent of the phase.",
+    "p14.s3": "Build one retrieval-augmented engine over a document set you know well, in the order listed. Write the evaluation set (item 4) as soon as retrieval works and rerun it after every change. Budget about 20 per cent of the phase."
+  },
+  "items": {
+    "p14.s0.0": {
+      "how": "Write a pairwise Euclidean distance function for two arrays of points with nested Python loops, then rewrite it with broadcasting (<em>a[:, None, :] - b[None, :, :]</em>). Time both with <em>timeit</em> on 500 x 500 points and confirm the results agree with <em>np.allclose</em>.",
+      "where": [
+        {
+          "name": "NumPy: Broadcasting",
+          "url": "https://numpy.org/doc/stable/user/basics.broadcasting.html"
+        },
+        {
+          "name": "NumPy: the absolute basics for beginners",
+          "url": "https://numpy.org/doc/stable/user/absolute_beginners.html"
+        }
+      ],
+      "done": "You can predict a broadcast's output shape from the input shapes, and your vectorised version is at least 50 times faster than the loop."
+    },
+    "p14.s0.1": {
+      "how": "Take a messy public CSV, load it with <em>read_csv</em> using explicit <em>dtype</em> and <em>parse_dates</em>, fix missing values, <em>merge</em> it with a second table, then answer three questions with <em>groupby</em> and <em>pivot_table</em>. Check the row count after every join.",
+      "where": [
+        {
+          "name": "pandas: Merge, join, concatenate and compare",
+          "url": "https://pandas.pydata.org/docs/user_guide/merging.html"
+        },
+        {
+          "name": "pandas: Group by: split-apply-combine",
+          "url": "https://pandas.pydata.org/docs/user_guide/groupby.html"
+        }
+      ],
+      "done": "You can explain why a merge changed the row count, and you produce each summary table without a Python loop."
+    },
+    "p14.s0.2": {
+      "how": "Read scikit-learn's common pitfalls page. Then leak on purpose: fit a <em>StandardScaler</em> on the full data before splitting, and put duplicate rows in both train and test. Compare the scores with a leak-free version. For time-ordered data, split by date, not at random.",
+      "where": [
+        {
+          "name": "scikit-learn: Common pitfalls and recommended practices",
+          "url": "https://scikit-learn.org/stable/common_pitfalls.html"
+        },
+        {
+          "name": "scikit-learn: Cross-validation",
+          "url": "https://scikit-learn.org/stable/modules/cross_validation.html"
+        }
+      ],
+      "done": "You can list four leakage sources (preprocessing, duplicates, time order, target-derived features) and show one inflating a score."
+    },
+    "p14.s0.3": {
+      "how": "Make a dataset with 1 per cent positives, train a <em>DummyClassifier</em> and a real model, and compare accuracy, precision, recall, F1, ROC AUC and average precision. Plot the precision-recall curve and pick a threshold for a stated cost of false positives versus false negatives.",
+      "where": [
+        {
+          "name": "scikit-learn: Metrics and scoring",
+          "url": "https://scikit-learn.org/stable/modules/model_evaluation.html"
+        }
+      ],
+      "done": "You can pick the right metric for a given problem and explain how 99 per cent accuracy can come from a useless model."
+    },
+    "p14.s0.4": {
+      "how": "Build a <em>Pipeline</em> with a <em>ColumnTransformer</em> (scale numeric columns, one-hot encode categorical ones) and a model. Tune it with <em>GridSearchCV</em>, score it with <em>cross_val_score</em>, and keep a final test set untouched until the very end.",
+      "where": [
+        {
+          "name": "scikit-learn: Pipelines and composite estimators",
+          "url": "https://scikit-learn.org/stable/modules/compose.html"
+        },
+        {
+          "name": "scikit-learn: Cross-validation",
+          "url": "https://scikit-learn.org/stable/modules/cross_validation.html"
+        }
+      ],
+      "done": "One <em>Pipeline</em> object goes from raw DataFrame to predictions, and its cross-validated score is close to the held-out test score."
+    },
+    "p14.s1.0": {
+      "how": "Watch the micrograd lecture once, then close it and write a <em>Value</em> class with <em>+</em>, <em>*</em>, <em>tanh</em> and <em>backward()</em> using a topological sort. Check every gradient against a central difference, <em>(f(x+h) - f(x-h)) / 2h</em>.",
+      "where": [
+        {
+          "name": "karpathy/micrograd",
+          "url": "https://github.com/karpathy/micrograd"
+        },
+        {
+          "name": "Neural Networks: Zero to Hero",
+          "url": "https://karpathy.ai/zero-to-hero.html"
+        }
+      ],
+      "done": "Your gradients match finite differences to about 1e-6 on an expression of ten or more nodes that uses one variable twice."
+    },
+    "p14.s1.1": {
+      "how": "Add <em>Neuron</em>, <em>Layer</em> and <em>MLP</em> classes on your <em>Value</em> engine, each with a <em>parameters()</em> method. Train on <em>sklearn.datasets.make_moons</em> with a hand-written loop: forward pass, zero the gradients, <em>backward()</em>, update.",
+      "where": [
+        {
+          "name": "karpathy/micrograd",
+          "url": "https://github.com/karpathy/micrograd"
+        }
+      ],
+      "done": "Loss falls steadily, accuracy on the moons data passes 95 per cent, and you can show what goes wrong when you skip zeroing the gradients."
+    },
+    "p14.s1.2": {
+      "how": "On paper, derive the gradients of a linear layer followed by softmax cross-entropy with respect to the weights, bias and input. Implement them with tensor operations and no autograd, in <em>float64</em>, then compare with the result of <em>loss.backward()</em> using <em>torch.allclose</em>.",
+      "where": [
+        {
+          "name": "PyTorch: Automatic differentiation with torch.autograd",
+          "url": "https://docs.pytorch.org/tutorials/beginner/basics/autogradqs_tutorial.html"
+        },
+        {
+          "name": "Neural Networks: Zero to Hero",
+          "url": "https://karpathy.ai/zero-to-hero.html"
+        }
+      ],
+      "done": "<em>torch.allclose</em> passes for every parameter, and you can derive the logits gradient (softmax minus one-hot) on paper."
+    },
+    "p14.s1.3": {
+      "how": "Rewrite your MLP with <em>nn.Module</em>, <em>nn.Linear</em> and <em>torch.optim.SGD</em>. Train it on the same data with the same seed and learning rate, plot both loss curves on one chart, and time one epoch of each.",
+      "where": [
+        {
+          "name": "PyTorch: Build the neural network",
+          "url": "https://docs.pytorch.org/tutorials/beginner/basics/buildmodel_tutorial.html"
+        },
+        {
+          "name": "PyTorch: Learn the Basics",
+          "url": "https://docs.pytorch.org/tutorials/beginner/basics/"
+        }
+      ],
+      "done": "Both versions reach a similar loss, and you can map each micrograd piece to its PyTorch equivalent."
+    },
+    "p14.s1.4": {
+      "how": "Follow makemore: a bigram count table on the names dataset, then a neural bigram, then an MLP with a context window of three characters. Record train and validation loss for each and sample 20 names from the best model.",
+      "where": [
+        {
+          "name": "karpathy/makemore",
+          "url": "https://github.com/karpathy/makemore"
+        },
+        {
+          "name": "Neural Networks: Zero to Hero",
+          "url": "https://karpathy.ai/zero-to-hero.html"
+        }
+      ],
+      "done": "Validation loss drops at each stage (the bigram sits near 2.45 nats) and the sampled names look plausible."
+    },
+    "p14.s1.5": {
+      "how": "Implement single-head causal self-attention: project to Q, K and V, compute <em>softmax(QK^T / sqrt(d_k))</em> with a lower-triangular mask, then multiply by V. Extend it to multiple heads and compare against <em>F.scaled_dot_product_attention(q, k, v, is_causal=True)</em>.",
+      "where": [
+        {
+          "name": "Attention Is All You Need (arXiv)",
+          "url": "https://arxiv.org/abs/1706.03762"
+        },
+        {
+          "name": "PyTorch: scaled_dot_product_attention",
+          "url": "https://docs.pytorch.org/docs/stable/generated/torch.nn.functional.scaled_dot_product_attention.html"
+        }
+      ],
+      "done": "Your output matches <em>scaled_dot_product_attention</em> under <em>torch.allclose</em>, and you can say why the scaling and the mask are there."
+    },
+    "p14.s1.6": {
+      "how": "Follow the 'Let's build GPT' lecture: add position embeddings, feed-forward blocks, residual connections and LayerNorm around your attention. Train on tiny Shakespeare on CPU or a free GPU, then generate 500 characters.",
+      "where": [
+        {
+          "name": "karpathy/nanoGPT",
+          "url": "https://github.com/karpathy/nanoGPT"
+        },
+        {
+          "name": "karpathy/ng-video-lecture (lecture code)",
+          "url": "https://github.com/karpathy/ng-video-lecture"
+        }
+      ],
+      "done": "Validation loss is clearly below your MLP language model's, and the generated text has real words and play-script line structure."
+    },
+    "p14.s1.7": {
+      "how": "Take one training step of your MLP or transformer and write a one-page explanation: what each gradient's sign and size mean, why gradients add where a value is used twice, and what the optimiser does with them. Then give the explanation aloud without notes.",
+      "where": [
+        {
+          "name": "Neural Networks: Zero to Hero",
+          "url": "https://karpathy.ai/zero-to-hero.html"
+        },
+        {
+          "name": "PyTorch: Automatic differentiation with torch.autograd",
+          "url": "https://docs.pytorch.org/tutorials/beginner/basics/autogradqs_tutorial.html"
+        }
+      ],
+      "done": "Without notes, you can explain gradient accumulation at a reused node and what vanishing gradients look like in the numbers."
+    },
+    "p14.s2.0": {
+      "how": "Embed 20 sentences with a <em>sentence-transformers</em> model and print the cosine similarity matrix. Include paraphrases, negations and off-topic sentences, then look at each sentence's nearest neighbours to see where similarity fails.",
+      "where": [
+        {
+          "name": "Sentence Transformers: Semantic Textual Similarity",
+          "url": "https://sbert.net/docs/sentence_transformer/usage/semantic_textual_similarity.html"
+        },
+        {
+          "name": "Sentence Transformers documentation",
+          "url": "https://sbert.net/"
+        }
+      ],
+      "done": "You can explain cosine similarity and normalisation, and show a sentence and its negation scoring as highly similar."
+    },
+    "p14.s2.1": {
+      "how": "Split one document set three ways: fixed 500-token windows, the same with 20 per cent overlap, and by headings or paragraphs. Run the same 20 questions against each and record how often the correct chunk lands in the top 5.",
+      "where": [
+        {
+          "name": "Anthropic: Contextual Retrieval",
+          "url": "https://www.anthropic.com/engineering/contextual-retrieval"
+        },
+        {
+          "name": "Pinecone: Chunking strategies",
+          "url": "https://www.pinecone.io/learn/chunking-strategies/"
+        }
+      ],
+      "done": "You have a recall@5 table per chunking strategy and can explain why the winner won."
+    },
+    "p14.s2.2": {
+      "how": "Store your chunks in a vector index (<em>pgvector</em> or a NumPy array), add BM25 keyword search, merge the two ranked lists with reciprocal rank fusion, then rerank the top 20 with a cross-encoder. Measure recall@5 after each stage.",
+      "where": [
+        {
+          "name": "Sentence Transformers: Retrieve and re-rank",
+          "url": "https://sbert.net/examples/sentence_transformer/applications/retrieve_rerank/README.html"
+        },
+        {
+          "name": "pgvector",
+          "url": "https://github.com/pgvector/pgvector"
+        }
+      ],
+      "done": "You can show a query keyword search gets right and vector search misses, the reverse, and the recall gain from reranking."
+    },
+    "p14.s2.3": {
+      "how": "Read the RAG paper's introduction and Anthropic's contextual retrieval post, then draw the pipeline: ingest, chunk, embed, retrieve, rerank, build the prompt, generate, cite. Mark where each failure enters: missed retrieval, wrong chunk, ignored context, invented answer.",
+      "where": [
+        {
+          "name": "Retrieval-Augmented Generation (arXiv)",
+          "url": "https://arxiv.org/abs/2005.11401"
+        },
+        {
+          "name": "Anthropic: Contextual Retrieval",
+          "url": "https://www.anthropic.com/engineering/contextual-retrieval"
+        }
+      ],
+      "done": "You can draw the pipeline from memory and say which stage to inspect first for a given wrong answer."
+    },
+    "p14.s2.4": {
+      "how": "Define a Pydantic model for the answer (answer text, cited sources, confidence), send its <em>model_json_schema()</em> to a model that supports structured output or tool use, and parse every reply with <em>model_validate_json</em>. On failure, retry once with the validation error in the prompt.",
+      "where": [
+        {
+          "name": "Pydantic: JSON Schema",
+          "url": "https://pydantic.dev/docs/validation/latest/concepts/json_schema/"
+        },
+        {
+          "name": "Pydantic: Models",
+          "url": "https://pydantic.dev/docs/validation/latest/concepts/models/"
+        }
+      ],
+      "done": "Malformed output raises <em>ValidationError</em> in your code instead of reaching the user, and you can show the retry fixing one case."
+    },
+    "p14.s2.5": {
+      "how": "Write an agent loop by hand: send the tool definitions, run the tool the model asks for, return the result or the error, repeat until a final answer. Add a step limit, a per-tool timeout, and handling for unknown tools and bad arguments, then trigger each failure on purpose.",
+      "where": [
+        {
+          "name": "Claude docs: Tool use overview",
+          "url": "https://platform.claude.com/docs/en/agents-and-tools/tool-use/overview"
+        },
+        {
+          "name": "Anthropic: Building effective agents",
+          "url": "https://www.anthropic.com/engineering/building-effective-agents"
+        }
+      ],
+      "done": "Each injected failure (bad arguments, tool exception, runaway loop) ends the loop cleanly with a logged reason."
+    },
+    "p14.s2.6": {
+      "how": "Read OWASP's LLM01 entry. Plant an instruction inside a document your pipeline retrieves and see whether the model follows it. Then add defences: mark retrieved text as untrusted data, give tools the least permission they need, and require confirmation for side effects.",
+      "where": [
+        {
+          "name": "OWASP GenAI: LLM01 Prompt Injection",
+          "url": "https://genai.owasp.org/llmrisk/llm01-prompt-injection/"
+        },
+        {
+          "name": "Simon Willison: prompt injection articles",
+          "url": "https://simonwillison.net/tags/prompt-injection/"
+        }
+      ],
+      "done": "You can explain why prompt injection has no complete fix and show a permission boundary that limits what a successful one can do."
+    },
+    "p14.s2.7": {
+      "how": "Write 30 question and expected-answer pairs for a small RAG system. Write a script that scores retrieval hit rate and answer correctness (exact match, or an LLM grader you spot-check by hand) and appends each run's scores with the git commit to a CSV or SQLite table.",
+      "where": [
+        {
+          "name": "Hamel Husain: Your AI product needs evals",
+          "url": "https://hamel.dev/blog/posts/evals/"
+        },
+        {
+          "name": "Claude docs: Create strong empirical evaluations",
+          "url": "https://platform.claude.com/docs/en/test-and-evaluate/develop-tests"
+        }
+      ],
+      "done": "One command runs the evals and prints the change against the previous run, and a deliberate regression shows as a lower score."
+    },
+    "p14.s2.8": {
+      "how": "Log input tokens, output tokens and latency for every model call and compute cost per request from the provider's price list. Add an exact-match response cache keyed on a <em>hashlib</em> hash of the prompt, try provider prompt caching on a long shared prefix, and compare p50 and p95 latency.",
+      "where": [
+        {
+          "name": "Claude docs: Prompt caching",
+          "url": "https://platform.claude.com/docs/en/build-with-claude/prompt-caching"
+        },
+        {
+          "name": "Python: hashlib",
+          "url": "https://docs.python.org/3/library/hashlib.html"
+        }
+      ],
+      "done": "You can state the cost and p95 latency of one request and show a cache hit reducing both."
+    },
+    "p14.s3.0": {
+      "how": "Write an <em>ingest</em> command that converts PDF, Markdown or HTML to text, chunks it with the strategy that won in s2.1, embeds in batches, and stores each chunk with its source path, position and a content hash. Make reruns skip unchanged files.",
+      "where": [
+        {
+          "name": "pgvector",
+          "url": "https://github.com/pgvector/pgvector"
+        },
+        {
+          "name": "Sentence Transformers documentation",
+          "url": "https://sbert.net/"
+        }
+      ],
+      "done": "Ingesting the same folder twice adds zero rows, and every chunk traces back to its file and position."
+    },
+    "p14.s3.1": {
+      "how": "Implement <em>retrieve(query)</em>: hybrid search for the top 20, cross-encoder rerank, then drop results below a score threshold chosen from your eval data. When nothing passes, return an explicit empty result so the generator can say it does not know.",
+      "where": [
+        {
+          "name": "Sentence Transformers: Retrieve and re-rank",
+          "url": "https://sbert.net/examples/sentence_transformer/applications/retrieve_rerank/README.html"
+        }
+      ],
+      "done": "Off-topic questions return no context and get an 'I don't know' answer, while recall@5 on the eval set holds at its measured level."
+    },
+    "p14.s3.2": {
+      "how": "Generate answers into a Pydantic schema with fields for the answer, the cited chunk IDs and a refusal flag. Add a validator that rejects any citation ID not present in the retrieved context for that request.",
+      "where": [
+        {
+          "name": "Pydantic: Validators",
+          "url": "https://pydantic.dev/docs/validation/latest/concepts/validators/"
+        },
+        {
+          "name": "Pydantic: Models",
+          "url": "https://pydantic.dev/docs/validation/latest/concepts/models/"
+        }
+      ],
+      "done": "Every response validates against the schema, and a test that injects a made-up citation ID fails validation."
+    },
+    "p14.s3.3": {
+      "how": "Add two or three tools, such as corpus search, fetch document and save note. Tag each as read-only or side-effecting, run side-effecting tools only after explicit user confirmation, and log every call with its arguments and result.",
+      "where": [
+        {
+          "name": "Claude docs: Tool use overview",
+          "url": "https://platform.claude.com/docs/en/agents-and-tools/tool-use/overview"
+        },
+        {
+          "name": "OWASP GenAI: LLM01 Prompt Injection",
+          "url": "https://genai.owasp.org/llmrisk/llm01-prompt-injection/"
+        }
+      ],
+      "done": "A planted instruction that asks for a side-effecting tool is held for confirmation, and the log records the attempt."
+    },
+    "p14.s3.4": {
+      "how": "Write at least 50 cases covering answerable, unanswerable, multi-chunk and adversarial questions. Label each with the expected answer and the chunk IDs that should be retrieved. Run the set after every change and keep the score history.",
+      "where": [
+        {
+          "name": "Hamel Husain: Your AI product needs evals",
+          "url": "https://hamel.dev/blog/posts/evals/"
+        },
+        {
+          "name": "Claude docs: Create strong empirical evaluations",
+          "url": "https://platform.claude.com/docs/en/test-and-evaluate/develop-tests"
+        }
+      ],
+      "done": "One command runs all 50 or more cases and reports retrieval and answer scores separately."
+    },
+    "p14.s3.5": {
+      "how": "Store a trace for each request: query, retrieved chunk IDs with scores, the final prompt, the raw model output and the parsed answer. Build a small CLI or page that lists failed eval cases and shows each trace next to the expected chunks.",
+      "where": [
+        {
+          "name": "Hamel Husain: Your AI product needs evals",
+          "url": "https://hamel.dev/blog/posts/evals/"
+        }
+      ],
+      "done": "For any failed case you can tell within a minute whether retrieval, reranking or generation caused it."
+    },
+    "p14.s3.6": {
+      "how": "Wrap the engine in a FastAPI app with a <em>POST /ask</em> endpoint and a single HTML page with a form. Write one JSON log line per request with a request ID, latency, token counts, cost and the trace ID from s3.5.",
+      "where": [
+        {
+          "name": "FastAPI tutorial",
+          "url": "https://fastapi.tiangolo.com/tutorial/"
+        },
+        {
+          "name": "Python: logging",
+          "url": "https://docs.python.org/3/library/logging.html"
+        }
+      ],
+      "done": "A question asked through the page produces one log line that joins to its full trace by request ID."
+    }
+  }
+}

@@ -1,0 +1,289 @@
+{
+  "sections": {
+    "p05.s0": "Take the topics in the listed order, since each builds on earlier ones. For each topic, read or watch the explanation, then solve three to five problems in that category before moving on. Expect roughly two or three topics a week alongside the daily routine.",
+    "p05.s1": "Run these seven steps on one problem a day, in order. Spend 20 to 30 minutes on the attempt, about 20 on the implementation and tests, and 10 on the write-up. Keep the 48-hour re-solves on a list and do them first each day.",
+    "p05.s2": "Optional. Climb one level at a time within a topic: a direct problem, then the harder variant, then mixed problems with no category given, then a messy real-world one. Move up when you solve two in a row at a level without hints."
+  },
+  "items": {
+    "p05.s0.0": {
+      "how": "Before coding each problem, write down the input limit and the complexity it allows, assuming roughly 10^7 simple Python operations per second. Then time your solution on the largest input and compare with the estimate.",
+      "where": [
+        {
+          "name": "Python time complexity",
+          "url": "https://wiki.python.org/moin/TimeComplexity"
+        },
+        {
+          "name": "Big O notation",
+          "url": "https://en.wikipedia.org/wiki/Big_O_notation"
+        }
+      ],
+      "done": "Your estimate and the measured time on the largest input agree within a factor of ten."
+    },
+    "p05.s0.1": {
+      "how": "Write binary search from scratch with a stated loop invariant and compare it with <em>bisect_left</em> and <em>bisect_right</em>. Then solve a search-on-the-answer problem, such as the smallest ship capacity that delivers all packages in D days, using a feasibility check.",
+      "where": [
+        {
+          "name": "CP-Algorithms: binary search",
+          "url": "https://cp-algorithms.com/num_methods/binary_search.html"
+        },
+        {
+          "name": "bisect",
+          "url": "https://docs.python.org/3/library/bisect.html"
+        }
+      ],
+      "done": "You write binary search without off-by-one errors and can state the monotonic condition that makes searching the answer valid."
+    },
+    "p05.s0.2": {
+      "how": "Read the sorting HOWTO and practise <em>key=</em>, multi-key sorts and stability. Implement merge sort and counting sort once each and time them against <em>sorted()</em>. Note when a custom approach wins: a small integer range, or top-k with <em>heapq.nsmallest</em>.",
+      "where": [
+        {
+          "name": "Sorting HOWTO",
+          "url": "https://docs.python.org/3/howto/sorting.html"
+        },
+        {
+          "name": "Timsort",
+          "url": "https://en.wikipedia.org/wiki/Timsort"
+        }
+      ],
+      "done": "You can say that <em>sorted()</em> is stable and O(n log n), and name one case where counting sort beats it."
+    },
+    "p05.s0.3": {
+      "how": "Write a recursive function for tree depth or permutations, then rewrite it with an explicit stack. Feed the recursive version an input deep enough to raise <em>RecursionError</em>, check <em>sys.getrecursionlimit()</em>, and confirm the iterative version succeeds.",
+      "where": [
+        {
+          "name": "sys.getrecursionlimit",
+          "url": "https://docs.python.org/3/library/sys.html#sys.getrecursionlimit"
+        },
+        {
+          "name": "VisuAlgo: recursion tree",
+          "url": "https://visualgo.net/en/recursion"
+        }
+      ],
+      "done": "You can convert a recursive DFS into a loop with an explicit stack and explain what the call stack was holding."
+    },
+    "p05.s0.4": {
+      "how": "Implement merge sort and use it to count inversions, then solve maximum subarray by divide and conquer. For each, write the recurrence and solve it with the master theorem.",
+      "where": [
+        {
+          "name": "Divide-and-conquer algorithm",
+          "url": "https://en.wikipedia.org/wiki/Divide-and-conquer_algorithm"
+        },
+        {
+          "name": "Master theorem",
+          "url": "https://en.wikipedia.org/wiki/Master_theorem_(analysis_of_algorithms)"
+        }
+      ],
+      "done": "You can write the recurrence T(n) = 2T(n/2) + O(n) for merge sort and explain why it solves to O(n log n)."
+    },
+    "p05.s0.5": {
+      "how": "Solve interval scheduling (most non-overlapping intervals) by picking the earliest end time. Then break a greedy: coin change with coins 1, 3, 4 and amount 6 gives 4+1+1 instead of 3+3. Write an exchange argument for why the interval greedy is safe.",
+      "where": [
+        {
+          "name": "Greedy algorithm",
+          "url": "https://en.wikipedia.org/wiki/Greedy_algorithm"
+        },
+        {
+          "name": "Interval scheduling",
+          "url": "https://en.wikipedia.org/wiki/Interval_scheduling"
+        }
+      ],
+      "done": "You can give a counterexample to a wrong greedy and a short exchange argument for a correct one."
+    },
+    "p05.s0.6": {
+      "how": "Solve a grid problem (count islands, shortest path through a maze) with BFS on <em>collections.deque</em>, and a connectivity or cycle problem with DFS. Write a neighbours helper for grid moves and mark cells visited when you enqueue them.",
+      "where": [
+        {
+          "name": "CP-Algorithms: BFS",
+          "url": "https://cp-algorithms.com/graph/breadth-first-search.html"
+        },
+        {
+          "name": "CP-Algorithms: DFS",
+          "url": "https://cp-algorithms.com/graph/depth-first-search.html"
+        }
+      ],
+      "done": "You can explain why BFS gives shortest paths in unweighted graphs and why marking on enqueue avoids duplicate work."
+    },
+    "p05.s0.7": {
+      "how": "Solve three problems with <em>heapq</em>: k-th largest element, merge k sorted lists, and a running median with two heaps. Push tuples <em>(priority, counter, item)</em> so ties never compare the items themselves.",
+      "where": [
+        {
+          "name": "heapq",
+          "url": "https://docs.python.org/3/library/heapq.html"
+        }
+      ],
+      "done": "You can solve k-th largest in O(n log k) and explain the invariant that keeps the two median heaps balanced."
+    },
+    "p05.s0.8": {
+      "how": "For climbing stairs, coin change and longest common subsequence: write the plain recursion, add <em>@functools.cache</em>, then turn it into a bottom-up table. Write the subproblem and recurrence in one line before coding each.",
+      "where": [
+        {
+          "name": "CP-Algorithms: intro to DP",
+          "url": "https://cp-algorithms.com/dynamic_programming/intro-to-dp.html"
+        },
+        {
+          "name": "functools.cache",
+          "url": "https://docs.python.org/3/library/functools.html#functools.cache"
+        }
+      ],
+      "done": "You can write the state, recurrence and base case for coin change and derive the table version from the memoised one."
+    },
+    "p05.s0.9": {
+      "how": "Implement Dijkstra with <em>heapq</em>, skipping stale heap entries. Solve one unweighted problem with BFS and one with 0/1 weights using a deque. Run your Dijkstra on a graph with a negative edge and find the wrong answer it gives.",
+      "where": [
+        {
+          "name": "CP-Algorithms: Dijkstra",
+          "url": "https://cp-algorithms.com/graph/dijkstra.html"
+        },
+        {
+          "name": "CP-Algorithms: 0-1 BFS",
+          "url": "https://cp-algorithms.com/graph/01_bfs.html"
+        }
+      ],
+      "done": "You can say when BFS, 0-1 BFS and Dijkstra each apply, and why a negative edge breaks Dijkstra."
+    },
+    "p05.s0.10": {
+      "how": "Solve N-Queens, subsets and combination sum with one recursive choose, explore, unchoose template. Count the calls made with and without a pruning rule, for example stopping once the running sum exceeds the target.",
+      "where": [
+        {
+          "name": "Backtracking",
+          "url": "https://en.wikipedia.org/wiki/Backtracking"
+        }
+      ],
+      "done": "You have call counts showing your pruning cuts the search, and you can write the template from memory."
+    },
+    "p05.s1.0": {
+      "how": "Set a timer. Read the problem twice, work two examples by hand on paper, and try an approach before opening hints, solutions or a search engine. When the timer ends, write down where you got stuck.",
+      "where": [
+        {
+          "name": "NeetCode practice",
+          "url": "https://neetcode.io/practice"
+        },
+        {
+          "name": "Exercism Python track",
+          "url": "https://exercism.org/tracks/python"
+        }
+      ],
+      "done": "Your notes for each problem record what you tried before you looked anything up."
+    },
+    "p05.s1.1": {
+      "how": "Code the most direct solution, such as trying every pair or every subset, and run it on the examples. Keep it as the reference implementation that the fast version is checked against later.",
+      "where": [
+        {
+          "name": "NeetCode practice",
+          "url": "https://neetcode.io/practice"
+        }
+      ],
+      "done": "You have a correct brute force for the problem, even if it only handles small inputs."
+    },
+    "p05.s1.2": {
+      "how": "Write the brute force's time and space complexity in a comment. Then read the input limits and write the complexity they require, for example n up to 10^5 needs O(n log n) or better.",
+      "where": [
+        {
+          "name": "Python time complexity",
+          "url": "https://wiki.python.org/moin/TimeComplexity"
+        }
+      ],
+      "done": "Each problem has the brute-force and target complexities written down before you start the fast version."
+    },
+    "p05.s1.3": {
+      "how": "Ask what repeated work the brute force does and what would remove it: a hash map for lookups, sorting plus two pointers, a prefix sum, a heap, a monotonic stack. State the invariant your main loop keeps in one sentence.",
+      "where": [
+        {
+          "name": "CP-Algorithms",
+          "url": "https://cp-algorithms.com/"
+        },
+        {
+          "name": "NeetCode roadmap",
+          "url": "https://neetcode.io/roadmap"
+        }
+      ],
+      "done": "You can name the structure or invariant that takes the solution from the brute-force complexity to the target."
+    },
+    "p05.s1.4": {
+      "how": "Implement the fast version, then write pytest cases for empty input, one element, duplicates, negative numbers and the maximum size. Add a randomised test that compares it with the brute force on small inputs.",
+      "where": [
+        {
+          "name": "pytest: get started",
+          "url": "https://docs.pytest.org/en/stable/getting-started.html"
+        },
+        {
+          "name": "Hypothesis quickstart",
+          "url": "https://hypothesis.readthedocs.io/en/latest/quickstart.html"
+        }
+      ],
+      "done": "The fast and brute-force versions agree on hundreds of random small inputs, and the edge-case tests pass."
+    },
+    "p05.s1.5": {
+      "how": "Write three to five sentences: the key idea, why it is correct, its complexity, and what you missed at first. Or explain it aloud without looking at the code, and write down any step you could not justify.",
+      "where": [
+        {
+          "name": "NeetCode practice",
+          "url": "https://neetcode.io/practice"
+        }
+      ],
+      "done": "A week later you can explain the solution from your notes alone, without rereading the code."
+    },
+    "p05.s1.6": {
+      "how": "Log every problem you needed a hint or solution for, with the date. Two days later, solve it again in a blank file without looking at the old code, then compare the two versions.",
+      "where": [
+        {
+          "name": "NeetCode practice",
+          "url": "https://neetcode.io/practice"
+        }
+      ],
+      "done": "You re-solve each logged problem from scratch, with no hints, within your original time budget."
+    },
+    "p05.s2.0": {
+      "how": "Pick easy problems labelled with the technique you studied last, for example an easy binary search problem on NeetCode or a matching Exercism exercise, and apply the standard technique directly.",
+      "where": [
+        {
+          "name": "NeetCode practice",
+          "url": "https://neetcode.io/practice"
+        },
+        {
+          "name": "Exercism Python exercises",
+          "url": "https://exercism.org/tracks/python"
+        }
+      ],
+      "done": "You solve an easy problem in the named category within 20 minutes without hints."
+    },
+    "p05.s2.1": {
+      "how": "Take a problem you solved slowly and improve its complexity, for example O(n^2) to O(n log n) or O(n). Time both versions with <em>timeit</em> on the largest allowed input.",
+      "where": [
+        {
+          "name": "NeetCode practice",
+          "url": "https://neetcode.io/practice"
+        },
+        {
+          "name": "timeit",
+          "url": "https://docs.python.org/3/library/timeit.html"
+        }
+      ],
+      "done": "The faster version passes the full limits, and your timings show the gap against the first version."
+    },
+    "p05.s2.2": {
+      "how": "Solve problems whose category is hidden: Codewars katas at your rank or Advent of Code puzzles from past years. Before coding, write down which technique you chose and why.",
+      "where": [
+        {
+          "name": "Codewars",
+          "url": "https://www.codewars.com/"
+        },
+        {
+          "name": "Advent of Code",
+          "url": "https://adventofcode.com/"
+        }
+      ],
+      "done": "You pick a working technique before coding for most unlabelled problems, and your notes record the reasoning."
+    },
+    "p05.s2.3": {
+      "how": "Solve a full Advent of Code day, including parsing the raw input file, or process a real dataset under a memory or time limit. Handle malformed lines explicitly and test the parser on a small sample first.",
+      "where": [
+        {
+          "name": "Advent of Code",
+          "url": "https://adventofcode.com/"
+        }
+      ],
+      "done": "The solution gives the accepted answer on the full input within the limits, and bad lines are reported, not silently skipped."
+    }
+  }
+}

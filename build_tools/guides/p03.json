@@ -1,0 +1,196 @@
+{
+  "sections": {
+    "p03.s0": "Read in order: environments and lockfiles, then <em>pyproject.toml</em> and layout, then entry points, then lint, type-check and release habits. Allow about two days, and try each idea in a throwaway project as you read, because the build section applies all of it to a real tool.",
+    "p03.s1": "Choose one earlier tool and do the steps in order; each depends on the one before. Budget about a week: a day for the restructure and <em>pyproject.toml</em>, a day for tooling, and the rest on fixtures, property tests and the README. Finish by installing from a clean venv."
+  },
+  "items": {
+    "p03.s0.0": {
+      "how": "Create a venv with <em>python -m venv .venv</em>, activate it, and compare <em>sys.prefix</em> and <em>pip list</em> inside and outside it. Install two packages, delete the folder, and rebuild it from a <em>requirements.txt</em>. Run <em>where python</em> to see which interpreter your shell finds.",
+      "where": [
+        {
+          "name": "Tutorial: virtual environments",
+          "url": "https://docs.python.org/3/tutorial/venv.html"
+        },
+        {
+          "name": "venv",
+          "url": "https://docs.python.org/3/library/venv.html"
+        }
+      ],
+      "done": "You can explain what activation changes (PATH) and why two projects needing different versions of one library cannot share a global install."
+    },
+    "p03.s0.1": {
+      "how": "Start a project with <em>uv init</em>, add two dependencies with <em>uv add</em>, and open <em>uv.lock</em> to see exact versions and hashes for every transitive dependency. Delete <em>.venv</em>, run <em>uv sync</em> and confirm the same versions come back.",
+      "where": [
+        {
+          "name": "uv: locking and syncing",
+          "url": "https://docs.astral.sh/uv/concepts/projects/sync/"
+        },
+        {
+          "name": "pip: repeatable installs",
+          "url": "https://pip.pypa.io/en/stable/topics/repeatable-installs/"
+        }
+      ],
+      "done": "You can explain the difference between a version range in <em>pyproject.toml</em> and a pin in the lockfile."
+    },
+    "p03.s0.2": {
+      "how": "Write a <em>pyproject.toml</em> by hand with <em>[build-system]</em>, <em>[project]</em> (name, version, requires-python, dependencies), a dev extra under <em>[project.optional-dependencies]</em> and a <em>[tool.ruff]</em> table. Install it with <em>pip install -e .</em> and check <em>pip show</em>.",
+      "where": [
+        {
+          "name": "Writing your pyproject.toml",
+          "url": "https://packaging.python.org/en/latest/guides/writing-pyproject-toml/"
+        }
+      ],
+      "done": "The project installs in editable mode and you can say which table the build backend, the installer and Ruff each read."
+    },
+    "p03.s0.3": {
+      "how": "Make a flat-layout package and run its tests from the project root: they pass without installing. Move it under <em>src/</em> and watch the tests fail until you install it. That failure is the point: tests now run against the installed package, not the working directory.",
+      "where": [
+        {
+          "name": "src layout vs flat layout",
+          "url": "https://packaging.python.org/en/latest/discussions/src-layout-vs-flat-layout/"
+        },
+        {
+          "name": "pytest: good practices",
+          "url": "https://docs.pytest.org/en/stable/explanation/goodpractices.html"
+        }
+      ],
+      "done": "You can explain how the current directory on <em>sys.path</em> hides files missing from the built wheel in a flat layout."
+    },
+    "p03.s0.4": {
+      "how": "Add <em>[project.scripts]</em> with <em>your-tool = \"your_package.cli:main\"</em>, reinstall, and run <em>your-tool --help</em> from another directory. Find the generated launcher in <em>.venv/Scripts</em> (Windows) or <em>.venv/bin</em>.",
+      "where": [
+        {
+          "name": "Entry points specification",
+          "url": "https://packaging.python.org/en/latest/specifications/entry-points/"
+        },
+        {
+          "name": "Writing your pyproject.toml",
+          "url": "https://packaging.python.org/en/latest/guides/writing-pyproject-toml/"
+        }
+      ],
+      "done": "<em>your-tool</em> runs from any directory while the venv is active, and you can name the function it calls."
+    },
+    "p03.s0.5": {
+      "how": "Install <em>pre-commit</em>, write a <em>.pre-commit-config.yaml</em> using the <em>ruff-pre-commit</em> hooks for <em>ruff check --fix</em> and <em>ruff format</em>, run <em>pre-commit install</em>, then commit a badly formatted file and watch the hook stop the commit.",
+      "where": [
+        {
+          "name": "pre-commit",
+          "url": "https://pre-commit.com/"
+        },
+        {
+          "name": "Ruff: integrations",
+          "url": "https://docs.astral.sh/ruff/integrations/"
+        }
+      ],
+      "done": "A commit containing a lint error is rejected locally without you running any check by hand."
+    },
+    "p03.s0.6": {
+      "how": "Write a GitHub Actions workflow that installs the project and runs <em>mypy</em> on every push and pull request. Push a commit with a deliberate type error, confirm the run fails, then fix it.",
+      "where": [
+        {
+          "name": "GitHub Actions: Python",
+          "url": "https://docs.github.com/en/actions/tutorials/build-and-test-code/python"
+        },
+        {
+          "name": "mypy: existing codebase",
+          "url": "https://mypy.readthedocs.io/en/stable/existing_code.html"
+        }
+      ],
+      "done": "A pushed type error turns the CI run red, and the fix turns it green."
+    },
+    "p03.s0.7": {
+      "how": "Read the SemVer spec and Keep a Changelog. Decide the version bump for three changes: a bug fix, a new option, a removed flag. Start a <em>CHANGELOG.md</em> with an Unreleased section and Added, Changed, Fixed and Removed headings.",
+      "where": [
+        {
+          "name": "Semantic Versioning",
+          "url": "https://semver.org/"
+        },
+        {
+          "name": "Keep a Changelog",
+          "url": "https://keepachangelog.com/en/1.1.0/"
+        }
+      ],
+      "done": "You can say whether a change needs a major, minor or patch bump, and what a 0.x version does and does not promise."
+    },
+    "p03.s1.0": {
+      "how": "Move the code into <em>src/your_package/</em> with an <em>__init__.py</em>, put tests in <em>tests/</em> beside <em>src/</em>, and change every import to use the package name. Install with <em>pip install -e .</em> and run <em>pytest</em> from the project root.",
+      "where": [
+        {
+          "name": "Packaging Python projects",
+          "url": "https://packaging.python.org/en/latest/tutorials/packaging-projects/"
+        },
+        {
+          "name": "pytest: good practices",
+          "url": "https://docs.pytest.org/en/stable/explanation/goodpractices.html"
+        }
+      ],
+      "done": "<em>pytest</em> passes after installation, and <em>import your_package</em> works from any other directory."
+    },
+    "p03.s1.1": {
+      "how": "Fill in name, version, description, readme, requires-python, license, dependencies, a dev extra and <em>[project.scripts]</em>. Build with <em>python -m build</em> or <em>uv build</em>, install the wheel into a fresh venv, and run the command there.",
+      "where": [
+        {
+          "name": "Writing your pyproject.toml",
+          "url": "https://packaging.python.org/en/latest/guides/writing-pyproject-toml/"
+        },
+        {
+          "name": "Packaging Python projects",
+          "url": "https://packaging.python.org/en/latest/tutorials/packaging-projects/"
+        }
+      ],
+      "done": "The wheel installs into a clean venv and the CLI command runs there with no source checkout on the path."
+    },
+    "p03.s1.2": {
+      "how": "Add <em>[tool.ruff]</em> with line-length and target-version, <em>[tool.ruff.lint]</em> with a select list (start with E, F, I, B, UP), and <em>[tool.mypy]</em> with <em>strict = true</em> or a stated subset. Run both and fix or explicitly ignore every finding.",
+      "where": [
+        {
+          "name": "Ruff: configuration",
+          "url": "https://docs.astral.sh/ruff/configuration/"
+        },
+        {
+          "name": "mypy: config file",
+          "url": "https://mypy.readthedocs.io/en/stable/config_file.html"
+        }
+      ],
+      "done": "<em>ruff check .</em>, <em>ruff format --check .</em> and <em>mypy</em> all exit 0 using settings from <em>pyproject.toml</em> only."
+    },
+    "p03.s1.3": {
+      "how": "Find setup repeated across test files (sample config, fake data, temp folders) and move it into fixtures in <em>tests/conftest.py</em>. Use the built-in <em>tmp_path</em> for files and choose each fixture's scope on purpose. Run <em>pytest --fixtures</em> to list them.",
+      "where": [
+        {
+          "name": "pytest: how to use fixtures",
+          "url": "https://docs.pytest.org/en/stable/how-to/fixtures.html"
+        },
+        {
+          "name": "pytest: fixtures reference",
+          "url": "https://docs.pytest.org/en/stable/reference/fixtures.html"
+        }
+      ],
+      "done": "No test file carries its own copy of shared setup, and <em>pytest --fixtures</em> lists yours with docstrings."
+    },
+    "p03.s1.4": {
+      "how": "Pick a function with a clear invariant, such as a round trip (<em>parse(format(x)) == x</em>) or output that is always sorted. Write a <em>@given</em> test using <em>hypothesis.strategies</em>, run it, and read the shrunk example if it fails.",
+      "where": [
+        {
+          "name": "Hypothesis quickstart",
+          "url": "https://hypothesis.readthedocs.io/en/latest/quickstart.html"
+        }
+      ],
+      "done": "The property test runs in your normal <em>pytest</em> run and you can state its invariant in one sentence."
+    },
+    "p03.s1.5": {
+      "how": "Write four sections: install (exact commands from a clean machine), usage (real command lines and their output), configuration (every option and its default), limitations (what the tool does not handle). Then follow the README word for word in a new venv.",
+      "where": [
+        {
+          "name": "Make a README",
+          "url": "https://www.makeareadme.com/"
+        },
+        {
+          "name": "Packaging Python projects",
+          "url": "https://packaging.python.org/en/latest/tutorials/packaging-projects/"
+        }
+      ],
+      "done": "Someone following only the README in a fresh environment can install, configure and run the tool."
+    }
+  }
+}

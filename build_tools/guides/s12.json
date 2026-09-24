@@ -1,0 +1,188 @@
+{
+  "sections": {
+    "s12.s0": "Defensive security work in Python, all on your own code, logs, network and lab machines. Start with item 0, since the threat model tells you what to scan and log. Then do 1 to 3 on your code, 4 and 5 on your logs, 6 and 7 in your lab. Run item 8 as a weekly session alongside the rest.",
+    "s12.s1": "One narrow security tool with tests. Write the scope first, then build the detector against test samples, add SARIF or JSON output, write the documentation, and finish with CI. Spend at least a third of the time on the known-good and known-bad samples."
+  },
+  "items": {
+    "s12.s0.0": {
+      "how": "Draw a data flow diagram of an app you built in an earlier phase: processes, data stores, external entities and trust boundaries. Walk each element through the six STRIDE categories and write one threat and one mitigation per row.",
+      "where": [
+        {
+          "name": "OWASP Threat Modeling Cheat Sheet",
+          "url": "https://cheatsheetseries.owasp.org/cheatsheets/Threat_Modeling_Cheat_Sheet.html"
+        },
+        {
+          "name": "OWASP Threat Modeling",
+          "url": "https://owasp.org/www-community/Threat_Modeling"
+        }
+      ],
+      "done": "You have a table of at least ten threats, each tied to a diagram element and a mitigation or an accepted risk."
+    },
+    "s12.s0.1": {
+      "how": "Run <em>bandit -r src/</em> on one of your projects and mark each finding as real or false positive. Then write a Semgrep YAML rule for a pattern in your own code, such as <em>subprocess.run</em> with <em>shell=True</em>, with an annotated test file.",
+      "where": [
+        {
+          "name": "Bandit documentation",
+          "url": "https://bandit.readthedocs.io/en/latest/"
+        },
+        {
+          "name": "Semgrep: writing rules",
+          "url": "https://semgrep.dev/docs/writing-rules/overview"
+        }
+      ],
+      "done": "Your rule passes <em>semgrep --test</em>: it fires on the bad lines and stays silent on the good ones."
+    },
+    "s12.s0.2": {
+      "how": "Pin a project with <em>pip-compile --generate-hashes</em>, install with <em>pip install --require-hashes -r requirements.txt</em>, and run <em>pip-audit</em>. Generate an SBOM with <em>cyclonedx-py</em> and read how PyPI release attestations prove where a package was built.",
+      "where": [
+        {
+          "name": "pip: secure installs",
+          "url": "https://pip.pypa.io/en/stable/topics/secure-installs/"
+        },
+        {
+          "name": "pip-audit",
+          "url": "https://github.com/pypa/pip-audit"
+        }
+      ],
+      "done": "Changing one hash in the requirements file makes the install fail, and you can say what an SBOM lists."
+    },
+    "s12.s0.3": {
+      "how": "In a throwaway repo, commit a fake API key, remove it in a later commit, then find it with <em>gitleaks git</em> scanning full history. Write the response steps in order: revoke, issue a new key, check logs for use, then rewrite history.",
+      "where": [
+        {
+          "name": "OWASP Secrets Management Cheat Sheet",
+          "url": "https://cheatsheetseries.owasp.org/cheatsheets/Secrets_Management_Cheat_Sheet.html"
+        },
+        {
+          "name": "GitHub: removing sensitive data",
+          "url": "https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/removing-sensitive-data-from-a-repository"
+        }
+      ],
+      "done": "The scanner finds a key absent from the latest commit, and you can explain why rotation comes before rewriting history."
+    },
+    "s12.s0.4": {
+      "how": "Add structured logging to one of your apps for logins, permission failures and validation failures, with timestamp, user id and source IP. Add a <em>logging.Filter</em> that masks passwords, tokens and card numbers, and a test that proves it.",
+      "where": [
+        {
+          "name": "OWASP Logging Cheat Sheet",
+          "url": "https://cheatsheetseries.owasp.org/cheatsheets/Logging_Cheat_Sheet.html"
+        },
+        {
+          "name": "logging module",
+          "url": "https://docs.python.org/3/library/logging.html"
+        }
+      ],
+      "done": "A test logs a record containing a token and asserts the token is absent from the output."
+    },
+    "s12.s0.5": {
+      "how": "Write detection rules in Python over JSON log lines, such as five failed logins from one IP within 60 s. Build sample files with known attack sequences and normal traffic, and run every rule against both with <em>pytest</em>. Read Sigma rules for how others express the same idea.",
+      "where": [
+        {
+          "name": "Sigma rules",
+          "url": "https://github.com/SigmaHQ/sigma"
+        },
+        {
+          "name": "pytest parametrize",
+          "url": "https://docs.pytest.org/en/stable/how-to/parametrize.html"
+        }
+      ],
+      "done": "Each rule fires on its attack sample and on none of the normal samples, and the tests show both."
+    },
+    "s12.s0.6": {
+      "how": "On your own network or a VM, capture 100 packets with <em>sniff(count=100)</em>, save them with <em>wrpcap</em>, and count them by protocol and destination. This needs admin rights; capture only traffic on networks you own. Open the file in Wireshark to check.",
+      "where": [
+        {
+          "name": "Scapy usage",
+          "url": "https://scapy.readthedocs.io/en/latest/usage.html"
+        }
+      ],
+      "done": "Your script's per-protocol counts match what Wireshark shows for the same pcap file."
+    },
+    "s12.s0.7": {
+      "how": "Read the NIST incident response guide, then run a tabletop exercise on one scenario, such as a leaked cloud key in your own account. Write how you detect it, contain it, which evidence you copy and hash before changing anything, and how you recover.",
+      "where": [
+        {
+          "name": "NIST SP 800-61 Rev. 3",
+          "url": "https://csrc.nist.gov/pubs/sp/800/61/r3/final"
+        }
+      ],
+      "done": "You have a one-page runbook for the scenario and can explain why evidence is preserved before cleanup."
+    },
+    "s12.s0.8": {
+      "how": "Work through picoCTF practice problems one category a week, starting with General Skills and Forensics, and the PortSwigger labs for web topics. Solve with Python scripts where you can and write up each solve.",
+      "where": [
+        {
+          "name": "picoCTF",
+          "url": "https://picoctf.org/"
+        },
+        {
+          "name": "PortSwigger Web Security Academy",
+          "url": "https://portswigger.net/web-security"
+        }
+      ],
+      "done": "You have write-ups for ten solved problems, each stating the flaw and how to defend against it."
+    },
+    "s12.s1.0": {
+      "how": "Write the scope first: what the tool detects, on which input, and what it ignores. Build the core as a pure function from input to findings, then wrap it in an <em>argparse</em> CLI. Point it only at code, logs or repos you own.",
+      "where": [
+        {
+          "name": "argparse",
+          "url": "https://docs.python.org/3/library/argparse.html"
+        },
+        {
+          "name": "Bandit documentation",
+          "url": "https://bandit.readthedocs.io/en/latest/"
+        }
+      ],
+      "done": "The CLI runs on a real input of yours and prints each finding with its location and reason."
+    },
+    "s12.s1.1": {
+      "how": "Make <em>tests/samples/bad/</em> with inputs that must be flagged and <em>tests/samples/good/</em> with look-alikes that must not be, such as a placeholder key in docs or <em>password</em> as a variable name. Parametrise <em>pytest</em> over both folders.",
+      "where": [
+        {
+          "name": "pytest parametrize",
+          "url": "https://docs.pytest.org/en/stable/how-to/parametrize.html"
+        }
+      ],
+      "done": "All samples pass, and the good folder includes at least three inputs an earlier version of the tool wrongly flagged."
+    },
+    "s12.s1.2": {
+      "how": "Add <em>--format json</em> and <em>--format sarif</em>. For SARIF emit version 2.1.0 with one <em>run</em>, your tool in <em>tool.driver</em> with its rules, and each finding as a <em>result</em> with <em>ruleId</em>, level and location. Validate against the schema.",
+      "where": [
+        {
+          "name": "SARIF 2.1.0 specification",
+          "url": "https://docs.oasis-open.org/sarif/sarif/v2.1.0/sarif-v2.1.0.html"
+        },
+        {
+          "name": "GitHub: SARIF support",
+          "url": "https://docs.github.com/en/code-security/reference/code-scanning/sarif-files/sarif-support"
+        }
+      ],
+      "done": "The SARIF output validates and a SARIF viewer shows each finding on the right file and line."
+    },
+    "s12.s1.3": {
+      "how": "Write a README with sections for what the tool detects, what it misses, known false positives, permissions it needs, and where it may be run. State that it is for systems you own or are authorised to test.",
+      "where": [
+        {
+          "name": "Bandit documentation",
+          "url": "https://bandit.readthedocs.io/en/latest/"
+        }
+      ],
+      "done": "A new user can install it, run it on a sample and name one limitation using only the README."
+    },
+    "s12.s1.4": {
+      "how": "Add a GitHub Actions workflow that runs the tool on every push to one of your real projects and uploads the SARIF with <em>github/codeql-action/upload-sarif</em>. Fail the job on high-severity findings only.",
+      "where": [
+        {
+          "name": "GitHub: uploading a SARIF file",
+          "url": "https://docs.github.com/en/code-security/how-tos/find-and-fix-code-vulnerabilities/integrate-with-existing-tools/upload-sarif-file"
+        },
+        {
+          "name": "GitHub Actions documentation",
+          "url": "https://docs.github.com/en/actions"
+        }
+      ],
+      "done": "A push that adds a known-bad sample fails the job, and removing it makes the job pass."
+    }
+  }
+}

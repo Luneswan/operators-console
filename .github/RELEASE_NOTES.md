@@ -1,4 +1,4 @@
-**1.2.0**: career pathways, a career ladder, user profiles and a report form.
+**1.3.0**: a study timer, time-left estimates from your real pace, and a study guide for every checklist line.
 
 **Updating from 1.0.1 or later (installed):** use the Update button in the
 sidebar. If a 1.0.x build reopens on the old version after updating, close it
@@ -14,23 +14,21 @@ versions update in-app. For a Windows portable build:
 
 **What is new:**
 
-- **14 specializations**, one per career path: data and charts, desktop and
-  mobile apps, command-line tools, games, science, finance, computer vision,
-  NLP, testing, network automation, embedded and IoT, security, bots, and
-  blockchain. Each has a checklist, gate, reading list, quiz, graded
-  exercises and a project. 21 goals and 16 tracks; the roadmap orders phases
-  by what each one needs first and adds missing prerequisites for your goals.
-- **Career ladder**: Starting out, Beginner, Junior, Mid-level, Senior,
-  Senior+. Levels come from proven phases, not ticked lines.
-- **Profiles**: several people on one computer, each with their own
-  progress, settings, review deck and snapshots. File -> Switch profile or
-  Settings -> Profiles. Your existing progress stays where it is.
-- **Report or request**: Settings and Help open a form that fills in a
-  GitHub issue for you to submit. The app sends nothing.
+- **Study timer**: Start studying in the top bar (Ctrl+T), Pause, Stop. It
+  keeps running if you close the app. Stop shows what you finished while it
+  ran and saves the session to your log.
+- **Time left from your real pace**: each phase's hours are split over its
+  steps, gate checks, exercises, quiz and project. Your timed sessions set
+  your pace; your study hours set the finish date. Shown on Today, the
+  Roadmap, Progress, each phase and Settings.
+- **Study guides**: every one of the 633 checklist lines has how to do it,
+  where to learn it and how to tell it is done. The next line opens with
+  its guide. Every section says how to work through it.
+- **Roadmap detail**: dates and hours left per phase, what is left by kind,
+  and where each career level is reached.
+- Fixed: a focus ring showed on "Today" after typing in a dialog.
 
-The course is now 35 phases, 161 exercises, 354 quiz questions and 36
-projects. Your progress carries over; question and checklist ids are
-unchanged.
+Your progress carries over.
 
 Changes per version: [CHANGELOG.md](https://github.com/Luneswan/operators-console/blob/main/CHANGELOG.md).
 

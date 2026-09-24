@@ -1,0 +1,119 @@
+{
+  "sections": {
+    "s10.s0": "Set up a lab device or a Cisco DevNet sandbox before reading, so every item ends with a command run against a real device. Work in order: connect and parse (s0.0 to s0.2), generate and deploy (s0.3 to s0.5), then the safety items (s0.6 to s0.8), which deserve the most time.",
+    "s10.s1": "Build the lab first, then the source-of-truth file and templates, then the dry run. Add pre- and post-change checks with rollback before you ever apply to every device, and write the compliance report last. Run all of it against the lab only."
+  },
+  "items": {
+    "s10.s0.0": {
+      "how": "Connect to a lab device with <em>ConnectHandler</em> inside a <em>with</em> block and run <em>send_command('show version')</em>. Trigger a timeout with a slow command and fix it with <em>read_timeout</em>, then answer a confirmation prompt using <em>expect_string</em> or <em>send_command_timing</em>.",
+      "where": [
+        {"name": "Netmiko examples", "url": "https://github.com/ktbyers/netmiko/blob/develop/EXAMPLES.md"},
+        {"name": "Netmiko API documentation", "url": "https://ktbyers.github.io/netmiko/docs/netmiko/index.html"}
+      ],
+      "done": "Your script runs three show commands and exits cleanly, and prints a clear error when the host is unreachable."
+    },
+    "s10.s0.1": {
+      "how": "Run <em>show ip interface brief</em> with <em>use_textfsm=True</em> to get a list of dicts from ntc-templates. Then write your own TextFSM template for a command that has none, and test it on saved output from two devices.",
+      "where": [
+        {"name": "TextFSM wiki", "url": "https://github.com/google/textfsm/wiki/TextFSM"},
+        {"name": "ntc-templates", "url": "https://github.com/networktocode/ntc-templates"}
+      ],
+      "done": "Your template turns saved output into structured rows, and a test compares them with expected values."
+    },
+    "s10.s0.2": {
+      "how": "Write <em>hosts.yaml</em>, <em>groups.yaml</em> and <em>defaults.yaml</em>, load them with <em>InitNornir</em>, and run a Netmiko task on every host with <em>nr.run</em>. Narrow the run with <em>nr.filter</em>, and time it with one worker against the default thread pool.",
+      "where": [
+        {"name": "Nornir inventory tutorial", "url": "https://nornir.readthedocs.io/en/latest/tutorial/inventory.html"},
+        {"name": "Nornir tasks tutorial", "url": "https://nornir.readthedocs.io/en/latest/tutorial/tasks.html"}
+      ],
+      "done": "One command runs a task on every lab device in parallel, and you can read per-host results and failures from the result object."
+    },
+    "s10.s0.3": {
+      "how": "Write a Jinja2 template for interfaces and a YAML data file, and render with <em>Environment(undefined=StrictUndefined)</em> using a loop, a conditional and a filter. Delete a required variable from the data and check that rendering fails instead of producing blank config.",
+      "where": [
+        {"name": "Jinja template designer documentation", "url": "https://jinja.palletsprojects.com/en/stable/templates/"},
+        {"name": "Jinja API (StrictUndefined)", "url": "https://jinja.palletsprojects.com/en/stable/api/"}
+      ],
+      "done": "The rendered text matches a saved expected config file, and a missing variable raises an error."
+    },
+    "s10.s0.4": {
+      "how": "Open a device with <em>get_network_driver</em> and call <em>get_facts</em> and <em>get_interfaces</em>. Load a small change with <em>load_merge_candidate</em>, print <em>compare_config()</em> and call <em>discard_config()</em>. Repeat with <em>commit_config()</em>, then undo it with <em>rollback()</em>.",
+      "where": [
+        {"name": "NAPALM base API", "url": "https://napalm.readthedocs.io/en/latest/base.html"},
+        {"name": "NAPALM support matrix", "url": "https://napalm.readthedocs.io/en/latest/support/index.html"}
+      ],
+      "done": "You can show the diff before a commit and return the device to its previous config with <em>rollback()</em>."
+    },
+    "s10.s0.5": {
+      "how": "On a device with NETCONF and RESTCONF enabled, such as an IOS XE sandbox, call <em>get_config</em> in <em>ncclient</em> with a subtree filter for interfaces. Fetch the same data over RESTCONF with <em>requests</em> and the <em>application/yang-data+json</em> header, and find the YANG model used.",
+      "where": [
+        {"name": "ncclient manager", "url": "https://ncclient.readthedocs.io/en/latest/manager.html"},
+        {"name": "RFC 8040: RESTCONF", "url": "https://datatracker.ietf.org/doc/html/rfc8040"}
+      ],
+      "done": "You can read and change one interface description over both NETCONF and RESTCONF and name the YANG model involved."
+    },
+    "s10.s0.6": {
+      "how": "Add a <em>--dry-run</em> mode, on by default, that prints diffs and discards them. Refuse to commit outside a configured change window, and where the driver supports it use commit-confirm, such as NAPALM's <em>commit_config(revert_in=300)</em>, so an unconfirmed change reverts.",
+      "where": [
+        {"name": "NAPALM base API", "url": "https://napalm.readthedocs.io/en/latest/base.html"},
+        {"name": "NAPALM support matrix", "url": "https://napalm.readthedocs.io/en/latest/support/index.html"}
+      ],
+      "done": "A default run changes nothing, and in the lab a commit you do not confirm reverts on its own."
+    },
+    "s10.s0.7": {
+      "how": "Before a change, save interface states, route counts and routing neighbour states; after it, collect the same and compare. Use NAPALM's <em>compliance_report</em> with a validation YAML file, or your own getters and a dict comparison.",
+      "where": [
+        {"name": "NAPALM validating deployments", "url": "https://napalm.readthedocs.io/en/latest/validate/index.html"}
+      ],
+      "done": "Your check prints pass or fail per device and names each value that changed."
+    },
+    "s10.s0.8": {
+      "how": "Read credentials from environment variables with <em>os.environ</em>, prompt with <em>getpass</em> for interactive runs, or fetch them from HashiCorp Vault with <em>hvac</em>. Add a secret scanner as a pre-commit hook and search the git history for your lab password.",
+      "where": [
+        {"name": "os module (os.environ)", "url": "https://docs.python.org/3/library/os.html"},
+        {"name": "hvac, the Python client for Vault", "url": "https://python-hvac.org/en/stable/"}
+      ],
+      "done": "Your scripts run with no password in any file, and a search of the repo history for the lab password finds nothing."
+    },
+    "s10.s1.0": {
+      "how": "Install containerlab and write a topology file with at least three devices, such as Arista cEOS or Nokia SR Linux, linked together. Deploy it, reach each device over SSH, and commit the topology file to the repo.",
+      "where": [
+        {"name": "containerlab quick start", "url": "https://containerlab.dev/quickstart/"},
+        {"name": "containerlab topology definition", "url": "https://containerlab.dev/manual/topo-def-file/"}
+      ],
+      "done": "<em>containerlab deploy</em> brings the lab up from the file, and your Nornir inventory reaches every device."
+    },
+    "s10.s1.1": {
+      "how": "Keep device data such as hostnames, interfaces, addresses and VLANs in one YAML file and validate it when loading. Render each device's config with Jinja2 into a <em>build/</em> folder, one file per device.",
+      "where": [
+        {"name": "Jinja template designer documentation", "url": "https://jinja.palletsprojects.com/en/stable/templates/"},
+        {"name": "PyYAML documentation", "url": "https://pyyaml.org/wiki/PyYAMLDocumentation"}
+      ],
+      "done": "Two builds in a row produce identical files, and changing one value in the YAML changes only the expected lines."
+    },
+    "s10.s1.2": {
+      "how": "Through Nornir with <em>nornir_napalm</em>, load each rendered config as a candidate, write <em>compare_config()</em> output to a per-device diff report, and discard the candidate. Make this the default mode; applying needs an explicit flag.",
+      "where": [
+        {"name": "nornir_napalm plugin", "url": "https://github.com/nornir-automation/nornir_napalm"},
+        {"name": "NAPALM base API", "url": "https://napalm.readthedocs.io/en/latest/base.html"}
+      ],
+      "done": "The dry run prints a diff per device and leaves every running config unchanged."
+    },
+    "s10.s1.3": {
+      "how": "Run the checks and save the results, apply the change, then run the checks again. If a check fails or a device stops responding, call <em>rollback()</em> on every changed device and exit with a non-zero code.",
+      "where": [
+        {"name": "NAPALM validating deployments", "url": "https://napalm.readthedocs.io/en/latest/validate/index.html"},
+        {"name": "Nornir failed tasks tutorial", "url": "https://nornir.readthedocs.io/en/latest/tutorial/failed_tasks.html"}
+      ],
+      "done": "A deliberately bad change in the lab triggers the rollback and leaves the devices as they were before."
+    },
+    "s10.s1.4": {
+      "how": "Write rules in a validation file, such as the NTP servers, the login banner, SSH version 2 and no unused interfaces left enabled. Run them across the inventory with Nornir and write a CSV or HTML report with one row per device and rule.",
+      "where": [
+        {"name": "NAPALM validating deployments", "url": "https://napalm.readthedocs.io/en/latest/validate/index.html"},
+        {"name": "csv module", "url": "https://docs.python.org/3/library/csv.html"}
+      ],
+      "done": "The report shows pass or fail per device and rule, and fixing one device's config turns its failing row to pass."
+    }
+  }
+}

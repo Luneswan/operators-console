@@ -1,0 +1,364 @@
+{
+  "sections": {
+    "p18.s0": "Judgement for choosing, scoping and changing systems. Work s0.0 to s0.3 on one real design of your own, then treat s0.4 and s0.7 as reviews of past and planned projects, and s0.5 and s0.6 as hands-on exercises. Give the design doc and the live migration about half the time.",
+    "p18.s1": "Running software that other people depend on. Start with instrumentation and SLOs (s1.3, s1.2) on a service you own, then rollout (s1.4) and a backup restore (s1.5), and finish with an incident drill and its postmortem (s1.0, s1.1). Spend most of the time on the running service, not on reading.",
+    "p18.s2": "Work that multiplies your effect on others. Optional and slow: take two or three items a quarter, not all eight. Do s2.0 and s2.1 together, since a project you already use is the easiest route to a merged PR. s2.7 runs in the background for a year.",
+    "p18.s3": "A standing routine for after the course. Set calendar reminders: release notes each October when a new CPython ships, one codebase per quarter, re-benchmarks and a rebuild once a year. Keep one notes file that every check-in adds to."
+  },
+  "items": {
+    "p18.s0.0": {
+      "how": "Read Choose Boring Technology. List every dependency in your current project and mark each as boring or new. For each new one, write two sentences on what it gives you that a boring option (<em>sqlite3</em>, Postgres, a cron job) cannot.",
+      "where": [
+        {
+          "name": "Choose Boring Technology",
+          "url": "https://mcfunley.com/choose-boring-technology"
+        },
+        {
+          "name": "Boring Technology Club (slides)",
+          "url": "https://boringtechnology.club/"
+        }
+      ],
+      "done": "You can defend each new technology in your stack in under a minute, or you have replaced it with a boring one."
+    },
+    "p18.s0.1": {
+      "how": "For one feature, write a one-page back-of-envelope estimate: peak requests per second, bytes per record times records per year, monthly cost, and a latency budget split across each hop. Then measure the real system and compare.",
+      "where": [
+        {
+          "name": "Latency numbers every programmer should know",
+          "url": "https://gist.github.com/jboner/2841832"
+        },
+        {
+          "name": "System Design Primer",
+          "url": "https://github.com/donnemartin/system-design-primer"
+        }
+      ],
+      "done": "Your estimates land within a factor of ten of the measured values, and you can explain any that do not."
+    },
+    "p18.s0.2": {
+      "how": "Write a design doc for a real change: context, goals and non-goals, the design, two rejected alternatives with reasons, and risks. Give it to someone asked to find its weakest point, and record their objections and your answers in the doc.",
+      "where": [
+        {
+          "name": "Design docs at Google",
+          "url": "https://www.industrialempathy.com/posts/design-docs-at-google/"
+        }
+      ],
+      "done": "The doc survives a hostile review with its main decision intact, or you changed the decision because of the review."
+    },
+    "p18.s0.3": {
+      "how": "Go through your design doc and mark each decision as cheap or costly to reverse: data formats, public APIs, the database, anything users store. For each costly one, note the evidence you need before committing and how you would back out.",
+      "where": [
+        {
+          "name": "Architecture Decision Record",
+          "url": "https://martinfowler.com/bliki/ArchitectureDecisionRecord.html"
+        },
+        {
+          "name": "Designing Data-Intensive Applications",
+          "url": "https://dataintensive.net/"
+        }
+      ],
+      "done": "You can name the two or three decisions in your design that would take weeks to undo, and say why."
+    },
+    "p18.s0.4": {
+      "how": "Before your next project, write kill criteria: the measurable result you expect by a date and what you will do if it is missing. Review on that date. Also pick one past project you kept going too long and write down the signal you ignored.",
+      "where": [
+        {
+          "name": "Sunk cost",
+          "url": "https://en.wikipedia.org/wiki/Sunk_cost"
+        }
+      ],
+      "done": "You have a dated kill-criteria note, acted on it, and did not argue from time already spent."
+    },
+    "p18.s0.5": {
+      "how": "Clone a large project you have not seen (CPython, Django, pip). In one day: build it, run its tests, find the entry point, trace one command end to end in a debugger, and draw a one-page map of the main modules.",
+      "where": [
+        {
+          "name": "Exploring CPython's internals",
+          "url": "https://devguide.python.org/internals/exploring/"
+        },
+        {
+          "name": "The Architecture of Open Source Applications",
+          "url": "https://aosabook.org/en/index.html"
+        }
+      ],
+      "done": "By the end of the day you can say where a given feature lives, or fix a small bug, without searching blindly."
+    },
+    "p18.s0.6": {
+      "how": "In a small app with a database, rename a column with no downtime: add the new column, write to both, backfill, switch reads, stop writing the old one, then drop it. Keep a load script running against the app throughout and log failed requests.",
+      "where": [
+        {
+          "name": "Parallel Change (expand and contract)",
+          "url": "https://martinfowler.com/bliki/ParallelChange.html"
+        },
+        {
+          "name": "Evolutionary Database Design",
+          "url": "https://martinfowler.com/articles/evodb.html"
+        }
+      ],
+      "done": "The load script records zero errors across every step, and each step could be rolled back on its own."
+    },
+    "p18.s0.7": {
+      "how": "Take a planned feature and write three versions of it: full, half, and the smallest that still tests the core assumption. Ship the smallest first. For each part you cut, note what you learned by not building it.",
+      "where": [
+        {
+          "name": "Yagni",
+          "url": "https://martinfowler.com/bliki/Yagni.html"
+        }
+      ],
+      "done": "You shipped a cut-down version sooner than the full plan and can list what you left out on purpose."
+    },
+    "p18.s1.0": {
+      "how": "Run a drill: break a service of yours on purpose (fill the disk, stop the database, deploy a bad config) with a timer as the pager. Log every action with a timestamp. Mitigate first by rolling back or failing over; look for the cause only after that.",
+      "where": [
+        {
+          "name": "SRE book: Managing Incidents",
+          "url": "https://sre.google/sre-book/managing-incidents/"
+        },
+        {
+          "name": "SRE book: Emergency Response",
+          "url": "https://sre.google/sre-book/emergency-response/"
+        }
+      ],
+      "done": "Your timeline shows service restored before the root cause was found, within a target time you set in advance."
+    },
+    "p18.s1.1": {
+      "how": "Take the drill from s1.0 or a public outage. Write a one-page blameless postmortem: timeline, impact, root cause, contributing factors, and three action items, each with an owner, a date and a tracking issue. Prefer actions that remove a class of failure.",
+      "where": [
+        {
+          "name": "SRE book: Postmortem Culture",
+          "url": "https://sre.google/sre-book/postmortem-culture/"
+        },
+        {
+          "name": "SRE book: Example Postmortem",
+          "url": "https://sre.google/sre-book/example-postmortem/"
+        }
+      ],
+      "done": "Someone who was not there can follow the timeline and say why it happened, and no sentence blames a person."
+    },
+    "p18.s1.2": {
+      "how": "For a service you run, pick two SLIs (share of successful requests, share served under a latency threshold), set an SLO such as 99.5% over 28 days, and work out the error budget in minutes or failed requests. Write a short policy for when the budget runs out.",
+      "where": [
+        {
+          "name": "SRE book: Service Level Objectives",
+          "url": "https://sre.google/sre-book/service-level-objectives/"
+        },
+        {
+          "name": "SRE workbook: Implementing SLOs",
+          "url": "https://sre.google/workbook/implementing-slos/"
+        }
+      ],
+      "done": "You can read the remaining error budget off your own metrics, not estimate it from memory."
+    },
+    "p18.s1.3": {
+      "how": "Add structured logs with a request id and the four golden signals (latency, traffic, errors, saturation) to a service you own, using <em>logging</em> and OpenTelemetry. Then inject a fault and diagnose it using only dashboards and logs.",
+      "where": [
+        {
+          "name": "SRE book: Monitoring Distributed Systems",
+          "url": "https://sre.google/sre-book/monitoring-distributed-systems/"
+        },
+        {
+          "name": "OpenTelemetry for Python",
+          "url": "https://opentelemetry.io/docs/languages/python/"
+        }
+      ],
+      "done": "You located the injected fault from telemetry alone, without adding print statements or redeploying."
+    },
+    "p18.s1.4": {
+      "how": "Put a new code path behind a flag read at runtime. Roll it out to 1%, 10%, then 100% of requests, comparing error rate and latency between flag-on and flag-off at each step. Then ship a deliberately bad version and roll it back by flipping the flag.",
+      "where": [
+        {
+          "name": "Feature Toggles",
+          "url": "https://martinfowler.com/articles/feature-toggles.html"
+        },
+        {
+          "name": "SRE workbook: Canarying Releases",
+          "url": "https://sre.google/workbook/canarying-releases/"
+        }
+      ],
+      "done": "You rolled back the bad version by changing the flag, with no redeploy, and your metrics showed the gap between the groups."
+    },
+    "p18.s1.5": {
+      "how": "Back up a real database of yours (<em>Connection.backup</em> in <em>sqlite3</em>, or <em>pg_dump</em>). Restore it to a fresh location and check row counts, a checksum of key tables, and that the app starts against it. Time it and write it up as a runbook.",
+      "where": [
+        {
+          "name": "SRE book: Data Integrity",
+          "url": "https://sre.google/sre-book/data-integrity/"
+        },
+        {
+          "name": "sqlite3 module",
+          "url": "https://docs.python.org/3/library/sqlite3.html"
+        }
+      ],
+      "done": "You have a runbook with a measured restore time, and someone else can follow it to a working copy."
+    },
+    "p18.s2.0": {
+      "how": "List the libraries your own projects depend on and pick one. Read its CONTRIBUTING file, set up its dev environment and run its tests. Start with a docs fix, a reproducible bug report, or a failing test for an open issue.",
+      "where": [
+        {
+          "name": "How to contribute to open source",
+          "url": "https://opensource.guide/how-to-contribute/"
+        },
+        {
+          "name": "Python Developer's Guide",
+          "url": "https://devguide.python.org/"
+        }
+      ],
+      "done": "The project's test suite runs on your machine and you have opened at least one issue or PR on it."
+    },
+    "p18.s2.1": {
+      "how": "Choose an issue the maintainers have accepted, say on it that you are taking it, and keep the PR to one change with tests and a changelog entry if the project uses one. Answer review within a few days and rebase when asked.",
+      "where": [
+        {
+          "name": "How to contribute to open source",
+          "url": "https://opensource.guide/how-to-contribute/"
+        }
+      ],
+      "done": "A maintainer you do not know merged it, and it changed behaviour or fixed a bug rather than only docs."
+    },
+    "p18.s2.2": {
+      "how": "Move a small utility from your own code into a package: <em>pyproject.toml</em>, <em>src</em> layout, <em>pytest</em> tests, a README. Add CI that tests every push and publishes on a tag via trusted publishing. Upload to TestPyPI first.",
+      "where": [
+        {
+          "name": "Packaging Python projects",
+          "url": "https://packaging.python.org/en/latest/tutorials/packaging-projects/"
+        },
+        {
+          "name": "PyPI trusted publishers",
+          "url": "https://docs.pypi.org/trusted-publishers/"
+        }
+      ],
+      "done": "<em>pip install</em> of your package works in a fresh virtual environment and CI shows passing."
+    },
+    "p18.s2.3": {
+      "how": "Pick something that took you more than a day to understand. Write 800 to 1500 words: the confusion, the wrong model you held, the working model, and a minimal example that runs. Have one person at your earlier level read it before publishing.",
+      "where": [
+        {
+          "name": "Blogging principles (Julia Evans)",
+          "url": "https://jvns.ca/blog/2017/03/20/blogging-principles/"
+        },
+        {
+          "name": "Diataxis",
+          "url": "https://diataxis.fr/"
+        }
+      ],
+      "done": "A reader at your earlier level can run the example and explain the idea back to you."
+    },
+    "p18.s2.4": {
+      "how": "Read Google's guide on review comments, then review a PR in an open source project or a friend's repository. For each comment state the problem, why it matters and one way to fix it; label nits as nits.",
+      "where": [
+        {
+          "name": "Google review guide: writing comments",
+          "url": "https://google.github.io/eng-practices/review/reviewer/comments.html"
+        },
+        {
+          "name": "Google review guide: how to review",
+          "url": "https://google.github.io/eng-practices/review/reviewer/"
+        }
+      ],
+      "done": "The author changed the code because of your comments without having to ask what you meant."
+    },
+    "p18.s2.5": {
+      "how": "Pair with a learner on a bug in their code and stay off the keyboard. Ask what they expected, what happened and what they have ruled out; suggest one experiment at a time. Afterwards write down which questions moved them forward.",
+      "where": [
+        {
+          "name": "Google review guide: the standard (mentoring)",
+          "url": "https://google.github.io/eng-practices/review/reviewer/standard.html"
+        }
+      ],
+      "done": "They fixed it themselves and can explain the fix, and you wrote no code in their files."
+    },
+    "p18.s2.6": {
+      "how": "Turn one of your posts into a five-minute lightning talk: one idea, one demo, at most ten slides. Watch a few lightning talks first, rehearse aloud three times against a timer, then submit it to a local Python meetup or an online event.",
+      "where": [
+        {
+          "name": "PyVideo talk archive",
+          "url": "https://pyvideo.org/"
+        }
+      ],
+      "done": "You gave the talk within the time limit and answered at least one question from the audience."
+    },
+    "p18.s2.7": {
+      "how": "Keep one project in use for at least a year: fix issues, upgrade dependencies, and cut releases with semantic version numbers and a changelog. Each time a past decision costs you time, add it to a decisions log with the cost.",
+      "where": [
+        {
+          "name": "Best practices for maintainers",
+          "url": "https://opensource.guide/best-practices/"
+        },
+        {
+          "name": "Semantic Versioning",
+          "url": "https://semver.org/"
+        }
+      ],
+      "done": "Your log names at least three past choices you would now make differently, with what each cost you."
+    },
+    "p18.s3.0": {
+      "how": "When each CPython version ships, read its What's New page, pick three changes and write a short script that uses each. Run your main project's tests on the new version and note what breaks.",
+      "where": [
+        {
+          "name": "What's New in Python (index)",
+          "url": "https://docs.python.org/3/whatsnew/index.html"
+        },
+        {
+          "name": "What's New in Python 3.14",
+          "url": "https://docs.python.org/3/whatsnew/3.14.html"
+        }
+      ],
+      "done": "Your notes have one entry per release with three tried features and your project's test result on it."
+    },
+    "p18.s3.1": {
+      "how": "Install the free-threaded build (<em>python3.14t</em>) and time a CPU-bound threaded benchmark on it and on the default build; confirm with <em>sys._is_gil_enabled()</em>. Each year reread the status in PEP 779 and PEP 744 and repeat the run.",
+      "where": [
+        {
+          "name": "Python free-threading HOWTO",
+          "url": "https://docs.python.org/3/howto/free-threading-python.html"
+        },
+        {
+          "name": "PEP 779: supported free-threaded Python",
+          "url": "https://peps.python.org/pep-0779/"
+        }
+      ],
+      "done": "You have a yearly table of timings for both builds and can say whether your own code would gain."
+    },
+    "p18.s3.2": {
+      "how": "Keep a small benchmark suite for choices you rely on: JSON library, HTTP client, dataframe library, serialisation format. Once a year run it with <em>pyperf</em> on current versions and update your notes on which you would pick now.",
+      "where": [
+        {
+          "name": "pyperf documentation",
+          "url": "https://pyperf.readthedocs.io/en/latest/"
+        },
+        {
+          "name": "timeit module",
+          "url": "https://docs.python.org/3/library/timeit.html"
+        }
+      ],
+      "done": "You have dated results from at least two years and have changed or confirmed a choice because of them."
+    },
+    "p18.s3.3": {
+      "how": "Each quarter pick one well-known codebase (<em>requests</em>, <em>asyncio</em>, SQLite, Redis). Read any architecture notes it has, trace one feature through the code, and write a one-page summary of a technique you could reuse.",
+      "where": [
+        {
+          "name": "The Architecture of Open Source Applications",
+          "url": "https://aosabook.org/en/index.html"
+        },
+        {
+          "name": "Exploring CPython's internals",
+          "url": "https://devguide.python.org/internals/exploring/"
+        }
+      ],
+      "done": "You have four one-page summaries a year, each naming a technique you have since used in your own code."
+    },
+    "p18.s3.4": {
+      "how": "Pick a project at least a year old. Without opening the old code, rebuild it from its README. Then compare the two: structure, tests, dependencies, line count, and speed on the same input.",
+      "where": [
+        {
+          "name": "Make a README",
+          "url": "https://www.makeareadme.com/"
+        },
+        {
+          "name": "PEP 8 style guide",
+          "url": "https://www.python.org/dev/peps/pep-0008/"
+        }
+      ],
+      "done": "You have a written comparison with measured differences and a list of habits that changed."
+    }
+  }
+}

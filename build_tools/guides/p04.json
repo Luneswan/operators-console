@@ -1,0 +1,266 @@
+{
+  "sections": {
+    "p04.s0": "Go in order: C and memory first, since everything after depends on it, then linear structures, hashing, trees, heaps, tries and graphs, then the notation and memory-management topics. For each, watch or read the explanation, then step through the VisuAlgo animation. About a week in total.",
+    "p04.s1": "Build a <em>pystructures</em> package with one module per structure, in the order listed, because later ones reuse earlier ones: the stack sits on your array, the queue on your linked list, BFS on your queue. Write tests and the benchmark with each structure, not at the end. Allow one to two days per structure."
+  },
+  "items": {
+    "p04.s0.0": {
+      "how": "Watch CS50 week 4 (Memory) and do its problems, or write small C programs that print addresses with <em>%p</em>, allocate with <em>malloc</em> and <em>free</em>, and walk an array with pointer arithmetic. Then compare <em>sys.getsizeof(1)</em> and a list of ints with the C sizes.",
+      "where": [
+        {
+          "name": "CS50 week 4: Memory",
+          "url": "https://cs50.harvard.edu/x/weeks/4/"
+        },
+        {
+          "name": "sys.getsizeof",
+          "url": "https://docs.python.org/3/library/sys.html#sys.getsizeof"
+        }
+      ],
+      "done": "You can explain why a Python list of a million ints uses several times more memory than a C int array of the same length."
+    },
+    "p04.s0.1": {
+      "how": "Use <em>timeit</em> to compare summing a million numbers stored in a <em>list</em> with walking a million nodes of a small linked-list class. Read about locality of reference and explain the gap in terms of contiguous memory and cache lines, not operation counts.",
+      "where": [
+        {
+          "name": "Locality of reference",
+          "url": "https://en.wikipedia.org/wiki/Locality_of_reference"
+        },
+        {
+          "name": "timeit",
+          "url": "https://docs.python.org/3/library/timeit.html"
+        }
+      ],
+      "done": "You have a measured ratio and can explain why a linked list is slower to traverse even though both walks are O(n)."
+    },
+    "p04.s0.2": {
+      "how": "Use a <em>list</em> as a stack and <em>collections.deque</em> as a queue, and time <em>list.pop(0)</em> against <em>deque.popleft()</em> at 100,000 items. Write down real uses of each: call stack, undo history, bracket matching; print spoolers, BFS, job queues.",
+      "where": [
+        {
+          "name": "Tutorial: lists as stacks and queues",
+          "url": "https://docs.python.org/3/tutorial/datastructures.html"
+        },
+        {
+          "name": "collections.deque",
+          "url": "https://docs.python.org/3/library/collections.html#collections.deque"
+        }
+      ],
+      "done": "You can say why <em>list.pop(0)</em> is O(n) and name a real system that relies on each structure."
+    },
+    "p04.s0.3": {
+      "how": "Watch the hash table part of CS50 week 5, then insert keys on VisuAlgo's hash table page under linear probing and separate chaining. Work out the load factor after each insert, note when a resize would trigger, and why it has to rehash every key.",
+      "where": [
+        {
+          "name": "VisuAlgo: hash table",
+          "url": "https://visualgo.net/en/hashtable"
+        },
+        {
+          "name": "CS50 week 5: Data Structures",
+          "url": "https://cs50.harvard.edu/x/weeks/5/"
+        }
+      ],
+      "done": "You can explain how collisions push lookup towards O(n) and why resizing keeps average lookup O(1)."
+    },
+    "p04.s0.4": {
+      "how": "On VisuAlgo, insert the same keys into a BST in sorted order and in shuffled order and compare the heights. Write pre-order, in-order and post-order for a small tree by hand, and step through AVL rotations to see how balance is restored.",
+      "where": [
+        {
+          "name": "VisuAlgo: BST and AVL",
+          "url": "https://visualgo.net/en/bst"
+        },
+        {
+          "name": "Tree traversal",
+          "url": "https://en.wikipedia.org/wiki/Tree_traversal"
+        }
+      ],
+      "done": "You can give all three traversals of a 7-node tree from memory and explain why sorted input turns a plain BST into a list."
+    },
+    "p04.s0.5": {
+      "how": "On VisuAlgo's heap page, insert and extract-max and watch sift-up and sift-down. Then use <em>heapq</em> to keep the 10 smallest items of a stream and to merge sorted lists. Draw the array-to-tree mapping: children of index i sit at 2i+1 and 2i+2.",
+      "where": [
+        {
+          "name": "VisuAlgo: binary heap",
+          "url": "https://visualgo.net/en/heap"
+        },
+        {
+          "name": "heapq",
+          "url": "https://docs.python.org/3/library/heapq.html"
+        }
+      ],
+      "done": "You can state the heap invariant, the index formulas, and why push and pop are O(log n)."
+    },
+    "p04.s0.6": {
+      "how": "Draw a trie for ten words by hand and mark which nodes a prefix search for 'ca' visits. Compare that with filtering the word list using <em>str.startswith</em>, and note how each cost changes as the list grows.",
+      "where": [
+        {
+          "name": "Trie",
+          "url": "https://en.wikipedia.org/wiki/Trie"
+        }
+      ],
+      "done": "You can explain why a trie prefix lookup depends on the prefix length, not on how many words are stored."
+    },
+    "p04.s0.7": {
+      "how": "Represent one small directed, weighted graph as a dict of lists and as a 2D matrix. For each, work out the cost of listing a node's neighbours and of checking one edge, and the memory needed for a sparse graph with 10,000 nodes.",
+      "where": [
+        {
+          "name": "VisuAlgo: graph structures",
+          "url": "https://visualgo.net/en/graphds"
+        },
+        {
+          "name": "Graph (abstract data type)",
+          "url": "https://en.wikipedia.org/wiki/Graph_(abstract_data_type)"
+        }
+      ],
+      "done": "You can choose adjacency list or matrix for a given graph density and justify the choice with numbers."
+    },
+    "p04.s0.8": {
+      "how": "Read the formal definitions of O, Omega and Theta. Write one function whose running time is Theta(n) and one whose best and worst cases differ (linear search). Then classify the loops in five of your own functions.",
+      "where": [
+        {
+          "name": "Big O notation",
+          "url": "https://en.wikipedia.org/wiki/Big_O_notation"
+        },
+        {
+          "name": "Python time complexity",
+          "url": "https://wiki.python.org/moin/TimeComplexity"
+        }
+      ],
+      "done": "You can explain that O is an upper bound, Omega a lower bound and Theta both, and that none of them means worst case on its own."
+    },
+    "p04.s0.9": {
+      "how": "Read how stack frames and heap allocation work (CS50 week 4), then how CPython frees memory: reference counting plus a cycle collector. Build a reference cycle, delete the names, and check the return value of <em>gc.collect()</em>.",
+      "where": [
+        {
+          "name": "gc",
+          "url": "https://docs.python.org/3/library/gc.html"
+        },
+        {
+          "name": "CPython garbage collector design",
+          "url": "https://github.com/python/cpython/blob/main/InternalDocs/garbage_collector.md"
+        }
+      ],
+      "done": "You can explain what reference counting frees at once, what needs the cycle collector, and what garbage collection costs."
+    },
+    "p04.s1.0": {
+      "how": "Write <em>DynamicArray</em> on a preallocated list (<em>[None] * capacity</em>) using only index reads and writes, with <em>append</em>, <em>pop</em>, <em>__getitem__</em> and <em>__len__</em>. Double the capacity when full and copy. Count total copies over a million appends.",
+      "where": [
+        {
+          "name": "Dynamic array",
+          "url": "https://en.wikipedia.org/wiki/Dynamic_array"
+        },
+        {
+          "name": "Amortized analysis",
+          "url": "https://en.wikipedia.org/wiki/Amortized_analysis"
+        }
+      ],
+      "done": "Total copies over n appends stay below 2n, and you can explain why doubling gives amortised O(1) append."
+    },
+    "p04.s1.1": {
+      "how": "Write <em>SinglyLinkedList</em> with push_front, append (keep a tail pointer), pop_front, find and remove, and <em>DoublyLinkedList</em> with O(1) removal of a known node. Add <em>__iter__</em> and <em>__len__</em>. Test empty lists, one node, and removing the tail.",
+      "where": [
+        {
+          "name": "VisuAlgo: linked list",
+          "url": "https://visualgo.net/en/list"
+        },
+        {
+          "name": "Linked list",
+          "url": "https://en.wikipedia.org/wiki/Linked_list"
+        }
+      ],
+      "done": "Tests pass for empty, one-node and tail-removal cases, and you can say which operations are O(1) in each list."
+    },
+    "p04.s1.2": {
+      "how": "Build <em>Stack</em> on your <em>DynamicArray</em> and <em>Queue</em> on your linked list (enqueue at the tail, dequeue at the head), without using <em>list</em> methods or <em>deque</em> inside them. Raise a clear exception when popping from an empty one.",
+      "where": [
+        {
+          "name": "VisuAlgo: stack and queue",
+          "url": "https://visualgo.net/en/list"
+        },
+        {
+          "name": "Queue (abstract data type)",
+          "url": "https://en.wikipedia.org/wiki/Queue_(abstract_data_type)"
+        }
+      ],
+      "done": "Push, pop, enqueue and dequeue are O(1) (amortised for the stack), and tests cover the empty case."
+    },
+    "p04.s1.3": {
+      "how": "Write <em>HashTable</em> with <em>__setitem__</em>, <em>__getitem__</em>, <em>__delitem__</em> and <em>__len__</em>, using separate chaining. Index with <em>hash(key) % capacity</em>, resize when the load factor passes 0.75, and test with a key class whose <em>__hash__</em> always returns 1.",
+      "where": [
+        {
+          "name": "Real Python: hash table",
+          "url": "https://realpython.com/python-hash-table/"
+        },
+        {
+          "name": "VisuAlgo: hash table",
+          "url": "https://visualgo.net/en/hashtable"
+        }
+      ],
+      "done": "Tests pass with all keys colliding, and every key is still retrievable after several resizes."
+    },
+    "p04.s1.4": {
+      "how": "Write a BST with insert, search and delete covering all three delete cases: leaf, one child, two children (replace with the in-order successor). Add pre-order, in-order, post-order and level-order traversals as generators.",
+      "where": [
+        {
+          "name": "VisuAlgo: BST",
+          "url": "https://visualgo.net/en/bst"
+        },
+        {
+          "name": "Binary search tree",
+          "url": "https://en.wikipedia.org/wiki/Binary_search_tree"
+        }
+      ],
+      "done": "In-order traversal matches <em>sorted()</em> after any random mix of inserts and deletes."
+    },
+    "p04.s1.5": {
+      "how": "Store the heap in a list. Write <em>push</em> (append, then sift-up), <em>pop</em> (swap root with last, remove it, sift-down) and <em>heapify</em> in O(n) by sifting down from the last parent to the root. Check results against <em>heapq</em> on random inputs.",
+      "where": [
+        {
+          "name": "heapq",
+          "url": "https://docs.python.org/3/library/heapq.html"
+        },
+        {
+          "name": "VisuAlgo: binary heap",
+          "url": "https://visualgo.net/en/heap"
+        }
+      ],
+      "done": "Popping everything returns items in sorted order and matches <em>heapq</em> on thousands of random lists."
+    },
+    "p04.s1.6": {
+      "how": "Write <em>Graph</em> with an adjacency dict and <em>add_edge</em> for directed or undirected edges. Add <em>bfs</em> using your Queue and <em>dfs</em> both recursively and with your Stack. Return the visit order and, from BFS, the shortest path by edge count.",
+      "where": [
+        {
+          "name": "VisuAlgo: DFS and BFS",
+          "url": "https://visualgo.net/en/dfsbfs"
+        },
+        {
+          "name": "CP-Algorithms: BFS",
+          "url": "https://cp-algorithms.com/graph/breadth-first-search.html"
+        }
+      ],
+      "done": "BFS returns shortest edge-count paths on test graphs, and iterative DFS walks a 100,000-node chain without a RecursionError."
+    },
+    "p04.s1.7": {
+      "how": "Write <em>Trie</em> with nodes that hold a dict of children and an end-of-word flag. Implement <em>insert</em>, <em>search</em> for whole words, and <em>starts_with</em> that yields every word under a prefix. Load a word list and test prefixes with zero, one and many matches.",
+      "where": [
+        {
+          "name": "Trie",
+          "url": "https://en.wikipedia.org/wiki/Trie"
+        }
+      ],
+      "done": "<em>starts_with</em> returns the same set as filtering the word list with <em>str.startswith</em>, for every prefix you test."
+    },
+    "p04.s1.8": {
+      "how": "For each structure write pytest tests with edge cases, and a <em>timeit</em> benchmark against its stdlib counterpart: <em>list</em>, <em>collections.deque</em>, <em>dict</em>, <em>heapq</em>, <em>bisect</em> on a sorted list. Record the ratios in a table in the README.",
+      "where": [
+        {
+          "name": "timeit",
+          "url": "https://docs.python.org/3/library/timeit.html"
+        },
+        {
+          "name": "pytest: get started",
+          "url": "https://docs.pytest.org/en/stable/getting-started.html"
+        }
+      ],
+      "done": "Every structure has passing tests and a recorded speed ratio, and you can explain why the stdlib version is faster."
+    }
+  }
+}

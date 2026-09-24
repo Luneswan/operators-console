@@ -48,7 +48,7 @@
    "res": [
     {"n": "Qt for Python (PySide6)", "k": "docs", "w": "Official docs and tutorials for PySide6", "u": "https://doc.qt.io/qtforpython-6/"},
     {"n": "tkinter", "k": "docs", "w": "The GUI toolkit in the standard library", "u": "https://docs.python.org/3/library/tkinter.html"},
-    {"n": "BeeWare tutorial", "k": "course", "w": "Native desktop and mobile apps from one codebase", "u": "https://docs.beeware.org/en/latest/tutorial/index.html"},
+    {"n": "BeeWare tutorial", "k": "course", "w": "Native desktop and mobile apps from one codebase", "u": "https://tutorial.beeware.org/en/latest/"},
     {"n": "Kivy", "k": "docs", "w": "Touch-first UI framework for desktop and mobile", "u": "https://kivy.org/doc/stable/"},
     {"n": "PyInstaller", "k": "docs", "w": "Bundle an app and its interpreter into one folder or file", "u": "https://pyinstaller.org/en/stable/"}
    ],
@@ -287,7 +287,7 @@
    "res": [
     {"n": "Advanced NLP with spaCy", "k": "course", "w": "Free interactive course from the spaCy authors", "u": "https://course.spacy.io/"},
     {"n": "Hugging Face LLM course", "k": "course", "w": "Transformers, tokenizers and fine-tuning", "u": "https://huggingface.co/learn/llm-course"},
-    {"n": "scikit-learn text tutorial", "k": "docs", "w": "Bag of words, TF-IDF and linear classifiers", "u": "https://scikit-learn.org/stable/tutorial/text_analytics/working_with_text_data.html"},
+    {"n": "scikit-learn text tutorial", "k": "docs", "w": "Bag of words, TF-IDF and linear classifiers", "u": "https://scikit-learn.org/stable/auto_examples/text/plot_document_classification_20newsgroups.html"},
     {"n": "Sentence Transformers", "k": "docs", "w": "Text embeddings for search and clustering", "u": "https://www.sbert.net/"},
     {"n": "NLTK book", "k": "book", "w": "Classic introduction to language processing; free online", "u": "https://www.nltk.org/book/"}
    ],

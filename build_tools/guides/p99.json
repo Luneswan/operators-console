@@ -1,0 +1,317 @@
+{
+  "sections": {
+    "p99.s0": "Six projects, each harder than the last and each able to reuse the one before: the task platform can sit behind your HTTP server and keep state in your database. Do them in order and expect four to eight weeks each. Run every boss through the protocol in s1 rather than following one tutorial end to end.",
+    "p99.s1": "The method for every boss and for any problem without a set answer. Work the steps in order on each project and keep one notes file per project with a heading per step. The first four steps should take days, not weeks; most of the time goes to s1.5 to s1.7.",
+    "p99.s2": "A checklist for a year of work, not a separate task. The bosses fill most of it: Bosses 1 to 3 count as serious projects, 4 and 5 as production-style systems, 6 as the flagship. Review the list once a month and fill gaps with small tools and one package."
+  },
+  "items": {
+    "p99.s0.0": {
+      "how": "Order: a raw <em>socket</em> accept loop returning a fixed response; parse the request line and headers; route by method and path; JSON bodies and static files with correct Content-Type and 404s; middleware as wrapped handlers; then threads or <em>asyncio</em>. No <em>http.server</em>.",
+      "where": [
+        {
+          "name": "CodeCrafters: Build your own HTTP server",
+          "url": "https://app.codecrafters.io/courses/http-server/overview"
+        },
+        {
+          "name": "MDN: An overview of HTTP",
+          "url": "https://developer.mozilla.org/en-US/docs/Web/HTTP/Guides/Overview"
+        }
+      ],
+      "done": "<em>curl</em> and a browser both work against it, tests cover each route, and a load test at 50 concurrent clients shows no errors."
+    },
+    "p99.s0.1": {
+      "how": "Order: a REPL that parses <em>insert</em> and <em>select</em>; rows serialised into fixed-size pages; a pager writing pages to one file; update and delete; a B-tree index on the key; then a planner that picks index lookup over full scan when a query filters on the key.",
+      "where": [
+        {
+          "name": "Let's Build a Simple Database",
+          "url": "https://cstack.github.io/db_tutorial/"
+        },
+        {
+          "name": "SQLite: Query Planning",
+          "url": "https://www.sqlite.org/queryplanner.html"
+        }
+      ],
+      "done": "Data survives a restart, tests cover CRUD, and a keyed lookup on 100,000 rows is measurably faster with the index than by full scan."
+    },
+    "p99.s0.2": {
+      "how": "Work through the tree-walk half of Crafting Interpreters in Python instead of Java: scanner, recursive-descent parser to an AST, evaluator, variables and scopes, control flow, functions and closures. Report errors with line numbers and keep scanning after a syntax error.",
+      "where": [
+        {
+          "name": "Crafting Interpreters: A Tree-Walk Interpreter",
+          "url": "https://craftinginterpreters.com/a-tree-walk-interpreter.html"
+        },
+        {
+          "name": "Crafting Interpreters: contents",
+          "url": "https://craftinginterpreters.com/contents.html"
+        }
+      ],
+      "done": "It runs a recursive Fibonacci and a closure-based counter, and bad input gives a line-numbered error, not a Python traceback."
+    },
+    "p99.s0.3": {
+      "how": "Order: an HTTP API that accepts jobs with an idempotency key; a queue in Redis or a database table; workers that claim jobs with a lease; retries with exponential backoff, jitter and a dead-letter state; then per-job metrics and traces. Kill a worker mid-job to test recovery.",
+      "where": [
+        {
+          "name": "Implementing Stripe-like idempotency keys",
+          "url": "https://brandur.org/idempotency-keys"
+        },
+        {
+          "name": "OpenTelemetry for Python",
+          "url": "https://opentelemetry.io/docs/languages/python/"
+        }
+      ],
+      "done": "After killing workers and resubmitting jobs, each job's effect happens once, and a dashboard shows queue depth and failure rate."
+    },
+    "p99.s0.4": {
+      "how": "Order: one model call with a tool-call loop; a tool registry with per-tool permissions and human approval for writes; retrieval over your own documents; memory with a size limit; then an eval set of 30 or more cases scored automatically on every change.",
+      "where": [
+        {
+          "name": "Building effective agents (Anthropic)",
+          "url": "https://www.anthropic.com/engineering/building-effective-agents"
+        },
+        {
+          "name": "Your AI product needs evals (Hamel Husain)",
+          "url": "https://hamel.dev/blog/posts/evals/"
+        }
+      ],
+      "done": "The eval suite runs with one command and prints a score, and a prompt-injection case cannot trigger a write tool without approval."
+    },
+    "p99.s0.5": {
+      "how": "Pick a problem that someone other than you has. Ship a first version within a month with HTTPS, auth, backups, error tracking and uptime checks. Benchmark the main path, then iterate on what users actually do rather than on guesses.",
+      "where": [
+        {
+          "name": "SRE book: Reliable Product Launches at Scale",
+          "url": "https://sre.google/sre-book/reliable-product-launches/"
+        },
+        {
+          "name": "The Twelve-Factor App",
+          "url": "https://12factor.net/"
+        }
+      ],
+      "done": "People other than you use it, monitoring alerts you before they report outages, and you have before-and-after numbers for one change."
+    },
+    "p99.s1.0": {
+      "how": "Write one page: the problem in two sentences, who has it, what done looks like expressed as a test, and the hard constraints (budget, latency, data size, deadline, what must never happen). Mark which constraints are given and which you assumed.",
+      "where": [
+        {
+          "name": "Design docs at Google",
+          "url": "https://www.industrialempathy.com/posts/design-docs-at-google/"
+        }
+      ],
+      "done": "Someone else can read the page and say whether a proposed solution meets it."
+    },
+    "p99.s1.1": {
+      "how": "List every question you cannot yet answer: will this library handle the input, how fast must this be, can I get the data. Score each for how likely it is to go wrong and how costly that would be, and sort by the product.",
+      "where": [
+        {
+          "name": "Design docs at Google",
+          "url": "https://www.industrialempathy.com/posts/design-docs-at-google/"
+        }
+      ],
+      "done": "You have a ranked list and can name the single unknown that would sink the project if it went the wrong way."
+    },
+    "p99.s1.2": {
+      "how": "Take the top unknown and set a time box, such as two hours. Read only what answers that question: official docs, the source, one issue thread. Write the answer and its source in your notes and stop, even when nearby topics look interesting.",
+      "where": [
+        {
+          "name": "Python documentation",
+          "url": "https://docs.python.org/3/"
+        },
+        {
+          "name": "Build your own X",
+          "url": "https://github.com/codecrafters-io/build-your-own-x"
+        }
+      ],
+      "done": "Each research session ends inside its time box with a written answer to one named question."
+    },
+    "p99.s1.3": {
+      "how": "Write throwaway code, under 200 lines, that tests only the riskiest assumption: can the parser handle the real input, can the queue sustain the target rate. Set the pass or fail threshold before running it, then archive the prototype.",
+      "where": [
+        {
+          "name": "timeit module",
+          "url": "https://docs.python.org/3/library/timeit.html"
+        }
+      ],
+      "done": "You have a yes or no answer with a number, recorded next to the threshold you set beforehand."
+    },
+    "p99.s1.4": {
+      "how": "After the prototypes, write a short decision record: options, evidence from the prototypes, the choice, and what would make you revisit it. Start with the simplest structure the evidence allows, usually one process and one database.",
+      "where": [
+        {
+          "name": "Monolith First",
+          "url": "https://martinfowler.com/bliki/MonolithFirst.html"
+        },
+        {
+          "name": "Architecture Decision Record",
+          "url": "https://martinfowler.com/bliki/ArchitectureDecisionRecord.html"
+        }
+      ],
+      "done": "The decision record cites at least one measured result, and you can say why each rejected option lost."
+    },
+    "p99.s1.5": {
+      "how": "Build the thinnest path from input to output through every layer: one route, one table, one worker, one screen, deployed where it will run. Hard-code anything off that path. Widen it only once it runs end to end.",
+      "where": [
+        {
+          "name": "Walking Skeleton",
+          "url": "https://wiki.c2.com/?WalkingSkeleton"
+        }
+      ],
+      "done": "One real request passes through every component in the deployed environment and returns the right result."
+    },
+    "p99.s1.6": {
+      "how": "Before the second feature, add <em>pytest</em> tests for the slice, structured logs with a request id at each boundary, and counters and timings for the main operation. Run the tests in CI and block merges on failure.",
+      "where": [
+        {
+          "name": "The Practical Test Pyramid",
+          "url": "https://martinfowler.com/articles/practical-test-pyramid.html"
+        },
+        {
+          "name": "Logging HOWTO",
+          "url": "https://docs.python.org/3/howto/logging.html"
+        }
+      ],
+      "done": "CI runs on every push, and your metrics can tell you how many requests failed in the last hour."
+    },
+    "p99.s1.7": {
+      "how": "Write a repeatable benchmark for the slow path and write down your guess of the bottleneck. Then profile with <em>cProfile</em> or <em>py-spy</em> and compare with the guess. Change one thing at a time and rerun the benchmark after each change.",
+      "where": [
+        {
+          "name": "The Python profilers (cProfile)",
+          "url": "https://docs.python.org/3/library/profile.html"
+        },
+        {
+          "name": "py-spy",
+          "url": "https://github.com/benfred/py-spy"
+        }
+      ],
+      "done": "You have before-and-after numbers from the same benchmark, and the change targeted the top entry in the profile."
+    },
+    "p99.s1.8": {
+      "how": "Refactor when the same friction shows up twice: a change touching many files, a bug in duplicated logic, a test that is hard to write. Cover the area with tests first, then refactor in small commits with the tests passing after each and behaviour unchanged.",
+      "where": [
+        {
+          "name": "Opportunistic Refactoring",
+          "url": "https://martinfowler.com/bliki/OpportunisticRefactoring.html"
+        },
+        {
+          "name": "Refactoring catalogue",
+          "url": "https://refactoring.com/"
+        }
+      ],
+      "done": "Tests pass on every commit of the refactor, and the next change in that area touches fewer files than the last one did."
+    },
+    "p99.s1.9": {
+      "how": "At the end of each project write a one-page retrospective: what worked, what you would change, the numbers you measured, and links to your decision records. Add one line per lesson to a running file and reread it before the next project.",
+      "where": [
+        {
+          "name": "Architectural Decision Records",
+          "url": "https://adr.github.io/"
+        }
+      ],
+      "done": "Before starting the next boss you can name three lessons from the last one and where you will apply them."
+    },
+    "p99.s2.0": {
+      "how": "Keep a list of small tools that fix your own irritations: a file renamer, a log summariser, a CLI for an API you use. Time-box each to a weekend and give it a README and at least one test. Advent of Code solutions count towards the exercises.",
+      "where": [
+        {
+          "name": "Advent of Code",
+          "url": "https://adventofcode.com/"
+        },
+        {
+          "name": "Build your own X",
+          "url": "https://github.com/codecrafters-io/build-your-own-x"
+        }
+      ],
+      "done": "Your GitHub has at least ten small repositories, or one collection repository, each with a README that says how to run it."
+    },
+    "p99.s2.1": {
+      "how": "Pick five projects, for example Bosses 1 to 3 and two others, and bring each to a state a stranger can use: a README with purpose, install steps, a usage example, design notes and known limits; tests in CI; a tagged release.",
+      "where": [
+        {
+          "name": "Make a README",
+          "url": "https://www.makeareadme.com/"
+        }
+      ],
+      "done": "A stranger can clone each one, follow its README, and run it and its tests in under ten minutes."
+    },
+    "p99.s2.2": {
+      "how": "Give two or three projects (Bosses 4 and 5 fit) the production basics: configuration from the environment, health checks, structured logs, metrics, bounded retries, a container or deploy script, and a runbook.",
+      "where": [
+        {
+          "name": "The Twelve-Factor App",
+          "url": "https://12factor.net/"
+        },
+        {
+          "name": "SRE book: Monitoring Distributed Systems",
+          "url": "https://sre.google/sre-book/monitoring-distributed-systems/"
+        }
+      ],
+      "done": "Each system deploys from scratch with one documented command and recovers from a killed process without manual steps."
+    },
+    "p99.s2.3": {
+      "how": "Choose the project you could discuss for an hour in an interview, usually Boss 6. Write a case study: the problem, the architecture, the hardest bug, the measured numbers, and what you would do next. Link it from your profile README.",
+      "where": [
+        {
+          "name": "Architecture Decision Record",
+          "url": "https://martinfowler.com/bliki/ArchitectureDecisionRecord.html"
+        }
+      ],
+      "done": "You can walk someone through the case study and answer why each major decision was made."
+    },
+    "p99.s2.4": {
+      "how": "Pick code you have already copied between two of your own projects, since that proves it is reusable. Package it with <em>pyproject.toml</em>, tests, docs and CI, and publish to PyPI with trusted publishing, trying TestPyPI first.",
+      "where": [
+        {
+          "name": "Packaging Python projects",
+          "url": "https://packaging.python.org/en/latest/tutorials/packaging-projects/"
+        },
+        {
+          "name": "PyPI trusted publishers",
+          "url": "https://docs.pypi.org/trusted-publishers/"
+        }
+      ],
+      "done": "At least one of your own projects installs it from PyPI instead of carrying a copy of the code."
+    },
+    "p99.s2.5": {
+      "how": "Deploy one project to a public host with a domain and HTTPS, add uptime monitoring and error tracking, and put it in front of real users: a tool for a club, a public API, a site friends use. Keep request logs so you can count traffic.",
+      "where": [
+        {
+          "name": "The Twelve-Factor App",
+          "url": "https://12factor.net/"
+        },
+        {
+          "name": "SRE book: Service Level Objectives",
+          "url": "https://sre.google/sre-book/service-level-objectives/"
+        }
+      ],
+      "done": "Your logs show requests from people other than you across at least a month, and you have tested that an outage triggers an alert."
+    },
+    "p99.s2.6": {
+      "how": "Pick a slow operation in one project. Benchmark it with <em>pyperf</em> or <em>timeit</em>, profile, fix the top cause and measure again. Write it up: setup, hardware, before and after numbers with variance, and what you tried that did not help.",
+      "where": [
+        {
+          "name": "pyperf documentation",
+          "url": "https://pyperf.readthedocs.io/en/latest/"
+        },
+        {
+          "name": "The Python profilers (cProfile)",
+          "url": "https://docs.python.org/3/library/profile.html"
+        }
+      ],
+      "done": "The write-up includes reproducible commands, and someone rerunning them gets numbers close to yours."
+    },
+    "p99.s2.7": {
+      "how": "Add a <em>docs/adr</em> folder to each serious project. For each significant choice write a short numbered record: context, decision, status, consequences. Write it when you decide, and supersede old records rather than editing them.",
+      "where": [
+        {
+          "name": "Architecture Decision Record",
+          "url": "https://martinfowler.com/bliki/ArchitectureDecisionRecord.html"
+        },
+        {
+          "name": "Architectural Decision Records",
+          "url": "https://adr.github.io/"
+        }
+      ],
+      "done": "Each serious project has numbered decision records from which a newcomer can learn why the stack looks as it does."
+    }
+  }
+}

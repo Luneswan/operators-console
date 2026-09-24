@@ -1,0 +1,119 @@
+{
+  "sections": {
+    "s07.s0": "Work from pixels up: arrays and classical OpenCV operations first (s0.0 to s0.2), then CNNs, transfer learning and augmentation (s0.3 to s0.5), then detection metrics, evaluation and video (s0.6 to s0.8). Spend at least half the time running code on your own images rather than reading.",
+    "s07.s1": "Fix the task and dataset first, since every later step depends on them. Train a baseline before fine-tuning, keep the test split untouched until the metrics step, and build the inference command last."
+  },
+  "items": {
+    "s07.s0.0": {
+      "how": "Load an image with <em>cv2.imread</em> and print its <em>shape</em> and <em>dtype</em>. Convert BGR to RGB and HSV with <em>cv2.cvtColor</em>, split the channels, and compare adding two <em>uint8</em> images with <em>+</em> against <em>cv2.add</em>.",
+      "where": [
+        {"name": "OpenCV basic operations on images", "url": "https://docs.opencv.org/4.x/d3/df2/tutorial_py_basic_ops.html"},
+        {"name": "OpenCV changing colour spaces", "url": "https://docs.opencv.org/4.x/df/d9d/tutorial_py_colorspaces.html"}
+      ],
+      "done": "You can explain why OpenCV loads BGR, why 200 + 100 gives 44 in uint8, and how to convert an image to float in [0, 1]."
+    },
+    "s07.s0.1": {
+      "how": "On one noisy photo apply <em>GaussianBlur</em>, then <em>threshold</em> with Otsu, then <em>Canny</em>, then <em>morphologyEx</em> with opening and closing. Change one parameter at a time and save each output side by side.",
+      "where": [
+        {"name": "OpenCV image thresholding", "url": "https://docs.opencv.org/4.x/d7/d4d/tutorial_py_thresholding.html"},
+        {"name": "OpenCV morphological transformations", "url": "https://docs.opencv.org/4.x/d9/d61/tutorial_py_morphological_ops.html"}
+      ],
+      "done": "You can clean speckle noise and small holes from a binary mask and explain what each kernel size changed."
+    },
+    "s07.s0.2": {
+      "how": "Detect ORB keypoints in two photos of the same flat object, match them with <em>BFMatcher</em>, estimate a homography with <em>cv2.findHomography</em> using RANSAC, and warp one image onto the other with <em>warpPerspective</em>.",
+      "where": [
+        {"name": "OpenCV feature matching and homography", "url": "https://docs.opencv.org/4.x/d1/de0/tutorial_py_feature_homography.html"},
+        {"name": "OpenCV feature matching", "url": "https://docs.opencv.org/4.x/dc/dc3/tutorial_py_matcher.html"}
+      ],
+      "done": "The warped image lines up with the target, and you can explain which matches the RANSAC inlier mask removed."
+    },
+    "s07.s0.3": {
+      "how": "Read the CS231n notes on convolutional networks, then work out by hand the output size of a <em>Conv2d</em> layer for a given kernel, stride and padding. Build a small network, print each layer's output shape, and calculate the receptive field of the last layer.",
+      "where": [
+        {"name": "CS231n convolutional networks", "url": "https://cs231n.github.io/convolutional-networks/"},
+        {"name": "PyTorch torch.nn.Conv2d", "url": "https://pytorch.org/docs/stable/generated/torch.nn.Conv2d.html"}
+      ],
+      "done": "You predict every layer's output shape before running the model, and the printed shapes match."
+    },
+    "s07.s0.4": {
+      "how": "Follow the PyTorch transfer learning tutorial on its ants and bees data. Run it twice: backbone frozen with only the new head trained, then the whole network fine-tuned at a lower learning rate. Record validation accuracy and training time for both.",
+      "where": [
+        {"name": "PyTorch transfer learning tutorial", "url": "https://pytorch.org/tutorials/beginner/transfer_learning_tutorial.html"},
+        {"name": "CS231n transfer learning notes", "url": "https://cs231n.github.io/transfer-learning/"}
+      ],
+      "done": "You have accuracy and time for both runs and can say when freezing the backbone is the better choice."
+    },
+    "s07.s0.5": {
+      "how": "Apply <em>torchvision.transforms.v2</em> augmentations to a batch and view the results. Find one that changes the label, such as a horizontal flip on left and right arrows or a crop that cuts out the object. For detection, check that the boxes move with the image.",
+      "where": [
+        {"name": "torchvision transforms v2 getting started", "url": "https://pytorch.org/vision/stable/auto_examples/transforms/plot_transforms_getting_started.html"},
+        {"name": "torchvision transforms reference", "url": "https://pytorch.org/vision/stable/transforms.html"}
+      ],
+      "done": "You can list the augmentations that are safe for your task and one that would corrupt its labels."
+    },
+    "s07.s0.6": {
+      "how": "Write an <em>iou(box_a, box_b)</em> function and check it against <em>torchvision.ops.box_iou</em>. Read how mAP averages precision over recall and IoU thresholds, then run validation on a pretrained detector and read its mAP50 and mAP50-95.",
+      "where": [
+        {"name": "torchvision.ops.box_iou", "url": "https://pytorch.org/vision/stable/generated/torchvision.ops.box_iou.html"},
+        {"name": "Ultralytics performance metrics guide", "url": "https://docs.ultralytics.com/guides/yolo-performance-metrics/"}
+      ],
+      "done": "Your IoU matches <em>box_iou</em> on random boxes, and you can explain the difference between mAP50 and mAP50-95."
+    },
+    "s07.s0.7": {
+      "how": "Test a trained classifier on images from a different source than its training data: another camera, lighting or background. Compare the accuracy with the original test split, and check that no near-duplicate images sit in both train and test.",
+      "where": [
+        {"name": "CS231n image classification (validation sets)", "url": "https://cs231n.github.io/classification/"},
+        {"name": "scikit-learn cross-validation guide", "url": "https://scikit-learn.org/stable/modules/cross_validation.html"}
+      ],
+      "done": "You can report the accuracy drop between the original and the shifted test set and name its likely cause."
+    },
+    "s07.s0.8": {
+      "how": "Read frames with <em>cv2.VideoCapture</em>, run a model on each one and measure frames per second. Then process every second or third frame, and batch several frames per forward pass under <em>torch.no_grad()</em>. Compare throughput and latency for each setting.",
+      "where": [
+        {"name": "OpenCV getting started with videos", "url": "https://docs.opencv.org/4.x/dd/d43/tutorial_py_video_display.html"},
+        {"name": "PyTorch torch.no_grad", "url": "https://pytorch.org/docs/stable/generated/torch.no_grad.html"}
+      ],
+      "done": "You have FPS and per-frame latency for each setting and can say which one meets a stated real-time target."
+    },
+    "s07.s1.0": {
+      "how": "Write a short task definition: classes, input images and where the model will run. Collect images or choose a public dataset, split it into train, validation and test folders by source or date so near-duplicates stay in one split, and count images per class.",
+      "where": [
+        {"name": "torchvision ImageFolder", "url": "https://pytorch.org/vision/stable/generated/torchvision.datasets.ImageFolder.html"},
+        {"name": "Ultralytics datasets overview", "url": "https://docs.ultralytics.com/datasets/"}
+      ],
+      "done": "You have a written task definition, three split folders, and a per-class count table."
+    },
+    "s07.s1.1": {
+      "how": "Train a baseline first: a majority-class predictor and a frozen pretrained backbone with a linear head. Then fine-tune a pretrained torchvision model with augmentation, pick the checkpoint by validation score, and evaluate both on the same test split.",
+      "where": [
+        {"name": "torchvision models and pretrained weights", "url": "https://pytorch.org/vision/stable/models.html"},
+        {"name": "PyTorch transfer learning tutorial", "url": "https://pytorch.org/tutorials/beginner/transfer_learning_tutorial.html"}
+      ],
+      "done": "The fine-tuned model beats the baseline on the test split, and you report the margin."
+    },
+    "s07.s1.2": {
+      "how": "Collect test-set predictions and run <em>classification_report</em> for per-class precision, recall and F1, then plot <em>ConfusionMatrixDisplay.from_predictions</em>. For a detector, use the per-class mAP table from the validation run instead.",
+      "where": [
+        {"name": "scikit-learn classification_report", "url": "https://scikit-learn.org/stable/modules/generated/sklearn.metrics.classification_report.html"},
+        {"name": "scikit-learn ConfusionMatrixDisplay", "url": "https://scikit-learn.org/stable/modules/generated/sklearn.metrics.ConfusionMatrixDisplay.html"}
+      ],
+      "done": "You can name the two classes the model confuses most, with the count from the confusion matrix."
+    },
+    "s07.s1.3": {
+      "how": "Sort test errors by loss or by confidence on the wrong answer, and save the 20 worst to a folder with true and predicted labels in the file names. Tag each with a cause, such as wrong label, blur, occlusion, rare viewpoint or overlapping classes, and count the tags.",
+      "where": [
+        {"name": "Ultralytics model evaluation insights", "url": "https://docs.ultralytics.com/guides/model-evaluation-insights"}
+      ],
+      "done": "You have a table of error causes with counts and one planned fix for the largest group."
+    },
+    "s07.s1.4": {
+      "how": "Write a command with <em>argparse</em> that takes <em>--source</em> as a webcam index, a video file or a folder of images, loads the saved model once, and writes annotated output or a CSV of predictions. Print the average FPS at the end.",
+      "where": [
+        {"name": "argparse module", "url": "https://docs.python.org/3/library/argparse.html"},
+        {"name": "OpenCV getting started with videos", "url": "https://docs.opencv.org/4.x/dd/d43/tutorial_py_video_display.html"}
+      ],
+      "done": "One command runs on all three source types and produces output without any code edits."
+    }
+  }
+}

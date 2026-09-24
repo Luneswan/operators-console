@@ -8,6 +8,8 @@ yesterday's date, and an update that failed without a word.
 """
 from __future__ import annotations
 
+import time
+
 from PySide6.QtCore import QDate
 
 from conftest import pump
@@ -195,14 +197,15 @@ def test_a_tick_from_another_copy_of_the_app_redraws_the_roadmap(
     window.go("roadmap")
     pump(qt_app)
     view = window.views["roadmap"]
-    assert view.store_unchanged()
+    today = time.strftime("%Y-%m-%d")       # the roadmap's dates count from it
+    assert view.store_unchanged(today)
     other = Store()
     try:
         phase = next(p for p in curriculum.phases if p.items)
         other.set_checked(phase.items[0].id, True)
     finally:
         other.close()
-    assert not view.store_unchanged()
+    assert not view.store_unchanged(today)
 
 
 # ---------------------------------------------------------------------------

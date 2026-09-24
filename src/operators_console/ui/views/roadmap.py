@@ -6,10 +6,14 @@ yet - so the shape of the whole plan is visible before a word is read.
 """
 from __future__ import annotations
 
+import time
+
 from PySide6.QtCore import QPointF, QRectF, Qt
 from PySide6.QtGui import QColor, QFont, QPainter, QPen
 from PySide6.QtWidgets import QHBoxLayout, QVBoxLayout, QWidget
 
+from ...core.estimate import format_day, format_hours
+from ...core.progress import QUIZ_PROOF
 from ..widgets import icons
 from ..widgets.common import (
     Card, Disclosure, button, clear_layout, divider, heading, label, meter,
@@ -89,9 +93,26 @@ class RoadmapView(View):
 
     def build(self) -> None:
         self.header("Your roadmap", "the plan",
-                    "Phases are in teaching order. None are locked.")
+                    "Each phase comes after what it needs. Dates follow your "
+                    "measured pace and study hours. None are locked.")
         self.summary = muted("")
         self.scroller.add(self.summary)
+
+        # The whole plan in four numbers, then what they rest on.
+        self.overview = Card(padding=14, spacing=6)
+        numbers = QHBoxLayout()
+        numbers.setSpacing(18)
+        self.left_value = self._figure(numbers, "LEFT AT YOUR PACE")
+        self.finish_value = self._figure(numbers, "DONE AROUND")
+        self.proven_value = self._figure(numbers, "PHASES PROVEN")
+        self.pace_value = self._figure(numbers, "YOUR PACE")
+        numbers.addStretch(1)
+        self.overview.box.addLayout(numbers)
+        self.overview_bar = meter(0, 1000, "done")
+        self.overview.add(self.overview_bar)
+        self.overview_basis = muted("")
+        self.overview.add(self.overview_basis)
+        self.scroller.add(self.overview)
 
         # Shown only once every phase in the plan is complete. The timeline
         # then has no "you are here" on it at all, and an unmarked rail on
@@ -129,10 +150,12 @@ class RoadmapView(View):
 
     def refresh(self) -> None:
         # Every visit used to tear down and rebuild all of the phase cards.
-        if self.store_unchanged():
+        # Dates count from today, so a new day redraws too.
+        today = time.strftime("%Y-%m-%d")
+        if self.store_unchanged(today):
             return
         self._draw()
-        self.mark_drawn()
+        self.mark_drawn(today)
 
     def on_theme(self) -> None:
         if not self._built:
@@ -140,24 +163,53 @@ class RoadmapView(View):
         for rail in self.findChildren(Rail):
             rail.set_theme(self.ctx.palette)
 
+    @staticmethod
+    def _figure(row, caption: str):
+        column = QVBoxLayout()
+        column.setSpacing(2)
+        value = label("", "RowTitle", wrap=False)
+        value.setAccessibleName(caption.capitalize())
+        column.addWidget(value)
+        column.addWidget(muted(caption))
+        row.addLayout(column)
+        return value
+
     def _draw(self) -> None:
+        from ..widgets.time_left import basis_text, other_date_text
         clear_layout(self.holder)
         clear_layout(self.extras)
         rows = self.ctx.planner.roadmap()
         stats = self.ctx.progress.all_phases()
         in_plan = {row.phase_id for row in rows}
+        estimate = self.ctx.estimator.estimate()
+        milestones = self.ctx.progress.career_milestones()
 
         track = self.ctx.curriculum.track(
             self.ctx.store.setting("track", "generalist"))
-        hours = sum(self.ctx.curriculum.phase(r.phase_id).est_hours
-                    for r in rows
-                    if self.ctx.curriculum.phase(r.phase_id) is not None)
         finished = self.ctx.progress.is_finished
         self.finished_banner.setVisible(finished)
         self.summary.setText(
-            "%s - %d phases, roughly %d hours of work%s"
-            % (track.name if track else "Custom", len(rows), hours,
+            "%s - %d phases, %s of work at the course estimate%s"
+            % (track.name if track else "Custom", len(rows),
+               format_hours(estimate.total_minutes),
                ", all done." if finished else "."))
+        proven = sum(1 for r in rows if stats.get(r.phase_id)
+                     and stats[r.phase_id].is_proven)
+        self.left_value.setText(format_hours(estimate.left_personal)
+                                if estimate.left_minutes > 0 else "None")
+        self.finish_value.setText(format_day(estimate.finish))
+        self.proven_value.setText("%d of %d" % (proven, len(rows)))
+        factor = estimate.pace.factor
+        self.pace_value.setText("%.2fx the estimate" % factor
+                                if estimate.pace.measured else "Not measured")
+        self.overview_bar.setValue(round(estimate.done_fraction * 1000))
+        self.overview_bar.setToolTip("%d%% of the estimated work is done"
+                                     % round(estimate.done_fraction * 100))
+        other = other_date_text(estimate)
+        self.overview_basis.setText(
+            basis_text(estimate) + (" " + other if other else "")
+            + ("" if estimate.pace.measured else
+               " Time your sessions (Study > Start, Ctrl+T) to measure it."))
 
         # The marker always names a phase, so on a finished plan it pins
         # "YOU ARE HERE" to the last one for ever. There is no here any more.
@@ -167,7 +219,9 @@ class RoadmapView(View):
         for index, (row, phase) in enumerate(phases):
             self.holder.addWidget(self._timeline_row(
                 phase, row, stats.get(phase.id), phase.id == current,
-                first=index == 0, last=index == len(phases) - 1))
+                first=index == 0, last=index == len(phases) - 1,
+                timing=estimate.phase(phase.id), factor=factor,
+                reached=milestones.get(phase.id, ())))
 
         outside = [p for p in self.ctx.curriculum.phases
                    if p.id not in in_plan and not p.no_progress]
@@ -179,7 +233,8 @@ class RoadmapView(View):
     # -- rows --------------------------------------------------------------
 
     def _timeline_row(self, phase, row, stats, is_current: bool,
-                      first: bool, last: bool) -> QWidget:
+                      first: bool, last: bool, timing=None, factor=1.0,
+                      reached=()) -> QWidget:
         holder = QWidget()
         holder.setObjectName("TimelineRow")
         line = QHBoxLayout(holder)
@@ -217,8 +272,8 @@ class RoadmapView(View):
         body.addLayout(top)
 
         body.addWidget(label(phase.aim, "Soft"))
-        body.addWidget(muted("%s - about %d hours - %s"
-                             % (phase.when, phase.est_hours, row.reason)))
+        body.addWidget(muted(self._when_line(phase, stats, timing, factor)
+                             + " - " + row.reason))
 
         percent = stats.percent if stats else 0
         progress = QHBoxLayout()
@@ -241,6 +296,13 @@ class RoadmapView(View):
             progress.addWidget(label("  -  ".join(bits), "Muted", wrap=False))
         progress.addStretch(1)
         body.addLayout(progress)
+        left = _left_line(stats)
+        if left:
+            body.addWidget(muted(left))
+        if reached:
+            body.addWidget(pill("PROVE THIS TO REACH %s"
+                                % " AND ".join(n.upper() for n in reached),
+                                "done"))
 
         if not row.unlocked and not row.reason.startswith("Builds on"):
             names = [self.ctx.curriculum.phase(p).name
@@ -249,6 +311,27 @@ class RoadmapView(View):
             body.addWidget(muted("Usually taken after: " + ", ".join(names)))
         line.addLayout(body, 1)
         return holder
+
+    @staticmethod
+    def _when_line(phase, stats, timing, factor) -> str:
+        """Hours and dates for one phase, from the estimate, not the fixed
+        week numbers the curriculum was written with."""
+        if stats and stats.is_proven:
+            return "Proven"
+        if timing is None or timing.total_minutes <= 0:
+            return phase.when or "Ongoing"
+        total = timing.total_minutes * factor
+        if timing.left_minutes <= 0:
+            return "Work done, %s" % format_hours(total)
+        if timing.left_minutes >= timing.total_minutes - 1:
+            text = "About %s" % format_hours(total)
+        else:
+            text = "%s left of %s" % (format_hours(timing.left_personal),
+                                      format_hours(total))
+        if timing.start and timing.finish:
+            text += ", %s to %s" % (format_day(timing.start),
+                                    format_day(timing.finish))
+        return text
 
     def _compact_card(self, phase, stats) -> Card:
         card = Card(padding=11, spacing=5)
@@ -259,6 +342,8 @@ class RoadmapView(View):
         row.addWidget(title, 1)
         if stats and stats.is_started:
             row.addWidget(muted("%d%%" % stats.percent))
+        elif phase.est_hours:
+            row.addWidget(muted("about %d h" % phase.est_hours))
         open_button = button("Open", "quiet")
         open_button.clicked.connect(
             lambda _=False, pid=phase.id: self.ctx.navigate.emit("phase", pid))
@@ -266,3 +351,26 @@ class RoadmapView(View):
         card.box.addLayout(row)
         card.add(muted(phase.aim))
         return card
+
+
+def _left_line(stats) -> str:
+    """What still stands between a phase and proven, by kind."""
+    if stats is None or stats.is_proven or not stats.total:
+        return ""
+    steps = (stats.total - stats.gate_total) - (stats.done - stats.gate_done)
+    parts = []
+    if steps > 0:
+        parts.append("%d study step%s" % (steps, "" if steps == 1 else "s"))
+    gate = stats.gate_total - stats.gate_done
+    if gate > 0:
+        parts.append("%d gate check%s" % (gate, "" if gate == 1 else "s"))
+    exercises = stats.exercises_total - stats.exercises_done
+    if exercises > 0:
+        parts.append("%d exercise%s" % (exercises,
+                                        "" if exercises == 1 else "s"))
+    if stats.quizzes_total and stats.quiz_best < QUIZ_PROOF:
+        parts.append("the quiz at %d%%" % round(QUIZ_PROOF * 100))
+    projects = stats.core_projects_total - stats.core_projects_shipped
+    if projects > 0:
+        parts.append("%d project%s" % (projects, "" if projects == 1 else "s"))
+    return ("Left: " + ", ".join(parts) + ".") if parts else ""

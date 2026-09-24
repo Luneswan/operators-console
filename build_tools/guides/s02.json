@@ -1,0 +1,126 @@
+{
+  "sections": {
+    "s02.s0": "The Qt concepts a working desktop app depends on, followed by packaging and a look at mobile. Work items 1 to 5 in order in one small PySide6 practice window, since each builds on the last. Items 6 to 9 can be read in any order; spend most time on threading and model/view.",
+    "s02.s1": "One small desktop tool that a real person uses, built and shipped. Write the logic layer and its tests first, then the window, then threading and cancel, then settings and keyboard access, and package last. Leave a day for packaging problems on a clean machine."
+  },
+  "items": {
+    "s02.s0.0": {
+      "how": "Build a window with a button whose slot calls <em>time.sleep(5)</em>, click it, and try to move or resize the window. Then replace the sleep with a <em>QTimer.singleShot</em> callback and compare. Write two sentences on what <em>app.exec()</em> is doing while the window is idle.",
+      "where": [
+        {"name": "QApplication", "url": "https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QApplication.html"},
+        {"name": "QTimer", "url": "https://doc.qt.io/qtforpython-6/PySide6/QtCore/QTimer.html"}
+      ],
+      "done": "You can explain why a blocking call in a slot stops repainting and input, and name two ways to avoid it."
+    },
+    "s02.s0.1": {
+      "how": "Build a form with <em>QVBoxLayout</em>, <em>QHBoxLayout</em> and <em>QFormLayout</em>, with no fixed sizes. Resize the window and note which widgets grow; then change one widget's <em>QSizePolicy</em> and a layout stretch factor and observe the difference.",
+      "where": [
+        {"name": "Qt layout management", "url": "https://doc.qt.io/qt-6/layout.html"},
+        {"name": "QSizePolicy", "url": "https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QSizePolicy.html"}
+      ],
+      "done": "Your form resizes cleanly at any window size with no call to setFixedSize or setGeometry."
+    },
+    "s02.s0.2": {
+      "how": "Write a plain Python class holding the app's logic, give a <em>QObject</em> wrapper a custom <em>Signal</em>, and connect it to a slot in the window. Keep all calculation in the plain class and unit-test it without importing Qt widgets.",
+      "where": [
+        {"name": "Qt for Python: signals and slots", "url": "https://doc.qt.io/qtforpython-6/tutorials/basictutorial/signals_and_slots.html"},
+        {"name": "Signal", "url": "https://doc.qt.io/qtforpython-6/PySide6/QtCore/Signal.html"}
+      ],
+      "done": "The window class contains only wiring and display code, and the logic class has tests that pass without a display."
+    },
+    "s02.s0.3": {
+      "how": "Move a slow task into a <em>QRunnable</em> run on <em>QThreadPool</em>, or a <em>QObject</em> moved to a <em>QThread</em>. Report progress through a signal to a <em>QProgressBar</em>, and never touch a widget from the worker thread.",
+      "where": [
+        {"name": "QThreadPool", "url": "https://doc.qt.io/qtforpython-6/PySide6/QtCore/QThreadPool.html"},
+        {"name": "QThread", "url": "https://doc.qt.io/qtforpython-6/PySide6/QtCore/QThread.html"}
+      ],
+      "done": "The window stays responsive during the task and the progress bar updates only through signals."
+    },
+    "s02.s0.4": {
+      "how": "Subclass <em>QAbstractTableModel</em> with <em>rowCount</em>, <em>columnCount</em> and <em>data</em> over a list of 100,000 rows and show it in a <em>QTableView</em>. Compare start-up time and memory with a <em>QTableWidget</em> filled with the same rows.",
+      "where": [
+        {"name": "Qt model/view programming", "url": "https://doc.qt.io/qt-6/model-view-programming.html"},
+        {"name": "QAbstractTableModel", "url": "https://doc.qt.io/qtforpython-6/PySide6/QtCore/QAbstractTableModel.html"}
+      ],
+      "done": "The model-backed table opens 100,000 rows at once and scrolls smoothly, and you can say why."
+    },
+    "s02.s0.5": {
+      "how": "Style the practice window with a Qt style sheet, then run it at 150% display scaling and under the system dark theme. Give every input a label with <em>setBuddy</em> or an accessible name, and move through it with the keyboard alone.",
+      "where": [
+        {"name": "Qt for Python: widget styling", "url": "https://doc.qt.io/qtforpython-6/tutorials/basictutorial/widgetstyling.html"},
+        {"name": "Qt high DPI", "url": "https://doc.qt.io/qt-6/highdpi.html"}
+      ],
+      "done": "The window is readable at 100% and 150% scaling, in light and dark themes, and is usable without a mouse."
+    },
+    "s02.s0.6": {
+      "how": "Save window geometry and one preference with <em>QSettings</em>, and write a user data file to the folder returned by <em>QStandardPaths.writableLocation(AppDataLocation)</em>. Print that path on Windows and read where it maps on macOS and Linux.",
+      "where": [
+        {"name": "QSettings", "url": "https://doc.qt.io/qtforpython-6/PySide6/QtCore/QSettings.html"},
+        {"name": "QStandardPaths", "url": "https://doc.qt.io/qtforpython-6/PySide6/QtCore/QStandardPaths.html"}
+      ],
+      "done": "You can name where settings and user data live on each of the three platforms, and none of it is written next to the code."
+    },
+    "s02.s0.7": {
+      "how": "Package the practice app with <em>pyinstaller --windowed</em>, run the result, and fix missing data files through the spec file. Read the Briefcase tutorial steps for the same app, and note what code signing needs on Windows and macOS.",
+      "where": [
+        {"name": "PyInstaller: using PyInstaller", "url": "https://pyinstaller.org/en/stable/usage.html"},
+        {"name": "Briefcase", "url": "https://briefcase.beeware.org/en/stable/"}
+      ],
+      "done": "Your packaged app starts from its own folder, and you can explain why an unsigned build triggers an OS warning."
+    },
+    "s02.s0.8": {
+      "how": "Work through the first steps of the BeeWare tutorial to build a Toga app and run it in the Android emulator or on a phone. List three differences from desktop: screen size, touch input, app lifecycle, file access or permissions.",
+      "where": [
+        {"name": "BeeWare tutorial", "url": "https://tutorial.beeware.org/en/latest/"},
+        {"name": "Kivy: introduction", "url": "https://kivy.org/doc/stable/gettingstarted/intro.html"}
+      ],
+      "done": "A sample app runs on a phone or emulator, and you can name three things you would change to port a desktop tool."
+    },
+    "s02.s1.0": {
+      "how": "Ask one person what repetitive file or log task they do, and write the tool's single job and its inputs in a README. Build the logic as functions that take paths and return results, then add the window on top.",
+      "where": [
+        {"name": "Qt for Python tutorials", "url": "https://doc.qt.io/qtforpython-6/tutorials/index.html"}
+      ],
+      "done": "The named user has completed their task with the tool at least once without your help."
+    },
+    "s02.s1.1": {
+      "how": "Run the long operation in a <em>QRunnable</em> that checks a cancel flag between units of work, and emit progress and finished signals. Wire a Cancel button to set the flag, and disable the Start button while a job runs.",
+      "where": [
+        {"name": "QRunnable", "url": "https://doc.qt.io/qtforpython-6/PySide6/QtCore/QRunnable.html"},
+        {"name": "QThreadPool", "url": "https://doc.qt.io/qtforpython-6/PySide6/QtCore/QThreadPool.html"}
+      ],
+      "done": "Cancel stops a running job within about a second, leaves no half-written output, and the window never freezes."
+    },
+    "s02.s1.2": {
+      "how": "Store preferences and window geometry with <em>QSettings</em> using your organisation and app names, and load them before the window is shown. Delete the settings, start the app, and confirm it falls back to defaults.",
+      "where": [
+        {"name": "QSettings", "url": "https://doc.qt.io/qtforpython-6/PySide6/QtCore/QSettings.html"},
+        {"name": "QStandardPaths", "url": "https://doc.qt.io/qtforpython-6/PySide6/QtCore/QStandardPaths.html"}
+      ],
+      "done": "A changed setting survives a restart, and removing the stored settings gives clean defaults instead of an error."
+    },
+    "s02.s1.3": {
+      "how": "Add <em>QShortcut</em> or <em>QAction</em> shortcuts with standard <em>QKeySequence</em> values for the main actions, and set the focus order with <em>QWidget.setTabOrder</em>. Unplug the mouse and complete the main task.",
+      "where": [
+        {"name": "QKeySequence", "url": "https://doc.qt.io/qtforpython-6/PySide6/QtGui/QKeySequence.html"},
+        {"name": "QWidget (setTabOrder)", "url": "https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QWidget.html"}
+      ],
+      "done": "The main task can be completed with the keyboard alone, and Tab moves through fields in reading order."
+    },
+    "s02.s1.4": {
+      "how": "Build with PyInstaller or Briefcase, load bundled files through a path helper that handles <em>sys._MEIPASS</em>, then copy the output to a machine or VM with no Python installed and run it there.",
+      "where": [
+        {"name": "PyInstaller: run-time information", "url": "https://pyinstaller.org/en/stable/runtime-information.html"},
+        {"name": "PyInstaller: using PyInstaller", "url": "https://pyinstaller.org/en/stable/usage.html"}
+      ],
+      "done": "The bundle starts and completes the main task on a clean machine with no Python installation."
+    },
+    "s02.s1.5": {
+      "how": "Write <em>pytest</em> tests for the logic module covering normal input, empty input and one error case. Run them with Qt not installed in a separate venv, or on CI without a display, to prove the logic does not import widgets.",
+      "where": [
+        {"name": "pytest: get started", "url": "https://docs.pytest.org/en/stable/getting-started.html"}
+      ],
+      "done": "<em>pytest</em> passes in an environment where no display is available."
+    }
+  }
+}

@@ -191,6 +191,32 @@ for _ph in raw["PHASES"]:
             raise SystemExit("transform.py: %s is missing from a metadata table"
                              % _ph["id"])
 
+# -- study guides ----------------------------------------------------------------
+# build_tools/guides/<phase>.json: for every checklist line, how to do it,
+# where to learn it and how to tell it is done; for every section, how to work
+# through it. Positional ids, like everything else here. The build fails on a
+# line without a guide or a guide for a line that no longer exists.
+GUIDES = {}
+_guide_dir = HERE / "guides"
+for _file in sorted(_guide_dir.glob("*.json")):
+    GUIDES[_file.stem] = json.loads(_file.read_text(encoding="utf-8"))
+_guided = set()
+
+
+def _item_guide(pid, item_id):
+    guide = GUIDES.get(pid, {}).get("items", {}).get(item_id)
+    if guide is None:
+        raise SystemExit("transform.py: %s has no guide in guides/%s.json"
+                         % (item_id, pid))
+    where = [{"name": w["name"], "url": w["url"]} for w in guide["where"]]
+    if not (guide["how"].strip() and guide["done"].strip() and 1 <= len(where) <= 2
+            and all(w["url"].startswith("https://") for w in where)):
+        raise SystemExit("transform.py: the guide for %s is incomplete" % item_id)
+    _guided.add(item_id)
+    return {"how": guide["how"].strip(), "where": where,
+            "done": guide["done"].strip()}
+
+
 phases = []
 picked_phases = set()
 optional_used = set()
@@ -200,11 +226,20 @@ for ph in raw["PHASES"]:
     for si, sec in enumerate(ph["sections"]):
         items = []
         for ii, text in enumerate(sec["items"]):
-            items.append({"id": f"{pid}.s{si}.{ii}", "text": text})
+            item_id = f"{pid}.s{si}.{ii}"
+            items.append({"id": item_id, "text": text,
+                          **_item_guide(pid, item_id)})
         optional = [k for k in OPTIONAL_SECTIONS
                     if k[0] == pid and sec["h"].startswith(k[1])]
         optional_used.update(optional)
-        sections.append({"id": f"{pid}.s{si}", "title": sec["h"],
+        section_id = f"{pid}.s{si}"
+        guide = GUIDES.get(pid, {}).get("sections", {}).get(section_id, "")
+        if not guide.strip():
+            raise SystemExit("transform.py: section %s has no guide"
+                             % section_id)
+        _guided.add(section_id)
+        sections.append({"id": section_id, "title": sec["h"],
+                         "guide": guide.strip(),
                          "items": items, "optional": bool(optional)})
 
     gate = None
@@ -246,6 +281,11 @@ for ph in raw["PHASES"]:
     })
 
 check_every_pick_was_used("phase", picked_phases)
+_stale = {k for g in GUIDES.values() for k in
+          list(g.get("items", {})) + list(g.get("sections", {}))} - _guided
+if _stale:
+    raise SystemExit("transform.py: guides for lines that do not exist: %s"
+                     % sorted(_stale)[:10])
 if OPTIONAL_SECTIONS - optional_used:
     raise PickError("OPTIONAL_SECTIONS names sections that do not exist: %s"
                     % sorted(OPTIONAL_SECTIONS - optional_used))

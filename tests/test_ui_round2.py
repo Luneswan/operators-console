@@ -431,7 +431,8 @@ def test_no_eleven_pixel_body_text(theme):
     from operators_console.ui.theme import PALETTES, stylesheet
 
     sheet = stylesheet(PALETTES[theme])
-    labels = ("#PageKicker", "#Pill", "#NavBadge", "#NavSection")
+    labels = ("#PageKicker", "#Pill", "#NavBadge", "#NavSection",
+              "#GuideCaption")
     for block in re.finditer(r"([^{}]+)\{([^{}]*)\}", sheet):
         selector, body = block.group(1).strip(), block.group(2)
         size = re.search(r"font-size:\s*([\d.]+)px", body)

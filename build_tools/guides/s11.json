@@ -1,0 +1,192 @@
+{
+  "sections": {
+    "s11.s0": "The background for running Python on a board. Work items 0 to 3 first on a real board or in Wokwi, which runs MicroPython in the browser, then 4 to 8 once you have a working sensor loop. Spend about two thirds of the time with code running on the device rather than reading.",
+    "s11.s1": "One sensor node and one service on your computer. Build in item order: sensor loop, MQTT publishing, the storing service, then network-loss handling. Draw the wiring diagram while you wire, not at the end. Item 3 takes the most time, so leave room for it."
+  },
+  "items": {
+    "s11.s0.0": {
+      "how": "Read the MicroPython differences page, then run one script using <em>json</em>, <em>re</em> and <em>datetime</em> in CPython and on the board through <em>mpremote run</em>. Note every import or method that fails and what replaces it on the board.",
+      "where": [
+        {
+          "name": "MicroPython differences from CPython",
+          "url": "https://docs.micropython.org/en/latest/genrst/index.html"
+        },
+        {
+          "name": "mpremote",
+          "url": "https://docs.micropython.org/en/latest/reference/mpremote.html"
+        }
+      ],
+      "done": "You can name three CPython features missing on your board and say why: flash size, RAM, or no operating system."
+    },
+    "s11.s0.1": {
+      "how": "Wire a button to a GPIO pin with <em>Pin.PULL_UP</em> and an LED to another pin. Count presses, watch contact bounce produce extra counts, then debounce in software by ignoring changes within 20 ms of the last accepted one.",
+      "where": [
+        {
+          "name": "machine.Pin",
+          "url": "https://docs.micropython.org/en/latest/library/machine.Pin.html"
+        }
+      ],
+      "done": "Fifty presses give a count of fifty, and you can explain why the pin reads 1 when the button is released."
+    },
+    "s11.s0.2": {
+      "how": "Fade an LED by stepping the duty cycle of <em>machine.PWM</em>. Then read a potentiometer or light sensor with <em>machine.ADC</em>, convert <em>read_u16()</em> to volts, and average ten samples to reduce noise.",
+      "where": [
+        {
+          "name": "machine.PWM",
+          "url": "https://docs.micropython.org/en/latest/library/machine.PWM.html"
+        },
+        {
+          "name": "machine.ADC",
+          "url": "https://docs.micropython.org/en/latest/library/machine.ADC.html"
+        }
+      ],
+      "done": "Turning the potentiometer gives a steady voltage reading within about 0.1 V of a multimeter."
+    },
+    "s11.s0.3": {
+      "how": "Attach an I2C sensor, run <em>I2C.scan()</em> and match the address to the datasheet, then read one register. Send text between the board and your computer through a USB-serial adapter on <em>UART</em>, reading it with <em>pyserial</em>.",
+      "where": [
+        {
+          "name": "machine.I2C",
+          "url": "https://docs.micropython.org/en/latest/library/machine.I2C.html"
+        },
+        {
+          "name": "pySerial short introduction",
+          "url": "https://pyserial.readthedocs.io/en/latest/shortintro.html"
+        }
+      ],
+      "done": "You can say how many wires I2C, SPI and UART each need, and which you would pick for a sensor, a display and a GPS module."
+    },
+    "s11.s0.4": {
+      "how": "Blink an LED with <em>time.ticks_ms()</em> and <em>time.ticks_diff()</em> instead of <em>sleep()</em> while also reading a button. Then move the button to <em>Pin.irq()</em> with a handler that only sets a flag, following the interrupt handler rules.",
+      "where": [
+        {
+          "name": "Writing interrupt handlers",
+          "url": "https://docs.micropython.org/en/latest/reference/isr_rules.html"
+        },
+        {
+          "name": "time module",
+          "url": "https://docs.micropython.org/en/latest/library/time.html"
+        }
+      ],
+      "done": "The LED keeps its blink rate while presses are still caught, and your handler allocates no memory."
+    },
+    "s11.s0.5": {
+      "how": "Print <em>gc.mem_free()</em> before and after a loop that builds strings each pass, then rewrite it to reuse one <em>bytearray</em> through a <em>memoryview</em>. Read how a manifest freezes a module into the firmware and why that saves RAM.",
+      "where": [
+        {
+          "name": "MicroPython on microcontrollers",
+          "url": "https://docs.micropython.org/en/latest/reference/constrained.html"
+        },
+        {
+          "name": "Manifest files",
+          "url": "https://docs.micropython.org/en/latest/reference/manifest.html"
+        }
+      ],
+      "done": "The rewritten loop shows flat free memory over 1000 iterations, and you can explain what freezing a module changes."
+    },
+    "s11.s0.6": {
+      "how": "Install the Mosquitto broker locally and use <em>paho-mqtt</em> to publish and subscribe on topics such as <em>home/room1/temp</em>. Try the <em>+</em> and <em>#</em> wildcards, QoS 0 against QoS 1, and a retained message received by a subscriber that connects later.",
+      "where": [
+        {
+          "name": "Eclipse Paho MQTT Python client",
+          "url": "https://eclipse.dev/paho/files/paho.mqtt.python/html/index.html"
+        },
+        {
+          "name": "MQTT specification",
+          "url": "https://mqtt.org/mqtt-specification/"
+        }
+      ],
+      "done": "You can show a late subscriber receiving a retained message and explain what QoS 1 guarantees and what it does not."
+    },
+    "s11.s0.7": {
+      "how": "Measure current with a USB power meter while the board idles, uses Wi-Fi, and sits in <em>machine.lightsleep()</em> or <em>machine.deepsleep()</em>, noting that deep sleep restarts from boot. Use the numbers to work out days of runtime on a stated battery.",
+      "where": [
+        {
+          "name": "machine module: power functions",
+          "url": "https://docs.micropython.org/en/latest/library/machine.html"
+        }
+      ],
+      "done": "You have a written budget: battery mAh divided by average mA, with the wake and sleep duty cycle stated."
+    },
+    "s11.s0.8": {
+      "how": "Design an update that downloads new code to a temporary file, checks its SHA-256 hash with <em>hashlib</em>, and only then renames it into place. Add <em>machine.WDT</em> so an update that hangs gets reset, and keep the previous version to fall back to.",
+      "where": [
+        {
+          "name": "machine.WDT",
+          "url": "https://docs.micropython.org/en/latest/library/machine.WDT.html"
+        },
+        {
+          "name": "hashlib",
+          "url": "https://docs.micropython.org/en/latest/library/hashlib.html"
+        }
+      ],
+      "done": "You can describe what happens if power is cut at each step of the update, and every case leaves runnable code."
+    },
+    "s11.s1.0": {
+      "how": "Pick one sensor (temperature, humidity or light), wire it, and read it every 60 s from a non-blocking loop based on <em>ticks_ms</em>. Print timestamped readings over the serial REPL for an hour before adding any networking.",
+      "where": [
+        {
+          "name": "ESP32 quick reference",
+          "url": "https://docs.micropython.org/en/latest/esp32/quickref.html"
+        },
+        {
+          "name": "MicroPython on Raspberry Pi Pico",
+          "url": "https://www.raspberrypi.com/documentation/microcontrollers/micropython.html"
+        }
+      ],
+      "done": "An hour of serial output shows 60 readings with sensible values and no gaps."
+    },
+    "s11.s1.1": {
+      "how": "Connect with <em>network.WLAN</em>, then publish each reading as JSON with a device id and timestamp using <em>umqtt.simple</em> (installed with <em>mip</em>) to your local broker. Watch the traffic with <em>mosquitto_sub -v -t 'sensors/#'</em>.",
+      "where": [
+        {
+          "name": "network.WLAN",
+          "url": "https://docs.micropython.org/en/latest/library/network.WLAN.html"
+        },
+        {
+          "name": "mosquitto_sub",
+          "url": "https://mosquitto.org/man/mosquitto_sub-1.html"
+        }
+      ],
+      "done": "<em>mosquitto_sub</em> prints one message per reading with the expected topic and a valid JSON payload."
+    },
+    "s11.s1.2": {
+      "how": "Write a CPython service with <em>paho-mqtt</em> that subscribes, validates each payload and inserts it into SQLite. Alert once when the threshold is crossed and once when it clears, not on every reading. Test it by publishing fake readings with <em>mosquitto_pub</em>.",
+      "where": [
+        {
+          "name": "Eclipse Paho MQTT Python client",
+          "url": "https://eclipse.dev/paho/files/paho.mqtt.python/html/index.html"
+        },
+        {
+          "name": "sqlite3",
+          "url": "https://docs.python.org/3/library/sqlite3.html"
+        }
+      ],
+      "done": "Fake readings that cross the threshold twice give two alerts rather than one per reading, and every reading is in the table."
+    },
+    "s11.s1.3": {
+      "how": "When a publish fails, append the reading to a file on the board's flash, then send the backlog in order with original timestamps once the connection returns. Give the database a unique key on device and timestamp. Test by stopping the broker for ten minutes.",
+      "where": [
+        {
+          "name": "Working with filesystems",
+          "url": "https://docs.micropython.org/en/latest/reference/filesystem.html"
+        },
+        {
+          "name": "network.WLAN",
+          "url": "https://docs.micropython.org/en/latest/library/network.WLAN.html"
+        }
+      ],
+      "done": "After a ten-minute outage the database holds every reading with no duplicates and no gaps."
+    },
+    "s11.s1.4": {
+      "how": "Draw the circuit in Wokwi or Fritzing, or photograph a clear hand drawing, showing every pin number and power rail. Write a parts list with part numbers and quantities in <em>docs/</em>, then check both against the real board.",
+      "where": [
+        {
+          "name": "Wokwi",
+          "url": "https://wokwi.com/"
+        }
+      ],
+      "done": "Someone with only the diagram and parts list could rebuild the board without asking you."
+    }
+  }
+}

@@ -1,0 +1,127 @@
+{
+  "sections": {
+    "s05.s0": "Numerical methods and the tools that implement them. Start with item 1 on floating point, since every later check depends on choosing tolerances. Items 2 to 5 are the core SciPy toolkit and deserve most of the time; items 6 to 9 are specialist areas to sample by interest, and item 10 applies to all of them.",
+    "s05.s1": "One simulation or solver with evidence that its numbers are right. Build the model, check it against an analytic case, then run a convergence study, then optimise the hot loop, and write the generated report last. Do not optimise before the validation passes."
+  },
+  "items": {
+    "s05.s0.0": {
+      "how": "Evaluate <em>0.1 + 0.2 == 0.3</em>, then compute <em>(1 - cos(x)) / x**2</em> for x from 1e-1 down to 1e-9 and watch it lose accuracy; rewrite the numerator as <em>2*sin(x/2)**2</em> and compare. Replace exact float comparisons with <em>math.isclose</em> or <em>numpy.isclose</em> with stated tolerances.",
+      "where": [
+        {"name": "Python tutorial: floating-point arithmetic", "url": "https://docs.python.org/3/tutorial/floatingpoint.html"},
+        {"name": "numpy.isclose", "url": "https://numpy.org/doc/stable/reference/generated/numpy.isclose.html"}
+      ],
+      "done": "You can explain catastrophic cancellation with an example and choose rtol and atol values for a given check."
+    },
+    "s05.s0.1": {
+      "how": "Write a pairwise-distance function with Python loops, then with NumPy broadcasting, then decorate the loop version with <em>numba.njit</em>. Time all three with <em>timeit</em> at two input sizes, excluding Numba's first compile call.",
+      "where": [
+        {"name": "NumPy broadcasting", "url": "https://numpy.org/doc/stable/user/basics.broadcasting.html"},
+        {"name": "Numba: a 5 minute guide", "url": "https://numba.readthedocs.io/en/stable/user/5minguide.html"}
+      ],
+      "done": "You have a timing table for three versions and can say when a loop cannot be vectorised and Numba is the better choice."
+    },
+    "s05.s0.2": {
+      "how": "Solve a small system with <em>numpy.linalg.solve</em> and check the residual, fit a line to noisy points with <em>numpy.linalg.lstsq</em>, and find eigenvalues of a symmetric matrix with <em>numpy.linalg.eigh</em>. Check <em>numpy.linalg.cond</em> for an ill-conditioned case.",
+      "where": [
+        {"name": "NumPy linear algebra routines", "url": "https://numpy.org/doc/stable/reference/routines.linalg.html"},
+        {"name": "SciPy: linear algebra tutorial", "url": "https://docs.scipy.org/doc/scipy/tutorial/linalg.html"}
+      ],
+      "done": "You can say why <em>solve</em> is preferred over computing an inverse, and what a large condition number means for your answer."
+    },
+    "s05.s0.3": {
+      "how": "Find a root of a nonlinear equation with <em>scipy.optimize.root_scalar</em> using a bracket, minimise the Rosenbrock function with <em>minimize</em> from two starting points, and fit a model to noisy data with <em>curve_fit</em>. Read the parameter uncertainties from the returned covariance.",
+      "where": [
+        {"name": "SciPy: optimization tutorial", "url": "https://docs.scipy.org/doc/scipy/tutorial/optimize.html"},
+        {"name": "scipy.optimize.curve_fit", "url": "https://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.curve_fit.html"}
+      ],
+      "done": "You recover known parameters from synthetic noisy data within their reported uncertainties."
+    },
+    "s05.s0.4": {
+      "how": "Integrate a function with a known antiderivative using <em>scipy.integrate.quad</em> and compare with the exact value. Solve exponential decay and a damped oscillator with <em>solve_ivp</em>, tightening <em>rtol</em> and <em>atol</em> until the result stops changing.",
+      "where": [
+        {"name": "SciPy: integration tutorial", "url": "https://docs.scipy.org/doc/scipy/tutorial/integrate.html"},
+        {"name": "scipy.integrate.solve_ivp", "url": "https://docs.scipy.org/doc/scipy/reference/generated/scipy.integrate.solve_ivp.html"}
+      ],
+      "done": "Your ODE solution matches the analytic solution to the tolerance you requested."
+    },
+    "s05.s0.5": {
+      "how": "Define symbols with <em>sympy.symbols</em>, differentiate and simplify an expression with <em>diff</em> and <em>simplify</em>, then turn the result into a NumPy function with <em>lambdify</em>. Check it against a finite-difference estimate at several points.",
+      "where": [
+        {"name": "SymPy tutorial", "url": "https://docs.sympy.org/latest/tutorials/intro-tutorial/index.html"},
+        {"name": "SymPy: lambdify", "url": "https://docs.sympy.org/latest/modules/utilities/lambdify.html"}
+      ],
+      "done": "A symbolically derived gradient, run through lambdify, agrees with finite differences to about 1e-6."
+    },
+    "s05.s0.6": {
+      "how": "Solve a small production-planning problem with <em>scipy.optimize.linprog</em>, then the integer version with OR-Tools. Work through the OR-Tools vehicle routing example and change the number of vehicles to see the effect on total distance.",
+      "where": [
+        {"name": "OR-Tools: linear optimisation example", "url": "https://developers.google.com/optimization/lp/lp_example"},
+        {"name": "OR-Tools: vehicle routing", "url": "https://developers.google.com/optimization/routing/vrp"}
+      ],
+      "done": "You can write the objective and constraints for a small problem as code and say whether it needs integer variables."
+    },
+    "s05.s0.7": {
+      "how": "Estimate pi by random sampling using <em>numpy.random.default_rng(seed)</em>, run it at sample sizes from 1e3 to 1e7, and plot the error against n on log axes. Rerun with the same seed and confirm identical output.",
+      "where": [
+        {"name": "NumPy: random Generator", "url": "https://numpy.org/doc/stable/reference/random/generator.html"}
+      ],
+      "done": "The same seed reproduces the same result, and your error plot shows roughly a 1/sqrt(n) slope."
+    },
+    "s05.s0.8": {
+      "how": "Load a public boundaries file with <em>geopandas.read_file</em>, check its <em>crs</em>, reproject with <em>to_crs</em> to a metric projection, and compute areas. Build a Shapely point and polygon and test <em>contains</em> and <em>buffer</em>.",
+      "where": [
+        {"name": "GeoPandas: introduction", "url": "https://geopandas.org/en/stable/getting_started/introduction.html"},
+        {"name": "Shapely user manual", "url": "https://shapely.readthedocs.io/en/stable/manual.html"}
+      ],
+      "done": "You can compute areas in square metres and say why doing it in latitude and longitude gives wrong numbers."
+    },
+    "s05.s0.9": {
+      "how": "Create a project with a <em>venv</em>, pin versions with <em>pip freeze</em> into a requirements file, move notebook code into scripts with a single entry command, and record the source and checksum of each data file.",
+      "where": [
+        {"name": "Python: venv", "url": "https://docs.python.org/3/library/venv.html"},
+        {"name": "pip freeze", "url": "https://pip.pypa.io/en/stable/cli/pip_freeze/"}
+      ],
+      "done": "A fresh clone plus the pinned requirements reproduces your results with one command."
+    },
+    "s05.s1.0": {
+      "how": "Choose a system with a simple analytic special case, such as an SIR epidemic, an M/M/1 queue or a projectile with drag. Write its equations or rules down first, then implement them as a function taking parameters and returning results.",
+      "where": [
+        {"name": "Scientific Python Lectures", "url": "https://lectures.scientific-python.org/"},
+        {"name": "scipy.integrate.solve_ivp", "url": "https://docs.scipy.org/doc/scipy/reference/generated/scipy.integrate.solve_ivp.html"}
+      ],
+      "done": "The model runs from one function call with parameters, and the equations are written in the repository."
+    },
+    "s05.s1.1": {
+      "how": "Pick parameters where the exact answer is known, such as no drag, a mean number in an M/M/1 system of rho/(1-rho), or pure exponential growth. Write a <em>pytest</em> test that compares the simulation to that answer with <em>numpy.isclose</em> and a stated tolerance.",
+      "where": [
+        {"name": "numpy.isclose", "url": "https://numpy.org/doc/stable/reference/generated/numpy.isclose.html"},
+        {"name": "pytest: get started", "url": "https://docs.pytest.org/en/stable/getting-started.html"}
+      ],
+      "done": "A test checks the analytic case and passes, and it fails if you introduce a deliberate bug in the model."
+    },
+    "s05.s1.2": {
+      "how": "Run the analytic case at five or more step sizes or sample counts, compute the error against the exact answer each time, and plot error against step on log-log axes. Fit the slope with <em>numpy.polyfit</em> on the logs.",
+      "where": [
+        {"name": "matplotlib.pyplot.loglog", "url": "https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.loglog.html"},
+        {"name": "numpy.polyfit", "url": "https://numpy.org/doc/stable/reference/generated/numpy.polyfit.html"}
+      ],
+      "done": "The measured convergence order matches the method's theoretical order, or you can explain the difference."
+    },
+    "s05.s1.3": {
+      "how": "Profile a full run with <em>cProfile</em> to find the hot loop, then vectorise it with NumPy or compile it with <em>numba.njit</em>. Time before and after with <em>timeit</em> on the same inputs and rerun the validation test.",
+      "where": [
+        {"name": "Python: timeit", "url": "https://docs.python.org/3/library/timeit.html"},
+        {"name": "Numba: a 5 minute guide", "url": "https://numba.readthedocs.io/en/stable/user/5minguide.html"}
+      ],
+      "done": "The report gives before and after timings with the speed-up factor, and the validation test still passes."
+    },
+    "s05.s1.4": {
+      "how": "Write one script that runs the model, the validation and the convergence study, saves every figure with <em>savefig</em> from fixed seeds, and writes the report. Delete all outputs and regenerate them to check.",
+      "where": [
+        {"name": "matplotlib.pyplot.savefig", "url": "https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.savefig.html"},
+        {"name": "Scientific Python Lectures", "url": "https://lectures.scientific-python.org/"}
+      ],
+      "done": "Deleting the outputs and running one command reproduces every figure and number in the report."
+    }
+  }
+}

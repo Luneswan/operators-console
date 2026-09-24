@@ -389,6 +389,8 @@ class CheckRow(QWidget):
     remove_requested = Signal(str)
 
     MORE_WIDTH = 26
+    # (text, handler) pairs a page adds to this row's menu.
+    menu_extras: tuple = ()
 
     def __init__(self, item_id: str, text: str, checked: bool,
                  parent=None, in_deck: bool | None = None) -> None:
@@ -570,6 +572,8 @@ class CheckRow(QWidget):
         menu.addAction(
             "Copy text",
             lambda: _copy(plain(self.raw_text)))
+        for text, handler in self.menu_extras:
+            menu.addAction(text, handler)
         menu.aboutToHide.connect(menu.deleteLater)
         return menu
 

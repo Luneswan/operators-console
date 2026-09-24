@@ -1,0 +1,125 @@
+{
+  "sections": {
+    "s01.s0": "Core pandas and plotting skills in the order you will use them on a real dataset: arrays, frames, loading, cleaning, reshaping, time series, statistics, charts. Spend about half the time on items 1 to 4, since most analysis time goes on loading and cleaning. Work every item in a notebook against one real CSV rather than toy data.",
+    "s01.s1": "One end-to-end analysis, from a written question to a published report. Write the question first, then the cleaning script, then the charts, then the limitations, then the report generator. Expect the cleaning script to take the largest share of the time."
+  },
+  "items": {
+    "s01.s0.0": {
+      "how": "Create arrays with <em>np.arange</em> and <em>np.zeros</em>, check <em>.dtype</em> and <em>.shape</em>, then add a (3, 1) array to a (4,) array and predict the result shape before running it. Rewrite one Python loop over a list as a single vectorised expression and time both with <em>%timeit</em>.",
+      "where": [
+        {"name": "NumPy: the absolute basics", "url": "https://numpy.org/doc/stable/user/absolute_beginners.html"},
+        {"name": "NumPy broadcasting", "url": "https://numpy.org/doc/stable/user/basics.broadcasting.html"}
+      ],
+      "done": "You can predict the shape of a broadcast result, or say why it raises, before running it."
+    },
+    "s01.s0.1": {
+      "how": "Select rows and columns with <em>loc</em> (labels) and <em>iloc</em> (positions), including a boolean mask. Then write <em>df[mask][\"b\"] = 1</em>, observe that <em>df</em> is unchanged, and rewrite it as one call: <em>df.loc[mask, \"b\"] = 1</em>.",
+      "where": [
+        {"name": "pandas: indexing and selecting data", "url": "https://pandas.pydata.org/docs/user_guide/indexing.html"},
+        {"name": "pandas: copy-on-write", "url": "https://pandas.pydata.org/docs/user_guide/copy_on_write.html"}
+      ],
+      "done": "You can explain why chained assignment writes to a temporary copy and fix it with one loc call."
+    },
+    "s01.s0.2": {
+      "how": "Load the same small dataset from CSV, JSON and an SQLite table with <em>read_csv</em>, <em>read_json</em> and <em>read_sql</em>. Pass <em>dtype=</em> and <em>parse_dates=</em> on load, then confirm with <em>df.dtypes</em> that no column is left as <em>object</em> by mistake.",
+      "where": [
+        {"name": "pandas: IO tools", "url": "https://pandas.pydata.org/docs/user_guide/io.html"},
+        {"name": "pandas.read_csv", "url": "https://pandas.pydata.org/docs/reference/api/pandas.read_csv.html"}
+      ],
+      "done": "Every column loads with the intended dtype, and dates arrive as datetime64 without a separate conversion step."
+    },
+    "s01.s0.3": {
+      "how": "On a messy CSV, count missing values with <em>isna().sum()</em>, remove duplicates with <em>drop_duplicates</em>, normalise category spellings with <em>str.strip().str.lower()</em> and a mapping, and flag outliers with an IQR rule. Record each decision and the row count before and after.",
+      "where": [
+        {"name": "pandas: working with missing data", "url": "https://pandas.pydata.org/docs/user_guide/missing_data.html"},
+        {"name": "DataFrame.drop_duplicates", "url": "https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.drop_duplicates.html"}
+      ],
+      "done": "You can state, for each cleaning step, how many rows it changed and why that choice was acceptable."
+    },
+    "s01.s0.4": {
+      "how": "Answer three questions on one dataset: a <em>groupby</em> with named aggregations in <em>agg</em>, a <em>pivot_table</em> across two categories, and a <em>merge</em> with a lookup table. Turn the pivot back into long form with <em>melt</em>, and check the row count after each merge to catch duplicated keys.",
+      "where": [
+        {"name": "pandas: group by", "url": "https://pandas.pydata.org/docs/user_guide/groupby.html"},
+        {"name": "pandas: merge, join, concatenate", "url": "https://pandas.pydata.org/docs/user_guide/merging.html"}
+      ],
+      "done": "You can pick between groupby, pivot_table and merge for a new question without looking it up."
+    },
+    "s01.s0.5": {
+      "how": "Load a timestamped dataset, set a <em>DatetimeIndex</em>, resample it to daily and monthly totals with <em>resample</em>, and add a 7-day <em>rolling</em> mean. Attach a zone with <em>tz_localize</em>, convert with <em>tz_convert</em>, then inspect the rows around a daylight-saving change.",
+      "where": [
+        {"name": "pandas: time series", "url": "https://pandas.pydata.org/docs/user_guide/timeseries.html"},
+        {"name": "pandas: windowing operations", "url": "https://pandas.pydata.org/docs/user_guide/window.html"}
+      ],
+      "done": "You can produce a monthly series with a rolling mean and explain what happens to the data at a DST change."
+    },
+    "s01.s0.6": {
+      "how": "Run <em>describe</em>, plot a histogram of each numeric column, and compute <em>corr</em> for two pairs. For one strong correlation, name a variable that could cause both, then check whether the correlation still holds within groups of that variable.",
+      "where": [
+        {"name": "DataFrame.describe", "url": "https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.describe.html"},
+        {"name": "SciPy: statistics tutorial", "url": "https://docs.scipy.org/doc/scipy/tutorial/stats.html"}
+      ],
+      "done": "You can describe a distribution's centre, spread and skew, and say why a given correlation may not be causal."
+    },
+    "s01.s0.7": {
+      "how": "Compare two groups with <em>scipy.stats.ttest_ind</em> and with <em>scipy.stats.mannwhitneyu</em>, then compute a confidence interval for the difference in means with <em>scipy.stats.bootstrap</em>. Write each test's assumptions next to the call and check them on your data.",
+      "where": [
+        {"name": "scipy.stats.ttest_ind", "url": "https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.ttest_ind.html"},
+        {"name": "scipy.stats.bootstrap", "url": "https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.bootstrap.html"}
+      ],
+      "done": "You can say in plain words what a p-value and a 95% interval mean, and when a t-test does not apply."
+    },
+    "s01.s0.8": {
+      "how": "Using the <em>fig, ax = plt.subplots()</em> style, make one chart per question type: line for change over time, bar for comparison, histogram for distribution, scatter for relationship. Redo two of them in seaborn and label every axis with units.",
+      "where": [
+        {"name": "Matplotlib quick start", "url": "https://matplotlib.org/stable/users/explain/quick_start.html"},
+        {"name": "seaborn function overview", "url": "https://seaborn.pydata.org/tutorial/function_overview.html"}
+      ],
+      "done": "Given a question, you can name the chart type that answers it and build it with labelled axes."
+    },
+    "s01.s0.9": {
+      "how": "Take a working notebook, move its loading and cleaning code into functions in a <em>.py</em> module with an <em>if __name__ == \"__main__\":</em> block, and import that module back into the notebook. Run the script from a terminal to confirm it works on its own.",
+      "where": [
+        {"name": "Python: __main__", "url": "https://docs.python.org/3/library/__main__.html"}
+      ],
+      "done": "The same cleaning code runs from the command line and from the notebook, with no copy of it in either."
+    },
+    "s01.s1.0": {
+      "how": "Browse a public data portal, pick a dataset under about 1 GB, and write the question in a <em>README.md</em> before downloading. State what result would answer it and which columns you expect to need.",
+      "where": [
+        {"name": "Kaggle datasets", "url": "https://www.kaggle.com/datasets"}
+      ],
+      "done": "The README states one answerable question and the expected columns, written before any analysis code."
+    },
+    "s01.s1.1": {
+      "how": "Write <em>clean.py</em> that reads the untouched raw file, applies each cleaning step as a named function chained with <em>DataFrame.pipe</em>, and writes the cleaned file to a separate folder. Delete the output and rerun to check it rebuilds.",
+      "where": [
+        {"name": "DataFrame.pipe", "url": "https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.pipe.html"},
+        {"name": "pandas: IO tools", "url": "https://pandas.pydata.org/docs/user_guide/io.html"}
+      ],
+      "done": "Running <em>python clean.py</em> on a fresh clone recreates the cleaned data with no manual steps."
+    },
+    "s01.s1.2": {
+      "how": "Draft each chart in the notebook, then move it into a function that saves it with <em>fig.savefig</em>. Write the takeaway sentence first and adjust the chart until it shows that point without further explanation.",
+      "where": [
+        {"name": "matplotlib.pyplot.savefig", "url": "https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.savefig.html"},
+        {"name": "seaborn tutorial", "url": "https://seaborn.pydata.org/tutorial.html"}
+      ],
+      "done": "Three or more saved charts exist, each with a title, labelled axes and a takeaway the chart supports."
+    },
+    "s01.s1.3": {
+      "how": "Write a limitations section covering who is in the sample and who is missing, how the data was collected, the share of missing values in each key column, and what the cleaning removed. Give numbers where you have them.",
+      "where": [
+        {"name": "pandas: working with missing data", "url": "https://pandas.pydata.org/docs/user_guide/missing_data.html"}
+      ],
+      "done": "The report lists at least three concrete limitations with numbers, and says which conclusions each one weakens."
+    },
+    "s01.s1.4": {
+      "how": "Write <em>report.py</em> that runs the cleaning, builds the charts and writes an HTML page using <em>DataFrame.to_html</em> for tables, or a PDF with <em>PdfPages</em>. Run it from a clean checkout, then publish the output.",
+      "where": [
+        {"name": "DataFrame.to_html", "url": "https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.to_html.html"},
+        {"name": "Matplotlib backend_pdf (PdfPages)", "url": "https://matplotlib.org/stable/api/backend_pdf_api.html"}
+      ],
+      "done": "One command regenerates the whole report from the raw file, and the published copy matches its output."
+    }
+  }
+}

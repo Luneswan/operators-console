@@ -1,0 +1,204 @@
+{
+  "sections": {
+    "p07.s0": "How bytes get from a client to a server and back, lowest layer first. Keep the order, since each item assumes the ones above. Pair every item with a command you run, such as ss, dig, curl -v or openssl s_client; aim for about half reading and half probing.",
+    "p07.s1": "Five programs that turn the theory into code. Do them in order and use only the standard library for the first three. The raw HTTP client and server take the longest; budget about half the section's time for those two."
+  },
+  "items": {
+    "p07.s0.0": {
+      "how": "Run <em>ss -tlnp</em> (or <em>netstat -ano</em> on Windows) and match each listening port to a program. Start <em>python -m http.server 8000</em>, then restart it with <em>--bind 127.0.0.1</em>, and try to reach each from another machine on your network.",
+      "where": [
+        {
+          "name": "ss(8) man page",
+          "url": "https://man7.org/linux/man-pages/man8/ss.8.html"
+        },
+        {
+          "name": "Python Socket Programming HOWTO",
+          "url": "https://docs.python.org/3/howto/sockets.html"
+        }
+      ],
+      "done": "You can explain the difference between binding to 127.0.0.1 and 0.0.0.0 and find which process owns a port."
+    },
+    "p07.s0.1": {
+      "how": "Capture a <em>curl</em> request with Wireshark or <em>tcpdump -i any port 80</em> and find the SYN, SYN-ACK and ACK. Then send UDP datagrams with <em>sendto</em> on a <em>SOCK_DGRAM</em> socket to a port nobody listens on and note that no error comes back.",
+      "where": [
+        {
+          "name": "tcp(7) man page",
+          "url": "https://man7.org/linux/man-pages/man7/tcp.7.html"
+        },
+        {
+          "name": "udp(7) man page",
+          "url": "https://man7.org/linux/man-pages/man7/udp.7.html"
+        }
+      ],
+      "done": "You can say what TCP guarantees that UDP does not, and what the handshake costs in round trips."
+    },
+    "p07.s0.2": {
+      "how": "Resolve a name with <em>dig</em> or <em>nslookup</em>, then with <em>socket.getaddrinfo</em>, and compare the answers and TTL. Read /etc/resolv.conf and /etc/nsswitch.conf, add an entry to /etc/hosts, and check which of the two lookups it changes.",
+      "where": [
+        {
+          "name": "resolv.conf(5) man page",
+          "url": "https://man7.org/linux/man-pages/man5/resolv.conf.5.html"
+        },
+        {
+          "name": "Python socket module",
+          "url": "https://docs.python.org/3/library/socket.html"
+        }
+      ],
+      "done": "You can list where a lookup can be answered: hosts file, local cache, recursive resolver, authoritative server."
+    },
+    "p07.s0.3": {
+      "how": "Run <em>curl -v http://example.com</em> and read every request and response line. Then open a TCP connection with <em>nc example.com 80</em>, type a GET request with a Host header and a blank line, and label the status line, headers and body in the reply.",
+      "where": [
+        {
+          "name": "MDN: HTTP messages",
+          "url": "https://developer.mozilla.org/en-US/docs/Web/HTTP/Guides/Messages"
+        },
+        {
+          "name": "RFC 9112: HTTP/1.1",
+          "url": "https://www.rfc-editor.org/rfc/rfc9112"
+        }
+      ],
+      "done": "You can write a valid HTTP/1.1 request from memory and explain how the client knows where the body ends."
+    },
+    "p07.s0.4": {
+      "how": "Log in to a site with browser developer tools open and follow the Set-Cookie header and the Cookie header on later requests. Compare with an API that sends <em>Authorization: Bearer</em>. Note what the HttpOnly, Secure and SameSite attributes each block.",
+      "where": [
+        {
+          "name": "MDN: Using HTTP cookies",
+          "url": "https://developer.mozilla.org/en-US/docs/Web/HTTP/Guides/Cookies"
+        },
+        {
+          "name": "MDN: HTTP authentication",
+          "url": "https://developer.mozilla.org/en-US/docs/Web/HTTP/Guides/Authentication"
+        }
+      ],
+      "done": "For a given app you can say whether auth state lives in a server session, a signed cookie or a token, and how it travels."
+    },
+    "p07.s0.5": {
+      "how": "Run <em>openssl s_client -connect example.com:443 -servername example.com</em> and read the certificate chain. Then connect with <em>ssl.create_default_context()</em> to wrong.host.badssl.com and expired.badssl.com and read each verification error.",
+      "where": [
+        {
+          "name": "MDN: Transport Layer Security",
+          "url": "https://developer.mozilla.org/en-US/docs/Web/Security/Transport_Layer_Security"
+        },
+        {
+          "name": "Python ssl module",
+          "url": "https://docs.python.org/3/library/ssl.html"
+        }
+      ],
+      "done": "You can say what verification proves (a trusted CA vouches that this key belongs to this name) and what it does not."
+    },
+    "p07.s0.6": {
+      "how": "Read the method and status references, then design endpoints for one resource and assign each a method and the codes it can return. Mark which methods are idempotent and explain why a retried POST can create duplicates while a retried PUT cannot.",
+      "where": [
+        {
+          "name": "MDN: HTTP request methods",
+          "url": "https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Methods"
+        },
+        {
+          "name": "MDN: HTTP response status codes",
+          "url": "https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Status"
+        }
+      ],
+      "done": "You can choose between 200, 201, 204, 400, 401, 403, 404, 409 and 422 for a given case and justify the choice."
+    },
+    "p07.s0.7": {
+      "how": "Read the opening handshake in RFC 6455 section 1.3 and watch the Upgrade request in developer tools on a site that uses WebSockets. Then compare the cost of polling and a WebSocket for a feed updated once a minute and one updated ten times a second.",
+      "where": [
+        {
+          "name": "MDN: WebSockets API",
+          "url": "https://developer.mozilla.org/en-US/docs/Web/API/WebSockets_API"
+        },
+        {
+          "name": "RFC 6455: The WebSocket Protocol",
+          "url": "https://www.rfc-editor.org/rfc/rfc6455"
+        }
+      ],
+      "done": "You can explain how a connection upgrades from HTTP and give one case where polling or server-sent events fit better."
+    },
+    "p07.s0.8": {
+      "how": "Read the AWS article on timeouts, retries and jitter. Write a retry helper that retries only connection errors, 429 and 5xx, with exponential backoff and full jitter, and honours <em>Retry-After</em>. Note that timeouts and retries belong in the client, rate limits in the server or gateway.",
+      "where": [
+        {
+          "name": "AWS: Timeouts, retries and backoff with jitter",
+          "url": "https://aws.amazon.com/builders-library/timeouts-retries-and-backoff-with-jitter/"
+        },
+        {
+          "name": "MDN: Retry-After header",
+          "url": "https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Headers/Retry-After"
+        }
+      ],
+      "done": "You can explain why retries without jitter cause a thundering herd and why a POST must not be retried blindly."
+    },
+    "p07.s1.0": {
+      "how": "Start with a <em>socket</em> server that accepts one client and echoes lines. Add a thread per client or a <em>selectors</em> loop, keep the set of connected sockets, and send each line to all the others. Drop clients on disconnect and test with three <em>nc</em> sessions.",
+      "where": [
+        {
+          "name": "Python Socket Programming HOWTO",
+          "url": "https://docs.python.org/3/howto/sockets.html"
+        },
+        {
+          "name": "Python selectors module",
+          "url": "https://docs.python.org/3/library/selectors.html"
+        }
+      ],
+      "done": "Three clients chat at once, and killing one client does not crash the server or block the others."
+    },
+    "p07.s1.1": {
+      "how": "Connect with <em>socket.create_connection</em>, send a GET with Host and Connection: close headers, and read until the server closes. Split the headers at the first blank line, parse the status line and headers, then handle Content-Length and chunked transfer encoding.",
+      "where": [
+        {
+          "name": "RFC 9112: HTTP/1.1",
+          "url": "https://www.rfc-editor.org/rfc/rfc9112"
+        },
+        {
+          "name": "Python socket module",
+          "url": "https://docs.python.org/3/library/socket.html"
+        }
+      ],
+      "done": "Your client fetches a page and returns the same status, headers and body bytes as curl -i."
+    },
+    "p07.s1.2": {
+      "how": "Accept connections with <em>socket</em>, parse the request line and headers yourself, and dispatch on method and path through a routing dict. Serve files from one directory with a Content-Type from <em>mimetypes</em>, and reject paths that escape it, such as ../../etc/passwd.",
+      "where": [
+        {
+          "name": "RFC 9110: HTTP Semantics",
+          "url": "https://www.rfc-editor.org/rfc/rfc9110"
+        },
+        {
+          "name": "Python mimetypes module",
+          "url": "https://docs.python.org/3/library/mimetypes.html"
+        }
+      ],
+      "done": "curl -i shows correct 200, 404 and 405 responses, and a path traversal attempt gets 403 or 404."
+    },
+    "p07.s1.3": {
+      "how": "Build the server and client with the <em>websockets</em> library on <em>asyncio</em> and broadcast each message to every connection. Then make the client reconnect with backoff when the server restarts, and show a clear status while it is disconnected.",
+      "where": [
+        {
+          "name": "websockets documentation",
+          "url": "https://websockets.readthedocs.io/en/stable/"
+        },
+        {
+          "name": "Python asyncio",
+          "url": "https://docs.python.org/3/library/asyncio.html"
+        }
+      ],
+      "done": "Restarting the server mid-chat makes clients reconnect on their own within a few seconds and carry on chatting."
+    },
+    "p07.s1.4": {
+      "how": "Use <em>httpx.AsyncClient</em> with an <em>asyncio.Semaphore</em> to cap concurrency. Set per-request limits with <em>httpx.Timeout</em>, wrap the whole run in <em>asyncio.timeout</em> for an overall budget, and retry 5xx and connection errors with jittered backoff.",
+      "where": [
+        {
+          "name": "HTTPX: Timeouts",
+          "url": "https://www.python-httpx.org/advanced/timeouts/"
+        },
+        {
+          "name": "HTTPX: Async support",
+          "url": "https://www.python-httpx.org/async/"
+        }
+      ],
+      "done": "With one URL that hangs, the run still ends within the budget and reports which downloads failed and why."
+    }
+  }
+}

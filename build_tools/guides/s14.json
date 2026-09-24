@@ -1,0 +1,178 @@
+{
+  "sections": {
+    "s14.s0": "Reading and testing Ethereum-style chains from Python. Work items 0 to 3 against a public testnet endpoint or a local chain, read item 4 before creating any key, do 5 and 6 together on a local chain, then 7. Only test networks and test keys are used; no real funds are needed at any point.",
+    "s14.s1": "An event indexer plus a small contract. Write and test the contract on a local chain first, deploy it to a testnet, then build the indexer, reorg and restart handling, and the report command. Leave the most time for item 1, since restart and reorg bugs are slow to find."
+  },
+  "items": {
+    "s14.s0.0": {
+      "how": "Read the ethereum.org pages on accounts, transactions, blocks and gas. Then open one testnet transaction in a block explorer and name each field: nonce, to, value, gas limit, max fee, priority fee, and gas used from the receipt.",
+      "where": [
+        {
+          "name": "Ethereum accounts",
+          "url": "https://ethereum.org/en/developers/docs/accounts/"
+        },
+        {
+          "name": "Gas and fees",
+          "url": "https://ethereum.org/en/developers/docs/gas/"
+        }
+      ],
+      "done": "You can explain from memory how the fee paid is gas used times the effective gas price, and what the base fee part does."
+    },
+    "s14.s0.1": {
+      "how": "Install <em>web3</em>, connect with <em>Web3(Web3.HTTPProvider(url))</em> to a testnet endpoint or local node, and call <em>is_connected()</em>, <em>eth.chain_id</em> and <em>eth.block_number</em>. Then send the same <em>eth_blockNumber</em> call as raw JSON-RPC with <em>requests</em>.",
+      "where": [
+        {
+          "name": "web3.py providers",
+          "url": "https://web3py.readthedocs.io/en/stable/providers.html"
+        },
+        {
+          "name": "Ethereum JSON-RPC API",
+          "url": "https://ethereum.org/en/developers/docs/apis/json-rpc/"
+        }
+      ],
+      "done": "Both methods return the same block number, and you can decode the hex result by hand."
+    },
+    "s14.s0.2": {
+      "how": "Read a balance with <em>eth.get_balance</em> and convert it with <em>Web3.from_wei</em>, fetch a block with <em>eth.get_block</em> and list its transaction hashes, and call a view function such as <em>totalSupply</em> on a deployed testnet contract.",
+      "where": [
+        {
+          "name": "web3.eth API",
+          "url": "https://web3py.readthedocs.io/en/stable/web3.eth.html"
+        }
+      ],
+      "done": "One script prints a balance, the latest block and a contract value, all matching a block explorer."
+    },
+    "s14.s0.3": {
+      "how": "Load an ERC-20 ABI, build <em>w3.eth.contract(address=..., abi=...)</em>, and call <em>balanceOf</em> and <em>decimals</em>. Fetch <em>Transfer</em> events for a block range with <em>contract.events.Transfer.get_logs()</em> and print the decoded <em>from</em>, <em>to</em> and <em>value</em>.",
+      "where": [
+        {
+          "name": "web3.py contracts",
+          "url": "https://web3py.readthedocs.io/en/stable/web3.contract.html"
+        }
+      ],
+      "done": "Your decoded Transfer list for a block range matches the explorer's list for the same range."
+    },
+    "s14.s0.4": {
+      "how": "Read how web3.py signs locally with <em>eth_account</em>. Create a key for testnet use only, load it from an environment variable or an encrypted keystore file, and add <em>.gitignore</em> entries and a secrets scanner so keys cannot be committed.",
+      "where": [
+        {
+          "name": "web3.py account management",
+          "url": "https://web3py.readthedocs.io/en/stable/web3.eth.account.html"
+        }
+      ],
+      "done": "A scan of the repository and its history finds no keys, and you can say why a hardware wallet keeps keys off the computer."
+    },
+    "s14.s0.5": {
+      "how": "Run <em>ape init</em>, install the <em>ape-solidity</em> plugin, and write a small contract in <em>contracts/</em>. Write pytest tests using the <em>accounts</em> and <em>project</em> fixtures to deploy and call it, including one that expects a revert, and run <em>ape test</em>.",
+      "where": [
+        {
+          "name": "Ape: testing",
+          "url": "https://docs.apeworx.io/ape/stable/userguides/testing.html"
+        },
+        {
+          "name": "Solidity: introduction to contracts",
+          "url": "https://docs.soliditylang.org/en/latest/introduction-to-smart-contracts.html"
+        }
+      ],
+      "done": "<em>ape test</em> passes, and changing one line of the contract makes a test fail."
+    },
+    "s14.s0.6": {
+      "how": "Write a contract with a reentrant <em>withdraw</em> and an admin function missing its owner check. Write Ape tests on the local chain that attempt each attack and assert it fails, run them against the flawed contract, then fix it.",
+      "where": [
+        {
+          "name": "Solidity: security considerations",
+          "url": "https://docs.soliditylang.org/en/latest/security-considerations.html"
+        },
+        {
+          "name": "Smart contract security",
+          "url": "https://ethereum.org/en/developers/docs/smart-contracts/security/"
+        }
+      ],
+      "done": "The same tests fail on the flawed contract and pass on the fixed one, and you can say what Solidity 0.8 checks on arithmetic."
+    },
+    "s14.s0.7": {
+      "how": "Fetch logs in fixed block ranges, write each event to a table with a unique key on <em>(tx_hash, log_index)</em>, and save the last processed block in the same database transaction. Answer questions with SQL instead of calling the node again.",
+      "where": [
+        {
+          "name": "web3.py events and logs",
+          "url": "https://web3py.readthedocs.io/en/stable/filters.html"
+        },
+        {
+          "name": "sqlite3",
+          "url": "https://docs.python.org/3/library/sqlite3.html"
+        }
+      ],
+      "done": "Running the indexer twice over the same range leaves the row count unchanged."
+    },
+    "s14.s1.0": {
+      "how": "Pick a contract on a testnet such as Sepolia, or deploy your own there. Index its events from the deployment block in batches of a few thousand blocks, inserting with <em>INSERT OR IGNORE</em> or <em>ON CONFLICT DO NOTHING</em> on <em>(tx_hash, log_index)</em>.",
+      "where": [
+        {
+          "name": "Ethereum networks",
+          "url": "https://ethereum.org/en/developers/docs/networks/"
+        },
+        {
+          "name": "web3.py events and logs",
+          "url": "https://web3py.readthedocs.io/en/stable/filters.html"
+        }
+      ],
+      "done": "The event count in your database matches the explorer's count for the same block range."
+    },
+    "s14.s1.1": {
+      "how": "Treat blocks as final only after a set number of confirmations or at the <em>finalized</em> block tag. Store each indexed block's hash; on every poll and on restart compare it with the chain, and on a mismatch delete rows from that block onwards and re-index.",
+      "where": [
+        {
+          "name": "web3.eth API",
+          "url": "https://web3py.readthedocs.io/en/stable/web3.eth.html"
+        },
+        {
+          "name": "Proof-of-stake and finality",
+          "url": "https://ethereum.org/en/developers/docs/consensus-mechanisms/pos/"
+        }
+      ],
+      "done": "Killing the indexer mid-batch and restarting gives identical rows, and a simulated reorg in a test removes and re-adds rows."
+    },
+    "s14.s1.2": {
+      "how": "Write a small contract that emits events your indexer can read, such as a registry emitting <em>Registered</em>. Test it with Ape: normal use, access control, reverts, and that each call emits the expected event with the right arguments.",
+      "where": [
+        {
+          "name": "Ape: testing",
+          "url": "https://docs.apeworx.io/ape/stable/userguides/testing.html"
+        },
+        {
+          "name": "Solidity: events",
+          "url": "https://docs.soliditylang.org/en/latest/contracts.html#events"
+        }
+      ],
+      "done": "<em>ape test</em> passes with at least one test for every public function and every event."
+    },
+    "s14.s1.3": {
+      "how": "Add a CLI with <em>argparse</em>, such as <em>report --since 2026-01-01 --top 10</em>, that runs SQL over the indexed table and prints totals, the most active addresses and the last indexed block. It must not call the node.",
+      "where": [
+        {
+          "name": "argparse",
+          "url": "https://docs.python.org/3/library/argparse.html"
+        },
+        {
+          "name": "sqlite3",
+          "url": "https://docs.python.org/3/library/sqlite3.html"
+        }
+      ],
+      "done": "The report runs with the network off, and its totals match a hand-written SQL query."
+    },
+    "s14.s1.4": {
+      "how": "Use only local chain accounts and testnet keys read from environment variables. Add a start-up check and a CI step that fail if the configured chain id is 1 (Ethereum mainnet), and run a secrets scanner over the repository and its history.",
+      "where": [
+        {
+          "name": "Ethereum networks",
+          "url": "https://ethereum.org/en/developers/docs/networks/"
+        },
+        {
+          "name": "web3.py account management",
+          "url": "https://web3py.readthedocs.io/en/stable/web3.eth.account.html"
+        }
+      ],
+      "done": "A config pointing at chain id 1 makes the program and CI stop, and the secrets scan of the full history is clean."
+    }
+  }
+}

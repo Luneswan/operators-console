@@ -158,3 +158,27 @@ def test_a_folded_group_says_that_it_is_optional(qt_app, window, curriculum):
     extra = window.views["projects"]._extra
     if extra is not None:
         assert extra.tag is None    # its caption already says what it is
+
+
+def test_typing_and_enter_in_a_dialog_do_not_ring_the_sidebar(qt_app, window):
+    """Owner, 09-24: the ring on "Today" was back. Typing a profile name and
+    pressing Enter closed the dialog and handed the focus back to the
+    sidebar with the keyboard flag still up."""
+    from PySide6.QtCore import QEvent
+    from PySide6.QtGui import QKeyEvent
+    from operators_console.ui.focus import watcher
+
+    watching = watcher(qt_app)
+    for key in (Qt.Key.Key_A, Qt.Key.Key_Return, Qt.Key.Key_Escape):
+        watching.eventFilter(window, QKeyEvent(
+            QEvent.Type.KeyPress, int(key), Qt.KeyboardModifier.NoModifier))
+        assert watching.keyboard is False, key
+    button = window.nav_buttons["today"]
+    button.setFocus()
+    pump(qt_app)
+    assert not button.property("kbd")
+    watching.eventFilter(window, QKeyEvent(
+        QEvent.Type.KeyPress, int(Qt.Key.Key_Tab),
+        Qt.KeyboardModifier.NoModifier))
+    watching.eventFilter(window, QEvent(QEvent.Type.WindowActivate))
+    assert watching.keyboard is False, "switching back to the app rang"

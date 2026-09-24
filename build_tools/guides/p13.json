@@ -1,0 +1,114 @@
+{
+  "sections": {
+    "p13.s0": "The main classes of web application flaw, taken from the OWASP Top 10. For each item read the OWASP page and the matching cheat sheet, then find one place in your own code where it could apply. About an evening per item; keep notes, since the lab and review use them.",
+    "p13.s1": "A lab on your own machine where you add a flaw to a toy app you wrote, confirm it, fix it and lock the fix with a test. Do one full cycle of items 0 to 3 first, then repeat for the other flaw types, and finish with the dependency audit. Never point any of this at systems you do not own.",
+    "p13.s2": "A structured security review of your own Nexus API. Go through the five questions in order, one pass each across the whole codebase, and record each finding with the file, the risk and the fix. Fix the findings after the review, not during, so the list stays complete."
+  },
+  "items": {
+    "p13.s0.0": {
+      "how": "Read the OWASP entry and the Authorization cheat sheet. In one of your APIs, list every endpoint that takes an object id and check the handler confirms the current user owns or may access that object, not only that they are logged in.",
+      "where": [{"name": "OWASP A01 Broken Access Control", "url": "https://owasp.org/Top10/A01_2021-Broken_Access_Control/"}, {"name": "Authorization cheat sheet", "url": "https://cheatsheetseries.owasp.org/cheatsheets/Authorization_Cheat_Sheet.html"}],
+      "done": "You can explain IDOR and show where in your code the ownership check happens for each object endpoint."
+    },
+    "p13.s0.1": {
+      "how": "Read the Password Storage cheat sheet. Hash a password with <em>argon2-cffi</em>, verify it, and compare with an unsalted SHA-256 hash. Generate tokens with <em>secrets.token_urlsafe</em> and check which of your services use TLS end to end.",
+      "where": [{"name": "Password Storage cheat sheet", "url": "https://cheatsheetseries.owasp.org/cheatsheets/Password_Storage_Cheat_Sheet.html"}, {"name": "Python secrets", "url": "https://docs.python.org/3/library/secrets.html"}],
+      "done": "You can say why a fast hash is wrong for passwords and why <em>random</em> is wrong for tokens."
+    },
+    "p13.s0.2": {
+      "how": "Read the SQL and OS command injection cheat sheets. In a local script, build a query by string formatting, pass it a quote character to break it, then rewrite it with placeholders. Do the same with <em>subprocess</em> using <em>shell=True</em> against a list of arguments.",
+      "where": [{"name": "SQL Injection Prevention cheat sheet", "url": "https://cheatsheetseries.owasp.org/cheatsheets/SQL_Injection_Prevention_Cheat_Sheet.html"}, {"name": "OS Command Injection Defense cheat sheet", "url": "https://cheatsheetseries.owasp.org/cheatsheets/OS_Command_Injection_Defense_Cheat_Sheet.html"}],
+      "done": "You can explain why parameterised queries and argument lists prevent injection where escaping and filtering do not."
+    },
+    "p13.s0.3": {
+      "how": "Read the OWASP Insecure Design entry and the Threat Modeling cheat sheet. Draw a data-flow diagram of one of your apps, mark trust boundaries, and list what a user could abuse in the business logic, such as unlimited retries or negative quantities.",
+      "where": [{"name": "OWASP A04 Insecure Design", "url": "https://owasp.org/Top10/A04_2021-Insecure_Design/"}, {"name": "Threat Modeling cheat sheet", "url": "https://cheatsheetseries.owasp.org/cheatsheets/Threat_Modeling_Cheat_Sheet.html"}],
+      "done": "You have a diagram with trust boundaries and at least three design-level risks, each with a planned control."
+    },
+    "p13.s0.4": {
+      "how": "Read the OWASP entry, then audit one of your deployments: debug mode off, default passwords changed, unused ports closed, directory listing off, security headers set. Run your container config against the Docker Security cheat sheet.",
+      "where": [{"name": "OWASP A05 Security Misconfiguration", "url": "https://owasp.org/Top10/A05_2021-Security_Misconfiguration/"}, {"name": "Docker Security cheat sheet", "url": "https://cheatsheetseries.owasp.org/cheatsheets/Docker_Security_Cheat_Sheet.html"}],
+      "done": "You have a checklist for your stack with every line marked pass or fixed."
+    },
+    "p13.s0.5": {
+      "how": "Run <em>pip-audit</em> on one of your projects and read each advisory it reports. Pin dependencies in a lock file and turn on Dependabot alerts for the repository.",
+      "where": [{"name": "pip-audit", "url": "https://pypi.org/project/pip-audit/"}, {"name": "Vulnerable Dependency Management cheat sheet", "url": "https://cheatsheetseries.owasp.org/cheatsheets/Vulnerable_Dependency_Management_Cheat_Sheet.html"}],
+      "done": "You can read a CVE advisory, say whether your code reaches the affected function, and name the fixed version."
+    },
+    "p13.s0.6": {
+      "how": "Read the Session Management, Credential Stuffing and Forgot Password cheat sheets. Check that your app issues a new session id at login, rate-limits login attempts, and uses single-use, expiring reset tokens.",
+      "where": [{"name": "Session Management cheat sheet", "url": "https://cheatsheetseries.owasp.org/cheatsheets/Session_Management_Cheat_Sheet.html"}, {"name": "Forgot Password cheat sheet", "url": "https://cheatsheetseries.owasp.org/cheatsheets/Forgot_Password_Cheat_Sheet.html"}],
+      "done": "You can explain session fixation and credential stuffing and name the control in your code that stops each."
+    },
+    "p13.s0.7": {
+      "how": "Read the OWASP entry. Install dependencies with <em>pip install --require-hashes</em> from a hashed lock file, pin GitHub Actions to commit SHAs, and never unpickle data from an untrusted source.",
+      "where": [{"name": "OWASP A08 Software and Data Integrity Failures", "url": "https://owasp.org/Top10/A08_2021-Software_and_Data_Integrity_Failures/"}, {"name": "pip secure installs", "url": "https://pip.pypa.io/en/stable/topics/secure-installs/"}],
+      "done": "Your CI installs only hash-checked packages, and you can explain why <em>pickle.loads</em> on untrusted input runs code."
+    },
+    "p13.s0.8": {
+      "how": "Read the Logging cheat sheet. Add log lines for logins, failed logins, permission denials and admin actions with user id, IP and time, never passwords or tokens. Then write down which alert would tell you about a brute-force attempt.",
+      "where": [{"name": "Logging cheat sheet", "url": "https://cheatsheetseries.owasp.org/cheatsheets/Logging_Cheat_Sheet.html"}, {"name": "OWASP A09 Logging and Monitoring Failures", "url": "https://owasp.org/Top10/A09_2021-Security_Logging_and_Monitoring_Failures/"}],
+      "done": "From your logs alone you can list every failed login in the last hour and who performed each admin action."
+    },
+    "p13.s0.9": {
+      "how": "Read the SSRF cheat sheet. In a local app with a fetch-this-URL feature, confirm it will request <em>http://localhost</em> services and the cloud metadata address <em>169.254.169.254</em>. Fix it with an allow-list of hosts, resolving the name and rejecting private addresses via <em>ipaddress</em>.",
+      "where": [{"name": "SSRF Prevention cheat sheet", "url": "https://cheatsheetseries.owasp.org/cheatsheets/Server_Side_Request_Forgery_Prevention_Cheat_Sheet.html"}, {"name": "ipaddress", "url": "https://docs.python.org/3/library/ipaddress.html"}],
+      "done": "Your fetch feature refuses localhost, private and link-local addresses, including via redirects, and you can explain why that matters in the cloud."
+    },
+    "p13.s1.0": {
+      "how": "Build a small FastAPI or Flask app with SQLite that runs only on <em>127.0.0.1</em>. Add exactly one flaw, such as a login query built with an f-string, and keep it in its own Git branch so you can switch between vulnerable and fixed.",
+      "where": [{"name": "OWASP Top 10", "url": "https://owasp.org/www-project-top-ten/"}, {"name": "FastAPI security", "url": "https://fastapi.tiangolo.com/tutorial/security/"}],
+      "done": "The app runs only on localhost, and <em>git diff</em> between branches shows the single flaw."
+    },
+    "p13.s1.1": {
+      "how": "Against your own local app only, trigger the flaw with <em>curl</em> or <em>httpx</em> and write down the exact request, the response, and what data or action it exposed. Save the request as a script you can rerun.",
+      "where": [{"name": "OWASP Web Security Testing Guide", "url": "https://owasp.org/www-project-web-security-testing-guide/"}],
+      "done": "Rerunning your saved script against the vulnerable branch reproduces the issue every time."
+    },
+    "p13.s1.2": {
+      "how": "Fix the cause, not the symptom: parameterised queries instead of stripping quotes, a server-side ownership check instead of hiding a button, a proper session reset instead of blocking one input. Rerun your reproduction script.",
+      "where": [{"name": "OWASP Cheat Sheet Series", "url": "https://cheatsheetseries.owasp.org/"}, {"name": "Input Validation cheat sheet", "url": "https://cheatsheetseries.owasp.org/cheatsheets/Input_Validation_Cheat_Sheet.html"}],
+      "done": "The reproduction script fails against the fixed branch, and you can explain why the fix holds for inputs you did not test."
+    },
+    "p13.s1.3": {
+      "how": "Turn the reproduction into a <em>pytest</em> test using FastAPI's <em>TestClient</em> that asserts the safe behaviour. Check out the vulnerable branch and confirm the test fails, then switch back and confirm it passes.",
+      "where": [{"name": "FastAPI testing", "url": "https://fastapi.tiangolo.com/tutorial/testing/"}, {"name": "pytest", "url": "https://docs.pytest.org/en/stable/"}],
+      "done": "The test fails on the vulnerable branch and passes on the fixed one."
+    },
+    "p13.s1.4": {
+      "how": "Run the full cycle of flaw, reproduction, fix and test three times: SQL injection in a search endpoint, a missing ownership check on <em>GET /items/{id}</em>, and a login that keeps the old session id or has no attempt limit.",
+      "where": [{"name": "OWASP Top 10", "url": "https://owasp.org/www-project-top-ten/"}, {"name": "Authentication cheat sheet", "url": "https://cheatsheetseries.owasp.org/cheatsheets/Authentication_Cheat_Sheet.html"}],
+      "done": "You have three branches or commits, each with a reproduction script and a regression test that fails before the fix and passes after."
+    },
+    "p13.s1.5": {
+      "how": "Run <em>pip-audit</em> and <em>bandit -r</em> on each of your real projects. Upgrade the affected packages, rerun your tests, and record anything you cannot fix with the reason.",
+      "where": [{"name": "pip-audit", "url": "https://pypi.org/project/pip-audit/"}, {"name": "Bandit", "url": "https://bandit.readthedocs.io/en/latest/"}],
+      "done": "<em>pip-audit</em> reports no known vulnerabilities, or each remaining one has a written reason, and your tests still pass."
+    },
+    "p13.s2.0": {
+      "how": "List every route from the FastAPI app, for example by iterating <em>app.routes</em>. For each, write who may call it and point to the dependency or check that enforces it on the server. Write a test for each role calling each protected route.",
+      "where": [{"name": "Authorization cheat sheet", "url": "https://cheatsheetseries.owasp.org/cheatsheets/Authorization_Cheat_Sheet.html"}, {"name": "FastAPI dependencies", "url": "https://fastapi.tiangolo.com/tutorial/dependencies/"}],
+      "done": "You have a table of every route with its allowed callers, and tests prove a wrong role gets 401 or 403."
+    },
+    "p13.s2.1": {
+      "how": "For every request model, add types and limits with Pydantic <em>Field</em> constraints (lengths, ranges, patterns) and cap request body size. Send empty, oversized, wrong-type and unexpected-field payloads from tests and check each response.",
+      "where": [{"name": "Pydantic fields", "url": "https://docs.pydantic.dev/latest/concepts/fields/"}, {"name": "Input Validation cheat sheet", "url": "https://cheatsheetseries.owasp.org/cheatsheets/Input_Validation_Cheat_Sheet.html"}],
+      "done": "Every hostile payload gets a 4xx with a clean message, and none causes a 500."
+    },
+    "p13.s2.2": {
+      "how": "List every secret the API uses and where it is loaded from. Scan the full history with <em>gitleaks detect</em>. Rotate any secret that was ever committed, since removing it from history does not make it safe again.",
+      "where": [{"name": "Secrets Management cheat sheet", "url": "https://cheatsheetseries.owasp.org/cheatsheets/Secrets_Management_Cheat_Sheet.html"}, {"name": "GitHub: removing sensitive data", "url": "https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/removing-sensitive-data-from-a-repository"}],
+      "done": "Every secret comes from the environment or a secret store, the history scan is clean, and any leaked secret has been rotated."
+    },
+    "p13.s2.3": {
+      "how": "Add exception handlers that return a generic message and an error id to the client, and log the full traceback server-side with that id. Force a failure in each layer (database, validation, unhandled) and inspect what the client receives.",
+      "where": [{"name": "FastAPI handling errors", "url": "https://fastapi.tiangolo.com/tutorial/handling-errors/"}, {"name": "Error Handling cheat sheet", "url": "https://cheatsheetseries.owasp.org/cheatsheets/Error_Handling_Cheat_Sheet.html"}],
+      "done": "No response body contains a traceback, SQL, file path or library version, and each error id matches a full log entry."
+    },
+    "p13.s2.4": {
+      "how": "For every state-changing endpoint, add a structured log line with user id, action, target id, result and request id. Then pick a made-up incident, such as a deleted record, and try to answer who, what and when from the logs alone.",
+      "where": [{"name": "Logging cheat sheet", "url": "https://cheatsheetseries.owasp.org/cheatsheets/Logging_Cheat_Sheet.html"}],
+      "done": "For any create, update or delete you can find from the logs who did it and when."
+    }
+  }
+}

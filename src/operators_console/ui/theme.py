@@ -366,6 +366,17 @@ QPushButton[nav="true"][active="true"][kbd="true"]:focus {
 }
 #RowTitle { font-size: 13.5px; font-weight: 600; color: %(ink)s; }
 #ActionRow { background: transparent; border-radius: 6px; }
+#GuideBox {
+    background: %(surface_2)s; border: 1px solid %(rule)s; border-radius: 8px;
+}
+#GuideCaption {
+    color: %(ink_faint)s; font-size: 11px; font-weight: 700;
+    letter-spacing: 0.6px;
+}
+#GuideText { color: %(ink_soft)s; font-size: 13px; }
+#GuideMuted { color: %(ink_faint)s; font-size: 12.5px; }
+#GuideToggle { font-size: 12.5px; padding-top: 3px; }
+#SectionGuide { color: %(ink_soft)s; font-size: 13px; }
 #ActionRow:hover { background: %(surface_2)s; }
 #TimelineRow { background: transparent; }
 #TimelineTitle {

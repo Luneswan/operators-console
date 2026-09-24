@@ -9,6 +9,17 @@ from .models import Phase
 from .storage import Store
 
 
+def _level(rungs, proven) -> int:
+    """How many rungs in a row are met by the proven phases."""
+    level = 0
+    for index, (required, count, pool) in enumerate(rungs, start=1):
+        if not (all(pid in proven for pid in required)
+                and sum(1 for pid in pool if pid in proven) >= count):
+            break
+        level = index
+    return level
+
+
 def _number(value, fallback: float) -> float:
     """Settings arrive as JSON and a hand-edited backup can hold anything.
 
@@ -420,16 +431,7 @@ class Progress:
             (core, 1, mastery),
         ]
 
-        def met(rung) -> bool:
-            required, count, pool = rung
-            return (all(pid in proven for pid in required)
-                    and sum(1 for pid in pool if pid in proven) >= count)
-
-        level = 0
-        for index, rung in enumerate(rungs, start=1):
-            if not met(rung):
-                break
-            level = index
+        level = _level(rungs, proven)
         if level >= len(rungs):
             return Career(level, LEVELS[level], "", (), 1.0)
 
@@ -445,6 +447,36 @@ class Progress:
         names = tuple(self.c.phase(pid).name for pid in missing[:3])
         return Career(level, LEVELS[level], LEVELS[level + 1], names,
                       got / total if total else 0.0)
+
+    def career_milestones(self) -> dict:
+        """Phase id -> the levels reached once it is proven, walking the plan
+        in order from what is proven now. The roadmap marks them."""
+        plan = [pid for pid in self.active_phase_ids()
+                if self.c.phase(pid) is not None]
+        track = self.c.track(self.s.setting("track", "generalist"))
+        core = [pid for pid in (track.core if track else plan)
+                if pid in plan] or plan
+        core = [pid for pid in core if self.c.phase(pid).trackable_ids]
+        stats = self.all_phases()
+        proven = {pid for pid in plan if stats.get(pid)
+                  and stats[pid].is_proven}
+        foundations = [pid for pid in ("p01", "p02", "p03") if pid in core]
+        first = foundations[:1] or core[:1]
+        mastery = [pid for pid in MASTERY if self.c.phase(pid)]
+        rungs = [(first, 0, ()), (foundations or core[:3], 0, ()),
+                 ((), math.ceil(len(core) / 2), core), (core, 0, ()),
+                 (core, 1, mastery)]
+        level = _level(rungs, proven)
+        marks: dict = {}
+        for pid in plan:
+            if pid in proven:
+                continue
+            proven.add(pid)
+            reached = _level(rungs, proven)
+            if reached > level:
+                marks[pid] = [LEVELS[n] for n in range(level + 1, reached + 1)]
+                level = reached
+        return marks
 
     # -- position in the course --------------------------------------------
 

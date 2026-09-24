@@ -224,8 +224,8 @@ def test_a_line_reaches_the_review_deck_without_a_right_click(walk_app,
         click(walk_app, row.more)
         menu = _row_menu(row)
         assert menu is not None, "the ... button opened nothing"
-        assert [a.text() for a in menu.actions()] == ["Add to review deck",
-                                                      "Copy text"]
+        assert [a.text() for a in menu.actions()] == [
+            "Add to review deck", "Copy text", "Show or hide how to do this"]
         menu.close()
         pump(walk_app, 2)
     with step(walk_app, "phase", "open the same menu with Shift+F10", window):

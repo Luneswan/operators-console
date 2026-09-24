@@ -7,7 +7,9 @@ from PySide6.QtWidgets import (
 )
 
 from ...core.models import split_optional
+from ...core.estimate import format_hours
 from ...core.progress import proof_line
+from ..widgets.guide import GuidedItem
 from ..widgets.common import (
     Card, CheckRow, Disclosure, LinkRow, button, clear_layout, divider,
     empty_state, frozen, heading, label,
@@ -117,6 +119,9 @@ class PhaseView(View):
         row = self.row_for(target)
         if row is None:
             return
+        guided = self.guided_for(target)
+        if guided is not None:
+            guided.set_open(True)
         row.setFocus(Qt.FocusReason.OtherFocusReason)
         QTimer.singleShot(0, lambda r=row: self._reveal_row(r))
         self.ctx.announce("Taught here: %s" % plain(text))
@@ -226,9 +231,25 @@ class PhaseView(View):
 
     def _show_progress(self, phase, stats) -> None:
         self.progress_meter.setValue(stats.percent)
+        from ...core.estimate import format_day
+        estimate = self.ctx.estimator.estimate()
+        timing = estimate.phase(phase.id)
+        factor = estimate.pace.factor
+        if timing is not None and timing.left_minutes > 0:
+            when = "%s left of %s at your pace, done around %s" % (
+                format_hours(timing.left_personal),
+                format_hours(timing.total_minutes * factor),
+                format_day(timing.finish))
+        elif timing is not None:
+            when = "all the work is done"
+        else:
+            total, left = self.ctx.estimator.phase_minutes(phase)
+            when = ("%s left of %s at your pace (not in your plan)"
+                    % (format_hours(left * factor),
+                       format_hours(total * factor)) if total
+                    else "about %d hours of work" % phase.est_hours)
         self.progress_caption.setText(
-            "%d of %d checks done - about %d hours of work in this phase"
-            % (stats.done, stats.total, phase.est_hours))
+            "%d of %d checks done - %s" % (stats.done, stats.total, when))
         self.proof_caption.setText(proof_line(stats))
 
     def _fill_jumps(self, phase, stats) -> None:
@@ -278,13 +299,28 @@ class PhaseView(View):
             self.body.addWidget(card)
 
         checked = self.ctx.store.checked_ids()
+        units = self.ctx.estimator.units()
+        factor = self.ctx.estimator.estimate().pace.factor
+        open_all = bool(self.ctx.store.setting("guides_open", False))
+        # The first line not yet ticked opens with its guide: where to carry
+        # on is the question every visit to a phase starts with.
+        next_id = next((i.id for s in phase.sections if not s.optional
+                        for i in s.items if i.id not in checked), "")
         if phase.sections:
+            hint = QHBoxLayout()
             # The right-click menu on every line has been there all along
             # with nothing anywhere saying so, which is the same as it not
             # being there.
-            self.body.addWidget(muted(
-                "To add a line to your review deck: right-click it, click the "
-                "... at its right edge, or press Shift+F10."))
+            hint.addWidget(muted(
+                "How opens each line's guide: what to do, where to learn it, "
+                "and how to tell it is done. To add a line to your review "
+                "deck: right-click it, click the ... at its right edge, or "
+                "press Shift+F10."), 1)
+            self.guides_button = button(
+                "Hide all guides" if open_all else "Show all guides", "quiet")
+            self.guides_button.clicked.connect(self._toggle_all_guides)
+            hint.addWidget(self.guides_button, 0, Qt.AlignmentFlag.AlignTop)
+            self.body.addLayout(hint)
         for section in phase.sections:
             card = Card()
             top = QHBoxLayout()
@@ -293,6 +329,14 @@ class PhaseView(View):
             counter = muted("%d/%d" % (done, len(section.items)))
             top.addWidget(counter, 0, Qt.AlignmentFlag.AlignRight)
             card.box.addLayout(top)
+            left = sum(units.get(i.id, 0.0) for i in section.items
+                       if i.id not in checked) * factor
+            if section.guide or left >= 1:
+                words = section.guide
+                if left >= 1 and not section.optional:
+                    words += ("  " if words else "") + (
+                        "About %s left at your pace." % format_hours(left))
+                card.add(label(words, "SectionGuide"))
             # Stretch work folds behind the same OPTIONAL pill the reading
             # list uses, and counts for nothing, so the main list is what
             # the page asks for.
@@ -305,13 +349,17 @@ class PhaseView(View):
                                   key="section:" + section.id, more=False)
                 card.add(fold)
             for item in section.items:
-                row = CheckRow(item.id, item.text, item.id in checked)
-                row.toggled.connect(self._toggle)
-                row.review_requested.connect(self._add_to_review)
+                guided = GuidedItem(
+                    item, item.id in checked,
+                    minutes=units.get(item.id, 0.0) * factor,
+                    opened=open_all or item.id == next_id,
+                    next_step=item.id == next_id)
+                guided.row.toggled.connect(self._toggle)
+                guided.row.review_requested.connect(self._add_to_review)
                 if fold is not None:
-                    fold.add(row)
+                    fold.add(guided)
                 else:
-                    card.add(row)
+                    card.add(guided)
             self.body.addWidget(card)
 
         if phase.snippet:
@@ -361,6 +409,20 @@ class PhaseView(View):
                 self.ctx.announce(
                     "Every line in phase %s is ticked. To prove it: %s."
                     % (phase.num, ", ".join(stats.outstanding())))
+
+    def _toggle_all_guides(self) -> None:
+        opened = not bool(self.ctx.store.setting("guides_open", False))
+        self.ctx.store.set_setting("guides_open", opened)
+        for guided in self.scroller.body.findChildren(GuidedItem):
+            guided.set_open(opened)
+        self.guides_button.setText("Hide all guides" if opened
+                                   else "Show all guides")
+
+    def guided_for(self, item_id: str):
+        for guided in self.scroller.body.findChildren(GuidedItem):
+            if guided.item.id == item_id:
+                return guided
+        return None
 
     def _add_to_review(self, item_id: str) -> None:
         self.ctx.review.add_concept(item_id)

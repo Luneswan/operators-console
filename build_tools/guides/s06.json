@@ -1,0 +1,118 @@
+{
+  "sections": {
+    "s06.s0": "Work in order: returns and money handling first (s0.0 to s0.2), then bias, risk and portfolio maths (s0.3 to s0.6), then data storage and code discipline (s0.7, s0.8). Spend about two thirds of the time running small pandas experiments on real daily prices and one third reading. This is education only, not investment advice.",
+    "s06.s1": "Build in the listed order: the simulation with costs, the lookahead test, the metrics, the benchmark, then walk-forward. Keep each part in its own module with tests. Treat the whole build as a data-analysis exercise, not a trading system."
+  },
+  "items": {
+    "s06.s0.0": {
+      "how": "Load daily prices for one stock and compute simple returns with <em>pct_change()</em> and log returns with <em>np.log(p).diff()</em>. Check that log returns sum to the total log return and simple returns compound with <em>(1 + r).prod()</em>. Compare close and adjusted close across a known split date.",
+      "where": [
+        {"name": "pandas DataFrame.pct_change", "url": "https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.pct_change.html"},
+        {"name": "NumPy numpy.log", "url": "https://numpy.org/doc/stable/reference/generated/numpy.log.html"}
+      ],
+      "done": "You can say which return type adds across time and which across assets, and your split day shows no fake -50% return."
+    },
+    "s06.s0.1": {
+      "how": "Check <em>sum([0.1] * 10) == 1.0</em> with floats, then with <em>Decimal('0.1')</em>. Write a fee function that takes <em>Decimal</em> amounts and rounds with <em>quantize(Decimal('0.01'), rounding=ROUND_HALF_EVEN)</em>. Note where float is fine: returns, volatility and other statistics.",
+      "where": [
+        {"name": "decimal module", "url": "https://docs.python.org/3/library/decimal.html"},
+        {"name": "Floating-point arithmetic tutorial", "url": "https://docs.python.org/3/tutorial/floatingpoint.html"}
+      ],
+      "done": "You can explain why <em>Decimal(0.1)</em> differs from <em>Decimal('0.1')</em> and when a float result is acceptable."
+    },
+    "s06.s0.2": {
+      "how": "Load two markets with different closing times, set each index's zone with <em>tz_localize</em>, convert both to UTC with <em>tz_convert</em>, then <em>resample('W').last()</em> and join. Use <em>merge_asof</em> to attach the latest known value of one series to the other without looking ahead.",
+      "where": [
+        {"name": "pandas time series user guide", "url": "https://pandas.pydata.org/docs/user_guide/timeseries.html"},
+        {"name": "pandas.merge_asof", "url": "https://pandas.pydata.org/docs/reference/api/pandas.merge_asof.html"}
+      ],
+      "done": "Your joined frame has no row where one market's value comes from a later timestamp than the row's own time."
+    },
+    "s06.s0.3": {
+      "how": "Reproduce each bias on purpose: shift a signal the wrong way to create lookahead, backtest only today's index members to see survivorship, and rerun with 10 basis points of fees and slippage per trade. Write down how much each one changes the result.",
+      "where": [
+        {"name": "pandas DataFrame.shift", "url": "https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.shift.html"},
+        {"name": "QuantEcon lectures", "url": "https://python.quantecon.org/"}
+      ],
+      "done": "You can name the bias behind a too-good backtest and show the one-line fix for lookahead."
+    },
+    "s06.s0.4": {
+      "how": "From daily returns compute annualised volatility with <em>std() * sqrt(252)</em>, the Sharpe ratio as mean excess return over its standard deviation (annualised), maximum drawdown from <em>cummax()</em> of the equity curve, and 95% historical VaR with <em>quantile(0.05)</em>.",
+      "where": [
+        {"name": "pandas DataFrame.cummax", "url": "https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.cummax.html"},
+        {"name": "pandas Series.quantile", "url": "https://pandas.pydata.org/docs/reference/api/pandas.Series.quantile.html"}
+      ],
+      "done": "Your four functions match hand-calculated values on a 10-day example to 6 decimal places."
+    },
+    "s06.s0.5": {
+      "how": "Take 5 to 10 assets, estimate expected returns and a covariance matrix, and use PyPortfolioOpt's <em>EfficientFrontier</em> to get minimum-volatility and maximum-Sharpe weights. Compare them with equal weights, then nudge one expected return and watch how far the weights move.",
+      "where": [
+        {"name": "PyPortfolioOpt mean-variance optimisation", "url": "https://pyportfolioopt.readthedocs.io/en/latest/MeanVariance.html"},
+        {"name": "PyPortfolioOpt risk models", "url": "https://pyportfolioopt.readthedocs.io/en/latest/RiskModels.html"}
+      ],
+      "done": "You can explain why optimised weights swing when expected returns change slightly, and why equal weights are a fair baseline."
+    },
+    "s06.s0.6": {
+      "how": "Build features from past prices and score a model with <em>TimeSeriesSplit</em>, then with <em>KFold(shuffle=True)</em>. Then write a walk-forward loop by hand: fit on a window, test on the next block, move both forward.",
+      "where": [
+        {"name": "scikit-learn TimeSeriesSplit", "url": "https://scikit-learn.org/stable/modules/generated/sklearn.model_selection.TimeSeriesSplit.html"},
+        {"name": "scikit-learn cross-validation guide", "url": "https://scikit-learn.org/stable/modules/cross_validation.html"}
+      ],
+      "done": "You can show that the shuffled split scores higher and explain which future information leaked into it."
+    },
+    "s06.s0.7": {
+      "how": "Pick one free data API and read its rate limits. Write a downloader that sets timeouts, retries with backoff, caches raw responses and saves cleaned data with <em>to_parquet</em>. Store the source, download date and price adjustments in a metadata file next to the data.",
+      "where": [
+        {"name": "Requests advanced usage", "url": "https://requests.readthedocs.io/en/latest/user/advanced/"},
+        {"name": "pandas DataFrame.to_parquet", "url": "https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.to_parquet.html"}
+      ],
+      "done": "Your research script reads only local files and gives the same numbers with the network switched off."
+    },
+    "s06.s0.8": {
+      "how": "List what research code can skip and execution code cannot: input validation, logging, error handling, safe restarts and reconciliation of records. Take one of your notebooks and mark every place that would fail silently if it ran unattended.",
+      "where": [
+        {"name": "logging module", "url": "https://docs.python.org/3/library/logging.html"},
+        {"name": "Errors and exceptions tutorial", "url": "https://docs.python.org/3/tutorial/errors.html"}
+      ],
+      "done": "You can list five differences between research and execution code and point to an example of each in your own code."
+    },
+    "s06.s1.0": {
+      "how": "Load daily prices, compute a moving-average crossover with <em>rolling()</em>, turn it into positions and earn the next day's return. Charge fees and slippage in basis points on every change in position, and keep the cost settings in one config object.",
+      "where": [
+        {"name": "pandas DataFrame.rolling", "url": "https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.rolling.html"},
+        {"name": "pandas DataFrame.shift", "url": "https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.shift.html"}
+      ],
+      "done": "With costs set to zero you get the gross result, and raising costs lowers returns by trades times cost per trade."
+    },
+    "s06.s1.1": {
+      "how": "Route every strategy through one function that shifts signals by one bar before they meet returns. Write a pytest test that changes prices after day t and asserts that positions up to day t stay the same.",
+      "where": [
+        {"name": "pytest getting started", "url": "https://docs.pytest.org/en/stable/getting-started.html"},
+        {"name": "pandas DataFrame.shift", "url": "https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.shift.html"}
+      ],
+      "done": "The test fails when you remove the shift and passes when it is in place."
+    },
+    "s06.s1.2": {
+      "how": "Write one <em>report()</em> function that takes a daily return series and returns total and annualised return, annualised volatility, Sharpe ratio and maximum drawdown. Reuse the risk functions you already checked by hand instead of writing new ones.",
+      "where": [
+        {"name": "pandas Series.cumprod", "url": "https://pandas.pydata.org/docs/reference/api/pandas.Series.cumprod.html"},
+        {"name": "pandas DataFrame.cummax", "url": "https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.cummax.html"}
+      ],
+      "done": "<em>report()</em> reproduces your hand-checked example and runs unchanged on any daily return series."
+    },
+    "s06.s1.3": {
+      "how": "Run buy-and-hold on the same asset, dates and cost settings. Plot both equity curves from <em>(1 + r).cumprod()</em> and put both reports side by side, adding the strategy's time in the market so a drawdown saved by sitting in cash is visible.",
+      "where": [
+        {"name": "pandas Series.cumprod", "url": "https://pandas.pydata.org/docs/reference/api/pandas.Series.cumprod.html"}
+      ],
+      "done": "Strategy and benchmark cover identical dates, and you can say whether the strategy beat buy-and-hold after costs."
+    },
+    "s06.s1.4": {
+      "how": "Split the history into consecutive train and test windows, choose parameters on each train window only, and record results on the test window that follows. Join the test windows into one out-of-sample equity curve and report it apart from in-sample figures.",
+      "where": [
+        {"name": "scikit-learn TimeSeriesSplit", "url": "https://scikit-learn.org/stable/modules/generated/sklearn.model_selection.TimeSeriesSplit.html"}
+      ],
+      "done": "The report has separate in-sample and out-of-sample tables, and no test date falls inside its own training window."
+    }
+  }
+}

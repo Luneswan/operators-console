@@ -6,6 +6,40 @@ All notable changes to this project are recorded here. The format follows
 
 ## [Unreleased]
 
+## [1.3.0] - 2026-09-24
+
+### Added
+
+- **Study timer.** Study -> Start or stop studying (Ctrl+T), or Start
+  studying in the top bar, on every page. Pause and resume with
+  Ctrl+Shift+T. A running timer survives closing the app. Stop shows what
+  you finished in that window (lines ticked, exercises passed, quizzes,
+  reviews, projects shipped), the time to record (editable), and the
+  estimate before and after; Save writes it to the Log.
+- **Time left, measured.** Each phase's hours are split over its study
+  steps, gate checks, exercises (by difficulty), quiz and project. Time
+  left is the sum of what is not done, at your pace: your timed minutes,
+  less review time, over the estimated minutes of what you finished in
+  them, weighed against ten hours at the course estimate. The finish date
+  uses your last four weeks of study once there are two weeks of history,
+  and your planned hours before that, less time spent on review cards.
+  Shown on Today, the Roadmap, Progress (with the working and every timed
+  session), each phase page, and Settings.
+- **Study guides for every checklist line.** Each of the 633 lines has how
+  to do it, where to learn it (one or two links) and how to tell it is
+  done, opened with How beside the line or from its menu; Show all guides
+  opens them all. The next unticked line opens with its guide. Every
+  section says how to work through it and how long is left.
+- **Roadmap detail.** An overview (time left, finish date, phases proven,
+  pace), dated windows and hours left per phase instead of fixed week
+  numbers, what is left by kind, and where each career level is reached.
+
+### Fixed
+
+- The keyboard focus ring showed on the sidebar's Today after typing into a
+  dialog and pressing Enter. Only focus-moving keys (Tab, arrows, Home, End,
+  Page Up/Down) now draw it; returning to the window does not.
+
 ## [1.2.0] - 2026-09-24
 
 ### Added

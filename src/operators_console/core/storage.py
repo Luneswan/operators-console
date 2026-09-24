@@ -146,6 +146,19 @@ CREATE TABLE IF NOT EXISTS settings (
     key   TEXT PRIMARY KEY,
     value TEXT NOT NULL
 );
+
+-- Timed study sessions. The work done in one is read back from the other
+-- tables' timestamps between started_at and ended_at, so nothing is copied.
+CREATE TABLE IF NOT EXISTS sessions (
+    id         INTEGER PRIMARY KEY AUTOINCREMENT,
+    day        TEXT NOT NULL,
+    started_at TEXT NOT NULL,
+    ended_at   TEXT NOT NULL,
+    seconds    INTEGER NOT NULL DEFAULT 0,
+    focus      TEXT NOT NULL DEFAULT '',
+    log_id     INTEGER
+);
+CREATE INDEX IF NOT EXISTS sessions_day ON sessions(day);
 """
 
 DEFAULT_SETTINGS: dict[str, Any] = {
@@ -588,10 +601,71 @@ class Store:
             row = self.db.execute(
                 "SELECT day, hours FROM logs WHERE id=?", (log_id,)).fetchone()
             self.db.execute("DELETE FROM logs WHERE id=?", (log_id,))
+            # A timed session saved as this entry goes with it, or its
+            # minutes would keep steering the pace estimate.
+            self.db.execute("DELETE FROM sessions WHERE log_id=?", (log_id,))
             if row is not None:
                 self.db.execute(
                     "UPDATE activity SET minutes=MAX(0, minutes-?) WHERE day=?",
                     (int(float(row["hours"] or 0) * 60), row["day"]))
+
+    # -- timed sessions ------------------------------------------------------
+
+    def add_session(self, started_at: str, ended_at: str, seconds: int,
+                    focus: str = "", log_id: int | None = None,
+                    day: str = "") -> int:
+        with self.tx():
+            cur = self.db.execute(
+                "INSERT INTO sessions(day,started_at,ended_at,seconds,focus,"
+                "log_id) VALUES(?,?,?,?,?,?)",
+                (day or _today(), started_at, ended_at, max(0, int(seconds)),
+                 focus, log_id))
+        return int(cur.lastrowid or 0)
+
+    def sessions(self, limit: int = 200) -> list:
+        return list(self.db.execute(
+            "SELECT * FROM sessions ORDER BY started_at DESC, id DESC LIMIT ?",
+            (limit,)))
+
+    def work_between(self, start: str, end: str) -> dict:
+        """What was finished between two UTC timestamps (as _now() writes
+        them), read from the tables that already record when."""
+        span = (start, end)
+        checked = [r[0] for r in self.db.execute(
+            "SELECT item_id FROM checks WHERE done_at>=? AND done_at<=?",
+            span)]
+        passed = [r[0] for r in self.db.execute(
+            "SELECT exercise_id FROM exercise_state WHERE passed_at>=? "
+            "AND passed_at<=?", span)]
+        quizzes = [dict(r) for r in self.db.execute(
+            "SELECT quiz_id,score,total,seconds FROM quiz_attempts "
+            "WHERE finished_at>=? AND finished_at<=?", span)]
+        reviews = self.db.execute(
+            "SELECT COUNT(*) FROM reviews WHERE reviewed_at>=? "
+            "AND reviewed_at<=?", span).fetchone()[0]
+        shipped = [r[0] for r in self.db.execute(
+            "SELECT project_id FROM project_state WHERE status='shipped' "
+            "AND finished_at>=? AND finished_at<=?", span)]
+        return {"checked": checked, "passed": passed, "quizzes": quizzes,
+                "reviews": int(reviews or 0), "shipped": shipped}
+
+    def reviews_since(self, day: str) -> int:
+        return int(self.db.execute(
+            "SELECT COUNT(*) FROM reviews WHERE day>=?", (day,)).fetchone()[0]
+            or 0)
+
+    def minutes_since(self, day: str) -> tuple:
+        """(study minutes, days with any study) on or after ``day``."""
+        row = self.db.execute(
+            "SELECT COALESCE(SUM(minutes),0), "
+            "COALESCE(SUM(CASE WHEN minutes>0 THEN 1 ELSE 0 END),0) "
+            "FROM activity WHERE day>=?", (day,)).fetchone()
+        return int(row[0] or 0), int(row[1] or 0)
+
+    def first_study_day(self) -> str:
+        row = self.db.execute(
+            "SELECT MIN(day) FROM activity WHERE minutes>0").fetchone()
+        return str(row[0]) if row and row[0] else ""
 
     def total_hours(self) -> float:
         row = self.db.execute(
@@ -978,7 +1052,10 @@ class Store:
 
     TABLES = ("checks", "ratings", "notes", "logs", "srs", "reviews",
               "quiz_attempts", "exercise_state", "project_state", "cert_state",
-              "activity", "settings", "meta")
+              "activity", "settings", "meta", "sessions")
+    # Tables added after 1.0: a backup made before them has none, which is
+    # an empty table, not a damaged backup.
+    LATER_TABLES = ("sessions",)
 
     def dump(self) -> dict:
         out = {
@@ -1068,6 +1145,8 @@ class Store:
             plan[table] = (tuple(usable),
                            [tuple(r.get(c) for c in usable) for r in rows])
 
+        for table in self.LATER_TABLES:
+            plan.setdefault(table, ((), ()))
         missing = [t for t in self.TABLES if t not in plan]
         if missing:
             raise ValueError(
@@ -1101,7 +1180,8 @@ class Store:
         with self.tx():
             for table in ("checks", "ratings", "notes", "logs", "srs",
                           "reviews", "quiz_attempts", "exercise_state",
-                          "project_state", "cert_state", "activity"):
+                          "project_state", "cert_state", "activity",
+                          "sessions"):
                 self.db.execute("DELETE FROM " + table)
         self.generation += 1
 

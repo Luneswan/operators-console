@@ -1,0 +1,234 @@
+{
+  "sections": {
+    "p08.s0": "How PostgreSQL behaves, from single-table queries to plans and pooling. Work in psql against a real database and type every query. Items 0 to 5 are core and fairly quick; items 6, 8 and 9 need the most time. Keep a scratch file of the queries you write.",
+    "p08.s1": "LibraryOS: a lending database built by hand before any ORM touches it. Follow the order exactly: schema on paper, DDL, data, reports, tuning, then SQLAlchemy. Seeding and the EXPLAIN work take the longest, so leave about half the time for them."
+  },
+  "items": {
+    "p08.s0.0": {
+      "how": "Create a table in <em>psql</em>, insert rows, and practise SELECT with WHERE, ORDER BY and LIMIT. Run each UPDATE and DELETE inside <em>BEGIN</em> and check the reported row count before <em>COMMIT</em>. Add <em>RETURNING</em> to see the rows a write touched.",
+      "where": [
+        {
+          "name": "PostgreSQL tutorial: Querying a Table",
+          "url": "https://www.postgresql.org/docs/current/tutorial-select.html"
+        },
+        {
+          "name": "PostgreSQL: Returning Data from Modified Rows",
+          "url": "https://www.postgresql.org/docs/current/dml-returning.html"
+        }
+      ],
+      "done": "You can write filtered reads and safe writes without notes, and you check the row count before committing."
+    },
+    "p08.s0.1": {
+      "how": "Make two related tables, such as authors and books, and ask the same question with an INNER JOIN and a LEFT JOIN. Find authors with no books using LEFT JOIN plus IS NULL. Then rewrite a Python loop that queries per row as one joined query.",
+      "where": [
+        {
+          "name": "PostgreSQL tutorial: Joins Between Tables",
+          "url": "https://www.postgresql.org/docs/current/tutorial-join.html"
+        },
+        {
+          "name": "PostgreSQL: Table Expressions",
+          "url": "https://www.postgresql.org/docs/current/queries-table-expressions.html"
+        }
+      ],
+      "done": "You can predict the row count of an inner join and a left join before running either."
+    },
+    "p08.s0.2": {
+      "how": "Count and sum per group with GROUP BY, then filter rows with WHERE and groups with HAVING in the same query. Select a column that is not grouped to see the error, and compare <em>count(*)</em> with <em>count(column)</em> on a column that holds NULLs.",
+      "where": [
+        {
+          "name": "PostgreSQL tutorial: Aggregate Functions",
+          "url": "https://www.postgresql.org/docs/current/tutorial-agg.html"
+        },
+        {
+          "name": "PostgreSQL: Aggregate Functions reference",
+          "url": "https://www.postgresql.org/docs/current/functions-aggregate.html"
+        }
+      ],
+      "done": "You can explain the difference between WHERE and HAVING and why count(column) skips NULLs."
+    },
+    "p08.s0.3": {
+      "how": "Write one question three ways: a subquery in WHERE, a correlated subquery, and a WITH clause, and compare them with <em>EXPLAIN</em>. Since PostgreSQL 12 a CTE used once is inlined; add <em>MATERIALIZED</em> and see how it can stop the planner pushing a filter down.",
+      "where": [
+        {
+          "name": "PostgreSQL: WITH Queries (CTEs)",
+          "url": "https://www.postgresql.org/docs/current/queries-with.html"
+        }
+      ],
+      "done": "You can say when PostgreSQL 12+ materialises a CTE and show a plan where forcing it makes the query slower."
+    },
+    "p08.s0.4": {
+      "how": "Add each constraint type to a table, then write an INSERT that breaks each one and read the error. Create one foreign key with <em>ON DELETE RESTRICT</em> and one with <em>ON DELETE CASCADE</em>, and a CHECK such as <em>due_date > loan_date</em>.",
+      "where": [
+        {
+          "name": "PostgreSQL: Constraints",
+          "url": "https://www.postgresql.org/docs/current/ddl-constraints.html"
+        }
+      ],
+      "done": "You can name the constraint that stops each kind of bad row and say which rules only the database can enforce reliably."
+    },
+    "p08.s0.5": {
+      "how": "Open two <em>psql</em> sessions. In one, BEGIN and update a row, and check the other still sees the old value until COMMIT. Then run a transfer between two accounts, cause an error halfway, ROLLBACK, and confirm both balances are unchanged.",
+      "where": [
+        {
+          "name": "PostgreSQL tutorial: Transactions",
+          "url": "https://www.postgresql.org/docs/current/tutorial-transactions.html"
+        }
+      ],
+      "done": "You can explain each letter of ACID with an example from your own sessions."
+    },
+    "p08.s0.6": {
+      "how": "Load 100,000 rows, time a query on an unindexed column, add a B-tree index and time it again. Build an index on (a, b) and test filters on a, on b, and on both. Then find cases where the planner skips an index, such as a function on the column or a filter matching most rows.",
+      "where": [
+        {
+          "name": "PostgreSQL: Multicolumn Indexes",
+          "url": "https://www.postgresql.org/docs/current/indexes-multicolumn.html"
+        },
+        {
+          "name": "PostgreSQL: Examining Index Usage",
+          "url": "https://www.postgresql.org/docs/current/indexes-examine.html"
+        }
+      ],
+      "done": "You can predict whether a query will use a given composite index and confirm it with EXPLAIN."
+    },
+    "p08.s0.7": {
+      "how": "Take a flat sheet of loans that repeats member and book details on every row and split it step by step into 1NF, 2NF and 3NF tables. Then pick one derived value, such as a loan count on users, that you would store on purpose, and say how you would keep it correct.",
+      "where": [
+        {
+          "name": "Wikipedia: Database normalization",
+          "url": "https://en.wikipedia.org/wiki/Database_normalization"
+        },
+        {
+          "name": "Wikipedia: Third normal form",
+          "url": "https://en.wikipedia.org/wiki/Third_normal_form"
+        }
+      ],
+      "done": "You can point to a transitive dependency in a table and show the split that removes it."
+    },
+    "p08.s0.8": {
+      "how": "In two sessions, read the same row twice under READ COMMITTED and then REPEATABLE READ while the other session commits a change, and compare. Then have each session update two rows in opposite order to cause a deadlock, and read the error PostgreSQL returns.",
+      "where": [
+        {
+          "name": "PostgreSQL: Transaction Isolation",
+          "url": "https://www.postgresql.org/docs/current/transaction-iso.html"
+        },
+        {
+          "name": "PostgreSQL: Explicit Locking",
+          "url": "https://www.postgresql.org/docs/current/explicit-locking.html"
+        }
+      ],
+      "done": "You can reproduce a deadlock on demand and state the usual fix: take row locks in a consistent order."
+    },
+    "p08.s0.9": {
+      "how": "Run <em>EXPLAIN (ANALYZE, BUFFERS)</em> on a slow query and read it from the innermost node outwards. Compare estimated and actual rows, find the node with the most time, and note Seq Scan versus Index Scan. Change one thing, such as an index or running <em>ANALYZE</em>, and rerun.",
+      "where": [
+        {
+          "name": "PostgreSQL: Using EXPLAIN",
+          "url": "https://www.postgresql.org/docs/current/using-explain.html"
+        },
+        {
+          "name": "PostgreSQL: EXPLAIN command",
+          "url": "https://www.postgresql.org/docs/current/sql-explain.html"
+        }
+      ],
+      "done": "You can name the most expensive node in a plan and say whether a bad row estimate caused it."
+    },
+    "p08.s0.10": {
+      "how": "Check <em>SHOW max_connections</em>, then open connections in a Python loop until the server refuses one. Repeat through a SQLAlchemy engine with <em>pool_size</em> and <em>max_overflow</em> and watch <em>pg_stat_activity</em>. Read how PgBouncer puts few server connections behind many clients.",
+      "where": [
+        {
+          "name": "SQLAlchemy: Connection Pooling",
+          "url": "https://docs.sqlalchemy.org/en/20/core/pooling.html"
+        },
+        {
+          "name": "PgBouncer",
+          "url": "https://www.pgbouncer.org/"
+        }
+      ],
+      "done": "You can explain why each PostgreSQL connection is costly and what an app does when its pool is exhausted."
+    },
+    "p08.s1.0": {
+      "how": "Write down each entity, its columns and every relationship with its cardinality, for example one user has many loans and each loan covers one book. Decide whether a return is its own table or a returned_at column on loans. List the business rules the schema must enforce.",
+      "where": [
+        {
+          "name": "PostgreSQL: Data Definition",
+          "url": "https://www.postgresql.org/docs/current/ddl.html"
+        },
+        {
+          "name": "Wikipedia: Database normalization",
+          "url": "https://en.wikipedia.org/wiki/Database_normalization"
+        }
+      ],
+      "done": "You have a diagram with keys and cardinalities, and a written list of rules to turn into constraints."
+    },
+    "p08.s1.1": {
+      "how": "Write schema.sql with CREATE TABLE statements, primary keys, foreign keys with a chosen ON DELETE action, and UNIQUE, NOT NULL and CHECK constraints. Put a comment above each constraint naming the rule it enforces, and apply it with <em>psql -f schema.sql</em> to a fresh database.",
+      "where": [
+        {
+          "name": "PostgreSQL: CREATE TABLE",
+          "url": "https://www.postgresql.org/docs/current/sql-createtable.html"
+        },
+        {
+          "name": "PostgreSQL: Constraints",
+          "url": "https://www.postgresql.org/docs/current/ddl-constraints.html"
+        }
+      ],
+      "done": "schema.sql applies cleanly to an empty database, and a bad INSERT for each rule is rejected."
+    },
+    "p08.s1.2": {
+      "how": "Generate rows with <em>generate_series</em> and <em>random()</em> in SQL, or with Faker in Python loaded through <em>COPY</em>. Aim for about 10,000 users, 50,000 books and 200,000 loans with a realistic spread of dates and some overdue. Run <em>ANALYZE</em> afterwards.",
+      "where": [
+        {
+          "name": "PostgreSQL: Set Returning Functions",
+          "url": "https://www.postgresql.org/docs/current/functions-srf.html"
+        },
+        {
+          "name": "PostgreSQL: Populating a Database",
+          "url": "https://www.postgresql.org/docs/current/populate.html"
+        }
+      ],
+      "done": "Row counts reach the target, every constraint still holds, and a full reload takes seconds rather than minutes."
+    },
+    "p08.s1.3": {
+      "how": "Write each report as a named .sql file: overdue loans with days late, the top 10 borrowers in the last year, and loans and returns per month using <em>date_trunc</em>. Check each against a small hand-made data set where you already know the answer.",
+      "where": [
+        {
+          "name": "PostgreSQL: Date/Time Functions",
+          "url": "https://www.postgresql.org/docs/current/functions-datetime.html"
+        },
+        {
+          "name": "PostgreSQL tutorial: Aggregate Functions",
+          "url": "https://www.postgresql.org/docs/current/tutorial-agg.html"
+        }
+      ],
+      "done": "Each query returns the known answer on your hand-made data and completes on the full data set."
+    },
+    "p08.s1.4": {
+      "how": "Time your reports with <em>\\timing</em> in psql and pick the slowest. Save its <em>EXPLAIN (ANALYZE, BUFFERS)</em> output, add one index aimed at its filter or join, rerun, and save the new plan. Record both timings next to the plans.",
+      "where": [
+        {
+          "name": "PostgreSQL: Using EXPLAIN",
+          "url": "https://www.postgresql.org/docs/current/using-explain.html"
+        },
+        {
+          "name": "PostgreSQL: CREATE INDEX",
+          "url": "https://www.postgresql.org/docs/current/sql-createindex.html"
+        }
+      ],
+      "done": "You have before and after plans with a measured speed-up, and can say which plan node changed."
+    },
+    "p08.s1.5": {
+      "how": "Map the tables with SQLAlchemy 2.0 declarative models and rewrite two reports with <em>select()</em>. Set <em>echo=True</em> on the engine, compare the logged SQL with your hand-written queries, and fix any N+1 pattern with <em>selectinload</em> or a join.",
+      "where": [
+        {
+          "name": "SQLAlchemy: ORM Quick Start",
+          "url": "https://docs.sqlalchemy.org/en/20/orm/quickstart.html"
+        },
+        {
+          "name": "SQLAlchemy: Relationship Loading Techniques",
+          "url": "https://docs.sqlalchemy.org/en/20/orm/queryguide/relationships.html"
+        }
+      ],
+      "done": "The ORM version returns the same rows as your SQL and issues a fixed number of queries, not one per row."
+    }
+  }
+}

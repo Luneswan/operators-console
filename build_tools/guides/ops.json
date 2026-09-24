@@ -1,0 +1,331 @@
+{
+  "sections": {
+    "ops.s0": "The fixed layout of each week. Keep the days in this order so new material (Mon-Thu) is consolidated by building and testing (Fri), then checked without help (Sat). Plan the coming week on Sunday evening or first thing Monday.",
+    "ops.s1": "The order of a working day. Run the blocks top to bottom; a short day (about 4 hours) uses the low end of each range and a long day (about 6 hours) the high end. Never drop the last block: the commit and log entry are how you see progress later.",
+    "ops.s2": "A fixed procedure for any bug that has held you for 20 minutes. Work the five steps in order and write down what each one produced before moving to the next. Searching or asking for help comes last, not first.",
+    "ops.s3": "How to use an AI assistant without letting it do the learning for you. Start at rung 1 and move down a rung only when the one above has not unblocked you. Rungs 4 and 5 come after your own code works.",
+    "ops.s4": "Rules that apply to every phase and project. Reread them at the start of each phase, and check every finished project against all six before calling it done."
+  },
+  "items": {
+    "ops.s0.0": {
+      "how": "On each of these days, study one topic from the current phase, then build something with it the same day. Write the day's topic and the program you built in your log.",
+      "where": [
+        {
+          "name": "Python tutorial",
+          "url": "https://docs.python.org/3/tutorial/"
+        }
+      ],
+      "done": "Your log shows four weekday entries, each naming a topic and a program that uses it."
+    },
+    "ops.s0.1": {
+      "how": "Spend Friday on the week's code, not new topics: fix known bugs, add <em>pytest</em> tests for the functions you wrote, and tidy names. Run the whole suite before you stop.",
+      "where": [
+        {
+          "name": "pytest: Get started",
+          "url": "https://docs.pytest.org/en/stable/getting-started.html"
+        }
+      ],
+      "done": "The week's project has a test file and <em>pytest</em> passes on Friday evening."
+    },
+    "ops.s0.2": {
+      "how": "Pick a problem you have not seen, such as a CS50P problem set, and solve it with only the official docs open. Note each point where you wanted a tutorial and what you did instead.",
+      "where": [
+        {
+          "name": "CS50P problem sets",
+          "url": "https://cs50.harvard.edu/python/psets/"
+        },
+        {
+          "name": "Python Standard Library",
+          "url": "https://docs.python.org/3/library/"
+        }
+      ],
+      "done": "You have a working solution written with no tutorial or AI answer open, and a list of where you got stuck."
+    },
+    "ops.s0.3": {
+      "how": "Either take the day off, or do at most an hour of review: reread the week's log and rewrite one earlier small function from memory. No new topics.",
+      "where": [
+        {
+          "name": "Python tutorial",
+          "url": "https://docs.python.org/3/tutorial/"
+        }
+      ],
+      "done": "Monday starts with a written plan for the week and no backlog of half-read new material."
+    },
+    "ops.s0.4": {
+      "how": "Time focused work with a timer and pause it for every break or distraction. Record the total each day. If you are regularly under 4 hours, cut the plan rather than the rest day.",
+      "where": [
+        {
+          "name": "Python tutorial",
+          "url": "https://docs.python.org/3/tutorial/"
+        }
+      ],
+      "done": "Your log has a daily hours figure for the last two weeks and the weekly totals fall between 24 and 36."
+    },
+    "ops.s1.0": {
+      "how": "Before opening any material, write one sentence of the form 'By tonight I can ...' naming a concrete result, e.g. 'By tonight my todo manager saves to JSON and reloads it'.",
+      "where": [
+        {
+          "name": "Python tutorial",
+          "url": "https://docs.python.org/3/tutorial/"
+        }
+      ],
+      "done": "At the end of the day you can mark the sentence met or not met without arguing with yourself."
+    },
+    "ops.s1.1": {
+      "how": "Work through one section of the course, video, or docs for today's topic. Type every example into the REPL or a file and change one value to see what happens, rather than reading passively.",
+      "where": [
+        {
+          "name": "Python tutorial",
+          "url": "https://docs.python.org/3/tutorial/"
+        },
+        {
+          "name": "CS50P",
+          "url": "https://cs50.harvard.edu/python/"
+        }
+      ],
+      "done": "You can explain the topic in three sentences without looking at the material."
+    },
+    "ops.s1.2": {
+      "how": "Close the material and write today's program from a blank file. When stuck, look up the one fact you need in the docs, then close them again. Never paste example code.",
+      "where": [
+        {
+          "name": "Python Standard Library",
+          "url": "https://docs.python.org/3/library/"
+        }
+      ],
+      "done": "The program runs, and you typed and can explain every line of it."
+    },
+    "ops.s1.3": {
+      "how": "Solve one or two small problems unrelated to your project, such as a CS50P problem. Write your plan as comments before any code, then implement it.",
+      "where": [
+        {
+          "name": "CS50P problem sets",
+          "url": "https://cs50.harvard.edu/python/psets/"
+        }
+      ],
+      "done": "You solved at least one problem and your written plan matches what the code does."
+    },
+    "ops.s1.4": {
+      "how": "Take the next task off your current project's list and finish it, error handling included. If it is too big for this block, split it into smaller tasks first and do the first one.",
+      "where": [
+        {
+          "name": "Pro Git: Recording changes",
+          "url": "https://git-scm.com/book/en/v2/Git-Basics-Recording-Changes-to-the-Repository"
+        }
+      ],
+      "done": "One project task moved from open to done and is committed."
+    },
+    "ops.s1.5": {
+      "how": "Run the tests, delete dead code and debug prints, then commit with a message saying what changed. Write a log entry: hours, what you learned, what broke, tomorrow's first task.",
+      "where": [
+        {
+          "name": "Pro Git: Recording changes",
+          "url": "https://git-scm.com/book/en/v2/Git-Basics-Recording-Changes-to-the-Repository"
+        },
+        {
+          "name": "pytest: Get started",
+          "url": "https://docs.pytest.org/en/stable/getting-started.html"
+        }
+      ],
+      "done": "<em>git status</em> is clean, the tests pass, and today's log entry exists."
+    },
+    "ops.s2.0": {
+      "how": "Find the smallest input and command that trigger the bug every time. Save them as a script or a failing test so you can rerun the exact failure with one command.",
+      "where": [
+        {
+          "name": "Stack Overflow: minimal reproducible example",
+          "url": "https://stackoverflow.com/help/minimal-reproducible-example"
+        },
+        {
+          "name": "pytest: Get started",
+          "url": "https://docs.pytest.org/en/stable/getting-started.html"
+        }
+      ],
+      "done": "You can make the failure happen on demand with one command."
+    },
+    "ops.s2.1": {
+      "how": "Read the last line first: the exception type and message. Then read the frames upwards and find the deepest frame in your own code rather than in the standard library.",
+      "where": [
+        {
+          "name": "Tutorial: Errors and Exceptions",
+          "url": "https://docs.python.org/3/tutorial/errors.html"
+        },
+        {
+          "name": "traceback module",
+          "url": "https://docs.python.org/3/library/traceback.html"
+        }
+      ],
+      "done": "You can name the exception, the file and line in your code where it happened, and the calls that led there."
+    },
+    "ops.s2.2": {
+      "how": "Put <em>breakpoint()</em> on the line before the failure and run the reproduction. In <em>pdb</em>, use <em>p</em> to print a variable, <em>n</em> to step over, <em>s</em> to step in and <em>w</em> to show the stack.",
+      "where": [
+        {
+          "name": "pdb - the Python debugger",
+          "url": "https://docs.python.org/3/library/pdb.html"
+        },
+        {
+          "name": "VS Code: Python debugging",
+          "url": "https://code.visualstudio.com/docs/python/debugging"
+        }
+      ],
+      "done": "You have written down the actual values of the variables involved, not the values you assumed."
+    },
+    "ops.s2.3": {
+      "how": "Write one sentence of the form 'X fails because Y, so if I change Z the result will be W'. One hypothesis at a time, in your log or a comment.",
+      "where": [
+        {
+          "name": "Rubber duck debugging",
+          "url": "https://en.wikipedia.org/wiki/Rubber_duck_debugging"
+        }
+      ],
+      "done": "There is a written hypothesis that predicts a specific, checkable result."
+    },
+    "ops.s2.4": {
+      "how": "Make only the change the hypothesis names and rerun the reproduction. If the result differs from the prediction, record why and form a new hypothesis. Search or ask only after that.",
+      "where": [
+        {
+          "name": "pdb - the Python debugger",
+          "url": "https://docs.python.org/3/library/pdb.html"
+        },
+        {
+          "name": "Stack Overflow: minimal reproducible example",
+          "url": "https://stackoverflow.com/help/minimal-reproducible-example"
+        }
+      ],
+      "done": "The bug is fixed with a known cause, or your help request includes the reproduction and the hypotheses you ruled out."
+    },
+    "ops.s3.0": {
+      "how": "Ask for an explanation of the concept with one small example, then ask it to quiz you with two questions. Check what it told you against the official docs page for the topic.",
+      "where": [
+        {
+          "name": "Python tutorial",
+          "url": "https://docs.python.org/3/tutorial/"
+        }
+      ],
+      "done": "You can answer the quiz questions and the docs agree with the explanation."
+    },
+    "ops.s3.1": {
+      "how": "Paste the problem and your current attempt and ask for one hint with no code. Apply the hint yourself before asking for another.",
+      "where": [
+        {
+          "name": "CS50P problem sets",
+          "url": "https://cs50.harvard.edu/python/psets/"
+        }
+      ],
+      "done": "You solved the problem and the final code contains no lines written by the assistant."
+    },
+    "ops.s3.2": {
+      "how": "Describe in prose what you think your code does step by step, and ask the assistant to find the wrong step in that reasoning without rewriting the code.",
+      "where": [
+        {
+          "name": "Rubber duck debugging",
+          "url": "https://en.wikipedia.org/wiki/Rubber_duck_debugging"
+        }
+      ],
+      "done": "You can state which of your assumptions was wrong, and you fixed the code yourself."
+    },
+    "ops.s3.3": {
+      "how": "Once the code works and tests pass, ask for a review of naming, error handling and structure, with PEP 8 as the style reference. Apply the changes you agree with by hand, one at a time.",
+      "where": [
+        {
+          "name": "PEP 8",
+          "url": "https://peps.python.org/pep-0008/"
+        }
+      ],
+      "done": "You can say which review points you applied and why you rejected the others."
+    },
+    "ops.s3.4": {
+      "how": "Ask for inputs likely to break your function: empty, huge, malformed, unicode, boundary values. Turn each into a <em>pytest.mark.parametrize</em> case and run the suite.",
+      "where": [
+        {
+          "name": "pytest: Parametrizing tests",
+          "url": "https://docs.pytest.org/en/stable/how-to/parametrize.html"
+        }
+      ],
+      "done": "The new cases are in your test file, and each one either passes or led to a fix."
+    },
+    "ops.s3.5": {
+      "how": "Only after your version works, or after a full 20-minute debugging cycle, ask for a reference implementation. Compare it with yours line by line and write down each difference.",
+      "where": [
+        {
+          "name": "Python Standard Library",
+          "url": "https://docs.python.org/3/library/"
+        }
+      ],
+      "done": "You have a written list of differences and can say which version is better on each point."
+    },
+    "ops.s4.0": {
+      "how": "If you follow a tutorial, treat it as practice, then build a second version with different requirements from a blank file. Only the second version goes in your portfolio.",
+      "where": [
+        {
+          "name": "CS50P problem sets",
+          "url": "https://cs50.harvard.edu/python/psets/"
+        }
+      ],
+      "done": "Each portfolio project has features that no tutorial you followed had."
+    },
+    "ops.s4.1": {
+      "how": "As soon as an example works, change it: a new input type, a new output format, or an extra feature. For example, turn a word counter into a counter of letter pairs.",
+      "where": [
+        {
+          "name": "Python tutorial",
+          "url": "https://docs.python.org/3/tutorial/"
+        }
+      ],
+      "done": "For each topic in your log there is a modified version, not only the original example."
+    },
+    "ops.s4.2": {
+      "how": "In a working program, delete a return, pass the wrong type, rename a file it reads, or divide by zero. Predict the traceback before each run, then compare.",
+      "where": [
+        {
+          "name": "Tutorial: Errors and Exceptions",
+          "url": "https://docs.python.org/3/tutorial/errors.html"
+        },
+        {
+          "name": "Built-in exceptions",
+          "url": "https://docs.python.org/3/library/exceptions.html"
+        }
+      ],
+      "done": "You can predict the exception type for common mistakes before running the code."
+    },
+    "ops.s4.3": {
+      "how": "Start each project with <em>git init</em>, a README and a <em>tests/</em> folder before any features. Commit after each small working change, not once at the end.",
+      "where": [
+        {
+          "name": "Pro Git: Recording changes",
+          "url": "https://git-scm.com/book/en/v2/Git-Basics-Recording-Changes-to-the-Repository"
+        },
+        {
+          "name": "Make a README",
+          "url": "https://www.makeareadme.com/"
+        }
+      ],
+      "done": "<em>git log</em> shows many small commits, and the repo has a README and passing tests."
+    },
+    "ops.s4.4": {
+      "how": "Before calling code fast or slow, time snippets with <em>timeit</em> and profile whole programs with <em>python -m cProfile -s cumtime script.py</em>. Record the numbers next to the claim.",
+      "where": [
+        {
+          "name": "timeit",
+          "url": "https://docs.python.org/3/library/timeit.html"
+        },
+        {
+          "name": "The Python profilers",
+          "url": "https://docs.python.org/3/library/profile.html"
+        }
+      ],
+      "done": "Every performance claim in your notes or README has a measured number beside it."
+    },
+    "ops.s4.5": {
+      "how": "Log study time and build time separately each day. At the end of the week, work out the split and move time between the two if you are off the target for your phase.",
+      "where": [
+        {
+          "name": "Python tutorial",
+          "url": "https://docs.python.org/3/tutorial/"
+        }
+      ],
+      "done": "Your weekly log shows the doing/studying split, within 10 percentage points of the target."
+    }
+  }
+}

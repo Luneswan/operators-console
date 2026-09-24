@@ -1,0 +1,280 @@
+{
+  "sections": {
+    "p17.s0": "Concepts for moving data reliably. Read items 0 to 5 first, since they set the vocabulary, then take 6 to 11 alongside the build. Run a small example for each item in DuckDB or Python rather than only reading. About 40 per cent of the phase.",
+    "p17.s1": "Build one pipeline from a public API into DuckDB that runs on a schedule without you. Work in order: raw landing, transform, load, tests, orchestration, then backfill, lineage and the Polars swap. Leave it running for a week before you call it done."
+  },
+  "items": {
+    "p17.s0.0": {
+      "how": "Read the Kafka introduction and the batch and stream processing chapters of Designing Data-Intensive Applications. For five cases (daily sales report, fraud check at checkout, hourly dashboard, search index update, monthly billing), write the latency needed and choose batch, micro-batch or streaming.",
+      "where": [
+        {
+          "name": "Apache Kafka: Introduction",
+          "url": "https://kafka.apache.org/intro"
+        },
+        {
+          "name": "Designing Data-Intensive Applications",
+          "url": "https://dataintensive.net/"
+        }
+      ],
+      "done": "You can justify each choice from the required latency and explain why streaming costs more to run and debug."
+    },
+    "p17.s0.1": {
+      "how": "Read dbt's article on ETL versus ELT. Do the same transform twice: once in Python before loading into DuckDB, and once by loading the raw data and transforming it with SQL inside DuckDB. Note what you can rebuild later in each case.",
+      "where": [
+        {
+          "name": "dbt: ETL vs ELT",
+          "url": "https://www.getdbt.com/blog/etl-vs-elt"
+        },
+        {
+          "name": "DuckDB: Python API",
+          "url": "https://duckdb.org/docs/stable/clients/python/overview"
+        }
+      ],
+      "done": "You can explain how cheap warehouse compute and keeping raw data made ELT the default, and when ETL is still required."
+    },
+    "p17.s0.2": {
+      "how": "Read Airflow's best practices on idempotent tasks. Write a daily load that deletes and rewrites the rows for its run date inside one transaction, or upserts on a key with <em>INSERT OR REPLACE</em>. Run it three times for the same date and compare counts and totals.",
+      "where": [
+        {
+          "name": "Airflow: Best practices",
+          "url": "https://airflow.apache.org/docs/apache-airflow/stable/best-practices.html"
+        },
+        {
+          "name": "DuckDB: INSERT statement",
+          "url": "https://duckdb.org/docs/stable/sql/statements/insert"
+        }
+      ],
+      "done": "Three runs for the same date leave identical row counts and totals, checked by a query."
+    },
+    "p17.s0.3": {
+      "how": "Read Airflow's DAG run page on catchup and backfill. Load a day, then add records for that day with an older event time, and write a rule for reprocessing by event date with a lookback window of N days. Apply the rule and check the late rows arrive.",
+      "where": [
+        {
+          "name": "Airflow: DAG runs (catchup and backfill)",
+          "url": "https://airflow.apache.org/docs/apache-airflow/stable/core-concepts/dag-run.html"
+        }
+      ],
+      "done": "You can explain event time versus processing time, and your pipeline picks up late records that fall inside its lookback window."
+    },
+    "p17.s0.4": {
+      "how": "Write the same 10-million-row table to CSV and to Parquet partitioned by date with DuckDB <em>COPY tbl TO 'out' (FORMAT parquet, PARTITION_BY (dt))</em>. Compare total size and the run time of a one-day filtered query on each.",
+      "where": [
+        {
+          "name": "DuckDB: Partitioned writes",
+          "url": "https://duckdb.org/docs/stable/data/partitioning/partitioned_writes"
+        },
+        {
+          "name": "DuckDB: Reading and writing Parquet",
+          "url": "https://duckdb.org/docs/stable/data/parquet/overview"
+        }
+      ],
+      "done": "You have measured size and query-time figures for both formats and can explain column pruning and partition pruning."
+    },
+    "p17.s0.5": {
+      "how": "Read the introduction of the CIDR 2021 Lakehouse paper. Write one paragraph each on a warehouse, a lake and a lakehouse covering where the data sits, who enforces the schema, and how updates are made atomic. Note the role of table formats such as Delta Lake and Iceberg.",
+      "where": [
+        {
+          "name": "Lakehouse paper (CIDR 2021, PDF)",
+          "url": "https://www.cidrdb.org/cidr2021/papers/cidr2021_paper17.pdf"
+        },
+        {
+          "name": "Databricks: What is a data lakehouse?",
+          "url": "https://www.databricks.com/blog/what-is-data-lakehouse"
+        }
+      ],
+      "done": "You can explain the three in two minutes and say which one DuckDB over a folder of Parquet files resembles."
+    },
+    "p17.s0.6": {
+      "how": "Read dbt's page on model contracts. In a source table, add a column, rename a column and change a type, and see which downstream queries break or silently change. Then add a contract to one model so a breaking change fails the build.",
+      "where": [
+        {
+          "name": "dbt: Model contracts",
+          "url": "https://docs.getdbt.com/docs/mesh/govern/model-contracts"
+        },
+        {
+          "name": "Confluent: Schema evolution and compatibility",
+          "url": "https://docs.confluent.io/platform/current/schema-registry/fundamentals/schema-evolution.html"
+        }
+      ],
+      "done": "You can say which changes are backward compatible, and a renamed column now fails your build instead of producing nulls."
+    },
+    "p17.s0.7": {
+      "how": "Write <em>not_null</em>, <em>unique</em>, <em>accepted_values</em> and <em>relationships</em> tests in dbt, or the same checks with pandera or plain SQL, plus a value-range check. Insert one bad row per check on purpose and run the tests.",
+      "where": [
+        {
+          "name": "dbt: Data tests",
+          "url": "https://docs.getdbt.com/docs/build/data-tests"
+        },
+        {
+          "name": "pandera documentation",
+          "url": "https://pandera.readthedocs.io/en/stable/"
+        }
+      ],
+      "done": "Each of the five checks fails on its planted row and passes on clean data."
+    },
+    "p17.s0.8": {
+      "how": "Build a dbt incremental model using <em>is_incremental()</em> and a <em>unique_key</em>, or the same logic in SQL with a high-water mark on an updated-at column. Then read the Debezium overview to see how change data capture reads the database log instead of polling.",
+      "where": [
+        {
+          "name": "dbt: Incremental models",
+          "url": "https://docs.getdbt.com/docs/build/incremental-models"
+        },
+        {
+          "name": "Debezium documentation",
+          "url": "https://debezium.io/documentation/reference/stable/index.html"
+        }
+      ],
+      "done": "A rerun processes only new or changed rows, shown by row counts, and you can explain why log-based CDC sees deletes and polling does not."
+    },
+    "p17.s0.9": {
+      "how": "Read Airflow's pages on DAGs and tasks. Write a DAG with three dependent tasks, set <em>retries</em> and <em>retry_delay</em>, add an <em>on_failure_callback</em> that posts to a webhook or writes a file, and add a check that alerts if the run has not finished by a set time. Make one task fail.",
+      "where": [
+        {
+          "name": "Airflow: DAGs",
+          "url": "https://airflow.apache.org/docs/apache-airflow/stable/core-concepts/dags.html"
+        },
+        {
+          "name": "Airflow: Tasks",
+          "url": "https://airflow.apache.org/docs/apache-airflow/stable/core-concepts/tasks.html"
+        }
+      ],
+      "done": "The failing task retries the configured number of times and then fires the alert, visible in the UI or the log."
+    },
+    "p17.s0.10": {
+      "how": "Run Kafka locally from the quickstart, create a topic with 3 partitions, and produce keyed messages. Start two consumers in one group, stop one to watch the partitions rebalance, and read committed offsets with <em>kafka-consumer-groups.sh --describe</em>.",
+      "where": [
+        {
+          "name": "Apache Kafka: Quickstart",
+          "url": "https://kafka.apache.org/quickstart"
+        },
+        {
+          "name": "Apache Kafka: Documentation",
+          "url": "https://kafka.apache.org/documentation/"
+        }
+      ],
+      "done": "You can explain why order holds only within a partition and what is lost if offsets are committed before processing."
+    },
+    "p17.s0.11": {
+      "how": "Read BigQuery's cost-control best practices. In DuckDB, run <em>EXPLAIN ANALYZE</em> on a query over partitioned Parquet with and without a partition filter, and with <em>SELECT *</em> versus two columns. Compare rows scanned and run time.",
+      "where": [
+        {
+          "name": "BigQuery: Control costs",
+          "url": "https://docs.cloud.google.com/bigquery/docs/best-practices-costs"
+        },
+        {
+          "name": "DuckDB: EXPLAIN ANALYZE",
+          "url": "https://duckdb.org/docs/stable/guides/meta/explain_analyze"
+        }
+      ],
+      "done": "You can estimate how much data a query will scan before running it and show a filter cutting that by an order of magnitude."
+    },
+    "p17.s1.0": {
+      "how": "Choose a public API with daily data, such as weather or transport. Write a script that fetches one day with <em>httpx</em>, handles paging and rate limits, and writes the untouched JSON to <em>raw/source=name/date=YYYY-MM-DD/</em> with a fetch timestamp.",
+      "where": [
+        {
+          "name": "HTTPX documentation",
+          "url": "https://www.python-httpx.org/"
+        },
+        {
+          "name": "Data Engineering Zoomcamp",
+          "url": "https://github.com/DataTalksClub/data-engineering-zoomcamp"
+        }
+      ],
+      "done": "Each run writes one raw file per date, and rerunning a date replaces its file rather than adding a second one."
+    },
+    "p17.s1.1": {
+      "how": "Set up dbt with the <em>dbt-duckdb</em> adapter. Write staging models that parse and type the raw JSON, then mart models for the questions you want answered, and add tests to every staging model.",
+      "where": [
+        {
+          "name": "dbt-duckdb adapter",
+          "url": "https://github.com/duckdb/dbt-duckdb"
+        },
+        {
+          "name": "dbt: Data tests",
+          "url": "https://docs.getdbt.com/docs/build/data-tests"
+        }
+      ],
+      "done": "<em>dbt build</em> runs every model and test from raw to marts with no failures."
+    },
+    "p17.s1.2": {
+      "how": "Write the mart tables to a DuckDB file and export the main fact table as Parquet partitioned by date. Make each load replace only the partitions for the dates in that run.",
+      "where": [
+        {
+          "name": "DuckDB: Partitioned writes",
+          "url": "https://duckdb.org/docs/stable/data/partitioning/partitioned_writes"
+        },
+        {
+          "name": "DuckDB: COPY statement",
+          "url": "https://duckdb.org/docs/stable/sql/statements/copy"
+        }
+      ],
+      "done": "Loading one date changes only that date's partition, confirmed by per-date row counts before and after."
+    },
+    "p17.s1.3": {
+      "how": "Keep test severity at <em>error</em>, the dbt default, and make the orchestrator task fail on a non-zero exit from <em>dbt build</em>. Add source freshness and row-count checks, plant a duplicate key, and confirm the run stops before the marts are built.",
+      "where": [
+        {
+          "name": "dbt: build command",
+          "url": "https://docs.getdbt.com/reference/commands/build"
+        },
+        {
+          "name": "dbt: Data tests",
+          "url": "https://docs.getdbt.com/docs/build/data-tests"
+        }
+      ],
+      "done": "A planted bad row turns the scheduled run red and no downstream task runs."
+    },
+    "p17.s1.4": {
+      "how": "Wrap ingest, transform, test and load as tasks in an Airflow DAG or a Prefect flow on a daily schedule. Give the ingest task retries with a delay, send an alert on failure, and run it under the scheduler, not by hand.",
+      "where": [
+        {
+          "name": "Airflow: DAGs",
+          "url": "https://airflow.apache.org/docs/apache-airflow/stable/core-concepts/dags.html"
+        },
+        {
+          "name": "Prefect documentation",
+          "url": "https://docs.prefect.io/"
+        }
+      ],
+      "done": "The pipeline runs daily for a week without you, and a forced API failure retries and then alerts."
+    },
+    "p17.s1.5": {
+      "how": "Add a <em>backfill --start --end</em> command that loops over dates and runs the same idempotent per-date task, or use your orchestrator's backfill feature. Run it for a past month, run it again, and compare per-day totals.",
+      "where": [
+        {
+          "name": "Airflow: DAG runs (catchup and backfill)",
+          "url": "https://airflow.apache.org/docs/apache-airflow/stable/core-concepts/dag-run.html"
+        }
+      ],
+      "done": "A month backfills with one command, and the second run leaves every per-day row count unchanged."
+    },
+    "p17.s1.6": {
+      "how": "Add descriptions for every model and column in the dbt YAML files, run <em>dbt docs generate</em> and <em>dbt docs serve</em>, and check the lineage graph. Add a README section naming the source API, schedule, owner and each mart.",
+      "where": [
+        {
+          "name": "dbt: docs command",
+          "url": "https://docs.getdbt.com/reference/commands/cmd-docs"
+        },
+        {
+          "name": "dbt: Documentation",
+          "url": "https://docs.getdbt.com/docs/build/documentation"
+        }
+      ],
+      "done": "Someone new can find, from the docs alone, which source feeds a given mart column and when it refreshes."
+    },
+    "p17.s1.7": {
+      "how": "Take the heaviest pandas step in the pipeline and rewrite it with the Polars lazy API: <em>scan_parquet</em>, <em>filter</em>, <em>group_by</em>, <em>collect</em>. Run both on the same data, measure time and peak memory, and compare outputs.",
+      "where": [
+        {
+          "name": "Polars: Lazy API",
+          "url": "https://docs.pola.rs/user-guide/lazy/"
+        },
+        {
+          "name": "Polars: Coming from pandas",
+          "url": "https://docs.pola.rs/user-guide/migration/pandas/"
+        }
+      ],
+      "done": "The outputs are equal row for row, and you have measured time and memory figures for both versions."
+    }
+  }
+}
