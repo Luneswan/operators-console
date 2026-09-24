@@ -67,6 +67,13 @@ class Phase:
     snippet: str
     gate: Gate | None
     resources_optional: bool = False
+    # The snippet explained: a heading, why it is there, what each line does
+    # (one entry per snippet line, "" where a line needs none), and how to
+    # tell it worked.
+    snippet_title: str = ""
+    snippet_intro: str = ""
+    snippet_lines: tuple[str, ...] = ()
+    snippet_after: str = ""
 
     @property
     def items(self) -> tuple[Item, ...]:

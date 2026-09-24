@@ -1,0 +1,70 @@
+{
+  "p00": {
+    "title": "Try this in a terminal",
+    "intro": "A practice run of the Git workflow every later phase uses: start a repository, work on a branch, and merge it back, including a merge conflict on purpose. Run it in a new folder so nothing else is affected. On Windows, use Git Bash or PowerShell 7; Windows PowerShell 5 does not understand && (run the two commands on separate lines).",
+    "lines": {
+      "0": "Make an empty folder for the practice and move into it.",
+      "1": "Turn the folder into a Git repository. Git creates a hidden .git folder that stores every version.",
+      "2": "Create two files with any text in them, so there is something to save.",
+      "3": "Stage every file (add) and save a snapshot (commit) with a message saying what it is.",
+      "4": "Create a branch called feature/calculator and switch to it. Work here does not touch main.",
+      "5": "Change app.py, then git add app.py and git commit -m \"...\" to save the change on this branch.",
+      "6": "Go back to the main branch. app.py returns to how it was before the branch.",
+      "7": "Edit the same line of app.py differently and commit it, so the two branches disagree.",
+      "8": "Bring the branch into main. Git stops with a conflict: open app.py, keep the right lines, delete the <<<<<<< ======= >>>>>>> markers, then git add app.py and git commit."
+    },
+    "after": "You are done when git log --oneline --graph shows both branches joining in a merge commit. A merge conflict is normal: it means two changes touched the same lines and Git needs you to choose."
+  },
+  "p02": {
+    "title": "What this phase's code looks like",
+    "intro": "Not a command to run: a picture of what you will be able to write by the end of the phase. Each piece is a Python feature this phase teaches you to build yourself.",
+    "lines": {
+      "0": "A decorator you write: it wraps fetch and measures how long each call takes.",
+      "1": "A decorator that takes arguments: retry the call up to 3 times, waiting longer (2x) after each failure.",
+      "2": "A function with type hints: url is a str and the function returns bytes.",
+      "3": "The body is left out here. ... is valid Python that means 'nothing yet'.",
+      "5": "A context manager you write: set something up, hand it over as r, and always clean it up, even after an error.",
+      "6": "The code that uses r goes here. When the block ends, cleanup runs automatically."
+    },
+    "after": "By the end you can write @timer, @retry and managed_resource from a blank file and explain what Python does with each."
+  },
+  "p03": {
+    "title": "The commands a finished package passes",
+    "intro": "What a real Python project runs before every release. Your goal in this phase is a project where all six succeed. Run them from the project's folder, the one with pyproject.toml.",
+    "lines": {
+      "0": "Create a virtual environment (.venv, a private copy of Python for this project) and switch to it. On Windows use .venv\\Scripts\\activate instead of source .venv/bin/activate.",
+      "1": "Install your project in editable mode (-e: code changes apply without reinstalling), plus its [dev] tools listed in pyproject.toml.",
+      "2": "Lint (ruff check finds bugs and bad patterns) and check formatting without changing files.",
+      "3": "Type-check the code in src/ with mypy: it finds wrong types before the code runs.",
+      "4": "Run the tests quietly (-q). Every one should pass.",
+      "5": "Run your installed command. If --help prints usage, the package installed correctly."
+    },
+    "after": "You are done when all six run without an error on a fresh clone of your repository. The same commands then go into CI so they run on every push."
+  },
+  "p04": {
+    "title": "The layout you will build",
+    "intro": "Not a command: the folder structure of this phase's project, pystructures. You implement each data structure yourself, test it and measure it.",
+    "lines": {
+      "0": "The project folder.",
+      "1": "A dynamic array (like Python's list) and a linked list.",
+      "2": "A stack (last in, first out) and a queue (first in, first out).",
+      "3": "A hash table (like dict) and a binary search tree.",
+      "4": "A heap (priority queue), a graph with searches, and a trie (prefix tree).",
+      "5": "Timing scripts that compare your structures with Python's built-ins, and the tests for every file."
+    },
+    "after": "Each file has tests, and benchmarks/ shows where your version is slower than the built-in and why."
+  },
+  "p15": {
+    "title": "The system you will build",
+    "intro": "Not a command: a diagram of this phase's project. Requests come into an API and are queued; several workers process them; failures are kept and can be replayed; everything is observable.",
+    "lines": {
+      "0": "The API takes requests and puts jobs on the queue instead of doing slow work itself.",
+      "2": "The queue holds jobs. A job that keeps failing moves to a dead-letter queue, where you can inspect it and replay it once fixed.",
+      "4": "Several workers take jobs from the queue in parallel. Add workers to handle more load.",
+      "6": "Workers write results to the database, the one source of truth.",
+      "8": "A cache in front of the database answers repeated reads quickly.",
+      "10": "Traces, metrics and logs show what every part is doing, so you can find a slow or failing step."
+    },
+    "after": "You are done when you can kill a worker, stop the database for a minute, or flood the queue, and the system recovers without losing a job."
+  }
+}

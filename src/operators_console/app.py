@@ -304,12 +304,16 @@ def _new_window(app):
     """The active profile's store, context and main window, shown."""
     from PySide6.QtCore import QTimer
 
-    from .core.storage import Store
+    from .core.storage import DamagedDatabase, Store
     from .ui.context import AppContext
     from .ui.main_window import MainWindow
 
     try:
         store = Store()
+    except DamagedDatabase as exc:
+        store = _offer_repair(exc)
+        if store is None:
+            return None
     except Exception as exc:
         QMessageBox.critical(
             None, APP_NAME,
@@ -339,6 +343,34 @@ def _new_window(app):
     window.show()
     QTimer.singleShot(5000, lambda: _daily_snapshot(store))
     return window
+
+
+def _offer_repair(error):
+    """Ask to repair a damaged database, repair it, and open it again."""
+    from .core import storage
+    answer = QMessageBox.question(
+        None, APP_NAME,
+        "This profile's progress file is damaged (%s).\n\nRepair it? The "
+        "app brings back your newest good snapshot, keeps your current "
+        "settings and anything else it can still read, and moves the "
+        "damaged files into a folder beside it. Nothing is deleted." % error,
+        QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
+        QMessageBox.StandardButton.Yes)
+    if answer != QMessageBox.StandardButton.Yes:
+        return None
+    try:
+        done = storage.repair()
+        store = storage.Store()
+    except Exception as exc:
+        QMessageBox.critical(None, APP_NAME,
+                             "The repair did not work: %s" % exc)
+        return None
+    QMessageBox.information(
+        None, APP_NAME,
+        "Repaired from %s. The damaged files are in:\n%s"
+        % (done["snapshot"] or "a new, empty file (no good snapshot)",
+           done["moved_to"]))
+    return store
 
 
 def _onboard_if_new(window) -> None:

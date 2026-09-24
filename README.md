@@ -139,6 +139,8 @@ your notes and your log.
 lines, project and certificate status, self-ratings, log entries, review ratings
 and buried cards. History is kept in memory until the app closes.
 
+**Repair.** Each profile's file is checked when it opens (`PRAGMA quick_check`). A damaged one is repaired on request from the newest snapshot that passes the check; settings, ticks, log entries and timed sessions that still read are added back, and the damaged files move to a `damaged-<time>` folder. The database is checkpointed every five minutes.
+
 **Snapshots.** One a day, and one before every reset, import or upgrade. The
 last 7 daily and 12 other snapshots are kept. **Settings → Restore a snapshot**
 restores one, taking a snapshot of the current state first.

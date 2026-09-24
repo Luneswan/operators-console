@@ -6,6 +6,31 @@ All notable changes to this project are recorded here. The format follows
 
 ## [Unreleased]
 
+## [1.3.1] - 2026-09-24
+
+### Fixed
+
+- **A damaged progress file is caught and repaired.** On one machine two
+  days of changes sat in SQLite's write-ahead log (every update closes the
+  app from outside, before the checkpoint SQLite does on a clean close), a
+  damaged page in it made the schema "malformed", and the file would no
+  longer open. The app now checks the file when it opens a profile
+  (`PRAGMA quick_check`). If it is damaged, it offers a repair: the newest
+  snapshot that passes the check comes back, settings, ticks, log entries
+  and timed sessions that still read are added back, and the damaged files
+  move to a `damaged-<time>` folder beside it. Nothing is deleted.
+- **Checkpoints every five minutes** and after the daily snapshot, so the
+  main file is never more than minutes behind, whatever closes the app.
+- The time-left basis shows its arithmetic: "5 h a day × 1 day a week =
+  5 h a week (change it in Settings > Pace)". It was the product alone.
+
+### Added
+
+- **Every snippet on a phase page is explained**: a heading that says what
+  it is (only real commands are called terminal commands), why it is there,
+  what each line does beside the line, and how to tell it worked. Phase
+  03's notes give the Windows way to activate a virtual environment.
+
 ## [1.3.0] - 2026-09-24
 
 ### Added

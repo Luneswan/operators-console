@@ -355,6 +355,12 @@ class MainWindow(QMainWindow):
 
         self.study_bar = StudyTimerBar(self.ctx, self.start_study,
                                        self.stop_study)
+        # An update or a crash closes the app from outside, before SQLite's
+        # own checkpoint on close; keep the main file minutes behind at most.
+        self._checkpoint_timer = QTimer(self)
+        self._checkpoint_timer.setInterval(5 * 60 * 1000)
+        self._checkpoint_timer.timeout.connect(self.ctx.store.checkpoint)
+        self._checkpoint_timer.start()
         row.addWidget(self.study_bar)
         row.addSpacing(10)
 

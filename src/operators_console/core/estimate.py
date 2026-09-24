@@ -90,6 +90,8 @@ class Estimate:
     finish_plan: date | None
     finish_recent: date | None
     phases: tuple
+    plan_day_hours: float = 0.0   # the plan, as entered: hours a study day
+    plan_days: int = 0            # and study days a week
 
     @property
     def week_hours(self) -> float:
@@ -336,10 +338,15 @@ class Estimator:
 
     # -- weekly hours ------------------------------------------------------------
 
-    def plan_week_hours(self) -> float:
+    def plan(self) -> tuple:
+        """(hours a study day, study days a week) as the learner set them."""
         per_day = max(_number(self.s.setting("hours_per_day", 3.0), 3.0), 0.25)
         days = max(1, min(7, int(_number(
             self.s.setting("days_per_week", 5), 5.0))))
+        return per_day, days
+
+    def plan_week_hours(self) -> float:
+        per_day, days = self.plan()
         return per_day * days
 
     def recent_week_hours(self) -> float | None:
@@ -432,4 +439,5 @@ class Estimator:
             review_week_hours=reviews, basis=basis,
             finish=finish_recent if recent else finish_plan,
             finish_plan=finish_plan, finish_recent=finish_recent,
-            phases=tuple(rows))
+            phases=tuple(rows), plan_day_hours=self.plan()[0],
+            plan_days=self.plan()[1])

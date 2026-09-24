@@ -104,6 +104,11 @@ def test_tabbing_through_the_window_marks_what_it_lands_on(qt_app, window):
     window.go("settings", "")
     pump(qt_app)
     window.activateWindow()
+    # Activation arrives asynchronously, and switching to a window clears the
+    # keyboard flag (see ui/focus.py QUIET_EVENTS). Under load it landed after
+    # the first Tab and cleared the flag that Tab had just set.
+    QTest.qWaitForWindowActive(window, 2000)
+    pump(qt_app)
     window.search.setFocus(Qt.FocusReason.MouseFocusReason)
     pump(qt_app)
     marked = []

@@ -145,6 +145,7 @@ def _item(i: dict) -> Item:
 
 
 def _phase(p: dict) -> Phase:
+    notes = p.get("snippet_notes") or {}
     gate = None
     if p.get("gate"):
         gate = Gate(
@@ -167,6 +168,10 @@ def _phase(p: dict) -> Phase:
         ),
         snippet=p["snippet"], gate=gate,
         resources_optional=p.get("resources_optional", False),
+        snippet_title=str(notes.get("title", "")),
+        snippet_intro=str(notes.get("intro", "")),
+        snippet_lines=tuple(str(x) for x in notes.get("lines", ())),
+        snippet_after=str(notes.get("after", "")),
     )
 
 

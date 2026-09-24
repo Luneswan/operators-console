@@ -3,7 +3,7 @@ from __future__ import annotations
 
 from PySide6.QtCore import Qt, QTimer
 from PySide6.QtWidgets import (
-    QComboBox, QHBoxLayout, QPlainTextEdit, QVBoxLayout,
+    QComboBox, QGridLayout, QHBoxLayout, QPlainTextEdit, QVBoxLayout,
 )
 
 from ...core.models import split_optional
@@ -13,7 +13,7 @@ from ..widgets.guide import GuidedItem
 from ..widgets.common import (
     Card, CheckRow, Disclosure, LinkRow, button, clear_layout, divider,
     empty_state, frozen, heading, label,
-    meter, muted, plain, soft,
+    meter, mono_label, muted, plain, soft,
 )
 from .base import View
 
@@ -364,7 +364,9 @@ class PhaseView(View):
 
         if phase.snippet:
             card = Card()
-            card.add(heading("Try this in a terminal"))
+            card.add(heading(phase.snippet_title or "Try this in a terminal"))
+            if phase.snippet_intro:
+                card.add(label(phase.snippet_intro, "SectionGuide"))
             snippet = label(phase.snippet, "Code", selectable=True)
             snippet.setTextInteractionFlags(
                 Qt.TextInteractionFlag.TextSelectableByMouse)
@@ -372,6 +374,24 @@ class PhaseView(View):
             copy = button("Copy", "quiet")
             copy.clicked.connect(lambda: self._copy(phase.snippet))
             card.add_row(None, copy)
+            # Line by line: what each one does, beside the line itself.
+            explained = [(line, note) for line, note in
+                         zip(phase.snippet.splitlines(), phase.snippet_lines,
+                             strict=False)
+                         if note]
+            if explained:
+                card.add(heading("What each line does"))
+                grid = QGridLayout()
+                grid.setHorizontalSpacing(16)
+                grid.setVerticalSpacing(6)
+                grid.setColumnStretch(1, 1)
+                for row, (line, note) in enumerate(explained):
+                    code = mono_label(line.strip())
+                    grid.addWidget(code, row, 0, Qt.AlignmentFlag.AlignTop)
+                    grid.addWidget(label(note, "GuideText"), row, 1)
+                card.box.addLayout(grid)
+            if phase.snippet_after:
+                card.add(muted(phase.snippet_after))
             self.body.addWidget(card)
 
         if phase.gate:

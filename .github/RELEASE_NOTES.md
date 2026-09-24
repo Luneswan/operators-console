@@ -1,4 +1,4 @@
-**1.3.0**: a study timer, time-left estimates from your real pace, and a study guide for every checklist line.
+**1.3.1**: repairs a damaged progress file from your newest good snapshot, checkpoints the database every five minutes, and explains every line of the phase snippets.
 
 **Updating from 1.0.1 or later (installed):** use the Update button in the
 sidebar. If a 1.0.x build reopens on the old version after updating, close it
@@ -14,19 +14,14 @@ versions update in-app. For a Windows portable build:
 
 **What is new:**
 
-- **Study timer**: Start studying in the top bar (Ctrl+T), Pause, Stop. It
-  keeps running if you close the app. Stop shows what you finished while it
-  ran and saves the session to your log.
-- **Time left from your real pace**: each phase's hours are split over its
-  steps, gate checks, exercises, quiz and project. Your timed sessions set
-  your pace; your study hours set the finish date. Shown on Today, the
-  Roadmap, Progress, each phase and Settings.
-- **Study guides**: every one of the 633 checklist lines has how to do it,
-  where to learn it and how to tell it is done. The next line opens with
-  its guide. Every section says how to work through it.
-- **Roadmap detail**: dates and hours left per phase, what is left by kind,
-  and where each career level is reached.
-- Fixed: a focus ring showed on "Today" after typing in a dialog.
+- If a profile's progress file is damaged, the app now says so when it
+  opens and offers a repair: your newest good snapshot comes back, your
+  current settings and anything else that still reads are kept, and the
+  damaged files move to a folder beside it. Nothing is deleted.
+- The database is checkpointed every five minutes, so a crash or an update
+  cannot leave hours of changes outside the main file.
+- The time-left text shows how your weekly hours are worked out.
+- Every snippet on a phase page explains what each line does and why.
 
 Your progress carries over.
 

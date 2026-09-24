@@ -217,6 +217,30 @@ def _item_guide(pid, item_id):
             "done": guide["done"].strip()}
 
 
+# What each line of a phase's snippet does, and why the snippet is there.
+SNIPPET_NOTES = json.loads((HERE / "snippet_notes.json").read_text(
+    encoding="utf-8"))
+
+
+def _snippet_notes(pid, snippet):
+    if not snippet:
+        return None
+    notes = SNIPPET_NOTES.get(pid)
+    if not notes:
+        raise SystemExit("transform.py: %s has a snippet but no entry in "
+                         "snippet_notes.json" % pid)
+    count = len(snippet.splitlines())
+    lines = [""] * count
+    for key, text in notes["lines"].items():
+        index = int(key)
+        if not 0 <= index < count:
+            raise SystemExit("transform.py: snippet note %s:%s is past the "
+                             "last line" % (pid, key))
+        lines[index] = text
+    return {"title": notes["title"], "intro": notes["intro"],
+            "lines": lines, "after": notes.get("after", "")}
+
+
 phases = []
 picked_phases = set()
 optional_used = set()
@@ -274,6 +298,7 @@ for ph in raw["PHASES"]:
         "resources": resources,
         "sections": sections,
         "snippet": ph.get("snippet") or "",
+        "snippet_notes": _snippet_notes(pid, ph.get("snippet") or ""),
         "gate": gate,
         # Gates, sections and projects are the work itself and are never
         # folded; only this resource list can be.

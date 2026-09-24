@@ -196,6 +196,10 @@ def _parse_dt(value):
     return dt if dt.tzinfo else dt.replace(tzinfo=timezone.utc)
 
 
+class DamagedDatabase(sqlite3.DatabaseError):
+    """The progress file is damaged: repair() can bring it back."""
+
+
 class Store:
     """Thin, synchronous data-access layer over the progress database."""
 
@@ -216,8 +220,26 @@ class Store:
     def _open(self) -> None:
         fresh = self._fresh
         self.db.row_factory = sqlite3.Row
-        self.db.execute("PRAGMA journal_mode=WAL")
+        try:
+            self.db.execute("PRAGMA journal_mode=WAL")
+        except sqlite3.OperationalError:
+            raise                   # locked or unreadable: not damage
+        except sqlite3.DatabaseError as exc:
+            # "malformed database schema", "file is not a database"
+            raise DamagedDatabase(str(exc)) from exc
         self.db.execute("PRAGMA foreign_keys=ON")
+        if not fresh:
+            # A damaged file used to open anyway and fail later, or open on
+            # a schema SQLite calls malformed. Check it now, while there is
+            # still a clean way out (repair from a snapshot).
+            try:
+                row = self.db.execute("PRAGMA quick_check").fetchone()
+            except sqlite3.OperationalError:
+                raise
+            except sqlite3.DatabaseError as exc:
+                raise DamagedDatabase(str(exc)) from exc
+            if row is None or str(row[0]).lower() != "ok":
+                raise DamagedDatabase(str(row[0]) if row else "no answer")
         # FULL rather than NORMAL: in WAL mode NORMAL does not fsync on
         # commit, so a power cut can lose the last few minutes of work even
         # though the file stays intact. The writes here are small and rare -
@@ -297,6 +319,21 @@ class Store:
         return self.db.execute(
             "SELECT 1 FROM sqlite_master WHERE type='table' AND name=?",
             (name,)).fetchone() is not None
+
+    def checkpoint(self) -> None:
+        """Copy committed changes from the write-ahead log into the file.
+
+        SQLite does this on a clean close. An update closes the app from
+        outside, so on one machine the log had grown for two days and a
+        damaged page in it cost that whole span. A regular checkpoint keeps
+        what the main file holds at most minutes behind.
+        """
+        if not getattr(self, "is_open", True):
+            return
+        try:
+            self.db.execute("PRAGMA wal_checkpoint(PASSIVE)")
+        except sqlite3.Error:
+            pass
 
     def close(self) -> None:
         try:
@@ -387,6 +424,7 @@ class Store:
             return None
         target = self.backup(tag="daily")
         self.set_meta("last_daily_backup", today)
+        self.checkpoint()
         return target
 
     @staticmethod
@@ -1246,3 +1284,133 @@ class _ScratchStore(Store):
 
     def backup(self, tag: str = "") -> Path:
         return self.path
+
+
+# ---------------------------------------------------------------------------
+# repair
+# ---------------------------------------------------------------------------
+
+SALVAGE = ("settings", "checks", "logs", "sessions")
+
+
+def healthy(path: Path) -> bool:
+    """True when a database file opens and passes SQLite's quick check."""
+    uri = Path(path).resolve().as_uri() + "?immutable=1"
+    try:
+        db = sqlite3.connect(uri, uri=True)
+    except sqlite3.Error:
+        return False
+    try:
+        row = db.execute("PRAGMA quick_check").fetchone()
+        return row is not None and str(row[0]).lower() == "ok"
+    except sqlite3.Error:
+        return False
+    finally:
+        db.close()
+
+
+def _salvage(path: Path) -> dict:
+    """Whatever rows of SALVAGE still read from a damaged database.
+
+    Read from a copy of the file and its write-ahead log, so the damaged
+    original is never opened for writing.
+    """
+    import shutil
+    import tempfile
+
+    found: dict = {}
+    with tempfile.TemporaryDirectory(prefix="opcon-salvage-") as folder:
+        copy = Path(folder) / path.name
+        for suffix in ("", "-wal", "-shm"):
+            source = path.with_name(path.name + suffix)
+            if source.exists():
+                shutil.copy2(source, copy.with_name(copy.name + suffix))
+        try:
+            db = sqlite3.connect(copy)
+        except sqlite3.Error:
+            return found
+        try:
+            db.row_factory = sqlite3.Row
+            db.execute("PRAGMA writable_schema=ON")
+            for table in SALVAGE:
+                try:
+                    rows = [dict(r) for r in
+                            db.execute("SELECT * FROM " + table)]
+                except sqlite3.Error:
+                    continue
+                if table == "settings":         # damaged pages repeat rows
+                    rows = list({r["key"]: r for r in rows}.values())
+                found[table] = rows
+        finally:
+            db.close()
+    return found
+
+
+def repair(path: Path | None = None) -> dict:
+    """Bring a damaged progress database back from its newest healthy
+    snapshot, keeping the damaged files and salvaging what still reads.
+
+    The damaged file, its write-ahead log and shared-memory file move to a
+    ``damaged-<time>`` folder beside it; nothing is deleted. Settings come
+    back from the damaged copy where they read (they are newer than any
+    snapshot), and ticks, log entries and timed sessions are added where the
+    snapshot lacks them. Returns what was done, for the message.
+    """
+    path = Path(path) if path else paths.db_path()
+    backups = path.parent / "backups"
+    snapshots = sorted(backups.glob("progress-*.db"), key=lambda p: p.name,
+                       reverse=True) if backups.is_dir() else []
+    source = next((snap for snap in snapshots if healthy(snap)), None)
+    salvaged = _salvage(path) if path.exists() else {}
+
+    stamp = datetime.now().strftime("%Y%m%d-%H%M%S")
+    aside = path.parent / ("damaged-" + stamp)
+    aside.mkdir(parents=True, exist_ok=True)
+    for suffix in ("", "-wal", "-shm"):
+        part = path.with_name(path.name + suffix)
+        if part.exists():
+            part.replace(aside / part.name)
+
+    if source is not None:
+        src = sqlite3.connect(source.resolve().as_uri() + "?immutable=1",
+                              uri=True)
+        dest = sqlite3.connect(path)
+        try:
+            with dest:
+                src.backup(dest)
+        finally:
+            src.close()
+            dest.close()
+
+    store = Store(path)          # a fresh file if no snapshot was usable
+    restored = {}
+    try:
+        with store.tx():
+            for table, rows in salvaged.items():
+                if not rows or not store._table_exists(table):
+                    continue
+                columns = {c[1] for c in
+                           store.db.execute("PRAGMA table_info(%s)" % table)}
+                verb = ("INSERT OR REPLACE" if table == "settings"
+                        else "INSERT OR IGNORE")
+                count = 0
+                for row in rows:
+                    usable = [c for c in row if c in columns
+                              and not (table != "settings" and c == "id")]
+                    if not usable:
+                        continue
+                    try:
+                        store.db.execute(
+                            "%s INTO %s (%s) VALUES (%s)"
+                            % (verb, table, ",".join(usable),
+                               ",".join("?" for _ in usable)),
+                            [row[c] for c in usable])
+                        count += 1
+                    except sqlite3.Error:
+                        continue
+                restored[table] = count
+        store.set_meta("repaired_at", _now())
+    finally:
+        store.close()
+    return {"snapshot": source.name if source else "",
+            "moved_to": str(aside), "salvaged": restored}

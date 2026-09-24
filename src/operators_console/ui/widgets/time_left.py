@@ -11,9 +11,11 @@ from .common import Card, label, meter, muted
 def basis_text(estimate) -> str:
     """The inputs behind the date, in one sentence."""
     if estimate.basis == "recent":
-        week = "your last four weeks: %.1f h a week" % estimate.recent_week_hours
+        week = ("what you studied in the last four weeks: %.1f h a week"
+                % estimate.recent_week_hours)
     else:
-        week = "your plan: %.1f h a week" % estimate.plan_week_hours
+        week = "your plan: %s = %s a week (change it in Settings > Pace)" % (
+            _plan_sum(estimate), _hours(estimate.plan_week_hours))
     text = "Based on %s" % week
     if estimate.review_week_hours >= 0.1:
         text += ", less about %.1f h of review cards" % (
@@ -22,14 +24,24 @@ def basis_text(estimate) -> str:
     return text
 
 
+def _hours(value: float) -> str:
+    return ("%g h" % round(value, 1))
+
+
+def _plan_sum(estimate) -> str:
+    days = estimate.plan_days
+    return "%s a day × %d day%s a week" % (
+        _hours(estimate.plan_day_hours), days, "" if days == 1 else "s")
+
+
 def other_date_text(estimate) -> str:
     """The date at the other rate, when both are known and they differ."""
     if not (estimate.finish_plan and estimate.finish_recent):
         return ""
     if estimate.finish_plan == estimate.finish_recent:
         return ""
-    return "At your planned %.1f h a week: %s." % (
-        estimate.plan_week_hours, format_day(estimate.finish_plan))
+    return "At your plan (%s): %s." % (
+        _plan_sum(estimate), format_day(estimate.finish_plan))
 
 
 def session_text(ctx) -> str:
