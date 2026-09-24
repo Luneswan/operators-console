@@ -198,6 +198,28 @@ class Overview:
         return round(self.done / self.total * 100) if self.total else 0
 
 
+#: The career ladder, lowest first. Each rung is reached by proving phases
+#: of the learner's own plan, never by ticking lines.
+LEVELS = ("Starting out", "Beginner", "Junior", "Mid-level", "Senior",
+          "Senior+")
+#: Phases beyond the core that mark senior-plus work: architecture,
+#: judgement at scale, and building the systems others build on.
+MASTERY = ("p15", "p18", "p99")
+
+
+@dataclass(frozen=True, slots=True)
+class Career:
+    level: int                  # index into LEVELS
+    name: str
+    next_name: str              # "" at the top
+    needs: tuple                # phase names still to prove for the next rung
+    fraction: float             # progress from this rung to the next, 0-1
+
+    @property
+    def top(self) -> bool:
+        return not self.next_name
+
+
 class Progress:
     """Read-only view over the store, scoped by the learner's active track."""
 
@@ -218,11 +240,15 @@ class Progress:
         """
         track = self.c.track(self.s.setting("track", "generalist"))
         ordered = [p.id for p in self.c.phases if not p.no_progress]
-        if track is None:
+        if track is None or not any(
+                self.c.phase(pid) for pid in (*track.core, *track.optional)):
             return ordered
-        chosen = set(track.core) | set(track.optional)
-        chosen |= set(self.goal_phase_ids(chosen))
-        return [pid for pid in ordered if pid in chosen]
+        from .adaptive import plan_order, with_prerequisites
+        goal_ids = with_prerequisites(
+            self.c, self.goal_phase_ids(set(track.core)), set(track.core))
+        later = [pid for pid in track.optional if pid not in goal_ids]
+        return (plan_order(self.c, list(track.core) + goal_ids)
+                + plan_order(self.c, later))
 
     def goal_tags(self) -> set:
         from .adaptive import GOALS      # adaptive imports this module
@@ -247,13 +273,16 @@ class Progress:
 
     # -- per phase --------------------------------------------------------
 
-    def phase(self, phase: Phase) -> PhaseProgress:
-        checked = self.s.checked_ids()
+    def phase(self, phase: Phase, _reads: tuple | None = None) -> PhaseProgress:
+        # A pass over every phase hands in one read of the store, instead of
+        # reading it again for each phase.
+        checked, passed, statuses = _reads or (
+            self.s.checked_ids(), self.s.passed_exercise_ids(),
+            self.s.project_statuses())
         # Optional sections are stretch work and never hold a phase back.
         item_ids = [i.id for i in phase.core_items]
         gate_ids = [g.id for g in phase.gate.items] if phase.gate else []
         exercises = self.c.exercises_for(phase.id)
-        passed = self.s.passed_exercise_ids()
         quizzes = self.c.quizzes_for(phase.id)
 
         best = 0.0
@@ -265,7 +294,6 @@ class Progress:
             best = sum(scores) / len(scores)
 
         projects = self.c.projects_for(phase.id)
-        statuses = self.s.project_statuses()
         shipped = sum(1 for p in projects
                       if statuses.get(p.id) == "shipped")
         # A project the curriculum marks optional never holds a phase back.
@@ -289,7 +317,28 @@ class Progress:
         )
 
     def all_phases(self) -> dict:
-        return {p.id: self.phase(p) for p in self.c.phases}
+        # Every ticked box asks for this (status bar, career level), and a
+        # fresh pass reads the store once per phase. Reuse the last pass
+        # until the store has been written to, here or by another copy.
+        key = self._store_version()
+        cached = getattr(self, "_all_phases", None)
+        if key is not None and cached is not None and cached[0] == key:
+            return dict(cached[1])
+        reads = (self.s.checked_ids(), self.s.passed_exercise_ids(),
+                 self.s.project_statuses())
+        result = {p.id: self.phase(p, reads) for p in self.c.phases}
+        self._all_phases = (key, result)
+        return dict(result)
+
+    def _store_version(self):
+        db = getattr(self.s, "db", None)
+        if db is None:
+            return None
+        try:
+            version = db.execute("PRAGMA data_version").fetchone()[0]
+            return (id(self.s), db.total_changes, version)
+        except Exception:
+            return None
 
     # -- whole course ------------------------------------------------------
 
@@ -334,6 +383,68 @@ class Progress:
             projects_total=len(projects),
             phases_read=read,
         )
+
+    # -- the career ladder --------------------------------------------------
+
+    def career(self) -> Career:
+        """Where the learner stands, and what the next rung asks for.
+
+        Beginner: the first language phase is proven. Junior: the three
+        foundation phases are. Mid-level: half of the plan's core. Senior:
+        all of it. Senior+: all of it and one mastery phase (architecture,
+        beyond senior, or the final-boss ladder).
+        """
+        plan = [pid for pid in self.active_phase_ids()
+                if self.c.phase(pid) is not None]
+        track = self.c.track(self.s.setting("track", "generalist"))
+        core = [pid for pid in (track.core if track else plan)
+                if pid in plan] or plan
+        core = [pid for pid in core
+                if (self.c.phase(pid).trackable_ids)]
+        stats = self.all_phases()
+        proven = {pid for pid in plan if stats.get(pid)
+                  and stats[pid].is_proven}
+
+        foundations = [pid for pid in ("p01", "p02", "p03") if pid in core]
+        first = foundations[:1] or core[:1]
+        mastery = [pid for pid in MASTERY if self.c.phase(pid)]
+        half = math.ceil(len(core) / 2)
+
+        # Each rung: (phases that must all be proven, how many of `pool`
+        # must be proven, pool).
+        rungs = [
+            (first, 0, ()),
+            (foundations or core[:3], 0, ()),
+            ((), half, core),
+            (core, 0, ()),
+            (core, 1, mastery),
+        ]
+
+        def met(rung) -> bool:
+            required, count, pool = rung
+            return (all(pid in proven for pid in required)
+                    and sum(1 for pid in pool if pid in proven) >= count)
+
+        level = 0
+        for index, rung in enumerate(rungs, start=1):
+            if not met(rung):
+                break
+            level = index
+        if level >= len(rungs):
+            return Career(level, LEVELS[level], "", (), 1.0)
+
+        required, count, pool = rungs[level]
+        missing = [pid for pid in required if pid not in proven]
+        done_required = len(required) - len(missing)
+        pooled = sum(1 for pid in pool if pid in proven)
+        total = len(required) + count
+        got = done_required + min(pooled, count)
+        if count and pooled < count:
+            missing += [pid for pid in pool if pid not in proven][
+                :count - pooled]
+        names = tuple(self.c.phase(pid).name for pid in missing[:3])
+        return Career(level, LEVELS[level], LEVELS[level + 1], names,
+                      got / total if total else 0.0)
 
     # -- position in the course --------------------------------------------
 

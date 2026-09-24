@@ -12,6 +12,7 @@ from PySide6.QtCore import Qt
 from PySide6.QtWidgets import QFrame, QHBoxLayout, QVBoxLayout, QWidget
 
 from ...core import today as plan_kinds
+from ..widgets.career import CareerCard
 from ...core.progress import _number as _setting_number
 from ...core.progress import proof_line
 from ..widgets.common import (
@@ -94,6 +95,10 @@ class DashboardView(View):
                 row.addWidget(_vdivider())
             row.addWidget(tile, 1)
         self.scroller.add(strip)
+        # The level reached and the proofs that lead to the next one: the
+        # plan's progress said as a career, not as a percentage.
+        self.career = CareerCard()
+        self.scroller.add(self.career)
         self.overall_meter = meter(0)
         self.overall_meter.setVisible(False)    # the ring shows it
         self.scroller.add(self.overall_meter)
@@ -153,6 +158,7 @@ class DashboardView(View):
         self.tile_phases.set_value("%d/%d" % (overview.phases_complete,
                                              overview.phases_total))
 
+        self.career.show_career(self.ctx.progress.career())
         self.overall_meter.setValue(overview.percent)
         self.overall_caption.setText(
             "%d of %d checks - %d of %d phases proven - %d of %d exercises "

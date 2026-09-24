@@ -4527,6 +4527,1500 @@
    ],
    "solution": "import itertools\n\n\ndef chunk_totals(rows, size):\n    if size < 1:\n        raise ValueError(\"size must be at least 1\")\n    # itertools.batched does this on 3.12+; islice works on 3.11 too.\n    it = iter(rows)\n    while chunk := list(itertools.islice(it, size)):\n        totals = {}\n        for key, amount in chunk:\n            totals[key] = totals.get(key, 0) + amount\n        yield totals\n\n\ndef grand_total(rows, size):\n    merged = {}\n    for totals in chunk_totals(rows, size):\n        for key, amount in totals.items():\n            merged[key] = merged.get(key, 0) + amount\n    return merged\n",
    "setup": ""
+  },
+  {
+   "id": "s01.001",
+   "phase": "s01",
+   "topic": "Grouping",
+   "title": "Total by group",
+   "difficulty": 2,
+   "prompt": "Write `group_totals(rows, key, value)` where `rows` is a list of dicts.\nReturn a dict mapping each distinct `row[key]` to the sum of\n`row[value]` for that group. Skip rows where `row[value]` is `None`.\n\n`group_totals([{\"k\": \"a\", \"v\": 1}, {\"k\": \"a\", \"v\": 2}], \"k\", \"v\")`\nis `{\"a\": 3}`.",
+   "starter": "def group_totals(rows, key, value):\n    pass\n",
+   "tests": [
+    {
+     "name": "one group",
+     "code": "assert group_totals([{'k': 'a', 'v': 1}, {'k': 'a', 'v': 2}], 'k', 'v') == {'a': 3}"
+    },
+    {
+     "name": "two groups",
+     "code": "assert group_totals([{'k': 'a', 'v': 1}, {'k': 'b', 'v': 5}], 'k', 'v') == {'a': 1, 'b': 5}"
+    },
+    {
+     "name": "skips missing values",
+     "code": "assert group_totals([{'k': 'a', 'v': None}, {'k': 'a', 'v': 4}], 'k', 'v') == {'a': 4}"
+    },
+    {
+     "name": "no rows",
+     "code": "assert group_totals([], 'k', 'v') == {}"
+    },
+    {
+     "name": "floats",
+     "code": "assert group_totals([{'k': 1, 'v': 0.5}, {'k': 1, 'v': 0.25}], 'k', 'v') == {1: 0.75}"
+    }
+   ],
+   "hints": [
+    "Walk the rows once and add each value to its group's running total.",
+    "`out[g] = out.get(g, 0) + row[value]`, after `if row[value] is None: continue`."
+   ],
+   "solution": "def group_totals(rows, key, value):\n    out = {}\n    for row in rows:\n        if row[value] is None:\n            continue\n        group = row[key]\n        out[group] = out.get(group, 0) + row[value]\n    return out\n",
+   "setup": ""
+  },
+  {
+   "id": "s01.002",
+   "phase": "s01",
+   "topic": "Statistics",
+   "title": "Describe a column",
+   "difficulty": 3,
+   "prompt": "Write `describe(values)` returning a dict with `count`, `mean`,\n`median` and `stdev` (the sample standard deviation) of the values,\nignoring `None`. Raise `ValueError` if fewer than two values remain.\n\nThe `statistics` module may be used.",
+   "starter": "def describe(values):\n    pass\n",
+   "tests": [
+    {
+     "name": "basic",
+     "code": "d = describe([1, 2, 3, 4])\nassert (d['count'], d['mean'], d['median']) == (4, 2.5, 2.5)"
+    },
+    {
+     "name": "sample stdev",
+     "code": "assert round(describe([2, 4, 4, 4, 5, 5, 7, 9])['stdev'], 6) == 2.13809"
+    },
+    {
+     "name": "ignores None",
+     "code": "assert describe([None, 1, 3])['count'] == 2"
+    },
+    {
+     "name": "odd count median",
+     "code": "assert describe([5, 1, 3])['median'] == 3"
+    },
+    {
+     "name": "too few values",
+     "code": "try:\n    result = describe([1, None])\nexcept ValueError:\n    pass\nelse:\n    raise AssertionError('expected ValueError, but it returned %r' % (result,))"
+    }
+   ],
+   "hints": [
+    "Filter out `None` first, then check how many values are left.",
+    "`statistics.mean`, `statistics.median` and `statistics.stdev` compute the three numbers."
+   ],
+   "solution": "import statistics\n\n\ndef describe(values):\n    data = [v for v in values if v is not None]\n    if len(data) < 2:\n        raise ValueError(\"need at least two values\")\n    return {\"count\": len(data), \"mean\": statistics.mean(data),\n            \"median\": statistics.median(data),\n            \"stdev\": statistics.stdev(data)}\n",
+   "setup": ""
+  },
+  {
+   "id": "s01.003",
+   "phase": "s01",
+   "topic": "Reshaping",
+   "title": "A pivot table",
+   "difficulty": 4,
+   "prompt": "Write `pivot(rows, index, columns, values)` returning a dict of dicts:\n`{index_value: {column_value: total}}`, summing `row[values]` for each\ncombination.\n\nEvery inner dict must contain every column value that appears anywhere\nin the data, with `0` where a combination has no rows.",
+   "starter": "def pivot(rows, index, columns, values):\n    pass\n",
+   "tests": [
+    {
+     "name": "simple",
+     "code": "rows = [{'r': 'x', 'c': 'a', 'v': 1}, {'r': 'x', 'c': 'b', 'v': 2}]\nassert pivot(rows, 'r', 'c', 'v') == {'x': {'a': 1, 'b': 2}}"
+    },
+    {
+     "name": "sums duplicates",
+     "code": "rows = [{'r': 'x', 'c': 'a', 'v': 1}, {'r': 'x', 'c': 'a', 'v': 4}]\nassert pivot(rows, 'r', 'c', 'v') == {'x': {'a': 5}}"
+    },
+    {
+     "name": "fills missing with zero",
+     "code": "rows = [{'r': 'x', 'c': 'a', 'v': 1}, {'r': 'y', 'c': 'b', 'v': 2}]\nassert pivot(rows, 'r', 'c', 'v') == {'x': {'a': 1, 'b': 0}, 'y': {'a': 0, 'b': 2}}"
+    },
+    {
+     "name": "empty",
+     "code": "assert pivot([], 'r', 'c', 'v') == {}"
+    }
+   ],
+   "hints": [
+    "Collect the set of column values first, then build each row's dict from it.",
+    "Start every index value with `{col: 0 for col in all_columns}`, then add each row's value."
+   ],
+   "solution": "def pivot(rows, index, columns, values):\n    cols = {row[columns] for row in rows}\n    out = {}\n    for row in rows:\n        inner = out.setdefault(row[index], {c: 0 for c in cols})\n        inner[row[columns]] += row[values]\n    return out\n",
+   "setup": ""
+  },
+  {
+   "id": "s02.001",
+   "phase": "s02",
+   "topic": "Settings",
+   "title": "Where settings live",
+   "difficulty": 2,
+   "prompt": "Write `settings_dir(platform, home, env)` returning the folder where an\napp called `MyApp` should keep its settings, as a string with `/`\nseparators:\n\n- `\"win32\"`: `env[\"APPDATA\"] + \"/MyApp\"`\n- `\"darwin\"`: `home + \"/Library/Application Support/MyApp\"`\n- anything else: `env[\"XDG_CONFIG_HOME\"] + \"/MyApp\"` if that variable\n  is set and not empty, otherwise `home + \"/.config/MyApp\"`",
+   "starter": "def settings_dir(platform, home, env):\n    pass\n",
+   "tests": [
+    {
+     "name": "windows",
+     "code": "assert settings_dir('win32', '/h', {'APPDATA': 'C:/Users/a/AppData/Roaming'}) == 'C:/Users/a/AppData/Roaming/MyApp'"
+    },
+    {
+     "name": "macos",
+     "code": "assert settings_dir('darwin', '/Users/a', {}) == '/Users/a/Library/Application Support/MyApp'"
+    },
+    {
+     "name": "linux default",
+     "code": "assert settings_dir('linux', '/home/a', {}) == '/home/a/.config/MyApp'"
+    },
+    {
+     "name": "linux with XDG",
+     "code": "assert settings_dir('linux', '/home/a', {'XDG_CONFIG_HOME': '/cfg'}) == '/cfg/MyApp'"
+    },
+    {
+     "name": "empty XDG is ignored",
+     "code": "assert settings_dir('linux', '/home/a', {'XDG_CONFIG_HOME': ''}) == '/home/a/.config/MyApp'"
+    }
+   ],
+   "hints": [
+    "Branch on the platform string first.",
+    "`env.get(\"XDG_CONFIG_HOME\")` returns `None` when unset; an empty string is also falsy, so `if xdg:` covers both."
+   ],
+   "solution": "def settings_dir(platform, home, env):\n    if platform == \"win32\":\n        return env[\"APPDATA\"] + \"/MyApp\"\n    if platform == \"darwin\":\n        return home + \"/Library/Application Support/MyApp\"\n    xdg = env.get(\"XDG_CONFIG_HOME\")\n    if xdg:\n        return xdg + \"/MyApp\"\n    return home + \"/.config/MyApp\"\n",
+   "setup": ""
+  },
+  {
+   "id": "s02.002",
+   "phase": "s02",
+   "topic": "Worker threads",
+   "title": "A cancellable job",
+   "difficulty": 3,
+   "prompt": "A GUI runs long work in a worker and lets the user cancel it. Write\n`run_job(items, work, cancelled, progress)`:\n\n- Before each item, call `cancelled()`. If it returns True, stop.\n- Otherwise call `work(item)`, then `progress(done, total)` with the\n  number of items finished so far and the total.\n- Return `(done, was_cancelled)`.",
+   "starter": "def run_job(items, work, cancelled, progress):\n    pass\n",
+   "tests": [
+    {
+     "name": "runs every item",
+     "code": "seen = []\nassert run_job([1, 2, 3], seen.append, lambda: False, lambda d, t: None) == (3, False)\nassert seen == [1, 2, 3]"
+    },
+    {
+     "name": "reports progress",
+     "code": "calls = []\nrun_job(['a', 'b'], lambda i: None, lambda: False, lambda d, t: calls.append((d, t)))\nassert calls == [(1, 2), (2, 2)]"
+    },
+    {
+     "name": "cancels before the next item",
+     "code": "state = {'n': 0}\ndef work(i):\n    state['n'] += 1\nassert run_job([1, 2, 3], work, lambda: state['n'] >= 2, lambda d, t: None) == (2, True)"
+    },
+    {
+     "name": "cancelled at once",
+     "code": "assert run_job([1], lambda i: None, lambda: True, lambda d, t: None) == (0, True)"
+    },
+    {
+     "name": "no items",
+     "code": "assert run_job([], lambda i: None, lambda: True, lambda d, t: None) == (0, False)"
+    }
+   ],
+   "hints": [
+    "Loop over the items and check `cancelled()` at the top of each iteration.",
+    "Keep a `done` counter; return `(done, True)` from inside the loop when cancelled, and `(done, False)` after it."
+   ],
+   "solution": "def run_job(items, work, cancelled, progress):\n    items = list(items)\n    done = 0\n    for item in items:\n        if cancelled():\n            return done, True\n        work(item)\n        done += 1\n        progress(done, len(items))\n    return done, False\n",
+   "setup": ""
+  },
+  {
+   "id": "s02.003",
+   "phase": "s02",
+   "topic": "Model/view",
+   "title": "A table model",
+   "difficulty": 4,
+   "prompt": "A view asks a model for rows instead of creating a widget per row.\nWrite a class `TableModel(rows, columns)` where `rows` is a list of\ndicts and `columns` a list of keys, with:\n\n- `row_count()` and `column_count()` for the visible rows and columns\n- `data(r, c)`: the value at visible row `r`, column `c`, as a string\n- `sort(column, descending=False)`: stable sort by that column\n- `filter(text)`: show only rows where any column contains `text`,\n  case-insensitively; `filter(\"\")` shows all rows again",
+   "starter": "class TableModel:\n    def __init__(self, rows, columns):\n        pass\n",
+   "tests": [
+    {
+     "name": "counts",
+     "code": "m = TableModel([{'a': 1}, {'a': 2}], ['a'])\nassert (m.row_count(), m.column_count()) == (2, 1)"
+    },
+    {
+     "name": "data is text",
+     "code": "m = TableModel([{'a': 1, 'b': 'x'}], ['a', 'b'])\nassert m.data(0, 0) == '1'\nassert m.data(0, 1) == 'x'"
+    },
+    {
+     "name": "sorts",
+     "code": "m = TableModel([{'n': 3}, {'n': 1}, {'n': 2}], ['n'])\nm.sort('n', descending=True)\nassert [m.data(i, 0) for i in range(3)] == ['3', '2', '1']"
+    },
+    {
+     "name": "filters case-insensitively",
+     "code": "m = TableModel([{'n': 'Ada'}, {'n': 'Bob'}], ['n'])\nm.filter('ad')\nassert m.row_count() == 1\nassert m.data(0, 0) == 'Ada'"
+    },
+    {
+     "name": "clearing the filter",
+     "code": "m = TableModel([{'n': 'Ada'}, {'n': 'Bob'}], ['n'])\nm.filter('x')\nm.filter('')\nassert m.row_count() == 2"
+    }
+   ],
+   "hints": [
+    "Keep the full rows and a separate list of the visible ones.",
+    "Sort the full list with `key=lambda r: r[column]`, then reapply the current filter to rebuild the visible list."
+   ],
+   "solution": "class TableModel:\n    def __init__(self, rows, columns):\n        self.rows = list(rows)\n        self.columns = list(columns)\n        self.text = \"\"\n        self.visible = list(self.rows)\n\n    def row_count(self):\n        return len(self.visible)\n\n    def column_count(self):\n        return len(self.columns)\n\n    def data(self, r, c):\n        return str(self.visible[r][self.columns[c]])\n\n    def sort(self, column, descending=False):\n        self.rows.sort(key=lambda row: row[column], reverse=descending)\n        self.filter(self.text)\n\n    def filter(self, text):\n        self.text = text\n        needle = text.lower()\n        self.visible = [row for row in self.rows\n                        if not needle or any(needle in str(row[c]).lower()\n                                             for c in self.columns)]\n",
+   "setup": ""
+  },
+  {
+   "id": "s03.001",
+   "phase": "s03",
+   "topic": "Exit codes",
+   "title": "Usage errors and exit codes",
+   "difficulty": 2,
+   "prompt": "Write `main(argv, stdout, stderr)` for a tool that prints how many\nwords it was given.\n\n- With no arguments, write `usage: count WORD...` and a newline to\n  `stderr` and return `2`.\n- Otherwise write the number of arguments and a newline to `stdout`\n  and return `0`.\n\n`stdout` and `stderr` are file-like objects; use their `write` method.",
+   "starter": "def main(argv, stdout, stderr):\n    pass\n",
+   "tests": [
+    {
+     "name": "counts words",
+     "code": "import io\nout, err = io.StringIO(), io.StringIO()\nassert main(['a', 'b'], out, err) == 0\nassert out.getvalue() == '2\\n'\nassert err.getvalue() == ''"
+    },
+    {
+     "name": "usage on stderr",
+     "code": "import io\nout, err = io.StringIO(), io.StringIO()\nassert main([], out, err) == 2\nassert err.getvalue() == 'usage: count WORD...\\n'\nassert out.getvalue() == ''"
+    },
+    {
+     "name": "one word",
+     "code": "import io\nout = io.StringIO()\nassert main(['x'], out, io.StringIO()) == 0\nassert out.getvalue() == '1\\n'"
+    },
+    {
+     "name": "returns an int",
+     "code": "import io\nassert isinstance(main([], io.StringIO(), io.StringIO()), int)"
+    }
+   ],
+   "hints": [
+    "Errors go to stderr and change the exit code; results go to stdout.",
+    "`stderr.write(\"usage: count WORD...\\n\")` then `return 2`."
+   ],
+   "solution": "def main(argv, stdout, stderr):\n    if not argv:\n        stderr.write(\"usage: count WORD...\\n\")\n        return 2\n    stdout.write(\"%d\\n\" % len(argv))\n    return 0\n",
+   "setup": ""
+  },
+  {
+   "id": "s03.002",
+   "phase": "s03",
+   "topic": "Configuration",
+   "title": "Settings precedence",
+   "difficulty": 3,
+   "prompt": "Write `resolve(name, flags, env, config, default)` returning a setting\nfrom the first source that has it:\n\n1. `flags[name]`, if present and not `None`\n2. `env[\"APP_\" + name.upper()]`, if present\n3. `config[name]`, if present\n4. `default`",
+   "starter": "def resolve(name, flags, env, config, default):\n    pass\n",
+   "tests": [
+    {
+     "name": "flag wins",
+     "code": "assert resolve('port', {'port': 1}, {'APP_PORT': '2'}, {'port': 3}, 4) == 1"
+    },
+    {
+     "name": "env next",
+     "code": "assert resolve('port', {'port': None}, {'APP_PORT': '2'}, {'port': 3}, 4) == '2'"
+    },
+    {
+     "name": "config next",
+     "code": "assert resolve('port', {}, {}, {'port': 3}, 4) == 3"
+    },
+    {
+     "name": "default last",
+     "code": "assert resolve('port', {}, {}, {}, 4) == 4"
+    },
+    {
+     "name": "env name is prefixed and upper-case",
+     "code": "assert resolve('log_level', {}, {'APP_LOG_LEVEL': 'debug'}, {}, 'info') == 'debug'"
+    }
+   ],
+   "hints": [
+    "Check the sources in order and return as soon as one has the value.",
+    "A flag set to `None` means \"not given\": test `flags.get(name) is not None`."
+   ],
+   "solution": "def resolve(name, flags, env, config, default):\n    if flags.get(name) is not None:\n        return flags[name]\n    key = \"APP_\" + name.upper()\n    if key in env:\n        return env[key]\n    if name in config:\n        return config[name]\n    return default\n",
+   "setup": ""
+  },
+  {
+   "id": "s03.003",
+   "phase": "s03",
+   "topic": "argparse",
+   "title": "Subcommands",
+   "difficulty": 4,
+   "prompt": "Write `build_parser()` returning an `argparse.ArgumentParser` for a\nto-do tool with two subcommands, stored in `args.command`:\n\n- `add NAME [--priority N]`: `args.name`, and `args.priority` as an\n  `int` defaulting to `1`\n- `list [--json]`: `args.json`, `False` unless the flag is given",
+   "starter": "import argparse\n\n\ndef build_parser():\n    pass\n",
+   "tests": [
+    {
+     "name": "add with default priority",
+     "code": "a = build_parser().parse_args(['add', 'milk'])\nassert (a.command, a.name, a.priority) == ('add', 'milk', 1)"
+    },
+    {
+     "name": "priority is an int",
+     "code": "a = build_parser().parse_args(['add', 'milk', '--priority', '3'])\nassert a.priority == 3"
+    },
+    {
+     "name": "list",
+     "code": "a = build_parser().parse_args(['list'])\nassert (a.command, a.json) == ('list', False)"
+    },
+    {
+     "name": "list json",
+     "code": "assert build_parser().parse_args(['list', '--json']).json is True"
+    },
+    {
+     "name": "bad priority exits",
+     "code": "try:\n    build_parser().parse_args(['add', 'x', '--priority', 'high'])\nexcept SystemExit as e:\n    assert e.code == 2\nelse:\n    raise AssertionError('expected SystemExit, but it parsed the arguments')"
+    }
+   ],
+   "hints": [
+    "`parser.add_subparsers(dest=\"command\")` creates the subcommands.",
+    "`add.add_argument(\"--priority\", type=int, default=1)` and `lst.add_argument(\"--json\", action=\"store_true\")`."
+   ],
+   "solution": "import argparse\n\n\ndef build_parser():\n    parser = argparse.ArgumentParser(prog=\"todo\")\n    sub = parser.add_subparsers(dest=\"command\", required=True)\n    add = sub.add_parser(\"add\")\n    add.add_argument(\"name\")\n    add.add_argument(\"--priority\", type=int, default=1)\n    lst = sub.add_parser(\"list\")\n    lst.add_argument(\"--json\", action=\"store_true\")\n    return parser\n",
+   "setup": ""
+  },
+  {
+   "id": "s04.001",
+   "phase": "s04",
+   "topic": "Game loop",
+   "title": "Move by delta time",
+   "difficulty": 2,
+   "prompt": "Write `move(position, velocity, dt)` returning the new `(x, y)` after\n`dt` seconds, where `position` and `velocity` are `(x, y)` tuples in\npixels and pixels per second.\n\nMoving for one second must give the same result whether it is done in\n60 steps of 1/60 s or 30 steps of 1/30 s.",
+   "starter": "def move(position, velocity, dt):\n    pass\n",
+   "tests": [
+    {
+     "name": "one step",
+     "code": "assert move((0, 0), (10, 20), 0.5) == (5.0, 10.0)"
+    },
+    {
+     "name": "no time",
+     "code": "assert move((3, 4), (100, 100), 0) == (3, 4)"
+    },
+    {
+     "name": "negative velocity",
+     "code": "assert move((10, 10), (-10, 0), 1) == (0, 10)"
+    },
+    {
+     "name": "frame-rate independent",
+     "code": "p = q = (0.0, 0.0)\nfor _ in range(60):\n    p = move(p, (120, 0), 1 / 60)\nfor _ in range(30):\n    q = move(q, (120, 0), 1 / 30)\nassert round(p[0], 9) == round(q[0], 9)\nassert round(p[0], 9) == 120"
+    }
+   ],
+   "hints": [
+    "Distance is speed multiplied by time.",
+    "`return (x + vx * dt, y + vy * dt)`."
+   ],
+   "solution": "def move(position, velocity, dt):\n    x, y = position\n    vx, vy = velocity\n    return (x + vx * dt, y + vy * dt)\n",
+   "setup": ""
+  },
+  {
+   "id": "s04.002",
+   "phase": "s04",
+   "topic": "Collision",
+   "title": "Rectangles that collide",
+   "difficulty": 3,
+   "prompt": "A rectangle is `(x, y, w, h)`. Write:\n\n- `overlaps(a, b)`: True when the rectangles share some area. Touching\n  edges do not count.\n- `first_hit(mover, obstacles)`: the index of the first obstacle that\n  overlaps `mover`, or `None`.",
+   "starter": "def overlaps(a, b):\n    pass\n\n\ndef first_hit(mover, obstacles):\n    pass\n",
+   "tests": [
+    {
+     "name": "overlap",
+     "code": "assert overlaps((0, 0, 10, 10), (5, 5, 10, 10))"
+    },
+    {
+     "name": "apart",
+     "code": "assert not overlaps((0, 0, 10, 10), (20, 0, 5, 5))"
+    },
+    {
+     "name": "touching edges",
+     "code": "assert not overlaps((0, 0, 10, 10), (10, 0, 5, 5))"
+    },
+    {
+     "name": "contained",
+     "code": "assert overlaps((0, 0, 10, 10), (2, 2, 1, 1))"
+    },
+    {
+     "name": "first hit",
+     "code": "assert first_hit((0, 0, 4, 4), [(10, 10, 1, 1), (3, 3, 2, 2), (1, 1, 1, 1)]) == 1"
+    },
+    {
+     "name": "no hit",
+     "code": "assert first_hit((0, 0, 1, 1), [(5, 5, 1, 1)]) is None"
+    }
+   ],
+   "hints": [
+    "Two rectangles overlap when they overlap on the x axis and on the y axis.",
+    "On x: `a.x < b.x + b.w and b.x < a.x + a.w`. Strict `<` makes touching edges not overlap."
+   ],
+   "solution": "def overlaps(a, b):\n    ax, ay, aw, ah = a\n    bx, by, bw, bh = b\n    return ax < bx + bw and bx < ax + aw and ay < by + bh and by < ay + ah\n\n\ndef first_hit(mover, obstacles):\n    for i, obstacle in enumerate(obstacles):\n        if overlaps(mover, obstacle):\n            return i\n    return None\n",
+   "setup": ""
+  },
+  {
+   "id": "s04.003",
+   "phase": "s04",
+   "topic": "State machines",
+   "title": "A game state machine",
+   "difficulty": 4,
+   "prompt": "Write a class `Game` that starts in state `\"menu\"` and has\n`handle(event)` with these transitions:\n\n- menu + `\"start\"` -> playing\n- playing + `\"pause\"` -> paused; paused + `\"resume\"` -> playing\n- playing + `\"die\"` -> game_over; game_over + `\"restart\"` -> menu\n\nAny other event raises `ValueError` and leaves the state unchanged.\n`game.state` is the current state and `game.history` lists every\nstate entered, starting with `\"menu\"`.",
+   "starter": "class Game:\n    pass\n",
+   "tests": [
+    {
+     "name": "starts in the menu",
+     "code": "g = Game()\nassert g.state == 'menu'\nassert g.history == ['menu']"
+    },
+    {
+     "name": "plays and pauses",
+     "code": "g = Game()\ng.handle('start'); g.handle('pause'); g.handle('resume')\nassert g.state == 'playing'"
+    },
+    {
+     "name": "full loop",
+     "code": "g = Game()\nfor e in ['start', 'die', 'restart']:\n    g.handle(e)\nassert g.history == ['menu', 'playing', 'game_over', 'menu']"
+    },
+    {
+     "name": "invalid event",
+     "code": "g = Game()\ntry:\n    g.handle('pause')\nexcept ValueError:\n    pass\nelse:\n    raise AssertionError('expected ValueError, but it accepted pause in the menu')\nassert g.state == 'menu'"
+    }
+   ],
+   "hints": [
+    "Keep the transitions in a dict keyed by `(state, event)`.",
+    "`TRANSITIONS = {(\"menu\", \"start\"): \"playing\", ...}`; look the pair up and raise `ValueError` when it is missing."
+   ],
+   "solution": "TRANSITIONS = {\n    (\"menu\", \"start\"): \"playing\",\n    (\"playing\", \"pause\"): \"paused\",\n    (\"paused\", \"resume\"): \"playing\",\n    (\"playing\", \"die\"): \"game_over\",\n    (\"game_over\", \"restart\"): \"menu\",\n}\n\n\nclass Game:\n    def __init__(self):\n        self.state = \"menu\"\n        self.history = [\"menu\"]\n\n    def handle(self, event):\n        nxt = TRANSITIONS.get((self.state, event))\n        if nxt is None:\n            raise ValueError(\"%s is not allowed in %s\" % (event, self.state))\n        self.state = nxt\n        self.history.append(nxt)\n",
+   "setup": ""
+  },
+  {
+   "id": "s05.001",
+   "phase": "s05",
+   "topic": "Integration",
+   "title": "The trapezoid rule",
+   "difficulty": 2,
+   "prompt": "Write `trapezoid(f, a, b, n)` approximating the integral of `f` from\n`a` to `b` with `n` equal trapezoids. Raise `ValueError` if `n` is\nbelow 1.",
+   "starter": "def trapezoid(f, a, b, n):\n    pass\n",
+   "tests": [
+    {
+     "name": "a straight line is exact",
+     "code": "assert round(trapezoid(lambda x: 2 * x, 0, 1, 1), 9) == 1"
+    },
+    {
+     "name": "x squared",
+     "code": "assert round(trapezoid(lambda x: x * x, 0, 1, 1000), 6) == round(1 / 3, 6)"
+    },
+    {
+     "name": "more steps, less error",
+     "code": "e1 = abs(trapezoid(lambda x: x ** 3, 0, 2, 10) - 4)\ne2 = abs(trapezoid(lambda x: x ** 3, 0, 2, 100) - 4)\nassert e2 < e1"
+    },
+    {
+     "name": "rejects zero steps",
+     "code": "try:\n    result = trapezoid(lambda x: x, 0, 1, 0)\nexcept ValueError:\n    pass\nelse:\n    raise AssertionError('expected ValueError, but it returned %r' % (result,))"
+    }
+   ],
+   "hints": [
+    "Each trapezoid has width `h = (b - a) / n` and area `h * (f(left) + f(right)) / 2`.",
+    "Sum over `i` in `range(n)` with `left = a + i * h` and `right = left + h`."
+   ],
+   "solution": "def trapezoid(f, a, b, n):\n    if n < 1:\n        raise ValueError(\"n must be at least 1\")\n    h = (b - a) / n\n    total = 0.0\n    for i in range(n):\n        left = a + i * h\n        total += (f(left) + f(left + h)) * h / 2\n    return total\n",
+   "setup": ""
+  },
+  {
+   "id": "s05.002",
+   "phase": "s05",
+   "topic": "Root finding",
+   "title": "Newton's method",
+   "difficulty": 3,
+   "prompt": "Write `newton(f, df, x0, tol=1e-12, max_iter=50)` finding a root of `f`\nfrom the starting guess `x0`, where `df` is the derivative of `f`.\n\nStop when a step changes x by less than `tol` and return x. Raise\n`ValueError` if the derivative is zero at some step, or if no\nconvergence happens within `max_iter` steps.",
+   "starter": "def newton(f, df, x0, tol=1e-12, max_iter=50):\n    pass\n",
+   "tests": [
+    {
+     "name": "square root of 2",
+     "code": "assert round(newton(lambda x: x * x - 2, lambda x: 2 * x, 1.0), 12) == round(2 ** 0.5, 12)"
+    },
+    {
+     "name": "cube root",
+     "code": "assert round(newton(lambda x: x ** 3 - 27, lambda x: 3 * x * x, 5.0), 10) == 3"
+    },
+    {
+     "name": "zero derivative",
+     "code": "try:\n    result = newton(lambda x: x * x + 1, lambda x: 2 * x, 0.0)\nexcept ValueError:\n    pass\nelse:\n    raise AssertionError('expected ValueError, but it returned %r' % (result,))"
+    },
+    {
+     "name": "does not converge",
+     "code": "try:\n    result = newton(lambda x: x * x + 1, lambda x: 2 * x, 1.0, max_iter=20)\nexcept ValueError:\n    pass\nelse:\n    raise AssertionError('expected ValueError, but it returned %r' % (result,))"
+    }
+   ],
+   "hints": [
+    "Each step is `x_new = x - f(x) / df(x)`.",
+    "Loop `max_iter` times; check `df(x) == 0` before dividing, and return when `abs(x_new - x) < tol`."
+   ],
+   "solution": "def newton(f, df, x0, tol=1e-12, max_iter=50):\n    x = x0\n    for _ in range(max_iter):\n        slope = df(x)\n        if slope == 0:\n            raise ValueError(\"zero derivative\")\n        nxt = x - f(x) / slope\n        if abs(nxt - x) < tol:\n            return nxt\n        x = nxt\n    raise ValueError(\"did not converge\")\n",
+   "setup": ""
+  },
+  {
+   "id": "s05.003",
+   "phase": "s05",
+   "topic": "Simulation",
+   "title": "Euler steps for an ODE",
+   "difficulty": 4,
+   "prompt": "Write `euler(f, y0, t0, t1, steps)` solving `dy/dt = f(t, y)` from\n`t0` to `t1` with the forward Euler method. Return a list of `(t, y)`\npairs, `steps + 1` long, starting with `(t0, y0)`.",
+   "starter": "def euler(f, y0, t0, t1, steps):\n    pass\n",
+   "tests": [
+    {
+     "name": "shape",
+     "code": "path = euler(lambda t, y: 0, 5, 0, 1, 4)\nassert len(path) == 5\nassert path[0] == (0, 5)\nassert path[-1][1] == 5"
+    },
+    {
+     "name": "constant slope",
+     "code": "path = euler(lambda t, y: 2, 0, 0, 3, 3)\nassert round(path[-1][1], 9) == 6"
+    },
+    {
+     "name": "ends at t1",
+     "code": "assert round(euler(lambda t, y: y, 1, 0, 1, 7)[-1][0], 9) == 1"
+    },
+    {
+     "name": "error shrinks with more steps",
+     "code": "import math\ne1 = abs(euler(lambda t, y: y, 1, 0, 1, 10)[-1][1] - math.e)\ne2 = abs(euler(lambda t, y: y, 1, 0, 1, 100)[-1][1] - math.e)\nassert e2 < e1 / 5"
+    }
+   ],
+   "hints": [
+    "Each step moves `h = (t1 - t0) / steps` forward in time.",
+    "`y = y + h * f(t, y)`, then `t = t0 + (i + 1) * h`; append `(t, y)` each time."
+   ],
+   "solution": "def euler(f, y0, t0, t1, steps):\n    h = (t1 - t0) / steps\n    t, y = t0, y0\n    path = [(t, y)]\n    for i in range(steps):\n        y = y + h * f(t, y)\n        t = t0 + (i + 1) * h\n        path.append((t, y))\n    return path\n",
+   "setup": ""
+  },
+  {
+   "id": "s06.001",
+   "phase": "s06",
+   "topic": "Returns",
+   "title": "Returns from prices",
+   "difficulty": 2,
+   "prompt": "Write:\n\n- `simple_returns(prices)`: the list of `p[i] / p[i - 1] - 1` for each\n  price after the first\n- `growth(returns)`: the total growth of 1.0 invested through those\n  returns, minus 1",
+   "starter": "def simple_returns(prices):\n    pass\n\n\ndef growth(returns):\n    pass\n",
+   "tests": [
+    {
+     "name": "returns",
+     "code": "r = simple_returns([100, 110, 99])\nassert [round(x, 6) for x in r] == [0.1, -0.1]"
+    },
+    {
+     "name": "one price",
+     "code": "assert simple_returns([100]) == []"
+    },
+    {
+     "name": "growth compounds",
+     "code": "assert round(growth([0.1, -0.1]), 6) == -0.01"
+    },
+    {
+     "name": "round trip",
+     "code": "assert round(growth(simple_returns([50, 75, 60, 90])), 9) == 0.8"
+    }
+   ],
+   "hints": [
+    "Pair each price with the one before it.",
+    "Growth multiplies `(1 + r)` for every return, then subtracts 1."
+   ],
+   "solution": "def simple_returns(prices):\n    return [b / a - 1 for a, b in zip(prices, prices[1:])]\n\n\ndef growth(returns):\n    total = 1.0\n    for r in returns:\n        total *= 1 + r\n    return total - 1\n",
+   "setup": ""
+  },
+  {
+   "id": "s06.002",
+   "phase": "s06",
+   "topic": "Risk",
+   "title": "Maximum drawdown",
+   "difficulty": 3,
+   "prompt": "Write `max_drawdown(values)` returning the largest fall from a running\npeak as a positive fraction. For `[100, 120, 90, 130]` the peak 120\nfalls to 90, a drawdown of 0.25. Return 0.0 if the values never fall.",
+   "starter": "def max_drawdown(values):\n    pass\n",
+   "tests": [
+    {
+     "name": "example",
+     "code": "assert round(max_drawdown([100, 120, 90, 130]), 9) == 0.25"
+    },
+    {
+     "name": "never falls",
+     "code": "assert max_drawdown([1, 2, 3]) == 0.0"
+    },
+    {
+     "name": "worst of two",
+     "code": "assert round(max_drawdown([100, 80, 100, 50]), 9) == 0.5"
+    },
+    {
+     "name": "falls at the end",
+     "code": "assert round(max_drawdown([10, 12, 6]), 9) == 0.5"
+    },
+    {
+     "name": "single value",
+     "code": "assert max_drawdown([5]) == 0.0"
+    }
+   ],
+   "hints": [
+    "Track the highest value seen so far as you walk the list.",
+    "At each value, the drawdown is `1 - value / peak`; keep the largest."
+   ],
+   "solution": "def max_drawdown(values):\n    peak = values[0]\n    worst = 0.0\n    for value in values:\n        peak = max(peak, value)\n        worst = max(worst, 1 - value / peak)\n    return worst\n",
+   "setup": ""
+  },
+  {
+   "id": "s06.003",
+   "phase": "s06",
+   "topic": "Backtesting",
+   "title": "A backtest that cannot see the future",
+   "difficulty": 4,
+   "prompt": "Write `backtest(prices, signal, fee)` for daily closing prices.\n\n- At each day `t` except the last, call `signal(history)` with a tuple\n  of the prices up to and including day `t`. It returns 1 (invested)\n  or 0 (in cash).\n- The position chosen on day `t` earns the return from `t` to `t + 1`.\n- Each time the position changes, pay `fee` as a fraction of equity.\n- Start with equity 1.0 in cash and return the final equity.\n\nThe signal must never receive a price from after day `t`.",
+   "starter": "def backtest(prices, signal, fee):\n    pass\n",
+   "tests": [
+    {
+     "name": "always in",
+     "code": "assert round(backtest([100, 110, 121], lambda h: 1, 0), 9) == 1.21"
+    },
+    {
+     "name": "always out",
+     "code": "assert backtest([100, 50, 200], lambda h: 0, 0.01) == 1.0"
+    },
+    {
+     "name": "fee on entry",
+     "code": "assert round(backtest([100, 110], lambda h: 1, 0.01), 9) == round(0.99 * 1.1, 9)"
+    },
+    {
+     "name": "no future prices",
+     "code": "seen = []\ndef spy(h):\n    seen.append(len(h))\n    return 1\nbacktest([1, 2, 3, 4], spy, 0)\nassert seen == [1, 2, 3]"
+    },
+    {
+     "name": "history is read-only",
+     "code": "def s(h):\n    assert isinstance(h, tuple)\n    return 0\nbacktest([1, 2], s, 0)"
+    }
+   ],
+   "hints": [
+    "Loop `t` from 0 to `len(prices) - 2`; pass `tuple(prices[:t + 1])` to the signal.",
+    "If the new position differs from the old one, multiply equity by `1 - fee`; if invested, multiply by `prices[t + 1] / prices[t]`."
+   ],
+   "solution": "def backtest(prices, signal, fee):\n    equity = 1.0\n    position = 0\n    for t in range(len(prices) - 1):\n        wanted = signal(tuple(prices[:t + 1]))\n        if wanted != position:\n            equity *= 1 - fee\n            position = wanted\n        if position:\n            equity *= prices[t + 1] / prices[t]\n    return equity\n",
+   "setup": ""
+  },
+  {
+   "id": "s07.001",
+   "phase": "s07",
+   "topic": "Pixels",
+   "title": "Grayscale an image",
+   "difficulty": 2,
+   "prompt": "An image is a list of rows, each a list of `(r, g, b)` tuples with\nvalues 0-255. Write `to_gray(image)` returning the same shape with each\npixel replaced by `round(0.299 * r + 0.587 * g + 0.114 * b)`.",
+   "starter": "def to_gray(image):\n    pass\n",
+   "tests": [
+    {
+     "name": "white",
+     "code": "assert to_gray([[(255, 255, 255)]]) == [[255]]"
+    },
+    {
+     "name": "black",
+     "code": "assert to_gray([[(0, 0, 0)]]) == [[0]]"
+    },
+    {
+     "name": "pure red",
+     "code": "assert to_gray([[(255, 0, 0)]]) == [[76]]"
+    },
+    {
+     "name": "keeps the shape",
+     "code": "img = [[(10, 20, 30)] * 3] * 2\nout = to_gray(img)\nassert len(out) == 2\nassert [len(row) for row in out] == [3, 3]"
+    }
+   ],
+   "hints": [
+    "Transform every pixel and keep the row structure.",
+    "`[[round(0.299 * r + 0.587 * g + 0.114 * b) for (r, g, b) in row] for row in image]`."
+   ],
+   "solution": "def to_gray(image):\n    return [[round(0.299 * r + 0.587 * g + 0.114 * b) for (r, g, b) in row]\n            for row in image]\n",
+   "setup": ""
+  },
+  {
+   "id": "s07.002",
+   "phase": "s07",
+   "topic": "Detection metrics",
+   "title": "Intersection over union",
+   "difficulty": 3,
+   "prompt": "A box is `(x1, y1, x2, y2)` with `x1 < x2` and `y1 < y2`. Write\n`iou(a, b)` returning the area of the intersection divided by the area\nof the union. Boxes that do not overlap give 0.0.",
+   "starter": "def iou(a, b):\n    pass\n",
+   "tests": [
+    {
+     "name": "identical",
+     "code": "assert iou((0, 0, 2, 2), (0, 0, 2, 2)) == 1.0"
+    },
+    {
+     "name": "half overlap",
+     "code": "assert round(iou((0, 0, 2, 2), (1, 0, 3, 2)), 9) == round(1 / 3, 9)"
+    },
+    {
+     "name": "apart",
+     "code": "assert iou((0, 0, 1, 1), (2, 2, 3, 3)) == 0.0"
+    },
+    {
+     "name": "touching",
+     "code": "assert iou((0, 0, 1, 1), (1, 0, 2, 1)) == 0.0"
+    },
+    {
+     "name": "contained",
+     "code": "assert round(iou((0, 0, 4, 4), (1, 1, 3, 3)), 9) == 0.25"
+    }
+   ],
+   "hints": [
+    "The intersection box runs from the larger of the starts to the smaller of the ends.",
+    "Width is `max(0, min(ax2, bx2) - max(ax1, bx1))`; union is area A + area B - intersection."
+   ],
+   "solution": "def iou(a, b):\n    ax1, ay1, ax2, ay2 = a\n    bx1, by1, bx2, by2 = b\n    w = max(0, min(ax2, bx2) - max(ax1, bx1))\n    h = max(0, min(ay2, by2) - max(ay1, by1))\n    inter = w * h\n    union = (ax2 - ax1) * (ay2 - ay1) + (bx2 - bx1) * (by2 - by1) - inter\n    return inter / union if union else 0.0\n",
+   "setup": ""
+  },
+  {
+   "id": "s07.003",
+   "phase": "s07",
+   "topic": "Convolution",
+   "title": "A convolution layer's core",
+   "difficulty": 4,
+   "prompt": "Write `convolve(image, kernel)` for 2D lists of numbers. Slide the\nkernel over every position where it fits entirely inside the image\n(\"valid\" mode) and, at each position, sum the element-wise products.\nDo not flip the kernel; this is what convolution layers compute.\n\nThe output has `H - kh + 1` rows and `W - kw + 1` columns.",
+   "starter": "def convolve(image, kernel):\n    pass\n",
+   "tests": [
+    {
+     "name": "identity kernel",
+     "code": "assert convolve([[1, 2], [3, 4]], [[1]]) == [[1, 2], [3, 4]]"
+    },
+    {
+     "name": "sum kernel",
+     "code": "assert convolve([[1, 2, 3], [4, 5, 6], [7, 8, 9]], [[1, 1], [1, 1]]) == [[12, 16], [24, 28]]"
+    },
+    {
+     "name": "edge kernel",
+     "code": "assert convolve([[0, 0, 9, 9]], [[-1, 1]]) == [[0, 9, 0]]"
+    },
+    {
+     "name": "output shape",
+     "code": "out = convolve([[0] * 5 for _ in range(4)], [[1, 0, 0], [0, 1, 0]])\nassert len(out) == 3\nassert len(out[0]) == 3"
+    },
+    {
+     "name": "not flipped",
+     "code": "assert convolve([[1, 2]], [[1, 0]]) == [[1]]"
+    }
+   ],
+   "hints": [
+    "Four nested loops: output row, output column, kernel row, kernel column.",
+    "`out[i][j] = sum(image[i + a][j + b] * kernel[a][b] for a in range(kh) for b in range(kw))`."
+   ],
+   "solution": "def convolve(image, kernel):\n    kh, kw = len(kernel), len(kernel[0])\n    h, w = len(image), len(image[0])\n    return [[sum(image[i + a][j + b] * kernel[a][b]\n                 for a in range(kh) for b in range(kw))\n             for j in range(w - kw + 1)]\n            for i in range(h - kh + 1)]\n",
+   "setup": ""
+  },
+  {
+   "id": "s08.001",
+   "phase": "s08",
+   "topic": "Tokenization",
+   "title": "Normalize and tokenize",
+   "difficulty": 2,
+   "prompt": "Write `tokens(text)` that normalizes the text with Unicode NFKC,\nlowercases it, and returns the list of words: runs of letters, digits\nand apostrophes.",
+   "starter": "def tokens(text):\n    pass\n",
+   "tests": [
+    {
+     "name": "basic",
+     "code": "assert tokens('Hello, World!') == ['hello', 'world']"
+    },
+    {
+     "name": "apostrophes",
+     "code": "assert tokens(\"Don't stop\") == [\"don't\", 'stop']"
+    },
+    {
+     "name": "numbers",
+     "code": "assert tokens('Route 66') == ['route', '66']"
+    },
+    {
+     "name": "NFKC",
+     "code": "assert tokens('ﬁne') == ['fine']"
+    },
+    {
+     "name": "empty",
+     "code": "assert tokens('...') == []"
+    }
+   ],
+   "hints": [
+    "`unicodedata.normalize(\"NFKC\", text)` turns the ligature `ﬁ` into `fi`; then call `.lower()`.",
+    "`re.findall(r\"[^\\W_]+(?:'[^\\W_]+)*\", text)` matches letters and digits, with apostrophes inside a word."
+   ],
+   "solution": "import re\nimport unicodedata\n\n\ndef tokens(text):\n    text = unicodedata.normalize(\"NFKC\", text).lower()\n    return re.findall(r\"[^\\W_]+(?:'[^\\W_]+)*\", text)\n",
+   "setup": ""
+  },
+  {
+   "id": "s08.002",
+   "phase": "s08",
+   "topic": "Weighting",
+   "title": "TF-IDF",
+   "difficulty": 3,
+   "prompt": "`docs` is a list of documents, each a list of tokens. Write\n`tf_idf(docs)` returning one dict per document mapping each of its\nterms to `tf * idf`, where:\n\n- `tf` = the term's count in the document / the document's length\n- `idf` = `math.log(N / df)`, with `N` documents and `df` the number\n  of documents that contain the term",
+   "starter": "def tf_idf(docs):\n    pass\n",
+   "tests": [
+    {
+     "name": "a term in every document scores zero",
+     "code": "out = tf_idf([['a', 'b'], ['a']])\nassert out[0]['a'] == 0\nassert out[1]['a'] == 0"
+    },
+    {
+     "name": "rare term",
+     "code": "import math\nout = tf_idf([['a', 'b'], ['a']])\nassert round(out[0]['b'], 9) == round(0.5 * math.log(2), 9)"
+    },
+    {
+     "name": "repeats raise tf",
+     "code": "import math\nout = tf_idf([['x', 'x', 'y'], ['y']])\nassert round(out[0]['x'], 9) == round((2 / 3) * math.log(2), 9)"
+    },
+    {
+     "name": "one dict per document",
+     "code": "assert len(tf_idf([['a'], ['b'], ['c']])) == 3"
+    }
+   ],
+   "hints": [
+    "Count document frequency first: for each document, add 1 for each distinct term.",
+    "Then for each document, `Counter(doc)` gives counts; divide by `len(doc)` and multiply by the idf."
+   ],
+   "solution": "import math\nfrom collections import Counter\n\n\ndef tf_idf(docs):\n    n = len(docs)\n    df = Counter()\n    for doc in docs:\n        df.update(set(doc))\n    out = []\n    for doc in docs:\n        counts = Counter(doc)\n        out.append({term: (c / len(doc)) * math.log(n / df[term])\n                    for term, c in counts.items()})\n    return out\n",
+   "setup": ""
+  },
+  {
+   "id": "s08.003",
+   "phase": "s08",
+   "topic": "Evaluation",
+   "title": "Precision, recall and F1",
+   "difficulty": 4,
+   "prompt": "Write `scores(true, pred, label)` for two equal-length lists of labels.\nReturn `(precision, recall, f1)` for `label`. Any ratio with a zero\ndenominator is 0.0.",
+   "starter": "def scores(true, pred, label):\n    pass\n",
+   "tests": [
+    {
+     "name": "perfect",
+     "code": "assert scores(['a', 'b'], ['a', 'b'], 'a') == (1.0, 1.0, 1.0)"
+    },
+    {
+     "name": "mixed",
+     "code": "p, r, f = scores(['a', 'a', 'b', 'b'], ['a', 'b', 'a', 'a'], 'a')\nassert (round(p, 6), round(r, 6), round(f, 6)) == (0.333333, 0.5, 0.4)"
+    },
+    {
+     "name": "never predicted",
+     "code": "assert scores(['a'], ['b'], 'a') == (0.0, 0.0, 0.0)"
+    },
+    {
+     "name": "label absent",
+     "code": "assert scores(['b'], ['b'], 'a') == (0.0, 0.0, 0.0)"
+    },
+    {
+     "name": "lengths must match",
+     "code": "try:\n    result = scores(['a'], [], 'a')\nexcept ValueError:\n    pass\nelse:\n    raise AssertionError('expected ValueError, but it returned %r' % (result,))"
+    }
+   ],
+   "hints": [
+    "Count true positives, false positives and false negatives for the label.",
+    "precision = tp / (tp + fp), recall = tp / (tp + fn), f1 = 2pr / (p + r); guard each division."
+   ],
+   "solution": "def scores(true, pred, label):\n    if len(true) != len(pred):\n        raise ValueError(\"lengths differ\")\n    tp = sum(1 for t, p in zip(true, pred) if t == label and p == label)\n    fp = sum(1 for t, p in zip(true, pred) if t != label and p == label)\n    fn = sum(1 for t, p in zip(true, pred) if t == label and p != label)\n    precision = tp / (tp + fp) if tp + fp else 0.0\n    recall = tp / (tp + fn) if tp + fn else 0.0\n    f1 = (2 * precision * recall / (precision + recall)\n          if precision + recall else 0.0)\n    return precision, recall, f1\n",
+   "setup": ""
+  },
+  {
+   "id": "s09.001",
+   "phase": "s09",
+   "topic": "Test doubles",
+   "title": "A fake clock",
+   "difficulty": 2,
+   "prompt": "Code that reads the real clock is hard to test. Write a class\n`FakeClock(start=0.0)` with `now()` and `advance(seconds)`, and a\nfunction `is_expired(created, ttl, clock)` that is True once\n`clock.now()` is at least `created + ttl`.",
+   "starter": "class FakeClock:\n    pass\n\n\ndef is_expired(created, ttl, clock):\n    pass\n",
+   "tests": [
+    {
+     "name": "starts where told",
+     "code": "assert FakeClock(5).now() == 5"
+    },
+    {
+     "name": "advances",
+     "code": "c = FakeClock()\nc.advance(2.5)\nc.advance(1)\nassert c.now() == 3.5"
+    },
+    {
+     "name": "not yet expired",
+     "code": "c = FakeClock(10)\nassert not is_expired(5, 10, c)"
+    },
+    {
+     "name": "expires exactly at the ttl",
+     "code": "c = FakeClock(15)\nassert is_expired(5, 10, c)"
+    },
+    {
+     "name": "expires after advancing",
+     "code": "c = FakeClock(0)\nc.advance(60)\nassert is_expired(0, 30, c)"
+    }
+   ],
+   "hints": [
+    "The fake clock is just a number you control.",
+    "`now()` returns it; `advance` adds to it; `is_expired` compares `clock.now() >= created + ttl`."
+   ],
+   "solution": "class FakeClock:\n    def __init__(self, start=0.0):\n        self.time = start\n\n    def now(self):\n        return self.time\n\n    def advance(self, seconds):\n        self.time += seconds\n\n\ndef is_expired(created, ttl, clock):\n    return clock.now() >= created + ttl\n",
+   "setup": ""
+  },
+  {
+   "id": "s09.002",
+   "phase": "s09",
+   "topic": "Shrinking",
+   "title": "Find the smallest failing input",
+   "difficulty": 3,
+   "prompt": "Property-based testing tools shrink a failing input to the smallest one\nthat still fails. Write `shrink(items, fails)`: repeatedly try removing\none element at a time; whenever the shorter list still makes\n`fails(list)` return True, keep it and start over. Return the list when\nno single removal still fails.",
+   "starter": "def shrink(items, fails):\n    pass\n",
+   "tests": [
+    {
+     "name": "finds the culprit",
+     "code": "assert shrink([1, 2, 3, 99, 4], lambda xs: 99 in xs) == [99]"
+    },
+    {
+     "name": "pair",
+     "code": "assert shrink([5, 1, 7, 3], lambda xs: 1 in xs and 3 in xs) == [1, 3]"
+    },
+    {
+     "name": "sum threshold",
+     "code": "out = shrink([1, 2, 3, 4], lambda xs: sum(xs) > 5)\nassert sum(out) > 5\nassert [x for x in out if sum(out) - x > 5] == []"
+    },
+    {
+     "name": "already minimal",
+     "code": "assert shrink([7], lambda xs: 7 in xs) == [7]"
+    },
+    {
+     "name": "keeps order",
+     "code": "assert shrink([3, 9, 1], lambda xs: len(xs) >= 2 and xs[0] > xs[-1]) in ([3, 1], [9, 1])"
+    }
+   ],
+   "hints": [
+    "Try each index; build the list without that element and test it.",
+    "Use a `while` loop that restarts whenever a removal still fails, and stops when a full pass changes nothing."
+   ],
+   "solution": "def shrink(items, fails):\n    current = list(items)\n    changed = True\n    while changed:\n        changed = False\n        for i in range(len(current)):\n            candidate = current[:i] + current[i + 1:]\n            if fails(candidate):\n                current = candidate\n                changed = True\n                break\n    return current\n",
+   "setup": ""
+  },
+  {
+   "id": "s09.003",
+   "phase": "s09",
+   "topic": "Test runners",
+   "title": "A tiny test runner",
+   "difficulty": 4,
+   "prompt": "Write `run_tests(namespace)` where `namespace` is a dict of names to\nobjects. Run every callable whose name starts with `test_`, in sorted\nname order, and return a dict mapping each name to:\n\n- `\"pass\"` if it returns normally\n- `\"fail\"` if it raises `AssertionError`\n- `\"error\"` for any other exception",
+   "starter": "def run_tests(namespace):\n    pass\n",
+   "tests": [
+    {
+     "name": "pass and fail",
+     "code": "def test_a():\n    return None\ndef test_b():\n    assert 1 == 2\nassert run_tests({'test_a': test_a, 'test_b': test_b}) == {'test_a': 'pass', 'test_b': 'fail'}"
+    },
+    {
+     "name": "error",
+     "code": "def test_c():\n    raise KeyError('x')\nassert run_tests({'test_c': test_c}) == {'test_c': 'error'}"
+    },
+    {
+     "name": "ignores other names",
+     "code": "assert run_tests({'helper': lambda: 1, 'test_x': 5}) == {}"
+    },
+    {
+     "name": "runs in sorted order",
+     "code": "order = []\nns = {'test_b': lambda: order.append('b'), 'test_a': lambda: order.append('a')}\nrun_tests(ns)\nassert order == ['a', 'b']"
+    }
+   ],
+   "hints": [
+    "Filter the names first: `name.startswith(\"test_\") and callable(obj)`.",
+    "Wrap each call in `try`; catch `AssertionError` before `Exception`, since it is a subclass."
+   ],
+   "solution": "def run_tests(namespace):\n    results = {}\n    for name in sorted(namespace):\n        test = namespace[name]\n        if not name.startswith(\"test_\") or not callable(test):\n            continue\n        try:\n            test()\n        except AssertionError:\n            results[name] = \"fail\"\n        except Exception:\n            results[name] = \"error\"\n        else:\n            results[name] = \"pass\"\n    return results\n",
+   "setup": ""
+  },
+  {
+   "id": "s10.001",
+   "phase": "s10",
+   "topic": "Parsing output",
+   "title": "Parse interface status",
+   "difficulty": 2,
+   "prompt": "Write `parse_brief(text)` for the output of `show ip interface brief`:\n\n    Interface   IP-Address   OK? Method Status   Protocol\n    Gi0/0       10.0.0.1     YES manual up       up\n    Gi0/1       unassigned   YES unset  down     down\n\nReturn a list of dicts with keys `name`, `ip`, `status` and\n`protocol`. Skip the header line and blank lines. Status values may be\ntwo words, such as `administratively down`.",
+   "starter": "def parse_brief(text):\n    pass\n",
+   "tests": [
+    {
+     "name": "two interfaces",
+     "code": "t = 'Interface IP-Address OK? Method Status Protocol\\nGi0/0 10.0.0.1 YES manual up up\\nGi0/1 unassigned YES unset down down\\n'\nout = parse_brief(t)\nassert out[0] == {'name': 'Gi0/0', 'ip': '10.0.0.1', 'status': 'up', 'protocol': 'up'}\nassert out[1]['ip'] == 'unassigned'"
+    },
+    {
+     "name": "skips blank lines",
+     "code": "t = 'Interface IP-Address OK? Method Status Protocol\\n\\nGi0/0 1.1.1.1 YES manual up up\\n'\nassert len(parse_brief(t)) == 1"
+    },
+    {
+     "name": "two-word status",
+     "code": "t = 'Interface IP-Address OK? Method Status Protocol\\nGi0/2 unassigned YES unset administratively down down\\n'\nassert parse_brief(t)[0]['status'] == 'administratively down'"
+    },
+    {
+     "name": "header only",
+     "code": "assert parse_brief('Interface IP-Address OK? Method Status Protocol\\n') == []"
+    }
+   ],
+   "hints": [
+    "Split each line on whitespace: the first two fields and the last one are fixed.",
+    "Fields 0 and 1 are name and ip, the last is protocol, and fields 4 up to the last one form the status."
+   ],
+   "solution": "def parse_brief(text):\n    out = []\n    for line in text.splitlines():\n        parts = line.split()\n        if not parts or parts[0] == \"Interface\":\n            continue\n        out.append({\"name\": parts[0], \"ip\": parts[1],\n                    \"status\": \" \".join(parts[4:-1]),\n                    \"protocol\": parts[-1]})\n    return out\n",
+   "setup": ""
+  },
+  {
+   "id": "s10.002",
+   "phase": "s10",
+   "topic": "Templates",
+   "title": "Render a config",
+   "difficulty": 3,
+   "prompt": "Write `render(template, data)` replacing every `{{ name }}` placeholder\n(spaces inside the braces optional) with `str(data[name])`. A\nplaceholder whose name is missing from `data` raises `KeyError` naming\nit; nothing is silently left blank.",
+   "starter": "def render(template, data):\n    pass\n",
+   "tests": [
+    {
+     "name": "one value",
+     "code": "assert render('hostname {{ host }}', {'host': 'r1'}) == 'hostname r1'"
+    },
+    {
+     "name": "no spaces",
+     "code": "assert render('vlan {{id}}', {'id': 10}) == 'vlan 10'"
+    },
+    {
+     "name": "several",
+     "code": "assert render('{{a}}-{{ b }}-{{a}}', {'a': 1, 'b': 2}) == '1-2-1'"
+    },
+    {
+     "name": "missing value",
+     "code": "try:\n    render('ip {{ ip }}', {})\nexcept KeyError as e:\n    assert 'ip' in str(e)\nelse:\n    raise AssertionError('expected KeyError, but it rendered the template')"
+    }
+   ],
+   "hints": [
+    "A regular expression finds the placeholders: `\\{\\{\\s*(\\w+)\\s*\\}\\}`.",
+    "`re.sub` accepts a function; look the name up in `data` inside it, and a missing key raises `KeyError` by itself."
+   ],
+   "solution": "import re\n\n\ndef render(template, data):\n    return re.sub(r\"\\{\\{\\s*(\\w+)\\s*\\}\\}\",\n                  lambda m: str(data[m.group(1)]), template)\n",
+   "setup": ""
+  },
+  {
+   "id": "s10.003",
+   "phase": "s10",
+   "topic": "Change control",
+   "title": "Diff a configuration",
+   "difficulty": 4,
+   "prompt": "Write `config_diff(running, intended)` for two configurations given as\ntext. Ignore blank lines and comment lines starting with `!`. Return a\nlist of strings:\n\n- `\"- line\"` for each line in running but not in intended, in running\n  order\n- then `\"+ line\"` for each line in intended but not in running, in\n  intended order\n\nCompare lines after stripping surrounding whitespace.",
+   "starter": "def config_diff(running, intended):\n    pass\n",
+   "tests": [
+    {
+     "name": "no change",
+     "code": "assert config_diff('a\\nb\\n', 'a\\nb\\n') == []"
+    },
+    {
+     "name": "add and remove",
+     "code": "assert config_diff('a\\nb\\n', 'a\\nc\\n') == ['- b', '+ c']"
+    },
+    {
+     "name": "ignores comments and blanks",
+     "code": "assert config_diff('! note\\na\\n\\n', 'a\\n') == []"
+    },
+    {
+     "name": "strips whitespace",
+     "code": "assert config_diff(' a \\n', 'a') == []"
+    },
+    {
+     "name": "keeps order",
+     "code": "assert config_diff('x\\ny\\n', 'z\\nw\\n') == ['- x', '- y', '+ z', '+ w']"
+    }
+   ],
+   "hints": [
+    "Clean both texts into lists of stripped lines, dropping blanks and `!` comments.",
+    "Build a set of each for membership, but loop over the lists to keep the order."
+   ],
+   "solution": "def _lines(text):\n    out = []\n    for line in text.splitlines():\n        line = line.strip()\n        if line and not line.startswith(\"!\"):\n            out.append(line)\n    return out\n\n\ndef config_diff(running, intended):\n    run, want = _lines(running), _lines(intended)\n    run_set, want_set = set(run), set(want)\n    removed = [\"- \" + line for line in run if line not in want_set]\n    added = [\"+ \" + line for line in want if line not in run_set]\n    return removed + added\n",
+   "setup": ""
+  },
+  {
+   "id": "s11.001",
+   "phase": "s11",
+   "topic": "GPIO",
+   "title": "Debounce a button",
+   "difficulty": 2,
+   "prompt": "A mechanical button bounces between 0 and 1 for a few milliseconds.\nWrite `debounce(samples, stable)`: `samples` is one reading per\nmillisecond. The output state starts at `samples[0]` and changes only\nafter `stable` identical readings in a row that differ from it. Return\nthe list of output states, one per sample.",
+   "starter": "def debounce(samples, stable):\n    pass\n",
+   "tests": [
+    {
+     "name": "clean press",
+     "code": "assert debounce([0, 1, 1, 1], 3) == [0, 0, 0, 1]"
+    },
+    {
+     "name": "bounce is ignored",
+     "code": "assert debounce([0, 1, 0, 1, 0, 0], 2) == [0, 0, 0, 0, 0, 0]"
+    },
+    {
+     "name": "press and release",
+     "code": "assert debounce([0, 1, 1, 0, 0], 2) == [0, 0, 1, 1, 0]"
+    },
+    {
+     "name": "stable of one",
+     "code": "assert debounce([0, 1, 0], 1) == [0, 1, 0]"
+    }
+   ],
+   "hints": [
+    "Keep the current output state and a count of consecutive readings that differ from it.",
+    "When a reading equals the state, reset the count; when the count reaches `stable`, switch state and reset."
+   ],
+   "solution": "def debounce(samples, stable):\n    state = samples[0]\n    run = 0\n    out = []\n    for sample in samples:\n        if sample == state:\n            run = 0\n        else:\n            run += 1\n            if run >= stable:\n                state = sample\n                run = 0\n        out.append(state)\n    return out\n",
+   "setup": ""
+  },
+  {
+   "id": "s11.002",
+   "phase": "s11",
+   "topic": "Sensor data",
+   "title": "Decode a temperature reading",
+   "difficulty": 3,
+   "prompt": "A temperature sensor returns two bytes over I2C. The temperature is\nthe top 12 bits of `(msb << 8) | lsb`, as a two's complement number,\nin steps of 0.0625 degrees C.\n\nWrite `temperature(msb, lsb)` returning degrees C as a float.\n`temperature(0x19, 0x00)` is 25.0 and `temperature(0xFF, 0xF0)` is\n-0.0625.",
+   "starter": "def temperature(msb, lsb):\n    pass\n",
+   "tests": [
+    {
+     "name": "25 degrees",
+     "code": "assert temperature(0x19, 0x00) == 25.0"
+    },
+    {
+     "name": "zero",
+     "code": "assert temperature(0x00, 0x00) == 0.0"
+    },
+    {
+     "name": "just below zero",
+     "code": "assert temperature(0xFF, 0xF0) == -0.0625"
+    },
+    {
+     "name": "minus one",
+     "code": "assert temperature(0xFF, 0x00) == -1.0"
+    },
+    {
+     "name": "fraction",
+     "code": "assert temperature(0x19, 0x10) == 25.0625"
+    }
+   ],
+   "hints": [
+    "Combine the bytes, then shift right by 4 to keep the top 12 bits.",
+    "If bit 11 is set (`raw & 0x800`), subtract `0x1000` to get the negative value; then multiply by 0.0625."
+   ],
+   "solution": "def temperature(msb, lsb):\n    raw = ((msb << 8) | lsb) >> 4\n    if raw & 0x800:\n        raw -= 0x1000\n    return raw * 0.0625\n",
+   "setup": ""
+  },
+  {
+   "id": "s11.003",
+   "phase": "s11",
+   "topic": "Connectivity",
+   "title": "Buffer readings while offline",
+   "difficulty": 4,
+   "prompt": "Write a class `Outbox(capacity)`:\n\n- `add(reading)` stores a reading; when full, the oldest is dropped and\n  `dropped` goes up by one\n- `flush(send)` calls `send(reading)` for each stored reading, oldest\n  first, removing it when `send` returns True and stopping at the first\n  False; it returns the number sent\n- `len(outbox)` is the number still stored",
+   "starter": "class Outbox:\n    def __init__(self, capacity):\n        pass\n",
+   "tests": [
+    {
+     "name": "sends in order",
+     "code": "o = Outbox(3)\nfor r in [1, 2]:\n    o.add(r)\nsent = []\ndef send(r):\n    sent.append(r)\n    return True\nassert o.flush(send) == 2\nassert sent == [1, 2]\nassert len(o) == 0"
+    },
+    {
+     "name": "drops the oldest",
+     "code": "o = Outbox(2)\nfor r in [1, 2, 3]:\n    o.add(r)\nsent = []\ndef send(r):\n    sent.append(r)\n    return True\no.flush(send)\nassert sent == [2, 3]\nassert o.dropped == 1"
+    },
+    {
+     "name": "stops at a failure",
+     "code": "o = Outbox(5)\nfor r in [1, 2, 3]:\n    o.add(r)\nassert o.flush(lambda r: r < 2) == 1\nassert len(o) == 2"
+    },
+    {
+     "name": "keeps unsent for later",
+     "code": "o = Outbox(5)\no.add('a')\no.flush(lambda r: False)\nassert o.flush(lambda r: True) == 1"
+    }
+   ],
+   "hints": [
+    "`collections.deque` with `maxlen` drops from the far end when full, but you must count drops yourself.",
+    "Before appending, if `len(self.items) == capacity`, increment `dropped`. In `flush`, send `items[0]` and `popleft()` only on success."
+   ],
+   "solution": "from collections import deque\n\n\nclass Outbox:\n    def __init__(self, capacity):\n        self.items = deque(maxlen=capacity)\n        self.capacity = capacity\n        self.dropped = 0\n\n    def add(self, reading):\n        if len(self.items) == self.capacity:\n            self.dropped += 1\n        self.items.append(reading)\n\n    def flush(self, send):\n        sent = 0\n        while self.items:\n            if not send(self.items[0]):\n                break\n            self.items.popleft()\n            sent += 1\n        return sent\n\n    def __len__(self):\n        return len(self.items)\n",
+   "setup": ""
+  },
+  {
+   "id": "s12.001",
+   "phase": "s12",
+   "topic": "Secrets scanning",
+   "title": "Find leaked secrets",
+   "difficulty": 2,
+   "prompt": "Write `find_secrets(text)` returning a list of `(line_number, kind)`\ntuples, line numbers starting at 1:\n\n- `\"aws-key\"` for `AKIA` followed by 16 upper-case letters or digits\n- `\"private-key\"` for a line containing `-----BEGIN` and\n  `PRIVATE KEY-----`",
+   "starter": "def find_secrets(text):\n    pass\n",
+   "tests": [
+    {
+     "name": "aws key",
+     "code": "assert find_secrets('x = \"AKIAABCDEFGHIJKLMNOP\"') == [(1, 'aws-key')]"
+    },
+    {
+     "name": "private key",
+     "code": "assert find_secrets('a\\n-----BEGIN RSA PRIVATE KEY-----\\n') == [(2, 'private-key')]"
+    },
+    {
+     "name": "too short",
+     "code": "assert find_secrets('AKIA123') == []"
+    },
+    {
+     "name": "clean text",
+     "code": "assert find_secrets('nothing here\\n') == []"
+    },
+    {
+     "name": "both",
+     "code": "t = 'AKIAZZZZZZZZZZZZZZZZ\\n-----BEGIN OPENSSH PRIVATE KEY-----'\nassert find_secrets(t) == [(1, 'aws-key'), (2, 'private-key')]"
+    }
+   ],
+   "hints": [
+    "Loop over `enumerate(text.splitlines(), start=1)` and test each line.",
+    "`re.search(r\"AKIA[0-9A-Z]{16}\", line)` finds the key; the private key check is two substring tests."
+   ],
+   "solution": "import re\n\n\ndef find_secrets(text):\n    found = []\n    for number, line in enumerate(text.splitlines(), start=1):\n        if re.search(r\"AKIA[0-9A-Z]{16}\", line):\n            found.append((number, \"aws-key\"))\n        if \"-----BEGIN\" in line and \"PRIVATE KEY-----\" in line:\n            found.append((number, \"private-key\"))\n    return found\n",
+   "setup": ""
+  },
+  {
+   "id": "s12.002",
+   "phase": "s12",
+   "topic": "Message authentication",
+   "title": "Sign and verify messages",
+   "difficulty": 3,
+   "prompt": "Write:\n\n- `sign(secret, message)`: the HMAC-SHA256 of `message` with key\n  `secret` (both `bytes`), as a hex string\n- `verify(secret, message, signature)`: True when `signature` matches,\n  compared in constant time",
+   "starter": "def sign(secret, message):\n    pass\n\n\ndef verify(secret, message, signature):\n    pass\n",
+   "tests": [
+    {
+     "name": "known value",
+     "code": "assert sign(b'key', b'msg') == '2d93cbc1be167bcb1637a4a23cbff01a7878f0c50ee833954ea5221bb1b8c628'"
+    },
+    {
+     "name": "verifies",
+     "code": "assert verify(b'k', b'hello', sign(b'k', b'hello'))"
+    },
+    {
+     "name": "wrong message",
+     "code": "assert not verify(b'k', b'hello!', sign(b'k', b'hello'))"
+    },
+    {
+     "name": "wrong key",
+     "code": "assert not verify(b'x', b'hello', sign(b'k', b'hello'))"
+    },
+    {
+     "name": "constant time",
+     "code": "import ast, inspect\ntree = ast.parse(inspect.getsource(verify))\nnames = [n.attr for n in ast.walk(tree) if isinstance(n, ast.Attribute)]\nassert 'compare_digest' in names"
+    }
+   ],
+   "hints": [
+    "`hmac.new(secret, message, hashlib.sha256).hexdigest()` computes the signature.",
+    "Compare with `hmac.compare_digest(a, b)`, never `==`, so timing does not leak how many characters matched."
+   ],
+   "solution": "import hashlib\nimport hmac\n\n\ndef sign(secret, message):\n    return hmac.new(secret, message, hashlib.sha256).hexdigest()\n\n\ndef verify(secret, message, signature):\n    return hmac.compare_digest(sign(secret, message), signature)\n",
+   "setup": ""
+  },
+  {
+   "id": "s12.003",
+   "phase": "s12",
+   "topic": "Detection",
+   "title": "Detect brute-force logins",
+   "difficulty": 4,
+   "prompt": "`events` is a list of `(timestamp, ip, ok)` tuples in time order.\nWrite `detect(events, limit, window)` returning the set of IPs with\nmore than `limit` failed logins within any period of `window` seconds\n(inclusive of both ends).",
+   "starter": "def detect(events, limit, window):\n    pass\n",
+   "tests": [
+    {
+     "name": "burst",
+     "code": "ev = [(t, '1.1.1.1', False) for t in range(4)]\nassert detect(ev, 3, 10) == {'1.1.1.1'}"
+    },
+    {
+     "name": "spread out",
+     "code": "ev = [(t * 100, '1.1.1.1', False) for t in range(10)]\nassert detect(ev, 3, 10) == set()"
+    },
+    {
+     "name": "successes do not count",
+     "code": "ev = [(t, '2.2.2.2', True) for t in range(10)]\nassert detect(ev, 3, 10) == set()"
+    },
+    {
+     "name": "per ip",
+     "code": "ev = [(0, 'a', False), (1, 'b', False), (2, 'a', False), (3, 'a', False)]\nassert detect(ev, 2, 5) == {'a'}"
+    },
+    {
+     "name": "window edge is inclusive",
+     "code": "ev = [(0, 'a', False), (10, 'a', False), (20, 'a', False)]\nassert detect(ev, 1, 10) == {'a'}"
+    }
+   ],
+   "hints": [
+    "Keep, for each IP, a deque of its recent failure times.",
+    "On each failure, append the time and pop from the left while the oldest is more than `window` seconds older; flag the IP when the deque is longer than `limit`."
+   ],
+   "solution": "from collections import defaultdict, deque\n\n\ndef detect(events, limit, window):\n    recent = defaultdict(deque)\n    flagged = set()\n    for timestamp, ip, ok in events:\n        if ok:\n            continue\n        times = recent[ip]\n        times.append(timestamp)\n        while timestamp - times[0] > window:\n            times.popleft()\n        if len(times) > limit:\n            flagged.add(ip)\n    return flagged\n",
+   "setup": ""
+  },
+  {
+   "id": "s13.001",
+   "phase": "s13",
+   "topic": "Commands",
+   "title": "Parse a chat command",
+   "difficulty": 2,
+   "prompt": "Write `parse_command(text, prefix=\"!\")`. If `text` starts with the\nprefix, return `(name, args)`: the command name in lower case and the\nlist of arguments, where quoted arguments may contain spaces. Otherwise\nreturn `None`. A prefix with no name after it is also `None`.",
+   "starter": "def parse_command(text, prefix=\"!\"):\n    pass\n",
+   "tests": [
+    {
+     "name": "simple",
+     "code": "assert parse_command('!ping') == ('ping', [])"
+    },
+    {
+     "name": "arguments",
+     "code": "assert parse_command('!Remind me 5') == ('remind', ['me', '5'])"
+    },
+    {
+     "name": "quotes",
+     "code": "assert parse_command('!say \"hello there\" now') == ('say', ['hello there', 'now'])"
+    },
+    {
+     "name": "not a command",
+     "code": "assert parse_command('hello') is None"
+    },
+    {
+     "name": "bare prefix",
+     "code": "assert parse_command('!') is None"
+    }
+   ],
+   "hints": [
+    "Check `text.startswith(prefix)` and strip the prefix.",
+    "`shlex.split` handles the quoted arguments; the first item is the name."
+   ],
+   "solution": "import shlex\n\n\ndef parse_command(text, prefix=\"!\"):\n    if not text.startswith(prefix):\n        return None\n    parts = shlex.split(text[len(prefix):])\n    if not parts:\n        return None\n    return parts[0].lower(), parts[1:]\n",
+   "setup": ""
+  },
+  {
+   "id": "s13.002",
+   "phase": "s13",
+   "topic": "Webhooks",
+   "title": "Verify a webhook",
+   "difficulty": 3,
+   "prompt": "A platform sends a header `t=<timestamp>,v1=<signature>` where the\nsignature is the hex HMAC-SHA256 of `\"<timestamp>.<body>\"` with your\nsecret. Write `verify_webhook(secret, body, header, now, max_age=300)`\nreturning True only if the signature matches (constant-time compare)\nand the timestamp is no more than `max_age` seconds old. `secret` is\nbytes, `body` and `header` are strings, `now` is a number.",
+   "starter": "def verify_webhook(secret, body, header, now, max_age=300):\n    pass\n",
+   "tests": [
+    {
+     "name": "valid",
+     "code": "import hmac, hashlib\nsig = hmac.new(b's', b'100.{}', hashlib.sha256).hexdigest()\nassert verify_webhook(b's', '{}', 't=100,v1=' + sig, 150)"
+    },
+    {
+     "name": "tampered body",
+     "code": "import hmac, hashlib\nsig = hmac.new(b's', b'100.{}', hashlib.sha256).hexdigest()\nassert not verify_webhook(b's', '{\"x\":1}', 't=100,v1=' + sig, 150)"
+    },
+    {
+     "name": "too old",
+     "code": "import hmac, hashlib\nsig = hmac.new(b's', b'100.{}', hashlib.sha256).hexdigest()\nassert not verify_webhook(b's', '{}', 't=100,v1=' + sig, 1000)"
+    },
+    {
+     "name": "malformed header",
+     "code": "assert not verify_webhook(b's', '{}', 'garbage', 100)"
+    },
+    {
+     "name": "wrong secret",
+     "code": "import hmac, hashlib\nsig = hmac.new(b's', b'100.{}', hashlib.sha256).hexdigest()\nassert not verify_webhook(b'other', '{}', 't=100,v1=' + sig, 150)"
+    }
+   ],
+   "hints": [
+    "Split the header on commas and then on `=` to get `t` and `v1`; return False if either is missing.",
+    "Recompute the HMAC over `f\"{t}.{body}\".encode()` and compare with `hmac.compare_digest`; also check `now - int(t) <= max_age`."
+   ],
+   "solution": "import hashlib\nimport hmac\n\n\ndef verify_webhook(secret, body, header, now, max_age=300):\n    fields = {}\n    for part in header.split(\",\"):\n        key, _, value = part.partition(\"=\")\n        fields[key.strip()] = value.strip()\n    if \"t\" not in fields or \"v1\" not in fields:\n        return False\n    try:\n        stamp = int(fields[\"t\"])\n    except ValueError:\n        return False\n    if now - stamp > max_age:\n        return False\n    expected = hmac.new(secret, (\"%s.%s\" % (fields[\"t\"], body)).encode(),\n                        hashlib.sha256).hexdigest()\n    return hmac.compare_digest(expected, fields[\"v1\"])\n",
+   "setup": ""
+  },
+  {
+   "id": "s13.003",
+   "phase": "s13",
+   "topic": "Rate limits",
+   "title": "Respect rate limits",
+   "difficulty": 4,
+   "prompt": "Write `send_all(messages, send, sleep)`. For each message, call\n`send(message)`, which returns `(status, retry_after)`:\n\n- status 200: sent; go to the next message\n- status 429: call `sleep(retry_after)` and send the same message again\n- after 3 attempts on one message without a 200, raise `RuntimeError`\n\nAny other status raises `RuntimeError` at once. Return the number of\nmessages sent.",
+   "starter": "def send_all(messages, send, sleep):\n    pass\n",
+   "tests": [
+    {
+     "name": "all sent",
+     "code": "assert send_all(['a', 'b'], lambda m: (200, 0), lambda s: None) == 2"
+    },
+    {
+     "name": "waits and retries",
+     "code": "calls = []\nstate = {'n': 0}\ndef send(m):\n    state['n'] += 1\n    return (429, 2) if state['n'] == 1 else (200, 0)\nassert send_all(['a'], send, calls.append) == 1\nassert calls == [2]"
+    },
+    {
+     "name": "gives up after three attempts",
+     "code": "try:\n    send_all(['a'], lambda m: (429, 1), lambda s: None)\nexcept RuntimeError:\n    pass\nelse:\n    raise AssertionError('expected RuntimeError, but it returned normally')"
+    },
+    {
+     "name": "other errors stop at once",
+     "code": "tries = []\ntry:\n    send_all(['a'], lambda m: tries.append(1) or (500, 0), lambda s: None)\nexcept RuntimeError:\n    pass\nassert tries == [1]"
+    },
+    {
+     "name": "no messages",
+     "code": "assert send_all([], lambda m: (200, 0), lambda s: None) == 0"
+    }
+   ],
+   "hints": [
+    "Use an inner loop over attempts for each message.",
+    "`for attempt in range(3)`: on 200 break; on 429 sleep; otherwise raise. An `else` on the `for` runs when it never broke, which is where to raise."
+   ],
+   "solution": "def send_all(messages, send, sleep):\n    sent = 0\n    for message in messages:\n        for _attempt in range(3):\n            status, retry_after = send(message)\n            if status == 200:\n                sent += 1\n                break\n            if status != 429:\n                raise RuntimeError(\"send failed with %s\" % status)\n            sleep(retry_after)\n        else:\n            raise RuntimeError(\"still rate-limited after 3 attempts\")\n    return sent\n",
+   "setup": ""
+  },
+  {
+   "id": "s14.001",
+   "phase": "s14",
+   "topic": "Units",
+   "title": "Wei, gwei and ether",
+   "difficulty": 2,
+   "prompt": "Write `to_wei(amount, unit)` where `amount` is a string such as\n`\"1.5\"` and `unit` is `\"ether\"` (10**18 wei), `\"gwei\"` (10**9 wei) or\n`\"wei\"`. Return an exact `int`. Use `decimal.Decimal`, never float.\nRaise `ValueError` if the result is not a whole number of wei, or the\nunit is unknown.",
+   "starter": "def to_wei(amount, unit):\n    pass\n",
+   "tests": [
+    {
+     "name": "one ether",
+     "code": "assert to_wei('1', 'ether') == 10 ** 18"
+    },
+    {
+     "name": "fraction of ether",
+     "code": "assert to_wei('1.5', 'ether') == 1_500_000_000_000_000_000"
+    },
+    {
+     "name": "gwei",
+     "code": "assert to_wei('30', 'gwei') == 30_000_000_000"
+    },
+    {
+     "name": "exact",
+     "code": "assert to_wei('0.1', 'ether') == 100_000_000_000_000_000"
+    },
+    {
+     "name": "fractional wei",
+     "code": "try:\n    result = to_wei('0.5', 'wei')\nexcept ValueError:\n    pass\nelse:\n    raise AssertionError('expected ValueError, but it returned %r' % (result,))"
+    },
+    {
+     "name": "unknown unit",
+     "code": "try:\n    result = to_wei('1', 'bitcoin')\nexcept ValueError:\n    pass\nelse:\n    raise AssertionError('expected ValueError, but it returned %r' % (result,))"
+    }
+   ],
+   "hints": [
+    "Map each unit to its multiplier, then multiply `Decimal(amount)` by it.",
+    "Check `value == value.to_integral_value()` before returning `int(value)`."
+   ],
+   "solution": "from decimal import Decimal\n\nUNITS = {\"ether\": 10 ** 18, \"gwei\": 10 ** 9, \"wei\": 1}\n\n\ndef to_wei(amount, unit):\n    if unit not in UNITS:\n        raise ValueError(\"unknown unit %s\" % unit)\n    value = Decimal(amount) * UNITS[unit]\n    if value != value.to_integral_value():\n        raise ValueError(\"not a whole number of wei\")\n    return int(value)\n",
+   "setup": ""
+  },
+  {
+   "id": "s14.002",
+   "phase": "s14",
+   "topic": "Gas",
+   "title": "Transaction fee",
+   "difficulty": 3,
+   "prompt": "Under EIP-1559 a transaction pays, per unit of gas, the smaller of\n`max_fee` and `base_fee + priority_fee`. Write\n`fee_wei(gas_used, base_fee, priority_fee, max_fee)` returning the\ntotal fee in wei. Raise `ValueError` if `max_fee` is below `base_fee`,\nsince such a transaction cannot be included.",
+   "starter": "def fee_wei(gas_used, base_fee, priority_fee, max_fee):\n    pass\n",
+   "tests": [
+    {
+     "name": "tip fits",
+     "code": "assert fee_wei(21000, 30, 2, 50) == 21000 * 32"
+    },
+    {
+     "name": "capped by max fee",
+     "code": "assert fee_wei(21000, 30, 25, 40) == 21000 * 40"
+    },
+    {
+     "name": "no tip",
+     "code": "assert fee_wei(100, 10, 0, 10) == 1000"
+    },
+    {
+     "name": "cannot be included",
+     "code": "try:\n    result = fee_wei(21000, 30, 2, 20)\nexcept ValueError:\n    pass\nelse:\n    raise AssertionError('expected ValueError, but it returned %r' % (result,))"
+    }
+   ],
+   "hints": [
+    "The price per gas is `min(max_fee, base_fee + priority_fee)`.",
+    "Check `max_fee < base_fee` first and raise; otherwise multiply the price by `gas_used`."
+   ],
+   "solution": "def fee_wei(gas_used, base_fee, priority_fee, max_fee):\n    if max_fee < base_fee:\n        raise ValueError(\"max fee is below the base fee\")\n    return gas_used * min(max_fee, base_fee + priority_fee)\n",
+   "setup": ""
+  },
+  {
+   "id": "s14.003",
+   "phase": "s14",
+   "topic": "Indexing",
+   "title": "Handle a chain reorganization",
+   "difficulty": 4,
+   "prompt": "Write a class `Indexer` that stores blocks and their events.\n`apply(block)` takes a dict with `number`, `hash`, `parent` and\n`events` (a list):\n\n- If `number` is at or below the current head, a reorganization has\n  happened: drop the stored blocks from `number` upward first.\n- The block's `parent` must equal the stored hash of block\n  `number - 1` (block 0 has no parent check); otherwise raise\n  `ValueError`.\n- `head` is the highest stored block number, or `-1` when empty.\n- `events()` returns every stored event in block order.",
+   "starter": "class Indexer:\n    pass\n",
+   "tests": [
+    {
+     "name": "appends",
+     "code": "ix = Indexer()\nix.apply({'number': 0, 'hash': 'a', 'parent': None, 'events': [1]})\nix.apply({'number': 1, 'hash': 'b', 'parent': 'a', 'events': [2]})\nassert ix.head == 1\nassert ix.events() == [1, 2]"
+    },
+    {
+     "name": "rejects a gap",
+     "code": "ix = Indexer()\nix.apply({'number': 0, 'hash': 'a', 'parent': None, 'events': []})\ntry:\n    ix.apply({'number': 1, 'hash': 'b', 'parent': 'zzz', 'events': []})\nexcept ValueError:\n    pass\nelse:\n    raise AssertionError('expected ValueError, but it accepted the wrong parent')"
+    },
+    {
+     "name": "reorg replaces blocks",
+     "code": "ix = Indexer()\nix.apply({'number': 0, 'hash': 'a', 'parent': None, 'events': ['x']})\nix.apply({'number': 1, 'hash': 'b', 'parent': 'a', 'events': ['old']})\nix.apply({'number': 2, 'hash': 'c', 'parent': 'b', 'events': ['old2']})\nix.apply({'number': 1, 'hash': 'b2', 'parent': 'a', 'events': ['new']})\nassert ix.head == 1\nassert ix.events() == ['x', 'new']"
+    },
+    {
+     "name": "empty head",
+     "code": "assert Indexer().head == -1\nassert Indexer().events() == []"
+    }
+   ],
+   "hints": [
+    "Store blocks in a dict keyed by number, and compute `head` from its keys.",
+    "In `apply`, delete every stored number `>= block[\"number\"]` first, then check the parent against `blocks[number - 1][\"hash\"]`."
+   ],
+   "solution": "class Indexer:\n    def __init__(self):\n        self.blocks = {}\n\n    @property\n    def head(self):\n        return max(self.blocks) if self.blocks else -1\n\n    def apply(self, block):\n        number = block[\"number\"]\n        for n in [n for n in self.blocks if n >= number]:\n            del self.blocks[n]\n        if number > 0:\n            previous = self.blocks.get(number - 1)\n            if previous is None or previous[\"hash\"] != block[\"parent\"]:\n                raise ValueError(\"parent does not match block %d\" % (number - 1))\n        self.blocks[number] = block\n\n    def events(self):\n        out = []\n        for n in sorted(self.blocks):\n            out.extend(self.blocks[n][\"events\"])\n        return out\n",
+   "setup": ""
   }
  ]
 }

@@ -1,10 +1,12 @@
 # Operator's Console
 
-A desktop app for learning Python, from first program to production
-engineering. It combines a curriculum with progress tracking, exercises graded
-by running your code, timed quizzes, projects with acceptance criteria, and a
-spaced-repetition review deck. It runs offline; your progress is a local SQLite
-file.
+A desktop app for learning Python, from first program to senior-level
+engineering, on the pathway you choose: web, data, AI, games, desktop apps,
+science, finance, security, DevOps, embedded, and more. It combines a
+curriculum that reorders itself around your goals, exercises graded by running
+your code, timed quizzes, projects with acceptance criteria, a
+spaced-repetition review deck, and a career ladder that shows your level. It
+runs offline; each user's progress is a local SQLite file.
 
 ![Today, in the light theme](docs/screenshots/today-light.png)
 
@@ -12,15 +14,60 @@ file.
 
 | | |
 |---|---|
-| **21 phases** | From Git setup to systems internals, in teaching order |
-| **536 tracked steps** | 435 study steps plus 101 gate checks. Each study phase ends with a gate. Your track decides which phases apply |
-| **119 graded exercises** | 626 individual checks. Your code runs in a separate process; each failed check reports the value returned, the value expected, and where they differ |
-| **242 quiz questions** | In 20 quizzes. Timed per question, reshuffled per attempt, each linked to the checklist line that teaches it. Wrong answers are scheduled for review with FSRS-6 |
-| **22 projects** | 130 requirements between them, plus stretch goals and a rubric |
-| **9 tracks** | Well-rounded engineer, Python only, backend, data, AI, automation, DevOps, security, or job-ready by the fastest route |
+| **35 phases** | 21 core phases from Git setup to systems internals, and 14 specializations, one per career pathway |
+| **790 tracked steps** | 633 study steps plus 157 gate checks. Each study phase ends with a gate. Your track and goals decide which phases apply |
+| **161 graded exercises** | 821 individual checks. Your code runs in a separate process; each failed check reports the value returned, the value expected, and where they differ |
+| **354 quiz questions** | In 34 quizzes. Timed per question, reshuffled per attempt, each linked to the checklist line that teaches it. Wrong answers are scheduled for review with FSRS-6 |
+| **36 projects** | 209 requirements between them, plus stretch goals and a rubric |
+| **16 tracks** | Well-rounded engineer, Python only, backend, data, AI, automation, DevOps, security, job-ready by the fastest route, desktop apps and tools, games, scientific computing, quantitative finance, test automation, network automation, and embedded |
 | **30 fields, 24 certificates, 7 shelves** | A reading list with a one-line note per entry |
 
+## Pathways
+
+At setup you pick your experience and any of 21 goals. Every goal maps to
+phases that teach it:
+
+| Goal | Adds |
+|---|---|
+| Websites and APIs | SQL, backend engineering |
+| Data analysis and engineering | Data analysis & visualization, SQL, data engineering |
+| Machine learning and AI | AI engineering |
+| Computer vision / Language and text (NLP) | Computer vision / NLP, after AI engineering |
+| Automation and scraping / Bots and integrations | Automation & web / Bots & integrations |
+| Desktop and mobile apps / Command-line tools | Desktop & mobile apps / Command-line tools |
+| Games, graphics and media | Games, graphics & media |
+| Science and optimization / Finance and trading | Scientific computing / Quantitative finance |
+| Infrastructure and deployment / Network automation | Linux, Docker and CI/CD / Network automation |
+| Security / Testing and QA | Application security, security engineering / Testing & quality engineering |
+| Hardware, IoT and robotics / Blockchain | Embedded & IoT / Blockchain tooling |
+| Pass a technical interview / How computers work / Compilers and language tools | Algorithms / CS core, internals / internals and the final-boss ladder |
+
+The app suggests the track that best fits your goals. The roadmap orders the
+track's core phases and your goal phases by their real prerequisites: a
+specialization appears as soon as you are ready for it, and anything it needs
+is added before it. Every track ends with the senior-level phases:
+architecture, beyond senior, and the final-boss ladder.
+
 ## Features
+
+**Career ladder.** Starting out, Beginner, Junior, Mid-level, Senior, Senior+.
+Each level is reached by proving phases of your plan (gate, quiz, exercises,
+project), not by ticking lines. Today shows your level, a bar to the next one
+and the phases that get you there; Progress shows the whole ladder; reaching a
+level is announced.
+
+**Profiles.** Several people can use the app on one computer. Each profile has
+its own progress, settings, review deck and snapshots. Create, switch, rename
+or remove profiles from **File → Switch profile** or **Settings → Profiles**.
+Switching reopens the app on the other profile. Removing moves the profile's
+folder to `removed-profiles/`; nothing is deleted.
+
+**Report or request.** **Settings → Report or request** and **Help → Report a
+problem or request a feature** open a form for bugs, feature requests and
+course mistakes. It opens GitHub's new-issue page with your text filled in;
+you submit it from your account, or copy the text instead. The app sends
+nothing itself, and system details (version, operating system) are included
+only if you leave that box ticked.
 
 **Today.** The next actions: due reviews, the next exercise, gate checks left,
 weak quizzes, and older phases to revisit.
@@ -185,9 +232,13 @@ curl -fsSL https://raw.githubusercontent.com/Luneswan/operators-console/main/ins
 
 Contents:
 
-* `progress.db`: all progress, as SQLite
-* `backups/`: rotated snapshots
+* `progress.db`: the main profile's progress, as SQLite
+* `backups/`: the main profile's rotated snapshots
 * `workspace/`: scratch directory for the exercise runner
+* `profiles/<name>/`: each other profile, with its own `progress.db`,
+  `backups/` and `workspace/`
+* `profiles.json`: the list of profiles and which one is open
+* `removed-profiles/`: profiles you removed, kept for manual recovery
 * `updates/`: downloads during an update; emptied afterwards
 
 Set `OPERATORS_CONSOLE_HOME` to use another folder. **Settings → Export
@@ -269,6 +320,8 @@ src/operators_console/
     progress.py      reading progress and phase proof
     adaptive.py      track and goals to an ordered roadmap
     today.py         the daily action list
+    profiles.py      several users, each with their own data folder
+    feedback.py      the text and link for a GitHub issue
     review.py        review deck contents and scheduling
     quiz_session.py  quiz timers, layouts and the study plan
     runner.py        grades a submission in a child process
@@ -281,7 +334,8 @@ src/operators_console/
     updates.py       release lookup, verification and installation
   data/          curriculum.json, exercises.json, projects.json, tracks.json
   ui/            Qt: main window, pages (views/), widgets, theme,
-                 focus rings, shortcuts, snapshots dialog, updater
+                 focus rings, shortcuts, snapshots dialog, updater,
+                 report form (feedback.py), career ladder (widgets/career.py)
 tests/           unit and integration tests; tests/walkthrough/ drives the UI
 build_tools/     generates the content bundles
 packaging/       icons, PyInstaller spec, installers, release check
@@ -305,12 +359,13 @@ python verify_exercises.py           # every solution passes; no starter passes
 
 | Source | Contents |
 |---|---|
-| `raw_curriculum.json` | phases, checklists, gates, quizzes, library |
+| `raw_curriculum.json` | core phases, checklists, gates, quizzes, library |
+| `specializations.json`, `spec_quizzes.json` | the 14 specialization phases and their quizzes |
 | `resource_picks.json` | the recommended resource in each optional group |
 | `quiz_teaches.json` | the checklist line each quiz question tests |
-| `ex_*.py` | exercises: prompt, starter, checks, hints, solution |
+| `ex_*.py` | exercises: prompt, starter, checks, hints, solution (`ex_spec.py` for specializations) |
 | `hint_rewrites.json`, `prompt_edits.json` | wording overrides for exercises |
-| `proj_*.py`, `project_edits.json` | projects and wording overrides |
+| `proj_*.py`, `project_edits.json` | projects (`proj_d.py` for specializations) and wording overrides |
 
 Quiz question ids are positional, and review history is keyed on them: append
 new questions, do not reorder or delete them.

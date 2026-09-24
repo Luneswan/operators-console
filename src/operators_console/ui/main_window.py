@@ -383,6 +383,9 @@ class MainWindow(QMainWindow):
         menu = self.menuBar()
 
         app_menu = menu.addMenu("&File")
+        self.profile_menu = app_menu.addMenu("Switch profile")
+        self.profile_menu.aboutToShow.connect(self._fill_profile_menu)
+        app_menu.addSeparator()
         for text, handler, shortcut in (
                 ("Export backup...", self._export, ""),
                 ("Export progress report...", self._report, ""),
@@ -440,6 +443,9 @@ class MainWindow(QMainWindow):
         keys.setShortcut(QKeySequence("F1"))
         keys.triggered.connect(self._show_shortcuts)
         help_menu.addAction(keys)
+        report = QAction("Report a problem or request a feature...", self)
+        report.triggered.connect(self.open_feedback)
+        help_menu.addAction(report)
         check = QAction("Check for updates", self)
         check.triggered.connect(self.check_for_updates)
         help_menu.addAction(check)
@@ -475,6 +481,7 @@ class MainWindow(QMainWindow):
 
     def _on_progress(self) -> None:
         self._update_status()
+        self._check_level()
         current = self.views.get(self.current_key)
         if current is not None and self.current_key in ("today", "roadmap",
                                                         "stats"):
@@ -499,8 +506,84 @@ class MainWindow(QMainWindow):
             due_button.setText("Review" + ("  (%d)" % due if due else ""))
         phase = self.ctx.curriculum.phase(self.ctx.progress.current_phase_id())
         if phase is not None:
-            self.sidebar_footer.setText(
-                "Current: phase %s\n%s" % (phase.num, phase.name))
+            footer = "Current: phase %s\n%s" % (phase.num, phase.name)
+            from ..core import profiles
+            if len(profiles.profiles()) > 1:
+                footer = "Profile: %s\n%s" % (profiles.active().name, footer)
+            self.sidebar_footer.setText(footer)
+
+    # -- career level ------------------------------------------------------
+
+    def _check_level(self) -> None:
+        """Say so once when the learner reaches a new level."""
+        store = self.ctx.store
+        if not getattr(store, "is_open", True):
+            return
+        career = self.ctx.progress.career()
+        seen = store.setting("career_level", None)
+        store_it = seen is None or career.level != seen
+        if isinstance(seen, int) and career.level > seen:
+            words = "New level: %s." % career.name
+            if not career.top:
+                words += " Next: %s." % career.next_name
+            self.toast(words)
+        if store_it:
+            store.set_setting("career_level", career.level)
+
+    # -- profiles and feedback -----------------------------------------------
+
+    profile_switcher = None       # set by app.py; None in tests and tools
+
+    def _fill_profile_menu(self) -> None:
+        from PySide6.QtGui import QActionGroup
+        from ..core import paths, profiles
+        menu = self.profile_menu
+        menu.clear()
+        group = QActionGroup(menu)
+        for profile in profiles.profiles():
+            action = QAction(profile.name, menu)
+            action.setCheckable(True)
+            action.setChecked(profile.id == paths.active_profile())
+            action.triggered.connect(
+                lambda _=False, pid=profile.id: self.switch_profile(pid))
+            group.addAction(action)
+            menu.addAction(action)
+        menu.addSeparator()
+        new = QAction("New profile...", menu)
+        new.triggered.connect(self.new_profile)
+        menu.addAction(new)
+        manage = QAction("Manage profiles...", menu)
+        manage.triggered.connect(lambda: self.go("settings", "profiles"))
+        menu.addAction(manage)
+
+    def switch_profile(self, profile_id: str) -> None:
+        from ..core import paths
+        if profile_id == paths.active_profile():
+            return
+        if self.profile_switcher is None:
+            self.toast("Switching profiles needs the full app.")
+            return
+        self.profile_switcher(profile_id)
+
+    def new_profile(self) -> None:
+        from PySide6.QtWidgets import QInputDialog, QMessageBox
+        from ..core import profiles
+        name, ok = QInputDialog.getText(
+            self, "New profile",
+            "Name for the new profile. It gets its own progress, settings and "
+            "review deck.")
+        if not ok:
+            return
+        try:
+            profile = profiles.create(name)
+        except ValueError as exc:
+            QMessageBox.warning(self, "New profile", str(exc))
+            return
+        self.switch_profile(profile.id)
+
+    def open_feedback(self, kind: str = "bug") -> None:
+        from .feedback import FeedbackDialog
+        FeedbackDialog(self.ctx, self, kind).exec()
 
     # -- search ------------------------------------------------------------
 

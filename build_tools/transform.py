@@ -82,19 +82,26 @@ EST = {
     "p05": 60, "p06": 30, "p07": 60, "p08": 60, "p09": 60, "p10": 30,
     "p11": 30, "p12": 30, "p13": 30, "p14": 60, "p15": 120, "p16": 120,
     "p17": 90, "p18": 0, "p99": 0,
+    "s01": 60, "s02": 50, "s03": 25, "s04": 50, "s05": 70, "s06": 50,
+    "s07": 60, "s08": 60, "s09": 40, "s10": 45, "s11": 45, "s12": 60,
+    "s13": 25, "s14": 40,
 }
 
-# Linear spine of the core path. Everything else is optional or parallel.
-SPINE = ["p00", "p01", "p02", "p03", "p04", "p05", "p06", "p07", "p08",
-         "p09", "p10", "p11", "p12", "p13", "p14", "p15", "p16"]
-
-PREREQ = {}
-for i, pid in enumerate(SPINE):
-    PREREQ[pid] = [SPINE[i - 1]] if i else []
-PREREQ["p17"] = ["p08", "p09"]
-PREREQ["p18"] = ["p15"]
-PREREQ["p99"] = ["p12"]
-PREREQ["ops"] = []
+# What each phase actually builds on. The planner orders a personal roadmap
+# by this graph, so it must name real dependencies: Linux needs the language,
+# not algorithms; SQL needs the language, not networking.
+PREREQ = {
+    "ops": [], "p00": [], "p01": ["p00"], "p02": ["p01"], "p03": ["p02"],
+    "p04": ["p02"], "p05": ["p04"], "p06": ["p01"], "p07": ["p06"],
+    "p08": ["p02"], "p09": ["p07", "p08"], "p10": ["p02", "p07"],
+    "p11": ["p02", "p07"], "p12": ["p03", "p06"], "p13": ["p09"],
+    "p14": ["p04"], "p15": ["p09", "p12"], "p16": ["p04", "p06"],
+    "p17": ["p08", "p10"], "p18": ["p15"], "p99": ["p12"],
+    "s01": ["p02"], "s02": ["p03"], "s03": ["p03"], "s04": ["p02"],
+    "s05": ["p04"], "s06": ["s01"], "s07": ["p14"], "s08": ["p14"],
+    "s09": ["p03"], "s10": ["p07"], "s11": ["p06"], "s12": ["p13"],
+    "s13": ["p10"], "s14": ["p09"],
+}
 
 # Topic tags let the adaptive planner rank phases against a learner's goals.
 TAGS = {
@@ -109,7 +116,7 @@ TAGS = {
     "p07": ["systems", "networking"],
     "p08": ["data", "sql", "backend"],
     "p09": ["backend", "web"],
-    "p10": ["automation", "scraping", "web"],
+    "p10": ["automation", "scraping"],
     "p11": ["performance", "concurrency"],
     "p12": ["devops", "deployment"],
     "p13": ["security", "backend"],
@@ -119,6 +126,20 @@ TAGS = {
     "p17": ["data", "engineering"],
     "p18": ["mastery"],
     "p99": ["mastery", "projects"],
+    "s01": ["data", "analysis"],
+    "s02": ["gui", "desktop"],
+    "s03": ["cli", "tooling"],
+    "s04": ["games", "graphics", "media"],
+    "s05": ["science", "optimization"],
+    "s06": ["finance", "quant"],
+    "s07": ["vision"],
+    "s08": ["nlp"],
+    "s09": ["testing", "qa"],
+    "s10": ["netauto"],
+    "s11": ["embedded", "hardware"],
+    "s12": ["security"],
+    "s13": ["bots"],
+    "s14": ["blockchain"],
 }
 
 # Difficulty band, used to sort a personalised roadmap gently.
@@ -126,6 +147,8 @@ LEVEL = {
     "ops": 0, "p00": 1, "p01": 1, "p02": 2, "p03": 2, "p04": 2, "p05": 3,
     "p06": 2, "p07": 3, "p08": 2, "p09": 3, "p10": 2, "p11": 4, "p12": 3,
     "p13": 4, "p14": 4, "p15": 5, "p16": 5, "p17": 4, "p18": 5, "p99": 5,
+    "s01": 3, "s02": 3, "s03": 2, "s04": 3, "s05": 4, "s06": 4, "s07": 4,
+    "s08": 4, "s09": 3, "s10": 3, "s11": 3, "s12": 5, "s13": 3, "s14": 4,
 }
 
 
@@ -154,6 +177,19 @@ def plain(text: str) -> str:
     """Strip the page's <em> code markers for search and review-card text."""
     return re.sub(r"</?em>", "", text)
 
+
+# Specialization phases live in their own file and go in after p17, so the
+# mastery phases (p18, p99) stay last in teaching order.
+SPECIALIZATIONS = json.loads(
+    (Path(__file__).parent / "specializations.json").read_text(
+        encoding="utf-8"))["phases"]
+_at = next(i for i, ph in enumerate(raw["PHASES"]) if ph["id"] == "p18")
+raw["PHASES"][_at:_at] = SPECIALIZATIONS
+for _ph in raw["PHASES"]:
+    for _table in (EST, PREREQ, TAGS, LEVEL):
+        if _ph["id"] not in _table:
+            raise SystemExit("transform.py: %s is missing from a metadata table"
+                             % _ph["id"])
 
 phases = []
 picked_phases = set()
@@ -265,6 +301,12 @@ TEACHES = {k: v for k, v in json.loads(
     (Path(__file__).parent / "quiz_teaches.json").read_text(encoding="utf-8")
 ).items() if not k.startswith("_")}
 teaches_used = set()
+
+# The specialization phases' quizzes come after the core ones, so the core
+# question ids, which learners' review history is keyed on, never move.
+raw["QUIZZES"] = raw["QUIZZES"] + json.loads(
+    (Path(__file__).parent / "spec_quizzes.json").read_text(
+        encoding="utf-8"))["quizzes"]
 
 quizzes = []
 for qz in raw["QUIZZES"]:

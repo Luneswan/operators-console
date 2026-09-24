@@ -17,9 +17,10 @@ from itertools import pairwise
 NOT_CODE_PRACTISED = {"p00", "p18", "p99"}
 MIN_PER_PHASE = 3
 
-# The back-half phases filled in one pass. Their exercises are held to the
-# full authoring contract.
-TAIL_PHASES = {"p06", "p07", "p12", "p15", "p16", "p17"}
+# The back-half phases filled in one pass, and the specializations (s01-s14).
+# Their exercises are held to the full authoring contract.
+TAIL_PHASES = {"p06", "p07", "p12", "p15", "p16", "p17"} | {
+    "s%02d" % n for n in range(1, 15)}
 
 
 def _by_phase(curriculum):
@@ -108,3 +109,20 @@ def test_tail_phases_ramp_within_the_phase(curriculum):
         levels = [e.difficulty for e in curriculum.exercises_for(phase)]
         assert levels, phase
         assert levels == sorted(levels), (phase, levels)
+
+
+def test_every_specialization_has_quiz_exercises_and_a_project(curriculum):
+    """A pathway is only real if it can be proven like a core phase."""
+    thin = []
+    for phase in curriculum.phases:
+        if not phase.id.startswith("s"):
+            continue
+        if len(curriculum.exercises_for(phase.id)) < MIN_PER_PHASE:
+            thin.append((phase.id, "exercises"))
+        if not curriculum.quizzes_for(phase.id):
+            thin.append((phase.id, "quiz"))
+        if not curriculum.projects_for(phase.id):
+            thin.append((phase.id, "project"))
+        if phase.gate is None or not phase.gate.items:
+            thin.append((phase.id, "gate"))
+    assert thin == []

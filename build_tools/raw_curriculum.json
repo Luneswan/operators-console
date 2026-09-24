@@ -2127,7 +2127,7 @@
      "https://pyinstaller.org/en/stable/"
     ]
    ],
-   "phase": "p03"
+   "phase": "s03"
   },
   {
    "id": "f-gui",
@@ -2153,7 +2153,7 @@
      "https://beeware.org/"
     ]
    ],
-   "phase": "p03"
+   "phase": "s02"
   },
   {
    "id": "f-front",
@@ -2183,7 +2183,7 @@
      "https://pyodide.org/en/stable/"
     ]
    ],
-   "phase": "p10"
+   "phase": "s02"
   },
   {
    "id": "f-game",
@@ -2201,7 +2201,7 @@
      "https://docs.blender.org/api/current/"
     ]
    ],
-   "phase": "p01"
+   "phase": "s04"
   },
   {
    "id": "f-ds",
@@ -2235,7 +2235,7 @@
      "https://www.kaggle.com/learn"
     ]
    ],
-   "phase": "p14"
+   "phase": "s01"
   },
   {
    "id": "f-ml",
@@ -2347,7 +2347,7 @@
      "https://docs.pytorch.org/vision/stable/"
     ]
    ],
-   "phase": "p14"
+   "phase": "s07"
   },
   {
    "id": "f-nlp",
@@ -2369,7 +2369,7 @@
      "https://huggingface.co/docs/transformers/index"
     ]
    ],
-   "phase": "p14"
+   "phase": "s08"
   },
   {
    "id": "f-de",
@@ -2437,7 +2437,7 @@
      "https://networkx.org/documentation/stable/"
     ]
    ],
-   "phase": "p14"
+   "phase": "s05"
   },
   {
    "id": "f-fin",
@@ -2463,7 +2463,7 @@
      "https://pandas.pydata.org/docs/"
     ]
    ],
-   "phase": "p14"
+   "phase": "s06"
   },
   {
    "id": "f-opt",
@@ -2481,7 +2481,7 @@
      "https://docs.scipy.org/doc/scipy/reference/optimize.html"
     ]
    ],
-   "phase": "p05"
+   "phase": "s05"
   },
   {
    "id": "f-geo",
@@ -2499,7 +2499,7 @@
      "https://matplotlib.org/stable/"
     ]
    ],
-   "phase": "p14"
+   "phase": "s05"
   },
   {
    "id": "f-bio",
@@ -2517,7 +2517,7 @@
      "https://www.astropy.org/"
     ]
    ],
-   "phase": "p14"
+   "phase": "s05"
   },
   {
    "id": "f-quantum",
@@ -2583,7 +2583,7 @@
      "https://www.netacad.com/courses/python-essentials-1"
     ]
    ],
-   "phase": "p07"
+   "phase": "s10"
   },
   {
    "id": "f-sec",
@@ -2609,7 +2609,7 @@
      "https://scapy.readthedocs.io/en/latest/"
     ]
    ],
-   "phase": "p13"
+   "phase": "s12"
   },
   {
    "id": "f-embed",
@@ -2635,7 +2635,7 @@
      "https://docs.ros.org/en/rolling/index.html"
     ]
    ],
-   "phase": "p06"
+   "phase": "s11"
   },
   {
    "id": "f-perf",
@@ -2691,7 +2691,7 @@
      "https://robotframework.org/"
     ]
    ],
-   "phase": "p03"
+   "phase": "s09"
   },
   {
    "id": "f-bots",
@@ -2713,7 +2713,7 @@
      "https://www.python-httpx.org/"
     ]
    ],
-   "phase": "p10"
+   "phase": "s13"
   },
   {
    "id": "f-docs",
@@ -2735,7 +2735,7 @@
      "https://pandas.pydata.org/docs/"
     ]
    ],
-   "phase": "p10"
+   "phase": "s03"
   },
   {
    "id": "f-media",
@@ -2757,7 +2757,7 @@
      "https://pillow.readthedocs.io/en/stable/"
     ]
    ],
-   "phase": "p10"
+   "phase": "s04"
   },
   {
    "id": "f-chain",
@@ -2771,7 +2771,7 @@
      "https://web3py.readthedocs.io/en/stable/"
     ]
    ],
-   "phase": "p07"
+   "phase": "s14"
   },
   {
    "id": "f-lang",

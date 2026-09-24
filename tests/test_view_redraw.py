@@ -36,7 +36,7 @@ def test_a_roadmap_visit_with_nothing_new_keeps_its_cards(window, qt_app):
 def test_a_roadmap_repeat_visit_is_fast(window, qt_app):
     _visit(window, qt_app, "roadmap")
     timings = []
-    for _ in range(3):
+    for _ in range(5):          # best of five: one busy moment is not a regression
         window.go("today")
         pump(qt_app)
         start = time.perf_counter()

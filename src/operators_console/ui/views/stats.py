@@ -7,6 +7,7 @@ from PySide6.QtWidgets import (
     QVBoxLayout,
 )
 
+from ..widgets.career import Ladder
 from ..widgets.charts import ActivityGrid, BarChart
 from ..widgets.common import (
     Card, StatTile, clear_layout, heading, label, muted,
@@ -63,6 +64,14 @@ class StatsView(View):
                      self.tile_projects, self.tile_retention):
             tiles.addWidget(tile)
         self.scroller.add_layout(tiles)
+
+        ladder_card = Card()
+        ladder_card.add(heading("Career ladder"))
+        ladder_card.add(muted("Each level is reached by proving phases of "
+                              "your plan: gate, quiz, exercises and project."))
+        self.ladder = Ladder()
+        ladder_card.add(self.ladder)
+        self.scroller.add(ladder_card)
 
         activity_card = Card()
         activity_card.add(heading("Study activity"))
@@ -156,6 +165,7 @@ class StatsView(View):
 
     def _draw(self) -> None:
         overview = self.ctx.progress.overview()
+        self.ladder.show_career(self.ctx.progress.career())
         correct, total = self.ctx.store.review_accuracy(30)
         self.tile_percent.set_value("%d%%" % overview.percent)
         self.tile_exercises.set_value(

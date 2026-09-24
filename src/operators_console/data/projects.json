@@ -570,6 +570,365 @@
     "The commit history shows the work, not one giant commit.",
     "You can explain every design decision, including the ones you rejected."
    ]
+  },
+  {
+   "id": "pj.s01.1",
+   "phase": "s01",
+   "title": "An analysis someone can check",
+   "kind": "build",
+   "brief": "Answer a question about a public dataset with a report generated entirely from code.",
+   "why": "A result counts only if someone else can rerun it and get the same numbers.",
+   "requirements": [
+    "The question is written down before the data is explored.",
+    "One script goes from the raw file to the finished report.",
+    "Cleaning steps are listed, with how many rows each one changed.",
+    "At least three charts, each with a one-line takeaway.",
+    "A limitations section: sample, bias and missing data.",
+    "Rerunning the script on a clean checkout reproduces every number."
+   ],
+   "stretch": [
+    "Add an interactive version with a dashboard library.",
+    "Add a statistical test and explain whether it applies."
+   ],
+   "rubric": [
+    "It runs from a clean checkout by following the README alone.",
+    "Every behaviour you claim is covered by a test that fails when you break it.",
+    "The commit history shows the work, not one giant commit.",
+    "You can explain every design decision, including the ones you rejected."
+   ]
+  },
+  {
+   "id": "pj.s02.1",
+   "phase": "s02",
+   "title": "A desktop app with an installer",
+   "kind": "ship",
+   "brief": "Build a single-purpose desktop tool and ship it to a machine without Python.",
+   "why": "Packaging, threading and settings are where desktop apps fail.",
+   "requirements": [
+    "A GUI with at least three screens or panels.",
+    "Long operations run in a worker with progress and a cancel button.",
+    "Settings and data stored in the platform's per-user folders.",
+    "Logic tested without starting the GUI.",
+    "A bundle or installer that runs on a clean machine.",
+    "Keyboard navigation works for the main actions."
+   ],
+   "stretch": [
+    "Add an in-app update check against GitHub releases.",
+    "Ship the same app for a second operating system."
+   ],
+   "rubric": [
+    "It runs from a clean checkout by following the README alone.",
+    "Every behaviour you claim is covered by a test that fails when you break it.",
+    "The commit history shows the work, not one giant commit.",
+    "You can explain every design decision, including the ones you rejected."
+   ]
+  },
+  {
+   "id": "pj.s03.1",
+   "phase": "s03",
+   "title": "A published command-line tool",
+   "kind": "ship",
+   "brief": "Write a CLI that solves a real task and publish it to PyPI or TestPyPI.",
+   "why": "A tool other people install forces you to handle input, errors and output properly.",
+   "requirements": [
+    "At least two subcommands with complete help text.",
+    "A --json output mode for scripts.",
+    "Documented, tested exit codes.",
+    "Configuration from flags, environment variables and a config file, in that order.",
+    "Installable with pipx from a package index.",
+    "A documentation site built in CI."
+   ],
+   "stretch": [
+    "Add shell completion.",
+    "Add a plugin mechanism through entry points."
+   ],
+   "rubric": [
+    "It runs from a clean checkout by following the README alone.",
+    "Every behaviour you claim is covered by a test that fails when you break it.",
+    "The commit history shows the work, not one giant commit.",
+    "You can explain every design decision, including the ones you rejected."
+   ]
+  },
+  {
+   "id": "pj.s04.1",
+   "phase": "s04",
+   "title": "A finished 2D game",
+   "kind": "build",
+   "brief": "Build a complete game with a start screen, scoring and an ending, and package it.",
+   "why": "Finishing a game covers state, timing, input, assets and packaging.",
+   "requirements": [
+    "A start screen, gameplay, pause and game-over states.",
+    "Frame-rate-independent movement using delta time.",
+    "Collision detection that stays correct at high speed.",
+    "Sound effects and adjustable volume.",
+    "Frame time measured and kept under 16 ms on your machine.",
+    "A packaged build that runs without Python."
+   ],
+   "stretch": [
+    "Add a level editor that saves levels as JSON.",
+    "Add controller support."
+   ],
+   "rubric": [
+    "It runs from a clean checkout by following the README alone.",
+    "Every behaviour you claim is covered by a test that fails when you break it.",
+    "The commit history shows the work, not one giant commit.",
+    "You can explain every design decision, including the ones you rejected."
+   ]
+  },
+  {
+   "id": "pj.s05.1",
+   "phase": "s05",
+   "title": "A validated simulation",
+   "kind": "build",
+   "brief": "Model a real system numerically and show the method is correct.",
+   "why": "A simulation is useful only if its error is known.",
+   "requirements": [
+    "A written model of the system and its assumptions.",
+    "The numerical method checked against an analytic or known case.",
+    "An error study: error against step size or sample count.",
+    "The hot loop optimized, with timings before and after.",
+    "A pinned environment and one command that regenerates every figure."
+   ],
+   "stretch": [
+    "Fit the model's parameters to real data.",
+    "Add an optimization that uses the simulation as its objective."
+   ],
+   "rubric": [
+    "It runs from a clean checkout by following the README alone.",
+    "Every behaviour you claim is covered by a test that fails when you break it.",
+    "The commit history shows the work, not one giant commit.",
+    "You can explain every design decision, including the ones you rejected."
+   ]
+  },
+  {
+   "id": "pj.s06.1",
+   "phase": "s06",
+   "title": "A backtester without lookahead",
+   "kind": "build",
+   "brief": "Backtest a simple strategy on historical data with realistic costs.",
+   "why": "Most backtests look good because of bias. This one must fail loudly if it cheats.",
+   "requirements": [
+    "Data loading with adjustments for splits and dividends.",
+    "Signals can only use data available at decision time, enforced by a test.",
+    "Fees and slippage applied to every trade.",
+    "Returns, volatility, Sharpe ratio and maximum drawdown reported.",
+    "A buy-and-hold benchmark on the same period.",
+    "Walk-forward results reported separately from in-sample ones."
+   ],
+   "stretch": [
+    "Add position sizing by volatility.",
+    "Compare two strategies with a statistical test."
+   ],
+   "rubric": [
+    "It runs from a clean checkout by following the README alone.",
+    "Every behaviour you claim is covered by a test that fails when you break it.",
+    "The commit history shows the work, not one giant commit.",
+    "You can explain every design decision, including the ones you rejected."
+   ]
+  },
+  {
+   "id": "pj.s07.1",
+   "phase": "s07",
+   "title": "A vision model with error analysis",
+   "kind": "build",
+   "brief": "Fine-tune a pretrained vision model for a specific task and measure where it fails.",
+   "why": "The failure cases decide whether a model can be used.",
+   "requirements": [
+    "A dataset with a documented source and split.",
+    "A simple baseline, then a fine-tuned model that beats it.",
+    "Per-class metrics and a confusion matrix.",
+    "The worst errors reviewed and grouped by cause.",
+    "An inference command for images or video."
+   ],
+   "stretch": [
+    "Export the model to ONNX and compare speed.",
+    "Add test-time augmentation and measure its effect."
+   ],
+   "rubric": [
+    "It runs from a clean checkout by following the README alone.",
+    "Every behaviour you claim is covered by a test that fails when you break it.",
+    "The commit history shows the work, not one giant commit.",
+    "You can explain every design decision, including the ones you rejected."
+   ]
+  },
+  {
+   "id": "pj.s08.1",
+   "phase": "s08",
+   "title": "A text model with a baseline",
+   "kind": "build",
+   "brief": "Build a text classifier or search engine and compare it with a simple baseline.",
+   "why": "A transformer is justified only if it beats TF-IDF by a margin that matters.",
+   "requirements": [
+    "A labelled dataset and a written labelling guide.",
+    "A TF-IDF baseline and a transformer on the same test set.",
+    "Precision, recall and F1 per class.",
+    "Error analysis grouped by error type.",
+    "A command or API that returns predictions with confidence."
+   ],
+   "stretch": [
+    "Add hybrid keyword and semantic search.",
+    "Measure performance on a second domain."
+   ],
+   "rubric": [
+    "It runs from a clean checkout by following the README alone.",
+    "Every behaviour you claim is covered by a test that fails when you break it.",
+    "The commit history shows the work, not one giant commit.",
+    "You can explain every design decision, including the ones you rejected."
+   ]
+  },
+  {
+   "id": "pj.s09.1",
+   "phase": "s09",
+   "title": "A test strategy for a real codebase",
+   "kind": "drill",
+   "brief": "Write down the risks of an existing project and cover them with tests at the right level.",
+   "why": "More tests are not the goal. Tests that catch the likely defects are.",
+   "requirements": [
+    "A written list of the project's risks.",
+    "Unit, integration and end-to-end tests mapped to those risks.",
+    "At least one property-based test.",
+    "A mutation-testing run and the tests it made you add.",
+    "Fast tests on every push; slow tests on a schedule."
+   ],
+   "stretch": [
+    "Add contract tests between two services.",
+    "Add a load test with a pass or fail threshold."
+   ],
+   "rubric": [
+    "It runs from a clean checkout by following the README alone.",
+    "Every behaviour you claim is covered by a test that fails when you break it.",
+    "The commit history shows the work, not one giant commit.",
+    "You can explain every design decision, including the ones you rejected."
+   ]
+  },
+  {
+   "id": "pj.s10.1",
+   "phase": "s10",
+   "title": "A network change pipeline",
+   "kind": "build",
+   "brief": "Generate, dry-run, apply and verify configuration changes across a lab network.",
+   "why": "A network change without a diff and a rollback is a guess.",
+   "requirements": [
+    "A lab with at least three virtual devices.",
+    "Configuration rendered from templates and a source-of-truth file.",
+    "A dry run that prints the diff for every device.",
+    "Pre- and post-change checks that roll back on failure.",
+    "A compliance report across the inventory.",
+    "Credentials from the environment or a vault."
+   ],
+   "stretch": [
+    "Run the pipeline from CI on every change to the source of truth.",
+    "Add NETCONF for at least one device type."
+   ],
+   "rubric": [
+    "It runs from a clean checkout by following the README alone.",
+    "Every behaviour you claim is covered by a test that fails when you break it.",
+    "The commit history shows the work, not one giant commit.",
+    "You can explain every design decision, including the ones you rejected."
+   ]
+  },
+  {
+   "id": "pj.s11.1",
+   "phase": "s11",
+   "title": "A connected sensor",
+   "kind": "build",
+   "brief": "Read a real sensor on a microcontroller and send the data to a service that stores it and alerts.",
+   "why": "Hardware projects fail on timing, memory and lost connections.",
+   "requirements": [
+    "A sensor read on a schedule without blocking.",
+    "Readings published over MQTT.",
+    "A service that stores readings and alerts on a threshold.",
+    "Readings buffered on the device when the network is down.",
+    "A wiring diagram and parts list in the repository."
+   ],
+   "stretch": [
+    "Add deep sleep and measure battery life.",
+    "Add over-the-air updates."
+   ],
+   "rubric": [
+    "It runs from a clean checkout by following the README alone.",
+    "Every behaviour you claim is covered by a test that fails when you break it.",
+    "The commit history shows the work, not one giant commit.",
+    "You can explain every design decision, including the ones you rejected."
+   ]
+  },
+  {
+   "id": "pj.s12.1",
+   "phase": "s12",
+   "title": "A security tool in CI",
+   "kind": "build",
+   "brief": "Build a tool that finds one class of security problem and run it against a real project.",
+   "why": "Writing a detector teaches you the vulnerability and its false positives.",
+   "requirements": [
+    "One clearly defined detection target.",
+    "Tests with known-bad and known-good samples.",
+    "A measured false-positive rate on a real codebase.",
+    "Output in SARIF or JSON.",
+    "Documentation on scope, limits and safe use.",
+    "Runs in CI and fails the build on a finding."
+   ],
+   "stretch": [
+    "Publish the rule set for others to use.",
+    "Add a fix suggestion for each finding."
+   ],
+   "rubric": [
+    "It runs from a clean checkout by following the README alone.",
+    "Every behaviour you claim is covered by a test that fails when you break it.",
+    "The commit history shows the work, not one giant commit.",
+    "You can explain every design decision, including the ones you rejected."
+   ]
+  },
+  {
+   "id": "pj.s13.1",
+   "phase": "s13",
+   "title": "A bot in daily use",
+   "kind": "ship",
+   "brief": "Build a bot for a group you belong to and keep it running for a week.",
+   "why": "A bot that runs unattended must handle restarts, rate limits and bad input.",
+   "requirements": [
+    "At least one command and one scheduled job.",
+    "State that survives a restart.",
+    "Rate limits handled and tested against a fake server.",
+    "Secrets from the environment.",
+    "Deployed with automatic restart and readable logs.",
+    "One week of operation, with one bug found and fixed from the logs."
+   ],
+   "stretch": [
+    "Add a web dashboard for the bot's settings.",
+    "Support a second platform."
+   ],
+   "rubric": [
+    "It runs from a clean checkout by following the README alone.",
+    "Every behaviour you claim is covered by a test that fails when you break it.",
+    "The commit history shows the work, not one giant commit.",
+    "You can explain every design decision, including the ones you rejected."
+   ]
+  },
+  {
+   "id": "pj.s14.1",
+   "phase": "s14",
+   "title": "A testnet event indexer",
+   "kind": "build",
+   "brief": "Index a contract's events into a database and handle chain reorganizations.",
+   "why": "Chain data is append-only until it is not; an indexer must handle both.",
+   "requirements": [
+    "Events read from a testnet or local chain.",
+    "Stored in SQLite or PostgreSQL without duplicates.",
+    "Restarts resume from the last processed block.",
+    "Reorganizations handled and tested.",
+    "A report command over the indexed data.",
+    "No mainnet keys or real funds in the project."
+   ],
+   "stretch": [
+    "Write and test a small contract with Ape.",
+    "Add a GraphQL or REST API over the index."
+   ],
+   "rubric": [
+    "It runs from a clean checkout by following the README alone.",
+    "Every behaviour you claim is covered by a test that fails when you break it.",
+    "The commit history shows the work, not one giant commit.",
+    "You can explain every design decision, including the ones you rejected."
+   ]
   }
  ]
 }

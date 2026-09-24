@@ -40,15 +40,24 @@ def _named(view, text):
     return None
 
 
+def _picker_quiz_count(view):
+    """Cards in the plan, plus the ones folded under "outside your track":
+    folded is still listed and startable."""
+    inside, outside = view.visible_quizzes()
+    folded = 1 if outside else 0
+    assert view.stage.count() == len(inside) + folded
+    return len(inside) + len(outside)
+
+
 @pytest.mark.walk_fast
 def test_the_picker_lists_every_quiz(walk_app, window, curriculum):
     window.go("quiz", "")
     pump(walk_app, 2)
     view = window.views["quiz"]
     with step(walk_app, "quiz", "read the quiz picker", window):
-        assert view.stage.count() == len(curriculum.quizzes), (
-            "%d cards for %d quizzes"
-            % (view.stage.count(), len(curriculum.quizzes)))
+        assert _picker_quiz_count(view) == len(curriculum.quizzes), (
+            "%d quizzes listed of %d"
+            % (_picker_quiz_count(view), len(curriculum.quizzes)))
     REC.bump("quizzes listed", len(curriculum.quizzes))
 
 
@@ -172,4 +181,4 @@ def test_skipping_retaking_and_leaving_a_quiz(walk_app, window, store,
         view._reset_to_picker()
         pump(walk_app, 1)
         assert view.quiz is None
-        assert view.stage.count() == len(curriculum.quizzes)
+        assert _picker_quiz_count(view) == len(curriculum.quizzes)

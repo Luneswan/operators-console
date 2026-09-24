@@ -205,17 +205,36 @@ def test_a_phase_that_does_not_exist_is_treated_as_unlocked(progress):
     assert progress.unlocked("no-such-phase")
 
 
-def test_the_roadmap_keeps_teaching_order_within_each_role(curriculum, store,
-                                                           progress):
-    planner = Planner(curriculum, store, progress)
-    order = {p.id: i for i, p in enumerate(curriculum.phases)}
-    for role in ("core", "optional", "extra"):
-        rows = [r for r in planner.roadmap() if r.role == role]
-        positions = [order.get(r.phase_id, 99) for r in rows]
-        assert positions == sorted(positions), role
+def test_the_roadmap_puts_every_phase_after_its_prerequisites(curriculum,
+                                                              store, progress):
+    for goals in ([], ["games"], ["vision", "nlp"], ["web", "testing"]):
+        store.set_setting("goals", goals)
+        planner = Planner(curriculum, store, progress)
+        ids = [r.phase_id for r in planner.roadmap()]
+        seen = set()
+        for pid in ids:
+            missing = [q for q in curriculum.phase(pid).prereq
+                       if q in ids and q not in seen]
+            assert not missing, (goals, pid, missing)
+            seen.add(pid)
 
 
 def test_the_roadmap_lists_each_phase_once(curriculum, store, progress):
     planner = Planner(curriculum, store, progress)
     ids = [r.phase_id for r in planner.roadmap()]
     assert len(ids) == len(set(ids))
+
+
+def test_the_phase_pass_is_reused_until_the_store_changes(curriculum, store):
+    """all_phases is cached on the store's write counter; any write, even
+    through another path than set_checked, must show at once."""
+    from operators_console.core.progress import Progress
+    progress = Progress(curriculum, store)
+    item = curriculum.phase("p01").items[0].id
+    first = progress.all_phases()
+    assert progress.all_phases() == first
+    store.set_checked(item, True)
+    assert progress.all_phases()["p01"].done == first["p01"].done + 1
+    exercise = curriculum.exercises_for("p01")[0]
+    store.record_exercise_run(exercise.id, exercise.solution, True)
+    assert progress.all_phases()["p01"].exercises_done == 1

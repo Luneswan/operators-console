@@ -58,18 +58,35 @@ def test_every_experience_level_can_be_chosen(walk_app, raw_window, store):
     REC.bump("onboarding experience levels", len(EXPERIENCE_LEVELS))
 
 
-def test_every_goal_combination_the_dialog_can_express(walk_app, raw_window):
-    """All 2**9 tick patterns, each previewed the way the learner sees it."""
+def _goal_patterns(count: int) -> list:
+    """None, all, every single goal, every pair, and 512 seeded random
+    patterns. With 21 goals the full 2**21 is two million previews."""
+    import random
+    patterns = {(False,) * count, (True,) * count}
+    for i in range(count):
+        patterns.add(tuple(k == i for k in range(count)))
+    for i, j in itertools.combinations(range(count), 2):
+        patterns.add(tuple(k in (i, j) for k in range(count)))
+    rng = random.Random(20260924)
+    while len(patterns) < 2 + count + count * (count - 1) // 2 + 512:
+        patterns.add(tuple(rng.random() < 0.5 for _ in range(count)))
+    return sorted(patterns)
+
+
+def test_goal_combinations_the_dialog_can_express(walk_app, raw_window):
+    """Singles, pairs, none, all and a seeded sample, each previewed the way
+    the learner sees it."""
     from operators_console.core.adaptive import GOALS
 
     wizard = _wizard(raw_window)
     wizard.step = 2
     wizard._render()
     ids = [gid for gid, _text, _tags in GOALS]
+    patterns = _goal_patterns(len(ids))
     tracks = set()
     with step(walk_app, "onboarding",
-              "tick all %d goal combinations" % (2 ** len(ids)), raw_window):
-        for pattern in itertools.product((False, True), repeat=len(ids)):
+              "tick %d goal combinations" % len(patterns), raw_window):
+        for pattern in patterns:
             for gid, wanted in zip(ids, pattern, strict=True):
                 box = wizard.goal_boxes[gid]
                 if box.isChecked() != wanted:
@@ -79,7 +96,7 @@ def test_every_goal_combination_the_dialog_can_express(walk_app, raw_window):
             assert wizard.ctx.curriculum.track(suggested) is not None, chosen
             tracks.add(suggested)
             assert wizard.track_preview_label.text()
-    REC.bump("goal combinations previewed", 2 ** len(ids))
+    REC.bump("goal combinations previewed", len(patterns))
     REC.bump("distinct tracks reachable from goals", len(tracks))
     wizard.reject()
 

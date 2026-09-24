@@ -6,6 +6,43 @@ All notable changes to this project are recorded here. The format follows
 
 ## [Unreleased]
 
+### Added
+
+- **14 specialization phases** (S1-S14), one per career pathway: data
+  analysis and visualization, desktop and mobile apps, command-line tools,
+  games and media, scientific computing, quantitative finance, computer
+  vision, NLP, testing and quality engineering, network automation,
+  embedded and IoT, security engineering, bots and integrations, and
+  blockchain tooling. Each has a checklist, a gate, a reading list, an
+  8-question quiz, 3 graded exercises and a project. The course is now
+  35 phases, 34 quizzes (354 questions), 161 exercises and 36 projects.
+- **21 goals and 16 tracks.** New tracks: desktop apps and tools, games,
+  scientific computing, quantitative finance, test automation, network
+  automation, embedded. Every track ends with architecture, beyond senior
+  and the final-boss ladder.
+- **Goal-driven plan.** Phase prerequisites are a dependency graph. The
+  roadmap places each phase after what it needs, puts a chosen
+  specialization right after its prerequisites, and adds any prerequisite
+  your track lacks, with the reason shown.
+- **Career ladder**: Starting out, Beginner, Junior, Mid-level, Senior,
+  Senior+. Levels come from proven phases, not ticked lines. Shown on
+  Today and Progress; a new level is announced once.
+- **Profiles.** Several people can share the app, each with separate
+  progress, settings, review deck and snapshots. File -> Switch profile and
+  Settings -> Profiles create, switch, rename and remove them. Switching
+  reopens the window in the same process. Removed profiles are moved to
+  `removed-profiles/`, never deleted. The main profile keeps the existing
+  data folder, so nothing moves on upgrade.
+- **Report or request.** Settings and Help open a form for bugs, feature
+  requests and course mistakes. It opens a prefilled GitHub issue for you
+  to submit, or copies the text. The app sends nothing.
+
+### Changed
+
+- The update check, its downloads and the single-instance lock use the
+  root data folder, shared by all profiles.
+- "Not in your plan" on the roadmap is folded by default.
+
 ### Fixed
 
 - `install.ps1` refused every install on Windows PowerShell 5.1 with "This

@@ -12,7 +12,8 @@ from PySide6.QtWidgets import QHBoxLayout, QVBoxLayout, QWidget
 
 from ..widgets import icons
 from ..widgets.common import (
-    Card, button, clear_layout, divider, heading, label, meter, muted, pill,
+    Card, Disclosure, button, clear_layout, divider, heading, label, meter,
+    muted, pill,
 )
 from .base import View
 
@@ -115,11 +116,15 @@ class RoadmapView(View):
         self.scroller.add(divider())
         self.scroller.add(heading("Not in your plan"))
         self.scroller.add(muted(
-            "Open any time. Change your track in Settings to add them to the "
-            "plan."))
-        self.extras = QVBoxLayout()
-        self.extras.setSpacing(8)
-        self.scroller.add_layout(self.extras)
+            "Open any time. Change your track or goals in Settings to add "
+            "them to the plan."))
+        # Folded: with every pathway in the course this list is long, and it
+        # is reference, not the plan.
+        self.outside = Disclosure(0, "phases outside your plan",
+                                  store=self.ctx.store,
+                                  key="roadmap:outside", tag="", more=False)
+        self.scroller.add(self.outside)
+        self.extras = self.outside.stack
         self.scroller.add_stretch()
 
     def refresh(self) -> None:
@@ -164,10 +169,12 @@ class RoadmapView(View):
                 phase, row, stats.get(phase.id), phase.id == current,
                 first=index == 0, last=index == len(phases) - 1))
 
-        for phase in self.ctx.curriculum.phases:
-            if phase.id in in_plan or phase.no_progress:
-                continue
+        outside = [p for p in self.ctx.curriculum.phases
+                   if p.id not in in_plan and not p.no_progress]
+        for phase in outside:
             self.extras.addWidget(self._compact_card(phase, stats.get(phase.id)))
+        self.outside.set_count(len(outside))
+        self.outside.setVisible(bool(outside))
 
     # -- rows --------------------------------------------------------------
 
@@ -235,7 +242,7 @@ class RoadmapView(View):
         progress.addStretch(1)
         body.addLayout(progress)
 
-        if not row.unlocked:
+        if not row.unlocked and not row.reason.startswith("Builds on"):
             names = [self.ctx.curriculum.phase(p).name
                      for p in phase.prereq
                      if self.ctx.curriculum.phase(p) is not None]

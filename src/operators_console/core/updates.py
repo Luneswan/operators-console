@@ -450,7 +450,7 @@ def download(asset: Asset, destination: Path, progress=None,
 
 
 def staging_dir() -> Path:
-    folder = paths.data_dir() / "updates"
+    folder = paths.root_dir() / "updates"
     folder.mkdir(parents=True, exist_ok=True)
     return folder
 
@@ -508,7 +508,7 @@ def _stage_helper(root: Path, exe_name: str, keep=()) -> Path:
     # A portable install may keep the learner's data inside its own folder,
     # and the staging folder lives in the data folder: copying either would
     # copy the copy, until Python ran out of recursion.
-    avoid = {staging.resolve(), paths.data_dir().resolve()}
+    avoid = {staging.resolve(), paths.root_dir().resolve()}
 
     def skip(directory, names):
         top = Path(directory) == root
@@ -639,7 +639,7 @@ def record_failure(reason: str) -> None:
     no word and no button.
     """
     try:
-        (paths.data_dir() / FAILURE_FILE).write_text(
+        (paths.root_dir() / FAILURE_FILE).write_text(
             json.dumps({"reason": reason, "at": time.time()}),
             encoding="utf-8")
     except OSError:
@@ -648,7 +648,7 @@ def record_failure(reason: str) -> None:
 
 def take_failure() -> str:
     """Why the last update did not install - once - or "" if it did."""
-    note = paths.data_dir() / FAILURE_FILE
+    note = paths.root_dir() / FAILURE_FILE
     try:
         data = json.loads(note.read_text(encoding="utf-8"))
     except (OSError, ValueError):
@@ -690,7 +690,7 @@ def _log(message: str) -> None:
     """The helper has no window, so leave a trail for when it goes wrong."""
     try:
         line = "%s  %s\n" % (time.strftime("%Y-%m-%d %H:%M:%S"), message)
-        (paths.data_dir() / "update.log").open("a", encoding="utf-8").write(line)
+        (paths.root_dir() / "update.log").open("a", encoding="utf-8").write(line)
     except OSError:
         pass
 
@@ -808,7 +808,7 @@ def _guard_user_data(target: Path) -> None:
     install with OPERATORS_CONSOLE_HOME pointed inside the app folder would
     otherwise have its progress deleted by the very act of updating.
     """
-    data = paths.data_dir().resolve()
+    data = paths.root_dir().resolve()
     target = Path(target).resolve()
     if data == target or data.is_relative_to(target):
         raise OSError(

@@ -5,10 +5,10 @@ import shutil
 from datetime import date
 from pathlib import Path
 
-from PySide6.QtCore import QTimer
+from PySide6.QtCore import Qt, QTimer
 from PySide6.QtWidgets import (
     QCheckBox, QComboBox, QDoubleSpinBox, QFileDialog, QGridLayout,
-    QHBoxLayout, QLineEdit, QMessageBox, QSpinBox,
+    QHBoxLayout, QLineEdit, QMessageBox, QSpinBox, QVBoxLayout,
 )
 
 from ...core import paths
@@ -16,7 +16,7 @@ from ...core.adaptive import EXPERIENCE_LEVELS, GOALS
 from ...core.export import export_backup, export_report, import_backup
 from ...core.storage import Store
 from ..widgets.common import (
-    Card, button, divider, heading, label, muted,
+    Card, button, clear_layout, divider, heading, label, muted, pill,
 )
 from .base import View
 
@@ -133,6 +133,24 @@ class SettingsView(View):
                                   "current answers."), 1)
         plan.box.addLayout(setup_row)
         self.scroller.add(plan)
+
+        # Several people on one computer: each profile has its own
+        # progress, settings, review deck and snapshots.
+        self.profiles_card = Card()
+        self.profiles_card.add(heading("Profiles"))
+        self.profiles_card.add(muted(
+            "Each profile has its own progress, settings, review deck and "
+            "snapshots. Switching reopens the app on that profile."))
+        self.profile_rows = QVBoxLayout()
+        self.profile_rows.setSpacing(6)
+        self.profiles_card.box.addLayout(self.profile_rows)
+        new_row = QHBoxLayout()
+        new_profile = button("New profile...")
+        new_profile.clicked.connect(self._new_profile)
+        new_row.addWidget(new_profile)
+        new_row.addStretch(1)
+        self.profiles_card.box.addLayout(new_row)
+        self.scroller.add(self.profiles_card)
 
         pace = Card()
         pace.add(heading("Pace"))
@@ -310,6 +328,25 @@ class SettingsView(View):
         data.box.addLayout(danger)
         self.scroller.add(data)
 
+        report = Card()
+        report.add(heading("Report or request"))
+        report.add(muted(
+            "Found a bug, a mistake in the course, or want something added? "
+            "Fill in the form; it opens a GitHub issue with your text, which "
+            "you submit. Nothing is sent from the app."))
+        report_row = QHBoxLayout()
+        report_row.setSpacing(8)
+        for text, kind in (("Report a bug...", "bug"),
+                           ("Request a feature...", "feature"),
+                           ("Report a course mistake...", "content")):
+            widget = button(text)
+            widget.clicked.connect(
+                lambda _=False, k=kind: self._feedback(k))
+            report_row.addWidget(widget)
+        report_row.addStretch(1)
+        report.box.addLayout(report_row)
+        self.scroller.add(report)
+
         about = Card()
         about.add(heading("About"))
         self.about_text = muted("")
@@ -319,8 +356,96 @@ class SettingsView(View):
 
     # -- refresh -----------------------------------------------------------
 
+    def show_target(self, target: str) -> None:
+        self.ensure_built()
+        if target == "profiles":
+            self.refresh()
+            self.scroller.ensureWidgetVisible(self.profiles_card)
+
+    def _fill_profiles(self) -> None:
+        from ...core import paths, profiles
+        clear_layout(self.profile_rows)
+        current = paths.active_profile()
+        # A grid, so Switch, Rename and Remove line up in columns even on
+        # rows that lack one of them.
+        grid = QGridLayout()
+        grid.setHorizontalSpacing(8)
+        grid.setVerticalSpacing(6)
+        grid.setColumnStretch(0, 1)
+        for index, profile in enumerate(profiles.profiles()):
+            grid.addWidget(label(profile.name, "RowTitle"), index, 0)
+            if profile.id == current:
+                grid.addWidget(pill("OPEN", "accent"), index, 1,
+                               Qt.AlignmentFlag.AlignCenter)
+            else:
+                switch = button("Switch", "quiet")
+                switch.clicked.connect(
+                    lambda _=False, pid=profile.id: self._switch(pid))
+                grid.addWidget(switch, index, 1)
+            rename = button("Rename", "quiet")
+            rename.clicked.connect(
+                lambda _=False, pr=profile: self._rename_profile(pr))
+            grid.addWidget(rename, index, 2)
+            if profile.id not in (current, paths.DEFAULT_PROFILE):
+                remove = button("Remove", "quiet")
+                remove.clicked.connect(
+                    lambda _=False, pr=profile: self._remove_profile(pr))
+                grid.addWidget(remove, index, 3)
+        self.profile_rows.addLayout(grid)
+
+    def _switch(self, profile_id: str) -> None:
+        window = self.window()
+        if hasattr(window, "switch_profile"):
+            window.switch_profile(profile_id)
+
+    def _new_profile(self) -> None:
+        window = self.window()
+        if hasattr(window, "new_profile"):
+            window.new_profile()
+
+    def _rename_profile(self, profile) -> None:
+        from PySide6.QtWidgets import QInputDialog
+        from ...core import profiles
+        name, ok = QInputDialog.getText(self, "Rename profile", "New name:",
+                                        text=profile.name)
+        if not ok:
+            return
+        try:
+            profiles.rename(profile.id, name)
+        except ValueError as exc:
+            QMessageBox.warning(self, "Rename profile", str(exc))
+            return
+        self._fill_profiles()
+        self.ctx.announce("Profile renamed to %s." % name.strip())
+
+    def _remove_profile(self, profile) -> None:
+        from ...core import profiles
+        confirm = QMessageBox.question(
+            self, "Remove profile?",
+            "Remove %s?\n\nIts data is moved to the removed-profiles "
+            "folder, not deleted, so it can be restored by hand."
+            % profile.name,
+            QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
+            QMessageBox.StandardButton.No)
+        if confirm != QMessageBox.StandardButton.Yes:
+            return
+        try:
+            where = profiles.remove(profile.id)
+        except (ValueError, OSError) as exc:
+            QMessageBox.warning(self, "Remove profile", str(exc))
+            return
+        self._fill_profiles()
+        self.ctx.announce("Removed %s. Its data is in %s." % (profile.name,
+                                                               where))
+
+    def _feedback(self, kind: str) -> None:
+        window = self.window()
+        if hasattr(window, "open_feedback"):
+            window.open_feedback(kind)
+
     def refresh(self) -> None:
         store = self.ctx.store
+        self._fill_profiles()
         self._loading = True
         self.name.setText(store.setting("learner_name", ""))
         index = self.track.findData(store.setting("track", "generalist"))

@@ -38,14 +38,26 @@ EXPERIENCE_NOTES = {
 #: The same for each goal: what picking it actually adds to the roadmap.
 GOAL_NOTES = {
     "web": "HTTP, databases, APIs, deployment.",
-    "data": "pandas, SQL, data pipelines.",
+    "data": "pandas, charts, SQL, pipelines.",
     "ai": "The math, the libraries, how models work.",
+    "vision": "Images, video, detection models.",
+    "nlp": "Text classification, extraction, search.",
     "automation": "Scripts, scraping, repetitive tasks.",
-    "games": "Game loops, state, performance.",
+    "bots": "Chat bots, webhooks, scheduled jobs.",
+    "gui": "Qt, packaging, installable apps.",
+    "cli": "Terminal tools other people install.",
+    "games": "Game loops, rendering, audio and video.",
+    "science": "Numerical methods, simulation, solvers.",
+    "finance": "Market data, backtesting, risk.",
     "devops": "Linux, containers, CI, production.",
-    "security": "Networks, common attacks, secure code.",
+    "netauto": "Configuring and validating networks.",
+    "security": "Attacks, secure code, security tooling.",
+    "testing": "Test strategy from unit to end-to-end.",
+    "embedded": "Microcontrollers, sensors, MQTT.",
+    "blockchain": "Chain data and smart contracts.",
     "interview": "Data structures, algorithms, explaining your reasoning.",
     "fundamentals": "Memory, the interpreter, internals.",
+    "langtools": "Parsers, interpreters, compilers.",
 }
 
 #: The label column in the pace step, in pixels at a 1.0x text size.

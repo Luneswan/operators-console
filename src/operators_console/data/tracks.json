@@ -7,7 +7,7 @@
    "blurb": "Every core phase, in order. The longest route. Pick this if you are not sure what you want to build.",
    "tags": ["language", "cs", "backend", "systems", "devops"],
    "core": ["p00","p01","p02","p03","p04","p05","p06","p07","p08","p09","p10","p11","p12","p13"],
-   "optional": ["p14","p15","p16","p17","p18","p99"]
+   "optional": ["p14","p15","p16","p17","s09","p18","p99"]
   },
   {
    "id": "beginner",
@@ -15,39 +15,39 @@
    "blurb": "The language, engineering habits and problem solving, ending with automation. Leaves out the infrastructure phases.",
    "tags": ["language", "fundamentals", "automation"],
    "core": ["p00","p01","p02","p03","p04","p10"],
-   "optional": ["p05","p08","p09"]
+   "optional": ["p05","p08","p09","s03","s04","p99"]
   },
   {
    "id": "backend",
    "name": "Backend & API engineer",
    "blurb": "Databases, HTTP services, auth, containers and deployment. The most common Python job.",
-   "tags": ["backend", "web", "sql", "devops", "security"],
+   "tags": ["backend", "web", "sql", "devops", "security", "blockchain"],
    "core": ["p00","p01","p02","p03","p04","p08","p09","p11","p12","p13","p15"],
-   "optional": ["p05","p06","p07","p10","p17","p18","p99"]
+   "optional": ["p05","p06","p07","p10","p17","s09","s14","p18","p99"]
   },
   {
    "id": "data",
    "name": "Data analysis & data engineering",
    "blurb": "SQL first, then pipelines, warehouses and orchestration.",
-   "tags": ["data", "sql", "engineering"],
-   "core": ["p00","p01","p02","p03","p08","p10","p17"],
-   "optional": ["p04","p09","p11","p12","p14"]
+   "tags": ["data", "analysis", "sql", "engineering"],
+   "core": ["p00","p01","p02","p03","s01","p08","p10","p17"],
+   "optional": ["p04","p09","p11","p12","p14","s05","p15","p18","p99"]
   },
   {
    "id": "ai",
    "name": "AI & machine learning engineer",
    "blurb": "The math and the infrastructure around models, plus the engineering phases needed to ship one.",
-   "tags": ["ai", "ml", "data", "backend"],
+   "tags": ["ai", "ml", "vision", "nlp", "data", "backend"],
    "core": ["p00","p01","p02","p03","p04","p08","p09","p14","p12"],
-   "optional": ["p05","p11","p15","p17"]
+   "optional": ["p05","p11","p15","p17","s01","s07","s08","p18","p99"]
   },
   {
    "id": "automation",
    "name": "Automation, scripting & scraping",
    "blurb": "Scripts that do repetitive work, then making them handle failures.",
-   "tags": ["automation", "scraping", "web", "linux"],
+   "tags": ["automation", "scraping", "bots", "linux"],
    "core": ["p00","p01","p02","p03","p06","p10"],
-   "optional": ["p07","p08","p11","p12"]
+   "optional": ["p07","p08","p11","p12","s03","s13","p18","p99"]
   },
   {
    "id": "devops",
@@ -55,15 +55,15 @@
    "blurb": "Linux, networking, containers, CI/CD and operations.",
    "tags": ["devops", "linux", "networking", "deployment"],
    "core": ["p00","p01","p02","p03","p06","p07","p12","p15"],
-   "optional": ["p08","p09","p11","p13","p16","p18","p99"]
+   "optional": ["p08","p09","p11","p13","p16","s09","s10","p18","p99"]
   },
   {
    "id": "security",
    "name": "Application security",
    "blurb": "Build an app first, then learn to attack it and fix it.",
    "tags": ["security", "backend", "networking"],
-   "core": ["p00","p01","p02","p03","p06","p07","p08","p09","p13"],
-   "optional": ["p04","p11","p12","p16"]
+   "core": ["p00","p01","p02","p03","p06","p07","p08","p09","p13","s12"],
+   "optional": ["p04","p11","p12","p15","p16","p18","p99"]
   },
   {
    "id": "interview",
@@ -72,6 +72,62 @@
    "tags": ["interview", "algorithms", "backend", "sql"],
    "core": ["p00","p01","p02","p03","p04","p05","p08","p09","p12"],
    "optional": ["p11","p13","p10","p18","p99"]
+  },
+  {
+   "id": "desktop",
+   "name": "Desktop apps & developer tools",
+   "blurb": "GUI applications and command-line tools that people install, with testing and packaging.",
+   "tags": ["gui", "desktop", "cli", "tooling"],
+   "core": ["p00","p01","p02","p03","s03","s02","s09","p11"],
+   "optional": ["p04","p06","p12","p16","p18","p99"]
+  },
+  {
+   "id": "gamedev",
+   "name": "Games & graphics",
+   "blurb": "Game loops, rendering, performance, and media processing.",
+   "tags": ["games", "graphics", "media"],
+   "core": ["p00","p01","p02","p03","p04","s04","p11"],
+   "optional": ["p05","s02","p14","p16","p18","p99"]
+  },
+  {
+   "id": "science",
+   "name": "Scientific computing & research",
+   "blurb": "Numerical methods, simulation, optimization and reproducible analysis.",
+   "tags": ["science", "optimization", "analysis"],
+   "core": ["p00","p01","p02","p03","p04","s01","s05"],
+   "optional": ["p05","p11","p14","p16","p17","p18","p99"]
+  },
+  {
+   "id": "quant",
+   "name": "Quantitative finance",
+   "blurb": "Market data, backtesting without bias, risk and portfolio analysis.",
+   "tags": ["finance", "quant", "analysis"],
+   "core": ["p00","p01","p02","p03","p04","s01","p08","s06"],
+   "optional": ["p05","p11","p14","p17","s05","p18","p99"]
+  },
+  {
+   "id": "qa",
+   "name": "Test automation & quality engineering",
+   "blurb": "Test strategy from unit to end-to-end, on real services and pipelines.",
+   "tags": ["testing", "qa"],
+   "core": ["p00","p01","p02","p03","s09","p06","p07","p08","p09","p10","p12"],
+   "optional": ["p11","p13","p15","p18","p99"]
+  },
+  {
+   "id": "netdevops",
+   "name": "Network automation",
+   "blurb": "Linux, networking and Python tooling to configure and validate networks.",
+   "tags": ["netauto", "networking", "devops"],
+   "core": ["p00","p01","p02","p03","p06","p07","s10","p12"],
+   "optional": ["p09","p11","p13","p15","p18","p99"]
+  },
+  {
+   "id": "embedded",
+   "name": "Embedded & IoT",
+   "blurb": "Python on microcontrollers and single-board computers, connected to services.",
+   "tags": ["embedded", "hardware"],
+   "core": ["p00","p01","p02","p03","p04","p06","s11","p07"],
+   "optional": ["p11","p12","p16","p18","p99"]
   }
  ]
 }

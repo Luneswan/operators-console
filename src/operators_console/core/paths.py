@@ -7,6 +7,11 @@ convention rather than inventing one:
     Windows   %APPDATA%\Operator's Console
     macOS     ~/Library/Application Support/Operator's Console
     Linux     $XDG_DATA_HOME/operators-console  (default ~/.local/share/...)
+
+That folder is the root. The first profile keeps its data in the root itself,
+so installs from before profiles existed keep working unchanged; every other
+profile has its own folder under root/profiles/<id>. The lock, the update
+staging folder and profiles.json always live in the root.
 """
 from __future__ import annotations
 
@@ -31,9 +36,53 @@ def _base_dir() -> Path:
     return Path(root) / APP_ID
 
 
-def data_dir() -> Path:
-    """The app's writable home, created on first access."""
+PROFILES_FILE = "profiles.json"
+DEFAULT_PROFILE = "default"
+_active: str | None = None
+
+
+def root_dir() -> Path:
+    """The folder holding every profile, created on first access."""
     d = _base_dir()
+    d.mkdir(parents=True, exist_ok=True)
+    return d
+
+
+def profile_dir(profile_id: str) -> Path:
+    if profile_id == DEFAULT_PROFILE:
+        return root_dir()
+    return root_dir() / "profiles" / profile_id
+
+
+def active_profile() -> str:
+    """The profile whose data the app reads and writes."""
+    global _active
+    if _active is None:
+        _active = _read_active()
+    return _active
+
+
+def set_active_profile(profile_id: str) -> None:
+    global _active
+    _active = profile_id
+
+
+def _read_active() -> str:
+    import json
+    try:
+        registry = json.loads((root_dir() / PROFILES_FILE).read_text(
+            encoding="utf-8"))
+        wanted = str(registry.get("active") or DEFAULT_PROFILE)
+    except (OSError, ValueError, AttributeError):
+        return DEFAULT_PROFILE
+    if wanted != DEFAULT_PROFILE and not profile_dir(wanted).is_dir():
+        return DEFAULT_PROFILE          # a removed or missing folder
+    return wanted
+
+
+def data_dir() -> Path:
+    """The active profile's writable folder, created on first access."""
+    d = profile_dir(active_profile())
     d.mkdir(parents=True, exist_ok=True)
     return d
 

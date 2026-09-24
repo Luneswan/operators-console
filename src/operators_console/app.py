@@ -229,7 +229,9 @@ def run(argv=None) -> int:
             raise_window(shown[0])
 
     try:
-        data = paths.data_dir()
+        # The root, not the active profile: one copy of the app at a time,
+        # whichever profile it has open.
+        data = paths.root_dir()
         key = instance_key(data)
         lock_path = data / LOCK_NAME
     except Exception:
@@ -245,11 +247,66 @@ def run(argv=None) -> int:
 
 
 def _open(app, shown) -> int:
-    """Open the database and the window, then run until the app quits."""
+    """Open the active profile's window, then run until the app quits."""
+    window = _new_window(app)
+    if window is None:
+        return 1
+    # The socket has been listening since before the database was opened;
+    # from here on a later launch brings this window forward.
+    shown.append(window)
+    # An update leaves a copy of its helper behind, and a failed one its
+    # package; clear them once the window is up, so the cleanup never
+    # delays the first paint.
+    from PySide6.QtCore import QTimer
+    from .core import updates
+    QTimer.singleShot(3000, updates.tidy_staging)
+
+    switch = profile_switcher(app, shown)
+    window.profile_switcher = switch
+    _onboard_if_new(window)
+    return app.exec()
+
+
+def profile_switcher(app, shown, onboard=None):
+    """A function that moves the window in `shown[0]` to another profile."""
+    onboard = onboard or _onboard_if_new
+
+    def switch(profile_id: str) -> bool:
+        """Close this profile's window and database, open another's."""
+        from .core import paths, profiles
+        previous = paths.active_profile()
+        if profile_id == previous:
+            return True
+        old = shown[0]
+        app.setQuitOnLastWindowClosed(False)
+        try:
+            old.close()
+            profiles.switch(profile_id)
+            opened = _new_window(app)
+            if opened is None:             # could not open it: go back
+                profiles.switch(previous)
+                opened = _new_window(app)
+            if opened is None:
+                app.quit()
+                return False
+        finally:
+            app.setQuitOnLastWindowClosed(True)
+        old.deleteLater()
+        shown[0] = opened
+        opened.profile_switcher = switch
+        onboard(opened)
+        return paths.active_profile() == profile_id
+
+    return switch
+
+
+def _new_window(app):
+    """The active profile's store, context and main window, shown."""
+    from PySide6.QtCore import QTimer
+
     from .core.storage import Store
     from .ui.context import AppContext
     from .ui.main_window import MainWindow
-    from .ui.onboarding import Onboarding
 
     try:
         store = Store()
@@ -259,7 +316,7 @@ def _open(app, shown) -> int:
             "The progress database could not be opened.\n\n%s\n\nIt is in the "
             "application data folder. To start over, move it out and restart. "
             "To recover, restore a backup." % exc)
-        return 1
+        return None
 
     try:
         ctx = AppContext(store=store)
@@ -272,29 +329,23 @@ def _open(app, shown) -> int:
             "read.\n\n%s\n\nRestore a snapshot from the backups folder, or "
             "move the database out and restart to start over." % exc)
         store.close()
-        return 1
+        return None
     ctx.set_dark_hint(_system_is_dark(app))
     app.styleHints().colorSchemeChanged.connect(
-        lambda _s: ctx.set_dark_hint(_system_is_dark(app)))
+        lambda _s: ctx.set_dark_hint(_system_is_dark(app))
+        if getattr(ctx.store, "is_open", False) else None)
 
     window = MainWindow(ctx)
     window.show()
-    # The socket has been listening since before the database was opened;
-    # from here on a later launch brings this window forward.
-    shown.append(window)
-    # An update leaves a copy of its helper behind, and a failed one its
-    # package; clear them once the window is up, so the cleanup never
-    # delays the first paint.
-    from PySide6.QtCore import QTimer
-    from .core import updates
-    QTimer.singleShot(3000, updates.tidy_staging)
     QTimer.singleShot(5000, lambda: _daily_snapshot(store))
+    return window
 
-    if not store.setting("onboarded", False):
-        Onboarding(ctx, window).exec()
+
+def _onboard_if_new(window) -> None:
+    from .ui.onboarding import Onboarding
+    if not window.ctx.store.setting("onboarded", False):
+        Onboarding(window.ctx, window).exec()
         window.go("today")
-
-    return app.exec()
 
 
 def _daily_snapshot(store) -> None:

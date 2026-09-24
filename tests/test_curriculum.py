@@ -13,8 +13,8 @@ def test_the_bundle_loads(curriculum):
     assert len(curriculum.projects) >= 20
     # Exact, so a question dropped in the pipeline fails here: ids are
     # positional and learners' review history is keyed on them.
-    assert len(curriculum.all_questions) == 242
-    assert len(curriculum.quizzes) == 20
+    assert len(curriculum.all_questions) == 354
+    assert len(curriculum.quizzes) == 34
 
 
 def test_every_id_is_unique(curriculum):

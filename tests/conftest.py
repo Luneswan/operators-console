@@ -20,8 +20,10 @@ def isolated_home(tmp_path, monkeypatch):
     monkeypatch.setenv("OPERATORS_CONSOLE_HOME", str(tmp_path / "home"))
     # The update check remembers GitHub's last answer for the whole process;
     # one test's release must not be another test's 304.
-    from operators_console.core import updates
+    from operators_console.core import paths, updates
     updates._latest.update(etag="", release=None)
+    # The open profile is cached per process; each test starts on the main one.
+    paths.set_active_profile(None)
     yield tmp_path
 
 

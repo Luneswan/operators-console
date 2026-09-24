@@ -1,0 +1,2133 @@
+{
+ "_comment": "Quizzes for the specialization phases, appended after the core quizzes by transform.py. Question ids are positional: append new questions, never reorder or delete. The correct choice is written first; transform.py places it by a fixed rule.",
+ "quizzes": [
+  {
+   "id": "q20",
+   "phase": "s01",
+   "n": "Data analysis",
+   "d": "Cleaning, grouping and charting data correctly.",
+   "qs": [
+    {
+     "q": "Why does `df[df.a > 0]['b'] = 1` often fail to change `df`?",
+     "a": [
+      "The filter returns a copy, which gets the assignment",
+      "Boolean filters and column selection cannot be combined",
+      "pandas makes a DataFrame read-only after its first filter",
+      "Column `b` has to be converted to a list before assignment"
+     ],
+     "c": 0,
+     "e": "Chained indexing runs two separate operations. The first may return a copy, so the second assigns into a temporary object. `df.loc[df.a > 0, 'b'] = 1` does it in one step on the original.",
+     "explain_choice": [
+      "",
+      "Combining a row filter and a column is exactly what `.loc[rows, col]` does in one call.",
+      "DataFrames stay mutable; the problem is which object receives the assignment.",
+      "Converting to a list would detach the data further from the DataFrame."
+     ],
+     "teaches": "s01.s0.1"
+    },
+    {
+     "q": "Two tables are merged on `customer_id` and the result has more rows than either input. What happened?",
+     "a": [
+      "The key repeats on both sides, so rows multiply",
+      "The merge dropped the index and then duplicated every row",
+      "pandas adds one extra row for every null value in the key",
+      "An outer merge was used where an inner merge was intended"
+     ],
+     "c": 0,
+     "e": "A merge pairs every matching row on the left with every matching row on the right. If a key appears 3 times on one side and 2 on the other, it yields 6 rows. Check key uniqueness with `validate='one_to_many'` before merging.",
+     "explain_choice": [
+      "",
+      "The index is not duplicated by a merge; the row count grows from the key matches.",
+      "Null keys do not create extra rows by themselves.",
+      "An outer merge can add unmatched rows, but it cannot exceed the matched-pair count by multiplying."
+     ],
+     "teaches": "s01.s0.4"
+    },
+    {
+     "q": "You need the total sales per region per month. Which operation fits?",
+     "a": [
+      "`groupby` region and month, then `sum`",
+      "`merge` the table with itself on the region column",
+      "`concat` the monthly files, then sort them by region",
+      "`apply` a row function that adds each sale to a total"
+     ],
+     "c": 0,
+     "e": "Grouping by the two keys and aggregating is the direct expression of the question. A pivot table is the same operation laid out with months as columns.",
+     "explain_choice": [
+      "",
+      "A self-merge pairs rows; it does not total anything.",
+      "Concatenating and sorting puts rows next to each other without summing them.",
+      "A row-wise apply sees one row at a time and cannot total across rows by itself."
+     ],
+     "teaches": "s01.s0.4"
+    },
+    {
+     "q": "Ice cream sales and drownings rise together over a year. What does the correlation show?",
+     "a": [
+      "That they move together, maybe from a shared cause",
+      "That higher ice cream sales cause more drownings",
+      "That more drownings cause higher ice cream sales",
+      "Nothing at all, because correlation needs normal data"
+     ],
+     "c": 0,
+     "e": "Correlation measures association. Here a third factor, hot weather, drives both. Claiming causation needs an experiment or a causal argument that rules out confounders.",
+     "explain_choice": [
+      "",
+      "Association alone cannot establish direction or cause.",
+      "The reverse direction has the same problem as the forward one.",
+      "Correlation can be computed for any numeric data; normality matters for some tests, not for describing association."
+     ],
+     "teaches": "s01.s0.6"
+    },
+    {
+     "q": "Which chart best shows how one numeric variable is distributed?",
+     "a": [
+      "A histogram",
+      "A pie chart of the values",
+      "A line chart over row order",
+      "A stacked bar chart by category"
+     ],
+     "c": 0,
+     "e": "A histogram bins the values and shows their shape: centre, spread, skew and outliers. A box plot is a compact alternative.",
+     "explain_choice": [
+      "",
+      "Pie charts show parts of a whole, not a distribution of values.",
+      "Row order is usually meaningless, so a line over it shows nothing.",
+      "Stacked bars compare category totals, not the spread of one variable."
+     ],
+     "teaches": "s01.s0.8"
+    },
+    {
+     "q": "Dates in a CSV load as strings. What is the best fix?",
+     "a": [
+      "Parse them on load with `parse_dates`",
+      "Sort the strings, since ISO dates sort correctly anyway",
+      "Keep them as strings and slice out the year when needed",
+      "Convert the column to integers with `astype(int)`"
+     ],
+     "c": 0,
+     "e": "Real datetime values support resampling, time zones, differences and correct sorting for every format. Parsing once at load keeps the rest of the code simple.",
+     "explain_choice": [
+      "",
+      "Sorting helps only for ISO formats and gives none of the date arithmetic.",
+      "String slicing breaks on other formats and cannot compute durations.",
+      "Date strings with separators cannot be cast to int, and an integer loses the calendar."
+     ],
+     "teaches": "s01.s0.2"
+    },
+    {
+     "q": "A column has 30% missing values. What should you do first?",
+     "a": [
+      "Find out why they are missing",
+      "Fill them with the mean of the column",
+      "Drop every row with a missing value",
+      "Replace them with zero so sums work"
+     ],
+     "c": 0,
+     "e": "Values missing at random, missing for a reason, or missing because of a join all need different handling. Imputing or dropping without knowing the cause can bias every result.",
+     "explain_choice": [
+      "",
+      "Mean imputation shrinks the variance and can hide a pattern in why data is missing.",
+      "Dropping 30% of rows can bias the sample if the missing rows differ.",
+      "Zero is a real value; it distorts sums and means."
+     ],
+     "teaches": "s01.s0.3"
+    },
+    {
+     "q": "Why prefer a vectorized pandas operation over a Python loop over rows?",
+     "a": [
+      "It runs compiled code over whole columns",
+      "Python loops over a DataFrame raise errors",
+      "Vectorized code takes up less space on disk",
+      "A Python loop reorders the rows as it goes"
+     ],
+     "c": 0,
+     "e": "Column operations run in NumPy's compiled loops over contiguous data. A Python loop pays interpreter overhead per row and is often 100 times slower.",
+     "explain_choice": [
+      "",
+      "Loops work; they are just slow.",
+      "Disk space is not affected by how the computation is written.",
+      "Iterating does not reorder rows."
+     ],
+     "teaches": "s01.s0.0"
+    }
+   ]
+  },
+  {
+   "id": "q21",
+   "phase": "s02",
+   "n": "Desktop apps",
+   "d": "Event loops, threads, models and packaging.",
+   "qs": [
+    {
+     "q": "A button handler runs a 10-second calculation and the window stops responding. Why?",
+     "a": [
+      "The handler blocks the event loop, so nothing repaints",
+      "The operating system limits how long a button stays pressed",
+      "Qt runs every click handler in a separate process",
+      "The window needs a higher refresh rate to keep up"
+     ],
+     "c": 0,
+     "e": "GUI toolkits process events on one thread. While a handler runs, nothing else on that thread runs, including painting. Move the work to a worker and send results back by signal.",
+     "explain_choice": [
+      "",
+      "There is no press-duration limit; the loop is simply busy.",
+      "Handlers run on the GUI thread, which is why they can block it.",
+      "Refresh rate does not matter when the loop cannot run at all."
+     ],
+     "teaches": "s02.s0.0"
+    },
+    {
+     "q": "A worker thread needs to update a label. What is the safe way in Qt?",
+     "a": [
+      "Emit a signal that the GUI thread handles",
+      "Call `label.setText` directly from the worker thread",
+      "Lock a mutex first, then call `label.setText` from the worker",
+      "Restart the application so it shows the new text"
+     ],
+     "c": 0,
+     "e": "Widgets are not thread-safe. A signal emitted from the worker is queued and delivered on the GUI thread, where updating the widget is safe.",
+     "explain_choice": [
+      "",
+      "Touching widgets from another thread can crash or corrupt the UI.",
+      "A mutex does not make widget code thread-safe; Qt requires the GUI thread.",
+      "Restarting is not an update mechanism."
+     ],
+     "teaches": "s02.s0.3"
+    },
+    {
+     "q": "Why use a model/view table for 100,000 rows instead of one widget per cell?",
+     "a": [
+      "The view draws only visible rows and asks the model",
+      "Plain widgets cannot display numeric values at all",
+      "Only model/view tables support sorting by a column",
+      "Qt limits every window to a thousand child widgets"
+     ],
+     "c": 0,
+     "e": "A model answers questions like row count and data at (row, column). The view draws only what is on screen, so memory and start-up time stay small.",
+     "explain_choice": [
+      "",
+      "Widgets can show numbers; the cost is creating so many of them.",
+      "Sorting can be done either way; the difference is scale.",
+      "There is no such limit; the problem is memory and speed."
+     ],
+     "teaches": "s02.s0.4"
+    },
+    {
+     "q": "Where should an app store its settings on Windows?",
+     "a": [
+      "In a folder under `%APPDATA%`",
+      "Next to the executable in Program Files",
+      "In the current working directory at start-up",
+      "In the Windows system directory for safety"
+     ],
+     "c": 0,
+     "e": "Program Files is not writable by normal users, and the working directory changes. Per-user data belongs in the platform's standard location, such as `%APPDATA%` on Windows.",
+     "explain_choice": [
+      "",
+      "Program Files needs administrator rights to write and is shared by all users.",
+      "The working directory depends on how the app was launched.",
+      "The Windows directory is for the operating system."
+     ],
+     "teaches": "s02.s0.6"
+    },
+    {
+     "q": "What does PyInstaller produce?",
+     "a": [
+      "Your code, its libraries and a Python interpreter",
+      "A compiled machine-code version of your Python source",
+      "An installer that downloads Python the first time it runs",
+      "A browser-based version of the same desktop application"
+     ],
+     "c": 0,
+     "e": "PyInstaller collects the interpreter, your modules and libraries into a folder or single file that runs without Python installed. The code is still interpreted.",
+     "explain_choice": [
+      "",
+      "It does not compile Python to machine code; it bundles the interpreter.",
+      "Nothing is downloaded; the interpreter is included.",
+      "It targets desktop operating systems, not browsers."
+     ],
+     "teaches": "s02.s0.7"
+    },
+    {
+     "q": "How should app logic be tested in a GUI project?",
+     "a": [
+      "Keep it in plain classes tested without widgets",
+      "Click through the whole app by hand before each release",
+      "Test it only by comparing screenshots of the window",
+      "Skip tests, since code inside a GUI cannot be tested"
+     ],
+     "c": 0,
+     "e": "Logic separated from widgets can be tested quickly with pytest and no display. A few GUI-level tests can then cover the wiring.",
+     "explain_choice": [
+      "",
+      "Manual checks are slow and miss regressions.",
+      "Screenshots are brittle and slow as the main test method.",
+      "Logic can be tested once it is separated from the widgets."
+     ],
+     "teaches": "s02.s0.2"
+    },
+    {
+     "q": "Why does code signing matter for a distributed desktop app?",
+     "a": [
+      "The system warns about or blocks unsigned apps",
+      "Signed applications start up and run faster",
+      "Signing encrypts the source code inside the bundle",
+      "Unsigned applications are not allowed to read files"
+     ],
+     "c": 0,
+     "e": "Windows SmartScreen and macOS Gatekeeper treat unsigned downloads as untrusted. Signing proves who published the build and that it was not altered.",
+     "explain_choice": [
+      "",
+      "Signing has no effect on speed.",
+      "Signing does not encrypt anything; it attaches a verifiable signature.",
+      "File access is not affected by signing."
+     ],
+     "teaches": "s02.s0.7"
+    },
+    {
+     "q": "A long task has a Cancel button. How should the worker handle cancellation?",
+     "a": [
+      "Check a cancel flag between steps and stop cleanly",
+      "Kill the worker thread from the GUI straight away",
+      "Ignore the button until the task has finished anyway",
+      "Close the main window, which ends the task with it"
+     ],
+     "c": 0,
+     "e": "Threads cannot be killed safely in Python. The worker checks a flag at safe points, cleans up and reports that it stopped.",
+     "explain_choice": [
+      "",
+      "Python has no safe way to kill a thread; resources can be left broken.",
+      "Ignoring cancel makes the button pointless.",
+      "Closing the window can leave the worker running or corrupt data."
+     ],
+     "teaches": "s02.s0.3"
+    }
+   ]
+  },
+  {
+   "id": "q22",
+   "phase": "s03",
+   "n": "Command-line tools",
+   "d": "Interfaces, exit codes and distribution.",
+   "qs": [
+    {
+     "q": "Where should a CLI write its error messages?",
+     "a": [
+      "To stderr, with a non-zero exit code",
+      "To stdout, with each line prefixed by ERROR",
+      "To a log file, and nowhere else at all",
+      "To stdout, followed by an exit code of 0"
+     ],
+     "c": 0,
+     "e": "Keeping errors on stderr means a pipe like `tool | other` passes only real output. The exit code tells scripts that it failed.",
+     "explain_choice": [
+      "",
+      "Errors on stdout end up in the next program's input.",
+      "A log file alone hides errors from the person running the command.",
+      "Exit code 0 tells scripts the command succeeded."
+     ],
+     "teaches": "s03.s0.2"
+    },
+    {
+     "q": "What does exit code 2 usually mean for a command-line tool?",
+     "a": [
+      "The command was used incorrectly",
+      "The command succeeded but printed warnings",
+      "The command was interrupted by the user",
+      "The command ran out of memory and stopped"
+     ],
+     "c": 0,
+     "e": "By convention, and in argparse, 2 means a usage error such as a bad option. 0 is success and 1 is a general failure.",
+     "explain_choice": [
+      "",
+      "Success is 0, with or without warnings.",
+      "Ctrl+C usually gives 130.",
+      "Out-of-memory kills are reported by the system, often as 137."
+     ],
+     "teaches": "s03.s0.2"
+    },
+    {
+     "q": "A setting can come from a flag, an environment variable and a config file. Which usually wins?",
+     "a": [
+      "The flag",
+      "The config file",
+      "The environment variable",
+      "Whichever source was set most recently"
+     ],
+     "c": 0,
+     "e": "The most specific source wins: a flag applies to this run only, the environment to the session, the config file to every run.",
+     "explain_choice": [
+      "",
+      "The config file is the broadest and usually the lowest-priority source after defaults.",
+      "The environment is overridden by an explicit flag.",
+      "Tools do not track when each source was set."
+     ],
+     "teaches": "s03.s0.4"
+    },
+    {
+     "q": "Why add a `--json` output option?",
+     "a": [
+      "So other programs can parse the output",
+      "So the printed output is shorter than a table",
+      "Because terminals cannot display plain text",
+      "So the tool finishes its work more quickly"
+     ],
+     "c": 0,
+     "e": "Human-formatted tables change and break parsers. A stable JSON format gives scripts a contract.",
+     "explain_choice": [
+      "",
+      "JSON is often longer than a formatted table.",
+      "Terminals show plain text fine.",
+      "Output format does not change speed meaningfully."
+     ],
+     "teaches": "s03.s0.2"
+    },
+    {
+     "q": "What does an entry point in `pyproject.toml` do?",
+     "a": [
+      "Creates a command that calls your function",
+      "Marks the first line of the program to run",
+      "Lists the source files to include in the package",
+      "Sets the minimum Python version for the tool"
+     ],
+     "c": 0,
+     "e": "`[project.scripts] mytool = \"mypkg.cli:main\"` makes the installer create a `mytool` command that imports and calls `main`.",
+     "explain_choice": [
+      "",
+      "Python starts from the called function, not a marked line.",
+      "File inclusion is configured separately.",
+      "The Python version is `requires-python`."
+     ],
+     "teaches": "s03.s0.6"
+    },
+    {
+     "q": "Why install command-line tools with pipx?",
+     "a": [
+      "Each tool gets its own isolated environment",
+      "pipx installs packages much faster than pip",
+      "pipx compiles each tool into machine code",
+      "pipx is required to publish a tool to PyPI"
+     ],
+     "c": 0,
+     "e": "pipx creates an isolated virtual environment per tool and puts its command on PATH, so two tools needing different library versions both work.",
+     "explain_choice": [
+      "",
+      "Speed is not the point; isolation is.",
+      "pipx does not compile anything.",
+      "Publishing uses build and upload tools, not pipx."
+     ],
+     "teaches": "s03.s0.6"
+    },
+    {
+     "q": "A tool prints a progress bar. What should it do when its output is piped to a file?",
+     "a": [
+      "Turn the progress bar off",
+      "Write the progress bar into the file",
+      "Refuse to run when output is redirected",
+      "Print the progress bar to stdout twice"
+     ],
+     "c": 0,
+     "e": "Progress bars use control characters meant for terminals. Check `sys.stdout.isatty()` and skip the bar when output is not a terminal.",
+     "explain_choice": [
+      "",
+      "The file fills with control characters.",
+      "Piping output is a normal use and must work.",
+      "Repeating the bar makes the output worse."
+     ],
+     "teaches": "s03.s0.5"
+    },
+    {
+     "q": "What should a tool do when it reads input from a pipe?",
+     "a": [
+      "Read from stdin, so it works in a pipeline",
+      "Require a file path argument in every case",
+      "Wait for the user to press Enter before reading",
+      "Search the whole disk for files that match"
+     ],
+     "c": 0,
+     "e": "Reading stdin when no file is given lets the tool combine with others, as in `cat log | tool`.",
+     "explain_choice": [
+      "",
+      "Requiring a path makes the tool unusable in pipelines.",
+      "Pipes deliver data without a key press.",
+      "Scanning the disk has nothing to do with the input stream."
+     ],
+     "teaches": "s03.s0.3"
+    }
+   ]
+  },
+  {
+   "id": "q23",
+   "phase": "s04",
+   "n": "Games & graphics",
+   "d": "Game loops, collisions and performance.",
+   "qs": [
+    {
+     "q": "Why multiply movement by delta time?",
+     "a": [
+      "So speed is the same at any frame rate",
+      "So the game uses less memory per frame",
+      "So sprites are drawn in the right order",
+      "So collisions are checked less often"
+     ],
+     "c": 0,
+     "e": "Without delta time, an object moves a fixed amount per frame, so it moves twice as fast at 120 fps as at 60 fps.",
+     "explain_choice": [
+      "",
+      "Delta time does not affect memory.",
+      "Draw order is a separate concern.",
+      "Collision frequency depends on the loop, not on scaling movement."
+     ],
+     "teaches": "s04.s0.1"
+    },
+    {
+     "q": "What are the three steps of a basic game loop?",
+     "a": [
+      "Read input, update the state, render",
+      "Load the assets, save the game, then quit",
+      "Render, sleep for a while, render again",
+      "Update, compile the scene, update again"
+     ],
+     "c": 0,
+     "e": "Each frame reads input, advances the simulation, then draws the result. Keeping the steps separate makes the game easier to reason about.",
+     "explain_choice": [
+      "",
+      "Loading and saving happen outside the per-frame loop.",
+      "Rendering without updating shows a frozen game.",
+      "Nothing is compiled per frame."
+     ],
+     "teaches": "s04.s0.0"
+    },
+    {
+     "q": "A fast bullet passes through a thin wall between frames. What is this called?",
+     "a": [
+      "Tunnelling",
+      "Aliasing",
+      "Z-fighting",
+      "Screen tearing"
+     ],
+     "c": 0,
+     "e": "When an object moves further than an obstacle's thickness in one step, a check at each frame's position misses the overlap. Sweep tests or smaller steps fix it.",
+     "explain_choice": [
+      "",
+      "Aliasing is a sampling artefact in images or signals.",
+      "Z-fighting is flicker between surfaces at the same depth.",
+      "Tearing is a display sync issue."
+     ],
+     "teaches": "s04.s0.3"
+    },
+    {
+     "q": "Why use a state machine for menus, gameplay and pause?",
+     "a": [
+      "Each state owns its input and drawing",
+      "It lets the game run on more platforms",
+      "pygame requires a state machine to start",
+      "It removes the need for a game loop at all"
+     ],
+     "c": 0,
+     "e": "Explicit states stop bugs like pausing from the menu or dying while paused. Each transition is one clear rule.",
+     "explain_choice": [
+      "",
+      "Portability does not depend on this structure.",
+      "pygame does not require any particular structure.",
+      "The loop still runs; the state decides what it does."
+     ],
+     "teaches": "s04.s0.4"
+    },
+    {
+     "q": "How many milliseconds per frame does 60 fps allow?",
+     "a": [
+      "About 16.7",
+      "About 60",
+      "About 6",
+      "About 100"
+     ],
+     "c": 0,
+     "e": "1000 ms divided by 60 frames is 16.7 ms. Input, update and rendering all have to fit in that budget.",
+     "explain_choice": [
+      "",
+      "60 ms per frame is about 16 fps.",
+      "6 ms per frame is about 166 fps.",
+      "100 ms per frame is 10 fps."
+     ],
+     "teaches": "s04.s0.7"
+    },
+    {
+     "q": "Why load images and sounds once instead of every frame?",
+     "a": [
+      "Disk reads are slow and would stall frames",
+      "Loaded assets expire after they are drawn once",
+      "pygame can hold only one asset in memory at a time",
+      "Loading once a frame keeps the files smaller"
+     ],
+     "c": 0,
+     "e": "Disk reads and decoding take far longer than a frame. Load at start or level change and keep the objects in memory.",
+     "explain_choice": [
+      "",
+      "Loaded surfaces stay valid until you discard them.",
+      "pygame can hold many assets at once.",
+      "Loading does not change file sizes."
+     ],
+     "teaches": "s04.s0.6"
+    },
+    {
+     "q": "Many objects need collision checks against each other. What reduces the cost?",
+     "a": [
+      "Partition space so only nearby pairs are checked",
+      "Check every pair of objects twice for safety",
+      "Draw the objects smaller on the screen",
+      "Check for collisions only once per second"
+     ],
+     "c": 0,
+     "e": "Checking every pair is O(n^2). A grid or quadtree limits checks to objects in the same or neighbouring cells.",
+     "explain_choice": [
+      "",
+      "Checking twice doubles the work.",
+      "Drawing size does not change how many checks run.",
+      "Checking rarely misses collisions."
+     ],
+     "teaches": "s04.s0.3"
+    },
+    {
+     "q": "What is a sprite sheet?",
+     "a": [
+      "One image holding many animation frames",
+      "A list of every sprite's current position",
+      "A spreadsheet of the game's statistics",
+      "A single file bundling all sound effects"
+     ],
+     "c": 0,
+     "e": "Packing frames into one image means one load and one texture. Animation draws a different rectangle of the sheet each frame.",
+     "explain_choice": [
+      "",
+      "Positions are game state, not a sheet.",
+      "Statistics are unrelated to sprites.",
+      "Sounds are stored separately."
+     ],
+     "teaches": "s04.s0.2"
+    }
+   ]
+  },
+  {
+   "id": "q24",
+   "phase": "s05",
+   "n": "Scientific computing",
+   "d": "Numerical error, solvers and reproducibility.",
+   "qs": [
+    {
+     "q": "How should you compare two computed floats for equality?",
+     "a": [
+      "Check they are within a tolerance",
+      "Compare them with `==` after converting both to strings",
+      "Round both to the nearest integer, then compare them",
+      "Compare them with `is` instead of with `==`"
+     ],
+     "c": 0,
+     "e": "Floating-point rounding means mathematically equal results can differ in the last bits. A relative and absolute tolerance expresses what equal means for your problem.",
+     "explain_choice": [
+      "",
+      "String conversion keeps the same rounding differences.",
+      "Rounding to integers throws away all the precision you computed.",
+      "`is` checks object identity, not value."
+     ],
+     "teaches": "s05.s0.0"
+    },
+    {
+     "q": "Subtracting two nearly equal large numbers loses accuracy. What is this called?",
+     "a": [
+      "Catastrophic cancellation",
+      "Integer overflow",
+      "Stack overflow",
+      "Underflow to infinity"
+     ],
+     "c": 0,
+     "e": "The leading digits cancel and the result keeps only the least accurate ones. Rearranging the formula often avoids it.",
+     "explain_choice": [
+      "",
+      "Python integers do not overflow.",
+      "Stack overflow is deep recursion.",
+      "Underflow goes towards zero, not infinity."
+     ],
+     "teaches": "s05.s0.0"
+    },
+    {
+     "q": "You halve the step size of a first-order method. What happens to the error, roughly?",
+     "a": [
+      "It halves",
+      "It quarters",
+      "It stays the same",
+      "It doubles"
+     ],
+     "c": 0,
+     "e": "First-order methods such as forward Euler have error proportional to the step size. Halving the step halves the error; a second-order method would quarter it.",
+     "explain_choice": [
+      "",
+      "Quartering is the behaviour of a second-order method.",
+      "The error depends on step size, so it changes.",
+      "Smaller steps reduce the error for a stable method."
+     ],
+     "teaches": "s05.s0.4"
+    },
+    {
+     "q": "What does `scipy.optimize.minimize` return for a non-convex function?",
+     "a": [
+      "A local minimum near the starting point",
+      "The global minimum, whatever the shape",
+      "The maximum of the function instead",
+      "A list of every minimum of the function"
+     ],
+     "c": 0,
+     "e": "Local methods follow the slope downhill from the starting point. For non-convex problems, try several starting points or a global method.",
+     "explain_choice": [
+      "",
+      "Local solvers cannot guarantee a global minimum.",
+      "It minimizes; maximize by minimizing the negative.",
+      "It returns one solution, not all of them."
+     ],
+     "teaches": "s05.s0.3"
+    },
+    {
+     "q": "Why set a random seed in a Monte Carlo simulation?",
+     "a": [
+      "So the results can be reproduced",
+      "So the results are more accurate",
+      "So the simulation runs faster",
+      "So the numbers are more random"
+     ],
+     "c": 0,
+     "e": "A fixed seed gives the same random sequence each run, so a result can be checked and debugged. Accuracy comes from the number of samples.",
+     "explain_choice": [
+      "",
+      "Accuracy depends on sample count, not the seed.",
+      "Seeding has no effect on speed.",
+      "A seed makes the sequence repeatable, not more random."
+     ],
+     "teaches": "s05.s0.7"
+    },
+    {
+     "q": "When is Numba most useful?",
+     "a": [
+      "Numeric loops that NumPy cannot vectorize",
+      "Code that spends its time waiting on the network",
+      "Programs dominated by string parsing and formatting",
+      "Code already written as vectorized NumPy operations"
+     ],
+     "c": 0,
+     "e": "Numba compiles numeric Python functions, so explicit loops run near C speed. Vectorized NumPy code is already compiled, and I/O-bound code does not benefit.",
+     "explain_choice": [
+      "",
+      "Waiting on the network is not a CPU problem.",
+      "Numba targets numeric code, not general strings.",
+      "Vectorized NumPy already runs in compiled loops."
+     ],
+     "teaches": "s05.s0.1"
+    },
+    {
+     "q": "A delivery company must choose routes that minimize distance under capacity limits. Which tool fits?",
+     "a": [
+      "A routing or integer programming solver",
+      "A linear regression over past delivery times",
+      "A Fourier transform of the delivery schedule",
+      "A hash table lookup of the shortest known route"
+     ],
+     "c": 0,
+     "e": "Vehicle routing is a combinatorial optimization problem. Solvers search the space with guarantees or good heuristics.",
+     "explain_choice": [
+      "",
+      "Regression predicts values; it does not choose routes.",
+      "Fourier transforms analyse frequencies.",
+      "A lookup cannot search over route combinations."
+     ],
+     "teaches": "s05.s0.6"
+    },
+    {
+     "q": "What makes a computational result reproducible?",
+     "a": [
+      "Pinned dependencies and a script that rebuilds everything",
+      "Saving the final notebook together with all its outputs",
+      "Writing up the results in a long and detailed report",
+      "Running the whole analysis again on a faster machine"
+     ],
+     "c": 0,
+     "e": "Someone else must be able to rerun the whole path from raw data to figures and get the same numbers.",
+     "explain_choice": [
+      "",
+      "A saved notebook shows outputs but may depend on cells run out of order.",
+      "A report describes results; it does not regenerate them.",
+      "Hardware speed does not affect reproducibility."
+     ],
+     "teaches": "s05.s0.9"
+    }
+   ]
+  },
+  {
+   "id": "q25",
+   "phase": "s06",
+   "n": "Quantitative finance",
+   "d": "Returns, bias in backtests, and risk.",
+   "qs": [
+    {
+     "q": "A backtest uses the day's closing price to decide a trade at that day's open. What is wrong?",
+     "a": [
+      "Lookahead bias: it uses unknown information",
+      "Survivorship bias: it ignores delisted stocks",
+      "Overfitting: the model has too many parameters",
+      "Nothing is wrong, provided the data is accurate"
+     ],
+     "c": 0,
+     "e": "At the open, the close has not happened. Any signal must use only data available at decision time, or the results are fiction.",
+     "explain_choice": [
+      "",
+      "Survivorship bias is about which assets are in the data.",
+      "Overfitting is a separate problem about fitting noise.",
+      "Accurate data does not fix using it before it exists."
+     ],
+     "teaches": "s06.s0.3"
+    },
+    {
+     "q": "Why use `Decimal` for account balances?",
+     "a": [
+      "Floats cannot store most decimal amounts exactly",
+      "Decimal arithmetic runs faster than float arithmetic",
+      "Floats cannot hold negative account balances",
+      "Decimal values take up less memory than floats"
+     ],
+     "c": 0,
+     "e": "0.1 has no exact binary representation, so float sums drift by fractions of a cent. Decimal stores base-10 digits exactly.",
+     "explain_choice": [
+      "",
+      "Decimal is slower than float.",
+      "Floats store negatives fine.",
+      "Decimal objects use more memory."
+     ],
+     "teaches": "s06.s0.1"
+    },
+    {
+     "q": "A portfolio goes from 100 to 150 to 90. What is the maximum drawdown?",
+     "a": [
+      "40%",
+      "10%",
+      "33%",
+      "60%"
+     ],
+     "c": 0,
+     "e": "Drawdown is measured from the running peak: from 150 to 90 is a fall of 60, which is 40% of 150.",
+     "explain_choice": [
+      "",
+      "10% compares 90 with the starting value 100, not the peak.",
+      "33% would be 50/150, the rise, not the fall.",
+      "60 is the absolute fall, not a percentage of the peak."
+     ],
+     "teaches": "s06.s0.4"
+    },
+    {
+     "q": "Why must a backtest include fees and slippage?",
+     "a": [
+      "They can make a winning strategy lose",
+      "Regulators require them in every backtest",
+      "They make the backtest code run faster",
+      "They remove lookahead bias from the results"
+     ],
+     "c": 0,
+     "e": "Strategies that trade often pay costs on every trade. Small edges disappear once realistic costs are included.",
+     "explain_choice": [
+      "",
+      "It is about realism, not a legal rule for research code.",
+      "Costs do not affect speed.",
+      "Costs and lookahead are separate problems."
+     ],
+     "teaches": "s06.s0.3"
+    },
+    {
+     "q": "Why are random train/test splits a problem for time series?",
+     "a": [
+      "Training can use data from after the test period",
+      "Random splits are too slow on large datasets",
+      "pandas cannot shuffle a time-indexed DataFrame",
+      "A random split leaves the test set empty"
+     ],
+     "c": 0,
+     "e": "Shuffling lets the model learn from later data and predict earlier data, which leaks the future. Split by time and use walk-forward testing.",
+     "explain_choice": [
+      "",
+      "Speed is not the issue.",
+      "pandas can shuffle any DataFrame.",
+      "A random split produces a test set of the requested size."
+     ],
+     "teaches": "s06.s0.6"
+    },
+    {
+     "q": "What does the Sharpe ratio measure?",
+     "a": [
+      "Excess return per unit of volatility",
+      "Total return over the whole period",
+      "The largest loss from a previous peak",
+      "The share of trades that made money"
+     ],
+     "c": 0,
+     "e": "It divides the return above a risk-free rate by the standard deviation of returns, so two strategies with different risk can be compared.",
+     "explain_choice": [
+      "",
+      "Total return ignores risk.",
+      "That is maximum drawdown.",
+      "Win rate ignores the size of wins and losses."
+     ],
+     "teaches": "s06.s0.4"
+    },
+    {
+     "q": "A dataset contains only stocks listed today. What bias does a backtest on it have?",
+     "a": [
+      "Survivorship bias",
+      "Lookahead bias",
+      "Parameter selection bias",
+      "Rounding bias"
+     ],
+     "c": 0,
+     "e": "Companies that failed or were delisted are missing, so the historical universe looks better than it was.",
+     "explain_choice": [
+      "",
+      "Lookahead is using future information in a decision.",
+      "Parameter selection is overfitting, a different issue.",
+      "Rounding does not explain a missing set of companies."
+     ],
+     "teaches": "s06.s0.3"
+    },
+    {
+     "q": "Prices must be adjusted before computing long-term returns. Why?",
+     "a": [
+      "Splits and dividends move the price, not the value",
+      "Exchanges round their published prices every day",
+      "Older prices were quoted in a different currency",
+      "Adjusted prices are smaller and easier to store"
+     ],
+     "c": 0,
+     "e": "A 2-for-1 split halves the price overnight. Without adjustment it looks like a 50% loss.",
+     "explain_choice": [
+      "",
+      "Rounding is tiny compared with a split.",
+      "Currency is not the usual reason.",
+      "Size of the number is irrelevant."
+     ],
+     "teaches": "s06.s0.0"
+    }
+   ]
+  },
+  {
+   "id": "q26",
+   "phase": "s07",
+   "n": "Computer vision",
+   "d": "Images, convolutions and detection metrics.",
+   "qs": [
+    {
+     "q": "Why do convolutional layers suit images?",
+     "a": [
+      "One small filter is shared across all positions",
+      "They turn each whole image into a single number",
+      "They sort the pixels of the image by brightness",
+      "They work well without any training data at all"
+     ],
+     "c": 0,
+     "e": "A feature such as an edge can appear anywhere. Sharing one filter across the image detects it at every position with few parameters.",
+     "explain_choice": [
+      "",
+      "Convolutions produce feature maps, not one number.",
+      "They combine neighbouring pixels; they do not sort them.",
+      "The filters are learned from data."
+     ],
+     "teaches": "s07.s0.3"
+    },
+    {
+     "q": "Two boxes of area 4 overlap in an area of 2. What is their IoU?",
+     "a": [
+      "1/3",
+      "1/2",
+      "2",
+      "1/4"
+     ],
+     "c": 0,
+     "e": "The union is 4 + 4 - 2 = 6, and 2 / 6 = 1/3.",
+     "explain_choice": [
+      "",
+      "1/2 divides by one box's area instead of the union.",
+      "IoU is a ratio between 0 and 1.",
+      "1/4 divides by the sum of both areas plus the overlap."
+     ],
+     "teaches": "s07.s0.6"
+    },
+    {
+     "q": "What is transfer learning in vision?",
+     "a": [
+      "Fine-tuning a model pretrained on a large dataset",
+      "Copying images from one dataset into another",
+      "Training two separate models and averaging them",
+      "Converting a trained model to run on a phone"
+     ],
+     "c": 0,
+     "e": "Early layers of a pretrained network already detect general features. Fine-tuning them needs far less data than training from scratch.",
+     "explain_choice": [
+      "",
+      "Moving images does not transfer learned features.",
+      "Averaging models is ensembling.",
+      "Conversion for devices is deployment, not transfer learning."
+     ],
+     "teaches": "s07.s0.4"
+    },
+    {
+     "q": "Which augmentation can change the correct label?",
+     "a": [
+      "Flipping an image of a left-pointing arrow",
+      "Slightly changing the brightness of a cat photo",
+      "Cropping a few pixels from the edge of a car photo",
+      "Adding a little noise to a photo of a dog"
+     ],
+     "c": 0,
+     "e": "If the label depends on direction, a flip turns left into right. Choose augmentations that keep the label true.",
+     "explain_choice": [
+      "",
+      "A cat is still a cat at a different brightness.",
+      "A small crop keeps the car in view.",
+      "Mild noise does not change what the photo shows."
+     ],
+     "teaches": "s07.s0.5"
+    },
+    {
+     "q": "An OpenCV image loads with its colours looking wrong in Matplotlib. Why?",
+     "a": [
+      "OpenCV uses BGR order; Matplotlib expects RGB",
+      "OpenCV stores every loaded image as a string",
+      "Matplotlib cannot display colour images at all",
+      "The image file was saved with the wrong extension"
+     ],
+     "c": 0,
+     "e": "Red and blue are swapped between the two. Convert with `cv2.cvtColor(img, cv2.COLOR_BGR2RGB)`.",
+     "explain_choice": [
+      "",
+      "OpenCV returns NumPy arrays.",
+      "Matplotlib displays colour images.",
+      "The extension does not change channel order in memory."
+     ],
+     "teaches": "s07.s0.0"
+    },
+    {
+     "q": "Your model scores 98% on validation but fails on camera images in production. What is the likely cause?",
+     "a": [
+      "Validation data does not match production",
+      "The model does not have enough layers",
+      "The learning rate during training was too low",
+      "Validation accuracy is misleading in general"
+     ],
+     "c": 0,
+     "e": "Different lighting, angles or cameras shift the data distribution. Evaluate on data collected the way it will be used.",
+     "explain_choice": [
+      "",
+      "Depth is not the likely cause of a gap between domains.",
+      "Training speed does not explain a domain mismatch.",
+      "Validation is useful when it matches deployment."
+     ],
+     "teaches": "s07.s0.7"
+    },
+    {
+     "q": "What does mAP summarise for an object detector?",
+     "a": [
+      "Precision across recall levels, averaged",
+      "The average size of the detected boxes",
+      "The number of objects found in each image",
+      "The model's speed in frames per second"
+     ],
+     "c": 0,
+     "e": "Mean average precision combines how precise the detector is at every recall level, for each class, at a chosen IoU threshold.",
+     "explain_choice": [
+      "",
+      "Box size is not a quality metric.",
+      "Object count describes the data, not the model.",
+      "Speed is measured separately."
+     ],
+     "teaches": "s07.s0.6"
+    },
+    {
+     "q": "How can a model keep up with real-time video on limited hardware?",
+     "a": [
+      "Process every second or third frame",
+      "Increase the resolution of each input frame",
+      "Run each frame through the model twice",
+      "Save each frame as a PNG file before running"
+     ],
+     "c": 0,
+     "e": "Skipping frames, batching and smaller inputs trade a little accuracy for speed. Objects rarely change much between consecutive frames.",
+     "explain_choice": [
+      "",
+      "Higher resolution makes each frame slower.",
+      "Running twice doubles the cost.",
+      "Writing files adds disk time."
+     ],
+     "teaches": "s07.s0.8"
+    }
+   ]
+  },
+  {
+   "id": "q27",
+   "phase": "s08",
+   "n": "Natural language processing",
+   "d": "Text processing, baselines and evaluation.",
+   "qs": [
+    {
+     "q": "Why do modern language models use subword tokens?",
+     "a": [
+      "Unknown words can be built from known pieces",
+      "Subword sequences are shorter than word sequences",
+      "Whole words cannot be stored in a vocabulary",
+      "Subword tokens remove the need to train a model"
+     ],
+     "c": 0,
+     "e": "A fixed word vocabulary cannot cover rare words, names and typos. Subwords split them into pieces the model has seen.",
+     "explain_choice": [
+      "",
+      "Subword sequences are usually longer than word sequences.",
+      "Word vocabularies exist; they cannot cover everything.",
+      "Tokenization does not replace training."
+     ],
+     "teaches": "s08.s0.1"
+    },
+    {
+     "q": "A spam dataset is 95% not-spam. A model predicts not-spam for everything. What is its accuracy?",
+     "a": [
+      "95%, though it catches no spam",
+      "50%, as each class is equally likely",
+      "0%, since it never finds any spam",
+      "It cannot be computed for this model"
+     ],
+     "c": 0,
+     "e": "Accuracy counts correct predictions overall, so the majority class dominates. Recall on spam is 0, which shows the real problem.",
+     "explain_choice": [
+      "",
+      "50% would need balanced classes.",
+      "It is right on every not-spam message.",
+      "Accuracy is computable; it is misleading here."
+     ],
+     "teaches": "s08.s0.7"
+    },
+    {
+     "q": "Why build a TF-IDF baseline before a transformer?",
+     "a": [
+      "It shows whether the bigger model is worth it",
+      "Transformers need TF-IDF vectors as their input",
+      "TF-IDF is more accurate than transformers on any task",
+      "Tokenization cannot run without a TF-IDF step first"
+     ],
+     "c": 0,
+     "e": "A fast linear model on TF-IDF is often close. If the transformer gains little, the simpler model may be the right choice.",
+     "explain_choice": [
+      "",
+      "Transformers use their own tokenizer and embeddings.",
+      "Transformers often win; the point is measuring by how much.",
+      "Tokenization does not depend on TF-IDF."
+     ],
+     "teaches": "s08.s0.3"
+    },
+    {
+     "q": "What does IDF reduce the weight of?",
+     "a": [
+      "Words that appear in many documents",
+      "Words that appear only once in a document",
+      "Documents that are longer than average",
+      "Words that begin with a capital letter"
+     ],
+     "c": 0,
+     "e": "Inverse document frequency is log(N / df). Words like 'the' appear everywhere, so their idf is near zero.",
+     "explain_choice": [
+      "",
+      "Rare words get a high idf.",
+      "Document length is handled by term frequency normalization.",
+      "Case is handled by normalization, not idf."
+     ],
+     "teaches": "s08.s0.3"
+    },
+    {
+     "q": "What does named entity recognition find?",
+     "a": [
+      "Spans naming people, places and organizations",
+      "The grammatical subject of every sentence",
+      "The overall sentiment of the whole document",
+      "The language the text is written in"
+     ],
+     "c": 0,
+     "e": "NER labels spans like 'Ada Lovelace' as PERSON or 'London' as a location.",
+     "explain_choice": [
+      "",
+      "Subjects come from dependency parsing.",
+      "Sentiment is a classification task.",
+      "Language identification is a separate task."
+     ],
+     "teaches": "s08.s0.4"
+    },
+    {
+     "q": "Two texts have embeddings with cosine similarity 0.95. What does that suggest?",
+     "a": [
+      "They have similar meaning",
+      "They are exactly the same text",
+      "They are written in different languages",
+      "They share no words with each other"
+     ],
+     "c": 0,
+     "e": "Embeddings place texts with similar meaning near each other. High similarity does not require identical words.",
+     "explain_choice": [
+      "",
+      "Different wordings can have very close embeddings.",
+      "Similarity says nothing about language by itself.",
+      "Similar texts often share words; the score does not show absence."
+     ],
+     "teaches": "s08.s0.5"
+    },
+    {
+     "q": "Why normalize Unicode before comparing text?",
+     "a": [
+      "One character can be encoded in several ways",
+      "Unicode text cannot be converted to lower case",
+      "Normalizing makes every text shorter to store",
+      "Normalization translates the text into English"
+     ],
+     "c": 0,
+     "e": "'é' can be one code point or 'e' plus a combining accent. NFC or NFKC makes them compare equal.",
+     "explain_choice": [
+      "",
+      "Unicode text can be lowercased.",
+      "Length may change slightly, but that is not the purpose.",
+      "Normalization does not translate."
+     ],
+     "teaches": "s08.s0.0"
+    },
+    {
+     "q": "When does a regular expression stop being the right tool for extraction?",
+     "a": [
+      "When the target depends on meaning, not shape",
+      "When the text runs over more than one line",
+      "When the text contains numbers as well as words",
+      "When the text is written entirely in lower case"
+     ],
+     "c": 0,
+     "e": "Regex handles fixed shapes such as dates and IDs well. Extracting 'the product the customer complained about' needs a model.",
+     "explain_choice": [
+      "",
+      "Regex handles multi-line text.",
+      "Numbers are easy to match.",
+      "Case does not limit regex."
+     ],
+     "teaches": "s08.s0.2"
+    }
+   ]
+  },
+  {
+   "id": "q28",
+   "phase": "s09",
+   "n": "Testing & QA",
+   "d": "Test design, doubles and flaky tests.",
+   "qs": [
+    {
+     "q": "A module has 100% line coverage but a bug slips through. How is that possible?",
+     "a": [
+      "Lines ran, but nothing checked the result",
+      "Coverage tools do not count function bodies",
+      "The bug was hidden inside a code comment",
+      "Coverage above 90% turns off the assertions"
+     ],
+     "c": 0,
+     "e": "Coverage shows that code executed, not that its output was checked. Mutation testing finds tests that would not notice a change.",
+     "explain_choice": [
+      "",
+      "Coverage tools count function bodies like other lines.",
+      "Comments cannot contain executable bugs.",
+      "Coverage has no effect on assertions."
+     ],
+     "teaches": "s09.s0.4"
+    },
+    {
+     "q": "When does mocking make a test worse?",
+     "a": [
+      "When it mocks your own logic",
+      "When it replaces a slow external service",
+      "When it fixes the current time for a test",
+      "When it stands in for a payment provider"
+     ],
+     "c": 0,
+     "e": "Mock at boundaries you do not control. Mocking internal functions ties tests to implementation details and hides real bugs.",
+     "explain_choice": [
+      "",
+      "Replacing a slow external service is a good use.",
+      "A fixed clock makes tests deterministic.",
+      "A fake payment provider avoids real charges."
+     ],
+     "teaches": "s09.s0.2"
+    },
+    {
+     "q": "What does property-based testing check?",
+     "a": [
+      "That a rule holds for many generated inputs",
+      "That every line of the code has been executed",
+      "That the code runs faster than a fixed limit",
+      "That the output matches a stored snapshot"
+     ],
+     "c": 0,
+     "e": "You state a rule, such as 'decoding an encoded value returns it', and the tool generates inputs, then shrinks any failure to a minimal case.",
+     "explain_choice": [
+      "",
+      "That is coverage.",
+      "That is performance testing.",
+      "That is snapshot testing."
+     ],
+     "teaches": "s09.s0.3"
+    },
+    {
+     "q": "What does mutation testing measure?",
+     "a": [
+      "Whether tests fail when the code is changed",
+      "How many lines of code the tests execute",
+      "How long the whole test suite takes to run",
+      "How often tests fail for no clear reason"
+     ],
+     "c": 0,
+     "e": "The tool makes small changes, such as `<` to `<=`. A mutant that survives shows behaviour no test checks.",
+     "explain_choice": [
+      "",
+      "That is coverage.",
+      "That is test timing.",
+      "That is flakiness."
+     ],
+     "teaches": "s09.s0.4"
+    },
+    {
+     "q": "A test fails one run in twenty. What is the most common cause?",
+     "a": [
+      "It depends on timing, order or shared state",
+      "The test framework itself has a random bug",
+      "The computer running the tests has faulty memory",
+      "The assertion message is longer than allowed"
+     ],
+     "c": 0,
+     "e": "Sleeps instead of waiting for conditions, tests that share data, and real clocks cause intermittent failures. Make the dependency explicit and deterministic.",
+     "explain_choice": [
+      "",
+      "Framework bugs are rare compared with test design problems.",
+      "Hardware faults are rarely the cause.",
+      "Message length does not affect results."
+     ],
+     "teaches": "s09.s0.9"
+    },
+    {
+     "q": "Why should a browser test wait for an element instead of sleeping for two seconds?",
+     "a": [
+      "Timing varies, so a fixed sleep is unreliable",
+      "Test frameworks do not allow sleeping at all",
+      "Browsers ignore sleeps issued by a test",
+      "Waiting for an element makes pages load faster"
+     ],
+     "c": 0,
+     "e": "Waiting for a condition proceeds as soon as it is true and fails clearly when it never becomes true.",
+     "explain_choice": [
+      "",
+      "Sleeping is allowed; it is just unreliable.",
+      "Browsers are unaffected by the test's sleep.",
+      "Waiting does not change page speed."
+     ],
+     "teaches": "s09.s0.6"
+    },
+    {
+     "q": "What does the test pyramid recommend?",
+     "a": [
+      "Many unit tests, fewer integration, few end-to-end",
+      "Mostly end-to-end tests, as they test everything",
+      "The same number of tests at every single level",
+      "Manual testing only, for any user interface"
+     ],
+     "c": 0,
+     "e": "Lower levels are fast and precise. Higher levels catch wiring problems but are slow and harder to debug.",
+     "explain_choice": [
+      "",
+      "A suite of mostly end-to-end tests is slow and brittle.",
+      "Different levels have different costs, so equal numbers make little sense.",
+      "UI behaviour can be tested automatically."
+     ],
+     "teaches": "s09.s0.0"
+    },
+    {
+     "q": "Two services are developed by different teams. What catches a breaking API change before deployment?",
+     "a": [
+      "Contract tests against a shared agreement",
+      "Unit tests inside each of the two services",
+      "Manual testing by both teams after release",
+      "A code style checker run on both codebases"
+     ],
+     "c": 0,
+     "e": "A contract states requests and responses. The consumer tests its expectations and the provider verifies it still meets them.",
+     "explain_choice": [
+      "",
+      "Unit tests do not see the other service.",
+      "After release is too late.",
+      "Style checkers do not check behaviour."
+     ],
+     "teaches": "s09.s0.7"
+    }
+   ]
+  },
+  {
+   "id": "q29",
+   "phase": "s10",
+   "n": "Network automation",
+   "d": "Parsing, templates and safe changes.",
+   "qs": [
+    {
+     "q": "Why prefer structured data from an API over parsing show-command text?",
+     "a": [
+      "Text output changes and breaks parsers",
+      "APIs are quicker to type at the terminal",
+      "Show commands cannot be run from Python",
+      "Structured data always uses less bandwidth"
+     ],
+     "c": 0,
+     "e": "Screen output is meant for humans and changes format. NETCONF, RESTCONF or vendor APIs return data with a schema.",
+     "explain_choice": [
+      "",
+      "Typing speed is not the concern.",
+      "Show commands can be run over SSH from Python.",
+      "Bandwidth is rarely the deciding factor."
+     ],
+     "teaches": "s10.s0.5"
+    },
+    {
+     "q": "What should a network change tool show before applying anything?",
+     "a": [
+      "A diff of the configuration it will change",
+      "The list of devices it failed to reach",
+      "The current speed of each interface",
+      "The line count of the running configuration"
+     ],
+     "c": 0,
+     "e": "A reviewed diff catches mistakes before they reach a device. NAPALM's compare_config provides one.",
+     "explain_choice": [
+      "",
+      "Unreachable devices matter, but the diff is what shows the change.",
+      "Interface speed is unrelated to the change.",
+      "Line count says nothing about what will change."
+     ],
+     "teaches": "s10.s0.6"
+    },
+    {
+     "q": "Why render device configuration from templates and data?",
+     "a": [
+      "One source of truth gives consistent configs",
+      "Templates make network devices boot faster",
+      "Devices accept only templated configuration",
+      "Templates encrypt the configuration they produce"
+     ],
+     "c": 0,
+     "e": "The template holds the structure and the data holds per-device values, so changes are made once and applied everywhere.",
+     "explain_choice": [
+      "",
+      "Boot time is unaffected.",
+      "Devices accept any valid configuration.",
+      "Templates do not encrypt anything."
+     ],
+     "teaches": "s10.s0.3"
+    },
+    {
+     "q": "What does Nornir add over a loop with Netmiko?",
+     "a": [
+      "An inventory and concurrent tasks",
+      "A graphical interface for devices",
+      "Support for devices with no SSH",
+      "Automatic hardware upgrades on schedule"
+     ],
+     "c": 0,
+     "e": "Nornir manages hosts and groups and runs tasks in parallel, collecting results per device.",
+     "explain_choice": [
+      "",
+      "Nornir is a Python framework without a GUI.",
+      "It uses connection plugins; it does not remove the need for a transport.",
+      "It does not upgrade hardware."
+     ],
+     "teaches": "s10.s0.2"
+    },
+    {
+     "q": "Where should device credentials come from in automation code?",
+     "a": [
+      "An environment variable or a secrets vault",
+      "A constant at the top of the automation script",
+      "A comment next to each host in the inventory",
+      "The Git commit message that added the device"
+     ],
+     "c": 0,
+     "e": "Credentials in code end up in version control. Load them at run time from the environment or a vault.",
+     "explain_choice": [
+      "",
+      "Constants in scripts get committed.",
+      "Comments are still in the file and repository.",
+      "Commit messages are permanent and shared."
+     ],
+     "teaches": "s10.s0.8"
+    },
+    {
+     "q": "What should happen when post-change checks fail?",
+     "a": [
+      "Roll back to the previous configuration",
+      "Reboot the device to clear the change",
+      "Ignore the failure and carry on",
+      "Delete the inventory to stop further runs"
+     ],
+     "c": 0,
+     "e": "Pre- and post-checks with automatic rollback limit the impact of a bad change.",
+     "explain_choice": [
+      "",
+      "A reboot does not undo a saved configuration change.",
+      "Continuing spreads the failure.",
+      "Deleting the inventory helps nothing."
+     ],
+     "teaches": "s10.s0.7"
+    },
+    {
+     "q": "What does TextFSM do?",
+     "a": [
+      "Parses command output into records",
+      "Encrypts the SSH session to a device",
+      "Generates configuration from YAML data",
+      "Monitors interface counters over time"
+     ],
+     "c": 0,
+     "e": "A TextFSM template describes the text layout, and the parser returns a table of values.",
+     "explain_choice": [
+      "",
+      "SSH handles encryption.",
+      "Generation is Jinja2's role.",
+      "Monitoring uses SNMP or telemetry."
+     ],
+     "teaches": "s10.s0.1"
+    },
+    {
+     "q": "What is a dry run in network automation?",
+     "a": [
+      "Showing changes without applying them",
+      "Running on a device that has no traffic",
+      "Testing with the network cable unplugged",
+      "Running the script late at night instead"
+     ],
+     "c": 0,
+     "e": "A dry run produces the diff and checks, then stops before committing anything.",
+     "explain_choice": [
+      "",
+      "Traffic level does not make a change safe to test.",
+      "An unplugged device cannot receive the connection.",
+      "Timing is a change window, not a dry run."
+     ],
+     "teaches": "s10.s0.6"
+    }
+   ]
+  },
+  {
+   "id": "q30",
+   "phase": "s11",
+   "n": "Embedded & IoT",
+   "d": "GPIO, buses, memory and connectivity.",
+   "qs": [
+    {
+     "q": "Why does a button need debouncing?",
+     "a": [
+      "The contacts bounce between on and off",
+      "Buttons need a firmware update before use",
+      "The microcontroller reads buttons too slowly",
+      "Debouncing reduces the board's battery use"
+     ],
+     "c": 0,
+     "e": "Metal contacts make and break contact for a few milliseconds, which looks like several presses. Wait for a stable reading.",
+     "explain_choice": [
+      "",
+      "Buttons have no software.",
+      "Reading fast is why the bounces are seen.",
+      "Battery use is not the reason."
+     ],
+     "teaches": "s11.s0.1"
+    },
+    {
+     "q": "What is a pull-up resistor for on an input pin?",
+     "a": [
+      "It holds an undriven pin at a high level",
+      "It increases the current flowing to an LED",
+      "It protects the board from static discharge",
+      "It raises the clock speed of the processor"
+     ],
+     "c": 0,
+     "e": "An unconnected input floats and reads random values. A pull-up gives it a default state that a button can pull low.",
+     "explain_choice": [
+      "",
+      "LED current is set by a series resistor.",
+      "Static protection uses other parts.",
+      "Resistors do not change clock speed."
+     ],
+     "teaches": "s11.s0.1"
+    },
+    {
+     "q": "Several sensors share two wires and each has an address. Which bus is this?",
+     "a": [
+      "I2C",
+      "UART",
+      "PWM",
+      "Analog input"
+     ],
+     "c": 0,
+     "e": "I2C uses a data and a clock line shared by devices, each selected by address.",
+     "explain_choice": [
+      "",
+      "UART is point-to-point between two devices.",
+      "PWM is a signal type, not a bus.",
+      "An analog input reads one voltage."
+     ],
+     "teaches": "s11.s0.3"
+    },
+    {
+     "q": "Why avoid creating new objects inside a fast loop in MicroPython?",
+     "a": [
+      "RAM is small and allocation causes GC pauses",
+      "MicroPython does not support creating objects",
+      "Objects made inside loops are deleted at once",
+      "Creating objects makes the source code longer"
+     ],
+     "c": 0,
+     "e": "Microcontrollers have kilobytes of RAM. Frequent allocation fragments it and causes collection pauses at unpredictable times.",
+     "explain_choice": [
+      "",
+      "MicroPython supports objects.",
+      "Objects live until collected, which is the problem.",
+      "Code length is not the concern."
+     ],
+     "teaches": "s11.s0.5"
+    },
+    {
+     "q": "What does MQTT QoS 1 guarantee?",
+     "a": [
+      "Delivery at least once",
+      "Delivery exactly once",
+      "Delivery within one second",
+      "Encryption of each message"
+     ],
+     "c": 0,
+     "e": "QoS 1 retries until acknowledged, so duplicates are possible. QoS 2 gives exactly-once at higher cost.",
+     "explain_choice": [
+      "",
+      "Exactly once is QoS 2.",
+      "QoS makes no timing promise.",
+      "Encryption comes from TLS, not QoS."
+     ],
+     "teaches": "s11.s0.6"
+    },
+    {
+     "q": "When is an interrupt better than polling a pin?",
+     "a": [
+      "When a brief event must not be missed",
+      "When the pin's value never changes",
+      "When the device has no hardware timer",
+      "When the design should use more power"
+     ],
+     "c": 0,
+     "e": "An interrupt runs a handler as soon as the pin changes, so a short pulse is not missed between polls. Keep the handler very short.",
+     "explain_choice": [
+      "",
+      "A pin that never changes needs neither.",
+      "Interrupts do not depend on having a timer.",
+      "Interrupts usually save power by allowing sleep."
+     ],
+     "teaches": "s11.s0.4"
+    },
+    {
+     "q": "A battery sensor sends one reading per hour. What saves the most power?",
+     "a": [
+      "Deep sleep between readings",
+      "Polling the sensor more often",
+      "Keeping Wi-Fi connected all day",
+      "Adding a larger colour display"
+     ],
+     "c": 0,
+     "e": "Most power goes to staying awake and connected. Deep sleep between readings can extend battery life from days to months.",
+     "explain_choice": [
+      "",
+      "Faster polling uses more power.",
+      "Wi-Fi is one of the largest power costs.",
+      "A display adds consumption."
+     ],
+     "teaches": "s11.s0.7"
+    },
+    {
+     "q": "The network drops for an hour. What should a well-designed sensor do?",
+     "a": [
+      "Buffer readings and send them later",
+      "Discard readings until the network returns",
+      "Reboot the device once every minute",
+      "Stop reading the sensor until reconnected"
+     ],
+     "c": 0,
+     "e": "A bounded local buffer keeps data through outages. When it fills, drop the oldest and count what was lost.",
+     "explain_choice": [
+      "",
+      "Discarding loses the data the device exists to collect.",
+      "Rebooting does not fix a network outage.",
+      "Stopping readings loses data too."
+     ],
+     "teaches": "s11.s0.6"
+    }
+   ]
+  },
+  {
+   "id": "q31",
+   "phase": "s12",
+   "n": "Security engineering",
+   "d": "Threat models, supply chain and detection.",
+   "qs": [
+    {
+     "q": "What is a threat model for?",
+     "a": [
+      "Mapping attackers, entry points and defences",
+      "Measuring how fast the application responds",
+      "Counting the lines of code in each service",
+      "Choosing the programming language to use"
+     ],
+     "c": 0,
+     "e": "It connects assets, attackers and entry points to controls, so security work goes where the risk is.",
+     "explain_choice": [
+      "",
+      "Speed is a performance question.",
+      "Code size does not identify threats.",
+      "Language choice is a separate decision."
+     ],
+     "teaches": "s12.s0.0"
+    },
+    {
+     "q": "A secret was committed to Git and then removed in the next commit. What must you do?",
+     "a": [
+      "Rotate the secret; the history still has it",
+      "Nothing, since the latest version no longer has it",
+      "Make the repository private and leave it there",
+      "Delete only the most recent commit from the branch"
+     ],
+     "c": 0,
+     "e": "Anyone with the history, including forks and clones, still has it. Revoke and replace the secret; rewriting history alone is not enough.",
+     "explain_choice": [
+      "",
+      "History keeps the secret.",
+      "Existing clones already have it.",
+      "The secret is in the earlier commit."
+     ],
+     "teaches": "s12.s0.3"
+    },
+    {
+     "q": "Why compare signatures with `hmac.compare_digest` instead of `==`?",
+     "a": [
+      "Its time does not depend on the match",
+      "It runs faster than the `==` operator",
+      "It handles Unicode strings more correctly",
+      "It supports much longer input strings"
+     ],
+     "c": 0,
+     "e": "`==` stops at the first difference, so response time leaks how much of a guess was right.",
+     "explain_choice": [
+      "",
+      "Constant time is not faster.",
+      "Unicode handling is not the point.",
+      "Both work on any length."
+     ],
+     "teaches": "s12.s0.1"
+    },
+    {
+     "q": "What does an SBOM list?",
+     "a": [
+      "Every component and version in the software",
+      "Every open network port on the servers",
+      "Every user account in the organization",
+      "Every known attacker and their methods"
+     ],
+     "c": 0,
+     "e": "A software bill of materials lets you answer 'are we affected?' when a new vulnerability is published.",
+     "explain_choice": [
+      "",
+      "Ports come from a network scan.",
+      "Accounts come from an identity system.",
+      "Attackers are not listed in software metadata."
+     ],
+     "teaches": "s12.s0.2"
+    },
+    {
+     "q": "What must security logs not contain?",
+     "a": [
+      "Passwords and tokens",
+      "Timestamps of events",
+      "User IDs of the actor",
+      "Source IP addresses"
+     ],
+     "c": 0,
+     "e": "Logs are copied widely. Record who did what and when, never the secrets themselves.",
+     "explain_choice": [
+      "",
+      "Timestamps are essential.",
+      "User IDs identify the actor.",
+      "Source IPs help investigations."
+     ],
+     "teaches": "s12.s0.4"
+    },
+    {
+     "q": "A detection rule fires 500 times a day, and nearly all are harmless. What is the problem?",
+     "a": [
+      "Too many false positives",
+      "Too many false negatives",
+      "The rule runs too fast",
+      "The logs are too small"
+     ],
+     "c": 0,
+     "e": "Alert fatigue makes responders stop reading alerts. Tune rules with known-good data until most alerts matter.",
+     "explain_choice": [
+      "",
+      "False negatives are missed attacks, not noisy alerts.",
+      "Speed is not the issue.",
+      "High alert counts suggest the opposite."
+     ],
+     "teaches": "s12.s0.5"
+    },
+    {
+     "q": "What is the first step when you find an active intrusion?",
+     "a": [
+      "Contain it and preserve evidence",
+      "Wipe the affected machines at once",
+      "Announce it publicly straight away",
+      "Delete old logs to free up space"
+     ],
+     "c": 0,
+     "e": "Containment limits damage. Evidence such as memory, disks and logs is needed to understand what happened.",
+     "explain_choice": [
+      "",
+      "Wiping destroys evidence.",
+      "Public disclosure comes later, through the right process.",
+      "Logs are evidence."
+     ],
+     "teaches": "s12.s0.7"
+    },
+    {
+     "q": "What does `pip-audit` check?",
+     "a": [
+      "Installed packages against known advisories",
+      "Your own code for SQL injection patterns",
+      "Whether each package is correctly licensed",
+      "How long each package takes to install"
+     ],
+     "c": 0,
+     "e": "It compares dependency versions with published advisories. Static analysis tools check your own code.",
+     "explain_choice": [
+      "",
+      "That is static analysis, such as Bandit or Semgrep.",
+      "License checks are a different tool.",
+      "Install speed is irrelevant."
+     ],
+     "teaches": "s12.s0.2"
+    }
+   ]
+  },
+  {
+   "id": "q32",
+   "phase": "s13",
+   "n": "Bots & integrations",
+   "d": "Webhooks, rate limits and unattended processes.",
+   "qs": [
+    {
+     "q": "How do you confirm a webhook request came from the platform?",
+     "a": [
+      "Verify its signature with the secret",
+      "Check that it arrived over the internet",
+      "Check the User-Agent header value",
+      "Reply and wait for a confirmation"
+     ],
+     "c": 0,
+     "e": "Anyone can send a request to your URL. A signature over the body with a shared secret proves the sender knew the secret.",
+     "explain_choice": [
+      "",
+      "Every request arrives over the internet.",
+      "User-Agent can be set to anything.",
+      "Webhooks are not confirmed by reply."
+     ],
+     "teaches": "s13.s0.2"
+    },
+    {
+     "q": "A platform returns HTTP 429 with `Retry-After: 30`. What should the bot do?",
+     "a": [
+      "Wait 30 seconds, then retry",
+      "Retry the request immediately",
+      "Switch to a different bot token",
+      "Drop the message and move on"
+     ],
+     "c": 0,
+     "e": "429 means too many requests. Respect Retry-After, or the platform may block the bot.",
+     "explain_choice": [
+      "",
+      "Immediate retries worsen the rate limit.",
+      "Rotating tokens to evade limits can break the platform's terms.",
+      "The message can be sent after waiting."
+     ],
+     "teaches": "s13.s0.4"
+    },
+    {
+     "q": "Why include a timestamp in a signed webhook?",
+     "a": [
+      "To reject replayed old requests",
+      "To sort the requests by arrival",
+      "To make the signature longer",
+      "To measure the network latency"
+     ],
+     "c": 0,
+     "e": "A captured valid request could be sent again later. Rejecting old timestamps limits replay attacks.",
+     "explain_choice": [
+      "",
+      "Sorting is not a security measure.",
+      "Signature length does not depend on the timestamp.",
+      "It is not used for measuring speed."
+     ],
+     "teaches": "s13.s0.2"
+    },
+    {
+     "q": "When is long polling better than webhooks for a bot?",
+     "a": [
+      "When the bot has no public URL",
+      "When the bot needs lower latency",
+      "When the platform sends many events",
+      "When the bot is hosted in the cloud"
+     ],
+     "c": 0,
+     "e": "Webhooks need the platform to reach your server. Long polling lets a bot behind a firewall fetch updates instead.",
+     "explain_choice": [
+      "",
+      "Webhooks usually have lower latency.",
+      "High volume favours webhooks.",
+      "Cloud hosts can usually receive webhooks."
+     ],
+     "teaches": "s13.s0.2"
+    },
+    {
+     "q": "Why must a scheduled job be idempotent?",
+     "a": [
+      "It may run twice without repeating effects",
+      "Idempotent jobs finish faster than others",
+      "Schedulers refuse to run any other kind of job",
+      "It makes the job's output easier to log"
+     ],
+     "c": 0,
+     "e": "Restarts, retries and overlapping schedules can run a job again. Designing it to have the same effect twice prevents duplicates.",
+     "explain_choice": [
+      "",
+      "Speed is not the reason.",
+      "Schedulers accept any job.",
+      "Logging is unrelated."
+     ],
+     "teaches": "s13.s0.5"
+    },
+    {
+     "q": "Where should a bot token be stored?",
+     "a": [
+      "An environment variable or secret store",
+      "A constant in the bot's source code",
+      "The project's public README file",
+      "A pinned message in the bot's channel"
+     ],
+     "c": 0,
+     "e": "A leaked token lets anyone control the bot. Keep it out of the repository.",
+     "explain_choice": [
+      "",
+      "Source code is committed and shared.",
+      "A README is public.",
+      "Messages are visible to others."
+     ],
+     "teaches": "s13.s0.0"
+    },
+    {
+     "q": "What does OAuth let an integration do?",
+     "a": [
+      "Act for a user without their password",
+      "Encrypt every message from end to end",
+      "Get around the platform's rate limits",
+      "Host the bot on the platform for free"
+     ],
+     "c": 0,
+     "e": "The user grants a scoped token. The integration never sees the password, and the token can be revoked.",
+     "explain_choice": [
+      "",
+      "OAuth is about authorization, not message encryption.",
+      "Rate limits still apply.",
+      "Hosting is unrelated."
+     ],
+     "teaches": "s13.s0.3"
+    },
+    {
+     "q": "A bot crashes overnight. What makes it recover without you?",
+     "a": [
+      "A process manager plus state on disk",
+      "A longer timeout value in the code",
+      "More debug output printed to the log",
+      "Two copies running with the same token"
+     ],
+     "c": 0,
+     "e": "systemd, Docker restart policies or a platform supervisor restart the process. Persisted state means nothing is lost.",
+     "explain_choice": [
+      "",
+      "Timeouts do not restart a crashed process.",
+      "Debug output does not restart anything.",
+      "Two copies with one token often conflict."
+     ],
+     "teaches": "s13.s0.7"
+    }
+   ]
+  },
+  {
+   "id": "q33",
+   "phase": "s14",
+   "n": "Blockchain tooling",
+   "d": "Transactions, contracts and indexing.",
+   "qs": [
+    {
+     "q": "What is gas on Ethereum?",
+     "a": [
+      "Payment for the computation a transaction uses",
+      "The name of Ethereum's native currency unit",
+      "A type of wallet that holds several accounts",
+      "The consensus algorithm that orders blocks"
+     ],
+     "c": 0,
+     "e": "Each operation costs gas; the fee is gas used times the price per gas. It stops programs from running forever for free.",
+     "explain_choice": [
+      "",
+      "The currency is ether.",
+      "Wallets hold keys.",
+      "Consensus is proof of stake."
+     ],
+     "teaches": "s14.s0.0"
+    },
+    {
+     "q": "Why must amounts in wei be handled as integers?",
+     "a": [
+      "Floats cannot hold large amounts exactly",
+      "Amounts in wei are always less than one",
+      "Python cannot store integers that large",
+      "Contracts accept amounts only as strings"
+     ],
+     "c": 0,
+     "e": "1 ether is 10**18 wei. Floats have about 16 significant digits, so large amounts lose precision.",
+     "explain_choice": [
+      "",
+      "Wei is the smallest unit; amounts are whole numbers of wei.",
+      "Python integers have arbitrary size.",
+      "Contracts take integers for amounts."
+     ],
+     "teaches": "s14.s0.0"
+    },
+    {
+     "q": "What does a contract's ABI describe?",
+     "a": [
+      "The functions, arguments and events of a contract",
+      "The full Solidity source code of the contract",
+      "The private key of the contract's owner",
+      "The gas price to use for each transaction"
+     ],
+     "c": 0,
+     "e": "The ABI is the interface. web3.py uses it to encode calls and decode return values and event logs.",
+     "explain_choice": [
+      "",
+      "Source code is separate; the ABI is derived from it.",
+      "Private keys never belong in an ABI.",
+      "Gas price is set per transaction."
+     ],
+     "teaches": "s14.s0.3"
+    },
+    {
+     "q": "What is a chain reorganization?",
+     "a": [
+      "Recent blocks are replaced by other blocks",
+      "The network doubles its maximum block size",
+      "A deployed contract is upgraded in place",
+      "A wallet switches to a different address"
+     ],
+     "c": 0,
+     "e": "Recent blocks can be replaced before they are final. Indexers must be able to undo data from replaced blocks.",
+     "explain_choice": [
+      "",
+      "Block size changes are protocol upgrades.",
+      "Contract upgrades are a separate pattern.",
+      "Addresses come from keys."
+     ],
+     "teaches": "s14.s0.7"
+    },
+    {
+     "q": "What is a reentrancy attack?",
+     "a": [
+      "A callee calls back in before state updates",
+      "The same transaction is sent twice",
+      "An attacker guesses a user's private key",
+      "The network is flooded with transactions"
+     ],
+     "c": 0,
+     "e": "If a contract sends funds before updating a balance, the receiver can call back and withdraw again. Update state first.",
+     "explain_choice": [
+      "",
+      "Duplicate transactions are prevented by nonces.",
+      "Guessing keys is not feasible.",
+      "Flooding is a denial-of-service attempt."
+     ],
+     "teaches": "s14.s0.6"
+    },
+    {
+     "q": "Where should keys for a development project be kept?",
+     "a": [
+      "Test keys only, loaded from the environment",
+      "In the repository, next to the contract code",
+      "In a comment at the top of the contract",
+      "In the project README for the whole team"
+     ],
+     "c": 0,
+     "e": "A key in a repository can be found by anyone who sees it. Use throwaway test keys and a hardware wallet for real funds.",
+     "explain_choice": [
+      "",
+      "Repositories are shared and scanned for keys.",
+      "Contract code is public on the chain.",
+      "A README is public."
+     ],
+     "teaches": "s14.s0.4"
+    },
+    {
+     "q": "Why index contract events into a database?",
+     "a": [
+      "Node queries over long history are slow",
+      "Events are deleted from the chain after a day",
+      "A database makes each transaction cheaper",
+      "Nodes are unable to return event logs"
+     ],
+     "c": 0,
+     "e": "Nodes answer simple log queries. Analytics across many blocks needs a local, indexed copy.",
+     "explain_choice": [
+      "",
+      "Events stay on the chain.",
+      "Indexing does not affect transaction costs.",
+      "Nodes return logs; they are slow for large queries."
+     ],
+     "teaches": "s14.s0.7"
+    },
+    {
+     "q": "Under EIP-1559, what does a transaction pay per gas?",
+     "a": [
+      "The lower of max fee and base fee plus tip",
+      "A fixed price the network sets each day",
+      "Whatever the sender writes in the data field",
+      "Only the tip, because the base fee is free"
+     ],
+     "c": 0,
+     "e": "The base fee is burned and the tip goes to the validator. The max fee caps the total per gas.",
+     "explain_choice": [
+      "",
+      "The base fee changes every block.",
+      "The data field carries call data, not the price.",
+      "The base fee is paid and burned."
+     ],
+     "teaches": "s14.s0.0"
+    }
+   ]
+  }
+ ]
+}

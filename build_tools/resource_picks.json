@@ -20,7 +20,21 @@
   "p16": "CS50 — C and memory (week 4)",
   "p17": "Data Engineering Zoomcamp",
   "p18": "Python Enhancement Proposals",
-  "p99": "Build your own X"
+  "p99": "Build your own X",
+  "s01": "Python for Data Analysis, 3rd edition",
+  "s02": "Qt for Python (PySide6)",
+  "s03": "Typer",
+  "s04": "PyGame primer — Real Python",
+  "s05": "Scientific Python Lectures",
+  "s06": "QuantEcon lectures",
+  "s07": "CS231n course notes",
+  "s08": "Advanced NLP with spaCy",
+  "s09": "Obey the Testing Goat",
+  "s10": "Cisco DevNet learning labs",
+  "s11": "Welcome to CircuitPython",
+  "s12": "PortSwigger Web Security Academy",
+  "s13": "discord.py",
+  "s14": "Ethereum developer docs"
  },
  "shelf": {
   "Language & stdlib": "Python Tutorial (official)",
